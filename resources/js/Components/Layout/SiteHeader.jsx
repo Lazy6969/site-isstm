@@ -12,10 +12,16 @@ export default function SiteHeader() {
     return (
         <header className="bg-isstm-navy text-white">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-                <Link href="/" className="flex items-center gap-3">
-                    <img src="/images/logo-isstm.jpg" alt="ISSTM" className="h-9 w-9 rounded-full object-cover ring-2 ring-white/70" />
-                    <span className="text-base font-semibold tracking-wide">ISSTM</span>
-                </Link>
+                <div className="flex items-center gap-8">
+                    <Link href="/" className="flex items-center gap-3">
+                        <img src="/images/logo-isstm.jpg" alt="ISSTM" className="h-9 w-9 rounded-full object-cover ring-2 ring-white/70" />
+                        <span className="text-base font-semibold tracking-wide">ISSTM</span>
+                    </Link>
+                    <nav className="hidden items-center gap-6 text-sm font-medium sm:flex">
+                        <Link href="/filieres" className="hover:text-isstm-gold">Filières</Link>
+                        <Link href="/enseignants" className="hover:text-isstm-gold">Enseignants</Link>
+                    </nav>
+                </div>
 
                 {user ? (
                     <div className="flex items-center gap-4 text-sm">

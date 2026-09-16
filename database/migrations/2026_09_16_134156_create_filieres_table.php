@@ -23,6 +23,15 @@ return new class extends Migration
             $table->text('description_fr')->nullable();
             $table->text('description_en')->nullable();
             $table->text('description_mg')->nullable();
+            $table->text('debouches_fr')->nullable();
+            $table->text('debouches_en')->nullable();
+            $table->text('debouches_mg')->nullable();
+            $table->text('historique_fr')->nullable();
+            $table->text('historique_en')->nullable();
+            $table->text('historique_mg')->nullable();
+            $table->text('avantages_fr')->nullable();
+            $table->text('avantages_en')->nullable();
+            $table->text('avantages_mg')->nullable();
             $table->string('image_path')->nullable();
             $table->unsignedInteger('display_order')->default(0);
             $table->timestamps();
