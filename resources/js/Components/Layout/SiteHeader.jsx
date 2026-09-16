@@ -23,6 +23,7 @@ export default function SiteHeader() {
                         <Link href="/parcours" className="hover:text-isstm-gold">Organigramme</Link>
                         <Link href="/vie-etudiante" className="hover:text-isstm-gold">Vie étudiante</Link>
                         <Link href="/bourse" className="hover:text-isstm-gold">Bourse</Link>
+                        <Link href="/inscription" className="hover:text-isstm-gold">Inscription</Link>
                         <Link href="/actualites" className="hover:text-isstm-gold">Actualités</Link>
                         <Link href="/evenements" className="hover:text-isstm-gold">Événements</Link>
                         <Link href="/galerie" className="hover:text-isstm-gold">Galerie</Link>
@@ -44,6 +45,11 @@ export default function SiteHeader() {
                         <Link href="/profil" className="hover:text-isstm-gold">
                             Mon profil
                         </Link>
+                        {user.role === 'admin' && (
+                            <Link href="/admin/preinscriptions" className="hover:text-isstm-gold">
+                                Préinscriptions
+                            </Link>
+                        )}
                         <button onClick={logout} className="rounded-full border border-white/50 px-3 py-1.5 transition hover:bg-white hover:text-isstm-navy">
                             Déconnexion
                         </button>

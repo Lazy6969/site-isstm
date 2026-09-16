@@ -53,12 +53,12 @@ export default function Header() {
                             >
                                 Se connecter
                             </Link>
-                            <a
-                                href="#contact"
+                            <Link
+                                href="/inscription"
                                 className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                             >
                                 Inscrivez-vous
-                            </a>
+                            </Link>
                         </>
                     )}
                 </div>

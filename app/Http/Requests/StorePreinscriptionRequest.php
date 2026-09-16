@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class StorePreinscriptionRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'nom' => ['required', 'string', 'max:100'],
+            'prenoms' => ['required', 'string', 'max:150'],
+            'sexe' => ['required', Rule::in(['M', 'F'])],
+            'date_naissance' => ['required', 'date', 'before:today'],
+            'lieu_naissance' => ['required', 'string', 'max:150'],
+            'cin' => ['nullable', 'string', 'max:30'],
+            'nationalite' => ['required', 'string', 'max:100'],
+            'annee_bacc' => ['required', 'string', 'max:10'],
+            'serie_bacc' => ['required', 'string', 'max:50'],
+            'serie_bacc_autre' => ['required_if:serie_bacc,AUTRE', 'nullable', 'string', 'max:150'],
+            'mention_bacc' => ['required', Rule::in(['Passable', 'Assez Bien', 'Bien', 'Très Bien'])],
+            'code_redoublement' => ['required', Rule::in(['N', 'R'])],
+            'adresse' => ['required', 'string', 'max:255'],
+            'telephone' => ['required', 'string', 'max:30'],
+            'email' => ['required', 'email', 'max:150'],
+            'nom_pere' => ['nullable', 'string', 'max:150'],
+            'profession_pere' => ['nullable', 'string', 'max:150'],
+            'nom_mere' => ['nullable', 'string', 'max:150'],
+            'profession_mere' => ['nullable', 'string', 'max:150'],
+            'adresse_parents' => ['nullable', 'string', 'max:255'],
+            'contact_parents' => ['nullable', 'string', 'max:50'],
+            'contact_parents_2' => ['nullable', 'string', 'max:50'],
+            'pays' => ['required', 'string', 'max:100'],
+            'filiere_id' => ['required', 'exists:filieres,id'],
+            'niveau' => ['required', 'string', 'max:10'],
+            'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ];
+    }
+}

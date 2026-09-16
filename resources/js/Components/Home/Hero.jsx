@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 export default function Hero({ slides }) {
@@ -38,18 +39,18 @@ export default function Hero({ slides }) {
                     et techniciens de demain à Mahajanga, Madagascar.
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                    <a
-                        href="#contact"
+                    <Link
+                        href="/inscription"
                         className="rounded-full bg-isstm-gold px-7 py-3 text-sm font-semibold text-isstm-navy-dark shadow-lg transition hover:brightness-110"
                     >
                         Inscrivez-vous
-                    </a>
-                    <a
-                        href="#contact"
+                    </Link>
+                    <Link
+                        href="/login"
                         className="rounded-full border border-white/70 px-7 py-3 text-sm font-semibold transition hover:bg-white hover:text-isstm-navy"
                     >
                         Se connecter
-                    </a>
+                    </Link>
                 </div>
             </div>
 

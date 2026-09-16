@@ -30,6 +30,8 @@ class SitemapController extends Controller
             ['loc' => URL::route('evenements.index'), 'priority' => '0.5'],
             ['loc' => URL::route('galerie.index'), 'priority' => '0.4'],
             ['loc' => URL::route('recherche'), 'priority' => '0.3'],
+            ['loc' => URL::route('inscription'), 'priority' => '0.8'],
+            ['loc' => URL::route('preinscription.create'), 'priority' => '0.7'],
             ['loc' => URL::route('mentions-legales'), 'priority' => '0.2'],
             ['loc' => URL::route('confidentialite'), 'priority' => '0.2'],
         ];
