@@ -23,6 +23,7 @@ export default function SiteHeader() {
                         <Link href="/parcours" className="hover:text-isstm-gold">Organigramme</Link>
                         <Link href="/vie-etudiante" className="hover:text-isstm-gold">Vie étudiante</Link>
                         <Link href="/bourse" className="hover:text-isstm-gold">Bourse</Link>
+                        <Link href="/documents" className="hover:text-isstm-gold">Documents</Link>
                     </nav>
                 </div>
 

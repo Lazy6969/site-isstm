@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampusController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeacherController;
@@ -21,5 +22,7 @@ Route::get('campus', [CampusController::class, 'index'])->name('campus.index');
 Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('campus.show');
 
 Route::inertia('parcours', 'Parcours')->name('parcours');
+
+Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
 
 require __DIR__.'/auth.php';
