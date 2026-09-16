@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CampusController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeacherController;
@@ -15,5 +16,8 @@ Route::get('enseignants', [TeacherController::class, 'index'])->name('enseignant
 Route::inertia('bourse', 'Bourse')->name('bourse');
 Route::inertia('vie-etudiante', 'VieEtudiante')->name('vie-etudiante');
 Route::inertia('associations', 'Associations')->name('associations');
+
+Route::get('campus', [CampusController::class, 'index'])->name('campus.index');
+Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('campus.show');
 
 require __DIR__.'/auth.php';
