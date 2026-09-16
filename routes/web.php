@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\CampusController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -30,5 +32,10 @@ Route::inertia('mentions-legales', 'MentionsLegales')->name('mentions-legales');
 Route::inertia('confidentialite', 'Confidentialite')->name('confidentialite');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
+
+Route::get('actualites', [NewsController::class, 'index'])->name('actualites.index');
+Route::get('actualites/{article:slug}', [NewsController::class, 'show'])->name('actualites.show');
+
+Route::get('evenements', [EvenementController::class, 'index'])->name('evenements.index');
 
 require __DIR__.'/auth.php';

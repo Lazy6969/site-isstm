@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CampusBloc;
 use App\Models\Filiere;
+use App\Models\NewsArticle;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\URL;
 
@@ -24,6 +25,8 @@ class SitemapController extends Controller
             ['loc' => URL::route('associations'), 'priority' => '0.5'],
             ['loc' => URL::route('bourse'), 'priority' => '0.5'],
             ['loc' => URL::route('documents.index'), 'priority' => '0.4'],
+            ['loc' => URL::route('actualites.index'), 'priority' => '0.6'],
+            ['loc' => URL::route('evenements.index'), 'priority' => '0.5'],
             ['loc' => URL::route('mentions-legales'), 'priority' => '0.2'],
             ['loc' => URL::route('confidentialite'), 'priority' => '0.2'],
         ];
@@ -34,6 +37,10 @@ class SitemapController extends Controller
 
         foreach (CampusBloc::pluck('bloc_key') as $key) {
             $urls[] = ['loc' => URL::route('campus.show', $key), 'priority' => '0.4'];
+        }
+
+        foreach (NewsArticle::where('status', 'publie')->pluck('slug') as $slug) {
+            $urls[] = ['loc' => URL::route('actualites.show', $slug), 'priority' => '0.5'];
         }
 
         $xml = view('sitemap', ['urls' => $urls])->render();
