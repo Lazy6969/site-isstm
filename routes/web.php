@@ -7,6 +7,7 @@ use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -41,5 +42,7 @@ Route::get('evenements', [EvenementController::class, 'index'])->name('evenement
 
 Route::get('galerie', [GalleryController::class, 'index'])->name('galerie.index');
 Route::get('galerie/{album:slug}', [GalleryController::class, 'show'])->name('galerie.show');
+
+Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
 
 require __DIR__.'/auth.php';
