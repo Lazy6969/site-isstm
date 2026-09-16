@@ -7,4 +7,6 @@ it('renders the static informational pages', function (string $uri, string $comp
     ['vie-etudiante', 'VieEtudiante'],
     ['associations', 'Associations'],
     ['parcours', 'Parcours'],
+    ['mentions-legales', 'MentionsLegales'],
+    ['confidentialite', 'Confidentialite'],
 ]);
