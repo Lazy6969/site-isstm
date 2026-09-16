@@ -4,6 +4,7 @@ use App\Http\Controllers\CampusController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\SitemapController;
@@ -37,5 +38,8 @@ Route::get('actualites', [NewsController::class, 'index'])->name('actualites.ind
 Route::get('actualites/{article:slug}', [NewsController::class, 'show'])->name('actualites.show');
 
 Route::get('evenements', [EvenementController::class, 'index'])->name('evenements.index');
+
+Route::get('galerie', [GalleryController::class, 'index'])->name('galerie.index');
+Route::get('galerie/{album:slug}', [GalleryController::class, 'show'])->name('galerie.show');
 
 require __DIR__.'/auth.php';

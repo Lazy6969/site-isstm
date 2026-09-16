@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             TeacherSeeder::class,
             CampusBlocSeeder::class,
             NewsSeeder::class,
+            GallerySeeder::class,
         ]);
     }
 }

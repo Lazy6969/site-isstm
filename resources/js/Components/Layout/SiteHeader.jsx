@@ -25,6 +25,7 @@ export default function SiteHeader() {
                         <Link href="/bourse" className="hover:text-isstm-gold">Bourse</Link>
                         <Link href="/actualites" className="hover:text-isstm-gold">Actualités</Link>
                         <Link href="/evenements" className="hover:text-isstm-gold">Événements</Link>
+                        <Link href="/galerie" className="hover:text-isstm-gold">Galerie</Link>
                         <Link href="/documents" className="hover:text-isstm-gold">Documents</Link>
                     </nav>
                 </div>
