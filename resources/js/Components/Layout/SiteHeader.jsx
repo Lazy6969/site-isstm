@@ -1,0 +1,48 @@
+import { Link, router, usePage } from '@inertiajs/react';
+
+export default function SiteHeader() {
+    const { auth } = usePage().props;
+    const user = auth?.user;
+
+    function logout(e) {
+        e.preventDefault();
+        router.post('/logout');
+    }
+
+    return (
+        <header className="bg-isstm-navy text-white">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+                <Link href="/" className="flex items-center gap-3">
+                    <img src="/images/logo-isstm.jpg" alt="ISSTM" className="h-9 w-9 rounded-full object-cover ring-2 ring-white/70" />
+                    <span className="text-base font-semibold tracking-wide">ISSTM</span>
+                </Link>
+
+                {user ? (
+                    <div className="flex items-center gap-4 text-sm">
+                        <Link href={`/profil/${user.id}`} className="flex items-center gap-2 hover:text-isstm-gold">
+                            <img
+                                src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
+                                alt=""
+                                className="h-7 w-7 rounded-full object-cover"
+                            />
+                            {user.name}
+                        </Link>
+                        <Link href="/profil" className="hover:text-isstm-gold">
+                            Mon profil
+                        </Link>
+                        <button onClick={logout} className="rounded-full border border-white/50 px-3 py-1.5 transition hover:bg-white hover:text-isstm-navy">
+                            Déconnexion
+                        </button>
+                    </div>
+                ) : (
+                    <Link
+                        href="/login"
+                        className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
+                    >
+                        Se connecter
+                    </Link>
+                )}
+            </div>
+        </header>
+    );
+}

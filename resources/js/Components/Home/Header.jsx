@@ -1,10 +1,20 @@
+import { Link, router, usePage } from '@inertiajs/react';
+
 export default function Header() {
+    const { auth } = usePage().props;
+    const user = auth?.user;
+
     const links = [
         { href: '#accueil', label: 'Accueil' },
         { href: '#filieres', label: 'Filières' },
         { href: '#temoignages', label: 'Témoignages' },
         { href: '#contact', label: 'Contact' },
     ];
+
+    function logout(e) {
+        e.preventDefault();
+        router.post('/logout');
+    }
 
     return (
         <header className="absolute inset-x-0 top-0 z-30 text-white">
@@ -23,18 +33,34 @@ export default function Header() {
                 </nav>
 
                 <div className="hidden items-center gap-3 sm:flex">
-                    <a
-                        href="#contact"
-                        className="rounded-full border border-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                    >
-                        Se connecter
-                    </a>
-                    <a
-                        href="#contact"
-                        className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
-                    >
-                        Inscrivez-vous
-                    </a>
+                    {user ? (
+                        <>
+                            <Link href="/profil" className="text-sm font-medium transition hover:text-isstm-gold">
+                                {user.name}
+                            </Link>
+                            <button
+                                onClick={logout}
+                                className="rounded-full border border-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
+                            >
+                                Déconnexion
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link
+                                href="/login"
+                                className="rounded-full border border-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
+                            >
+                                Se connecter
+                            </Link>
+                            <a
+                                href="#contact"
+                                className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
+                            >
+                                Inscrivez-vous
+                            </a>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
