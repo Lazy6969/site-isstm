@@ -20,4 +20,6 @@ Route::inertia('associations', 'Associations')->name('associations');
 Route::get('campus', [CampusController::class, 'index'])->name('campus.index');
 Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('campus.show');
 
+Route::inertia('parcours', 'Parcours')->name('parcours');
+
 require __DIR__.'/auth.php';

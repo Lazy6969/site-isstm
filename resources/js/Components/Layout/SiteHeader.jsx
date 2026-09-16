@@ -17,9 +17,12 @@ export default function SiteHeader() {
                         <img src="/images/logo-isstm.jpg" alt="ISSTM" className="h-9 w-9 rounded-full object-cover ring-2 ring-white/70" />
                         <span className="text-base font-semibold tracking-wide">ISSTM</span>
                     </Link>
-                    <nav className="hidden items-center gap-6 text-sm font-medium sm:flex">
+                    <nav className="hidden items-center gap-6 text-sm font-medium lg:flex">
                         <Link href="/filieres" className="hover:text-isstm-gold">Filières</Link>
                         <Link href="/enseignants" className="hover:text-isstm-gold">Enseignants</Link>
+                        <Link href="/parcours" className="hover:text-isstm-gold">Organigramme</Link>
+                        <Link href="/vie-etudiante" className="hover:text-isstm-gold">Vie étudiante</Link>
+                        <Link href="/bourse" className="hover:text-isstm-gold">Bourse</Link>
                     </nav>
                 </div>
 
