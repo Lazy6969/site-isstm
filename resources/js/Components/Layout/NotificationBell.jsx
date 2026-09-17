@@ -1,0 +1,125 @@
+import { Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
+
+function timeAgo(dateString) {
+    const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
+    if (seconds < 60) return "à l'instant";
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `il y a ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `il y a ${hours} h`;
+    const days = Math.floor(hours / 24);
+
+    return `il y a ${days} j`;
+}
+
+function notificationText(notification) {
+    const actor = notification.actor?.name ?? 'Quelqu\'un';
+
+    return notification.type === 'reponse_commentaire'
+        ? `${actor} a répondu à votre commentaire`
+        : `${actor} a publié dans le fil communautaire`;
+}
+
+export default function NotificationBell() {
+    const { auth } = usePage().props;
+    const [open, setOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const ref = useRef(null);
+    const unreadCount = auth?.unreadNotificationsCount ?? 0;
+
+    useEffect(() => {
+        function onClickOutside(e) {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', onClickOutside);
+        return () => document.removeEventListener('mousedown', onClickOutside);
+    }, []);
+
+    function toggle() {
+        const next = !open;
+        setOpen(next);
+        if (next) {
+            setLoading(true);
+            fetch('/notifications/recentes', { headers: { Accept: 'application/json' } })
+                .then((res) => res.json())
+                .then((json) => setNotifications(json.notifications))
+                .finally(() => setLoading(false));
+        }
+    }
+
+    function markAllRead() {
+        router.post('/notifications/tout-lire', {}, {
+            preserveScroll: true,
+            onSuccess: () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))),
+        });
+    }
+
+    return (
+        <div className="relative" ref={ref}>
+            <button
+                type="button"
+                onClick={toggle}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:bg-white/10"
+                aria-label="Notifications"
+            >
+                🔔
+                {unreadCount > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                )}
+            </button>
+
+            {open && (
+                <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200">
+                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                        <span className="text-sm font-semibold text-isstm-navy">Notifications</span>
+                        {unreadCount > 0 && (
+                            <button onClick={markAllRead} className="text-xs font-medium text-isstm-gold hover:underline">
+                                Tout marquer comme lu
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="max-h-96 overflow-y-auto">
+                        {loading && <p className="px-4 py-6 text-center text-sm text-slate-400">Chargement…</p>}
+
+                        {!loading && notifications.length === 0 && (
+                            <p className="px-4 py-6 text-center text-sm text-slate-400">Aucune notification pour le moment.</p>
+                        )}
+
+                        {!loading &&
+                            notifications.map((notification) => (
+                                <Link
+                                    key={notification.id}
+                                    href="/notifications"
+                                    className={`flex items-start gap-3 border-b border-slate-50 px-4 py-3 text-sm transition hover:bg-slate-50 ${
+                                        !notification.read ? 'bg-isstm-navy/5' : ''
+                                    }`}
+                                >
+                                    <img
+                                        src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : '/images/logo-isstm.jpg'}
+                                        alt=""
+                                        className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                                    />
+                                    <span className="flex-1">
+                                        <span className="block text-slate-700">{notificationText(notification)}</span>
+                                        <span className="mt-0.5 block text-xs text-slate-400">{timeAgo(notification.created_at)}</span>
+                                    </span>
+                                    {!notification.read && <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-isstm-gold" />}
+                                </Link>
+                            ))}
+                    </div>
+
+                    <Link href="/notifications" className="block border-t border-slate-100 px-4 py-2.5 text-center text-sm font-medium text-isstm-navy hover:bg-slate-50">
+                        Voir toutes les notifications
+                    </Link>
+                </div>
+            )}
+        </div>
+    );
+}

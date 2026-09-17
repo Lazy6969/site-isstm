@@ -2,14 +2,21 @@
 
 use App\Http\Controllers\Admin\PreinscriptionController as AdminPreinscriptionController;
 use App\Http\Controllers\CampusController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
+use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\PreinscriptionController;
+use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TeacherController;
@@ -55,6 +62,33 @@ Route::post('preinscription', [PreinscriptionController::class, 'store'])->name(
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('preinscriptions', [AdminPreinscriptionController::class, 'index'])->name('preinscriptions.index');
     Route::post('preinscriptions/{preinscription}/approve', [AdminPreinscriptionController::class, 'approve'])->name('preinscriptions.approve');
+});
+
+Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function () {
+    Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
+    Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
+    Route::post('amis/demandes/{friendRequest}/accepter', [FriendController::class, 'accept'])->name('friends.accept');
+    Route::post('amis/demandes/{friendRequest}/refuser', [FriendController::class, 'decline'])->name('friends.decline');
+    Route::delete('amis/demandes/{friendRequest}', [FriendController::class, 'destroy'])->name('friends.destroy');
+
+    Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
+    Route::get('messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
+    Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
+    Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->name('messages.messages.destroy');
+
+    Route::get('communaute', [PostController::class, 'index'])->name('posts.index');
+    Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
+    Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+    Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/recentes', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
 
 require __DIR__.'/auth.php';

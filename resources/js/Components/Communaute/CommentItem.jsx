@@ -1,0 +1,76 @@
+import { Link, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+
+export default function CommentItem({ postId, comment, depth = 0 }) {
+    const [replying, setReplying] = useState(false);
+    const { data, setData, post, processing, reset } = useForm({ body: '', parent_id: comment.id });
+
+    function submitReply(e) {
+        e.preventDefault();
+        post(`/communaute/${postId}/commentaires`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset();
+                setReplying(false);
+            },
+        });
+    }
+
+    function destroy() {
+        if (confirm('Supprimer ce commentaire ?')) {
+            router.delete(`/commentaires/${comment.id}`, { preserveScroll: true });
+        }
+    }
+
+    return (
+        <div className={depth > 0 ? 'ml-8 mt-3' : 'mt-3'}>
+            <div className="flex items-start gap-2.5">
+                <img
+                    src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : '/images/logo-isstm.jpg'}
+                    alt=""
+                    className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                    <div className="inline-block rounded-2xl bg-slate-100 px-3.5 py-2">
+                        <Link href={`/profil/${comment.user.id}`} className="text-sm font-semibold text-slate-800 hover:text-isstm-navy">
+                            {comment.user.name}
+                        </Link>
+                        <p className="text-sm text-slate-700">{comment.body}</p>
+                    </div>
+                    <div className="mt-1 flex gap-3 px-3.5 text-xs text-slate-400">
+                        {depth === 0 && (
+                            <button onClick={() => setReplying((v) => !v)} className="font-medium hover:text-isstm-navy">
+                                Répondre
+                            </button>
+                        )}
+                        {comment.can_manage && (
+                            <button onClick={destroy} className="font-medium hover:text-red-600">
+                                Supprimer
+                            </button>
+                        )}
+                    </div>
+
+                    {replying && (
+                        <form onSubmit={submitReply} className="mt-2 flex gap-2">
+                            <input
+                                type="text"
+                                value={data.body}
+                                onChange={(e) => setData('body', e.target.value)}
+                                placeholder="Votre réponse…"
+                                className="w-full rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
+                                autoFocus
+                            />
+                            <button disabled={processing} className="rounded-full bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">
+                                Envoyer
+                            </button>
+                        </form>
+                    )}
+
+                    {comment.replies?.map((reply) => (
+                        <CommentItem key={reply.id} postId={postId} comment={reply} depth={depth + 1} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}

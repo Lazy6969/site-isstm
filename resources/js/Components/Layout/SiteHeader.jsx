@@ -1,4 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
+import NotificationBell from './NotificationBell';
 
 export default function SiteHeader() {
     const { auth } = usePage().props;
@@ -29,11 +30,21 @@ export default function SiteHeader() {
                         <Link href="/galerie" className="hover:text-isstm-gold">Galerie</Link>
                         <Link href="/recherche" className="hover:text-isstm-gold" aria-label="Recherche">🔍</Link>
                         <Link href="/documents" className="hover:text-isstm-gold">Documents</Link>
+                        {['admin', 'enseignant', 'etudiant'].includes(user?.role) && (
+                            <Link href="/communaute" className="hover:text-isstm-gold">Communauté</Link>
+                        )}
                     </nav>
                 </div>
 
                 {user ? (
                     <div className="flex items-center gap-4 text-sm">
+                        {['admin', 'enseignant', 'etudiant'].includes(user.role) && (
+                            <>
+                                <Link href="/amis" className="hover:text-isstm-gold">Amis</Link>
+                                <Link href="/messages" className="hover:text-isstm-gold">Messages</Link>
+                                <NotificationBell />
+                            </>
+                        )}
                         <Link href={`/profil/${user.id}`} className="flex items-center gap-2 hover:text-isstm-gold">
                             <img
                                 src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
