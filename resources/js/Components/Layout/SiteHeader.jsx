@@ -44,7 +44,9 @@ export default function SiteHeader() {
     const userMenuItems = [
         { href: `/profil/${user?.id}`, label: 'Voir mon profil public' },
         { href: '/profil', label: 'Modifier mon profil' },
+        { href: '/bibliotheque', label: 'Bibliothèque numérique' },
         ...(user?.role === 'admin' ? [{ href: '/admin/preinscriptions', label: 'Préinscriptions' }] : []),
+        ...(['admin', 'bibliotheque'].includes(user?.role) ? [{ href: '/bibliotheque/admin', label: 'Gérer la bibliothèque' }] : []),
         { divider: true, key: 'divider' },
         { label: 'Déconnexion', onClick: logout },
     ];
@@ -156,9 +158,17 @@ export default function SiteHeader() {
                                 <Link href="/profil" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
                                     Mon profil
                                 </Link>
+                                <Link href="/bibliotheque" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
+                                    Bibliothèque numérique
+                                </Link>
                                 {user.role === 'admin' && (
                                     <Link href="/admin/preinscriptions" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
                                         Préinscriptions
+                                    </Link>
+                                )}
+                                {['admin', 'bibliotheque'].includes(user.role) && (
+                                    <Link href="/bibliotheque/admin" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
+                                        Gérer la bibliothèque
                                     </Link>
                                 )}
                                 <button onClick={logout} className="rounded-lg px-2 py-2 text-left hover:bg-white/10">

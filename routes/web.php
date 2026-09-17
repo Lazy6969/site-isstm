@@ -121,3 +121,4 @@ Route::middleware(['auth', 'messagerie'])->prefix('messagerie')->name('staff-mes
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/bibliotheque.php';
