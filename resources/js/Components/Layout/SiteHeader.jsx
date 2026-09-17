@@ -45,6 +45,9 @@ export default function SiteHeader() {
                                 <NotificationBell />
                             </>
                         )}
+                        {user.is_messagerie && (
+                            <Link href="/messagerie" className="hover:text-isstm-gold">Messagerie interne</Link>
+                        )}
                         <Link href={`/profil/${user.id}`} className="flex items-center gap-2 hover:text-isstm-gold">
                             <img
                                 src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}

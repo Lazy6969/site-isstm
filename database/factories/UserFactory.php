@@ -50,4 +50,11 @@ class UserFactory extends Factory
             'role' => $role,
         ]);
     }
+
+    public function messagerie(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_messagerie' => true,
+        ]);
+    }
 }

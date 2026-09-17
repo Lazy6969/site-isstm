@@ -24,6 +24,7 @@ use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StaffMessageController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,6 +109,15 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function ()
     Route::post('groupes/membres/{member}/bannir', [ClassGroupMemberController::class, 'ban'])->name('class-groups.members.ban');
     Route::post('groupes/membres/{member}/reintegrer', [ClassGroupMemberController::class, 'unban'])->name('class-groups.members.unban');
     Route::post('groupes/membres/{member}/delegue', [ClassGroupMemberController::class, 'toggleDelegate'])->name('class-groups.members.delegate');
+});
+
+Route::middleware(['auth', 'messagerie'])->prefix('messagerie')->name('staff-messages.')->group(function () {
+    Route::get('/', [StaffMessageController::class, 'index'])->name('index');
+    Route::get('sondage', [StaffMessageController::class, 'poll'])->name('poll');
+    Route::get('recherche', [StaffMessageController::class, 'search'])->name('search');
+    Route::post('/', [StaffMessageController::class, 'store'])->name('store');
+    Route::post('supprimer', [StaffMessageController::class, 'destroyConversation'])->name('destroy-conversation');
+    Route::delete('{message}', [StaffMessageController::class, 'destroy'])->name('destroy');
 });
 
 require __DIR__.'/auth.php';
