@@ -29,7 +29,7 @@ class ClassGroupController extends Controller
             ->with(['classGroup.teacher', 'classGroup.filiere'])
             ->get();
 
-        $groups = $memberships->map(function (ClassGroupMember $membership) {
+        $groups = $memberships->map(function (ClassGroupMember $membership) use ($user) {
             $group = $membership->classGroup;
 
             return [

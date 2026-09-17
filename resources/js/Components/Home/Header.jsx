@@ -1,15 +1,11 @@
 import { Link, router, usePage } from '@inertiajs/react';
+import HeaderDropdown from '../Layout/HeaderDropdown';
+import HeaderSearchButton from '../Layout/HeaderSearchButton';
+import { etablissementLinks, vieEtudianteLinks, actualitesLinks } from '../Layout/headerNavLinks';
 
 export default function Header() {
     const { auth } = usePage().props;
     const user = auth?.user;
-
-    const links = [
-        { href: '#accueil', label: 'Accueil' },
-        { href: '#filieres', label: 'Filières' },
-        { href: '#temoignages', label: 'Témoignages' },
-        { href: '#contact', label: 'Contact' },
-    ];
 
     function logout(e) {
         e.preventDefault();
@@ -24,12 +20,14 @@ export default function Header() {
                     <span className="text-lg font-semibold tracking-wide">ISSTM</span>
                 </a>
 
-                <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
-                    {links.map((link) => (
-                        <a key={link.href} href={link.href} className="transition hover:text-isstm-gold">
-                            {link.label}
-                        </a>
-                    ))}
+                <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
+                    <HeaderDropdown label="Établissement" items={etablissementLinks} />
+                    <HeaderDropdown label="Vie étudiante" items={vieEtudianteLinks} />
+                    <HeaderDropdown label="Actualités" items={actualitesLinks} />
+                    <Link href="/inscription" className="transition hover:text-isstm-gold">
+                        Inscription
+                    </Link>
+                    <HeaderSearchButton variant="labelled" />
                 </nav>
 
                 <div className="hidden items-center gap-3 sm:flex">
@@ -46,20 +44,12 @@ export default function Header() {
                             </button>
                         </>
                     ) : (
-                        <>
-                            <Link
-                                href="/login"
-                                className="rounded-full border border-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                            >
-                                Se connecter
-                            </Link>
-                            <Link
-                                href="/inscription"
-                                className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
-                            >
-                                Inscrivez-vous
-                            </Link>
-                        </>
+                        <Link
+                            href="/inscription"
+                            className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
+                        >
+                            Inscrivez-vous
+                        </Link>
                     )}
                 </div>
             </div>

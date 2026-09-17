@@ -2,33 +2,8 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import NotificationBell from './NotificationBell';
 import HeaderDropdown from './HeaderDropdown';
-
-const etablissementLinks = [
-    { href: '/filieres', label: 'Filières' },
-    { href: '/enseignants', label: 'Enseignants' },
-    { href: '/parcours', label: 'Organigramme' },
-    { href: '/campus', label: 'Campus & blocs régionaux' },
-    { href: '/associations', label: 'Associations (AEI)' },
-];
-
-const vieEtudianteLinks = [
-    { href: '/vie-etudiante', label: 'Vie étudiante' },
-    { href: '/bourse', label: 'Bourse' },
-    { href: '/documents', label: 'Documents administratifs' },
-];
-
-const actualitesLinks = [
-    { href: '/actualites', label: 'Actualités' },
-    { href: '/evenements', label: 'Événements' },
-    { href: '/galerie', label: 'Galerie photo' },
-];
-
-const communauteLinks = [
-    { href: '/communaute', label: 'Fil communautaire' },
-    { href: '/amis', label: 'Amis' },
-    { href: '/messages', label: 'Messages privés' },
-    { href: '/groupes', label: 'Groupes de classe' },
-];
+import HeaderSearchButton from './HeaderSearchButton';
+import { etablissementLinks, vieEtudianteLinks, actualitesLinks, communauteLinks } from './headerNavLinks';
 
 export default function SiteHeader() {
     const { auth } = usePage().props;
@@ -66,9 +41,7 @@ export default function SiteHeader() {
                         <Link href="/inscription" className="text-sm font-medium hover:text-isstm-gold">
                             Inscription
                         </Link>
-                        <Link href="/recherche" className="hover:text-isstm-gold" aria-label="Recherche">
-                            🔍
-                        </Link>
+                        <HeaderSearchButton />
                         {isCommunityMember && <HeaderDropdown label="Communauté" items={communauteLinks} />}
                     </nav>
                 </div>
