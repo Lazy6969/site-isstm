@@ -1,6 +1,7 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
+import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
 
 function formatTime(dateString) {
     if (!dateString) return '';
@@ -10,6 +11,7 @@ function formatTime(dateString) {
 export default function Index({ conversations, friends, activeConversation, messages, media }) {
     const [filter, setFilter] = useState('');
     const [showMedia, setShowMedia] = useState(false);
+    const [opening, setOpening] = useState(false);
     const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [] });
 
     const items = useMemo(() => {
@@ -22,10 +24,12 @@ export default function Index({ conversations, friends, activeConversation, mess
     }, [conversations, friends, filter]);
 
     function openConversation(item) {
+        const options = { preserveScroll: true, onStart: () => setOpening(true), onFinish: () => setOpening(false) };
+
         if (item.id) {
-            router.get(`/messages/${item.id}`, {}, { preserveScroll: true });
+            router.get(`/messages/${item.id}`, {}, options);
         } else {
-            router.post(`/messages/nouveau/${item.user.id}`);
+            router.post(`/messages/nouveau/${item.user.id}`, {}, options);
         }
     }
 
@@ -118,38 +122,42 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </div>
                             )}
 
-                            <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                                {messages.map((m) => (
-                                    <div key={m.id} className={`group flex ${m.sender_id === activeConversation.user.id ? 'justify-start' : 'justify-end'}`}>
-                                        <div className="max-w-xs">
-                                            {m.body && (
-                                                <p
-                                                    className={`rounded-2xl px-3.5 py-2 text-sm ${
-                                                        m.sender_id === activeConversation.user.id ? 'bg-slate-100 text-slate-700' : 'bg-isstm-navy text-white'
-                                                    }`}
-                                                >
-                                                    {m.body}
-                                                </p>
-                                            )}
-                                            {m.attachments.map((a) => (
-                                                <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
-                                                    {a.file_type === 'image' ? (
-                                                        <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
-                                                    ) : (
-                                                        <span className="text-xs font-medium text-isstm-navy underline">{a.original_name}</span>
-                                                    )}
-                                                </a>
-                                            ))}
-                                            <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-400">
-                                                <span>{formatTime(m.created_at)}</span>
-                                                <button onClick={() => hideMessage(m.id)} className="opacity-0 hover:underline group-hover:opacity-100">
-                                                    Masquer
-                                                </button>
+                            {opening && <MessageThreadSkeleton />}
+
+                            {!opening && (
+                                <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                                    {messages.map((m) => (
+                                        <div key={m.id} className={`group flex ${m.sender_id === activeConversation.user.id ? 'justify-start' : 'justify-end'}`}>
+                                            <div className="max-w-xs">
+                                                {m.body && (
+                                                    <p
+                                                        className={`rounded-2xl px-3.5 py-2 text-sm ${
+                                                            m.sender_id === activeConversation.user.id ? 'bg-slate-100 text-slate-700' : 'bg-isstm-navy text-white'
+                                                        }`}
+                                                    >
+                                                        {m.body}
+                                                    </p>
+                                                )}
+                                                {m.attachments.map((a) => (
+                                                    <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
+                                                        {a.file_type === 'image' ? (
+                                                            <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
+                                                        ) : (
+                                                            <span className="text-xs font-medium text-isstm-navy underline">{a.original_name}</span>
+                                                        )}
+                                                    </a>
+                                                ))}
+                                                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-400">
+                                                    <span>{formatTime(m.created_at)}</span>
+                                                    <button onClick={() => hideMessage(m.id)} className="opacity-0 hover:underline group-hover:opacity-100">
+                                                        Masquer
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
 
                             <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
                                 <input

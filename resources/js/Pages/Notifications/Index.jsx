@@ -1,5 +1,7 @@
 import { Head, router } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
+import Skeleton from '../../Components/Loading/Skeleton';
 
 const periodOrder = ["Aujourd'hui", 'Hier', 'Cette semaine', 'Plus ancien'];
 
@@ -16,6 +18,8 @@ function notificationText(notification) {
 }
 
 export default function Index({ groups, pagination }) {
+    const [pageLoading, setPageLoading] = useState(false);
+
     function markRead(id) {
         router.post(`/notifications/${id}/lu`, {}, { preserveScroll: true });
     }
@@ -29,7 +33,11 @@ export default function Index({ groups, pagination }) {
     }
 
     function goToPage(page) {
-        router.get('/notifications', { page }, { preserveScroll: true });
+        router.get(
+            '/notifications',
+            { page },
+            { preserveScroll: true, onStart: () => setPageLoading(true), onFinish: () => setPageLoading(false) },
+        );
     }
 
     const hasAny = periodOrder.some((period) => groups[period]?.length > 0);
@@ -44,12 +52,27 @@ export default function Index({ groups, pagination }) {
                 </button>
             </div>
 
-            {!hasAny && (
+            {pageLoading && (
+                <div className="space-y-2">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                            <Skeleton className="h-9 w-9 flex-shrink-0 rounded-full" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-3.5 w-2/3" />
+                                <Skeleton className="h-2.5 w-20" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {!pageLoading && !hasAny && (
                 <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
                     Aucune notification pour le moment.
                 </p>
             )}
 
+            {!pageLoading && (
             <div className="space-y-8">
                 {periodOrder.map(
                     (period) =>
@@ -90,6 +113,7 @@ export default function Index({ groups, pagination }) {
                         ),
                 )}
             </div>
+            )}
 
             {pagination.last_page > 1 && (
                 <div className="mt-8 flex justify-center gap-3">

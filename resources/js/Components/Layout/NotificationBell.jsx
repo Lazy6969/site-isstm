@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import Skeleton from '../Loading/Skeleton';
 
 function timeAgo(dateString) {
     const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -86,7 +87,16 @@ export default function NotificationBell() {
                     </div>
 
                     <div className="max-h-96 overflow-y-auto">
-                        {loading && <p className="px-4 py-6 text-center text-sm text-slate-400">Chargement…</p>}
+                        {loading &&
+                            [...Array(3)].map((_, i) => (
+                                <div key={i} className="flex items-start gap-3 border-b border-slate-50 px-4 py-3">
+                                    <Skeleton className="h-8 w-8 flex-shrink-0 rounded-full" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-3 w-full" />
+                                        <Skeleton className="h-2.5 w-16" />
+                                    </div>
+                                </div>
+                            ))}
 
                         {!loading && notifications.length === 0 && (
                             <p className="px-4 py-6 text-center text-sm text-slate-400">Aucune notification pour le moment.</p>

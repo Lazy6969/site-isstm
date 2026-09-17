@@ -2,6 +2,7 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import UserCard from '../../Components/Amis/UserCard';
+import UserCardSkeleton from '../../Components/Loading/UserCardSkeleton';
 
 const tabs = [
     { key: 'recherche', label: 'Recherche' },
@@ -62,10 +63,16 @@ export default function Index({ query, searchResults, friends, received, sent, s
                         </button>
                     </form>
 
-                    {query && (
+                    {(processing || query) && (
                         <section>
                             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Résultats pour « {query} »</h2>
-                            {searchResults.length === 0 ? (
+                            {processing ? (
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {[...Array(4)].map((_, i) => (
+                                        <UserCardSkeleton key={i} />
+                                    ))}
+                                </div>
+                            ) : searchResults.length === 0 ? (
                                 <p className="text-sm text-slate-400">Aucun utilisateur trouvé.</p>
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2">

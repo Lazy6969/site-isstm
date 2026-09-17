@@ -1,9 +1,12 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
+import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 
 export default function Index({ posts, canPublish, postTypes }) {
     const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
+    const [pageLoading, setPageLoading] = useState(false);
 
     function submit(e) {
         e.preventDefault();
@@ -16,7 +19,11 @@ export default function Index({ posts, canPublish, postTypes }) {
 
     function goToPage(url) {
         if (url) {
-            router.get(url, {}, { preserveScroll: true });
+            router.get(
+                url,
+                {},
+                { preserveScroll: true, onStart: () => setPageLoading(true), onFinish: () => setPageLoading(false) },
+            );
         }
     }
 
@@ -65,14 +72,14 @@ export default function Index({ posts, canPublish, postTypes }) {
             )}
 
             <div className="space-y-6">
-                {posts.data.length === 0 && (
+                {pageLoading && [...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}
+
+                {!pageLoading && posts.data.length === 0 && (
                     <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
                         Aucune publication pour le moment.
                     </p>
                 )}
-                {posts.data.map((p) => (
-                    <PostCard key={p.id} post={p} />
-                ))}
+                {!pageLoading && posts.data.map((p) => <PostCard key={p.id} post={p} />)}
             </div>
 
             {(posts.prev_page_url || posts.next_page_url) && (
