@@ -72,6 +72,11 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function classGroupMemberships(): HasMany
+    {
+        return $this->hasMany(ClassGroupMember::class);
+    }
+
     /**
      * @return Collection<int, User>
      */

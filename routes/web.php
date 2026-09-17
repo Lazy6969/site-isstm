@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\Admin\PreinscriptionController as AdminPreinscriptionController;
 use App\Http\Controllers\CampusController;
+use App\Http\Controllers\ClassGroupAnnouncementController;
+use App\Http\Controllers\ClassGroupController;
+use App\Http\Controllers\ClassGroupMemberController;
+use App\Http\Controllers\ClassGroupMessageController;
+use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DocumentController;
@@ -89,6 +94,20 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function ()
     Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+
+    Route::get('groupes', [ClassGroupController::class, 'index'])->name('class-groups.index');
+    Route::post('groupes', [ClassGroupController::class, 'store'])->name('class-groups.store');
+    Route::post('groupes/rejoindre', [ClassGroupController::class, 'join'])->name('class-groups.join');
+    Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->name('class-groups.show');
+    Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->name('class-groups.messages.store');
+    Route::delete('groupes/messages/{message}', [ClassGroupMessageController::class, 'destroy'])->name('class-groups.messages.destroy');
+    Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->name('class-groups.announcements.store');
+    Route::delete('groupes/annonces/{announcement}', [ClassGroupAnnouncementController::class, 'destroy'])->name('class-groups.announcements.destroy');
+    Route::get('groupes/{group}/presence', [ClassGroupPresenceController::class, 'index'])->name('class-groups.presence.index');
+    Route::post('groupes/{group}/presence', [ClassGroupPresenceController::class, 'store'])->name('class-groups.presence.store');
+    Route::post('groupes/membres/{member}/bannir', [ClassGroupMemberController::class, 'ban'])->name('class-groups.members.ban');
+    Route::post('groupes/membres/{member}/reintegrer', [ClassGroupMemberController::class, 'unban'])->name('class-groups.members.unban');
+    Route::post('groupes/membres/{member}/delegue', [ClassGroupMemberController::class, 'toggleDelegate'])->name('class-groups.members.delegate');
 });
 
 require __DIR__.'/auth.php';

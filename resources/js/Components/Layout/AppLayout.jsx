@@ -6,6 +6,7 @@ const navItems = [
     { href: '/communaute', label: 'Fil communautaire' },
     { href: '/amis', label: 'Amis' },
     { href: '/messages', label: 'Messages' },
+    { href: '/groupes', label: 'Groupes' },
     { href: '/notifications', label: 'Notifications' },
 ];
 
