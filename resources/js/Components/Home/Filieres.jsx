@@ -23,20 +23,22 @@ export default function Filieres({ filieres }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                     {filieres.map((filiere) => (
                         <Card
                             key={filiere.slug}
                             className="group overflow-hidden transition hover:-translate-y-1 hover:shadow-lg"
                         >
                             <div
-                                className="h-40 bg-cover bg-center"
+                                className="h-28 bg-cover bg-center"
                                 style={{ backgroundImage: `url('/${filiere.image_path}')` }}
                             />
-                            <CardContent className="p-5">
-                                {filiere.mention && <Badge>{filiere.mention}</Badge>}
-                                <h3 className="mt-3 text-lg font-semibold text-isstm-navy">{filiere.nom}</h3>
-                                <p className="mt-2 line-clamp-3 text-sm text-slate-500">{filiere.description}</p>
+                            <CardContent className="p-3.5">
+                                {filiere.mention && (
+                                    <Badge className="px-2 py-0 text-[0.65rem]">{filiere.mention}</Badge>
+                                )}
+                                <h3 className="mt-2 text-sm font-semibold text-isstm-navy">{filiere.nom}</h3>
+                                <p className="mt-1 line-clamp-2 text-xs text-slate-500">{filiere.description}</p>
                             </CardContent>
                         </Card>
                     ))}

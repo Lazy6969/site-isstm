@@ -69,49 +69,51 @@ export default function Header() {
             } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
         >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-                <a href="#accueil" className="flex items-center gap-3.5">
-                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
-                    <BrandTitle />
-                </a>
+                <div className="flex min-w-0 items-center gap-6">
+                    <a href="#accueil" className="flex flex-shrink-0 items-center gap-3.5">
+                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
+                        <BrandTitle />
+                    </a>
 
-                <NavigationMenu className="hidden md:flex">
-                    <NavigationMenuList className="gap-2">
-                        <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
-                        <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    {t('nav.actualites', 'Actualités')}
-                                </Link>
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    {t('nav.galerie', 'Galerie')}
-                                </Link>
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    {t('nav.inscription', 'Inscription')}
-                                </Link>
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink asChild>
-                                <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    {t('nav.contact', 'Contact')}
-                                </Link>
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
-                        <NavigationMenuItem>
-                            <HeaderSearchButton variant="labelled" />
-                        </NavigationMenuItem>
-                    </NavigationMenuList>
-                </NavigationMenu>
+                    <NavigationMenu className="hidden md:flex">
+                        <NavigationMenuList className="gap-2">
+                            <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
+                            <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.actualites', 'Actualités')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.galerie', 'Galerie')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.inscription', 'Inscription')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.contact', 'Contact')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                            <NavigationMenuItem>
+                                <HeaderSearchButton variant="labelled" />
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                    </NavigationMenu>
+                </div>
 
                 <div className="hidden items-center gap-3 sm:flex">
                     <LanguageSwitcher />
@@ -163,10 +165,10 @@ export default function Header() {
                         </div>
                     ) : (
                         <Link
-                            href="/inscription"
-                            className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
+                            href="/login"
+                            className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
                         >
-                            {t('nav.inscrivez_vous', 'Inscrivez-vous')}
+                            {t('nav.se_connecter', 'Se connecter')}
                         </Link>
                     )}
                 </div>

@@ -55,12 +55,6 @@ export default function Hero({ slides }) {
                     >
                         {t('nav.inscrivez_vous', 'Inscrivez-vous')}
                     </Link>
-                    <Link
-                        href="/login"
-                        className="rounded-full border border-white/70 px-7 py-3 text-sm font-semibold transition hover:bg-white hover:text-isstm-navy"
-                    >
-                        {t('nav.se_connecter', 'Se connecter')}
-                    </Link>
                 </div>
             </div>
 

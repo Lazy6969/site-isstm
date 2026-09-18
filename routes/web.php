@@ -10,6 +10,7 @@ use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\DirecteurController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
@@ -36,6 +37,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('historique', [HistoriqueController::class, 'index'])->name('historique');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
+Route::get('mot-du-directeur', [DirecteurController::class, 'index'])->name('directeur');
 Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 Route::post('newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
 
