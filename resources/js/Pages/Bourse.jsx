@@ -5,25 +5,31 @@ import Footer from '../Components/Home/Footer';
 import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
 
-const links = [
-    {
-        title: "Postuler pour une Bourse d'État",
-        description:
-            "Les demandes de bourses d'études de l'État malagasy se font désormais en ligne via la plateforme officielle du Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (MESupReS).",
-        button: 'Accéder à la plateforme MESupReS',
-        href: 'https://boursesext.mesupres.edu.mg/',
-    },
-    {
-        title: 'Créer votre portefeuille Trésor Public',
-        description:
-            "Inscrivez-vous sur la plateforme du Trésor Public de Madagascar pour créer votre propre portefeuille électronique et gérer directement votre bourse d'études.",
-        button: 'Accéder à la plateforme Trésor Public',
-        href: 'https://app.tresorpublic.mg:12000/wallet/login',
-    },
-];
-
 export default function Bourse() {
     const { t } = useTranslations();
+
+    const links = [
+        {
+            logo: '/images/partenariat/mesupres.png',
+            title: t('bourse.externe_titre', "Postuler pour une Bourse d'État"),
+            description: t(
+                'bourse.externe_desc',
+                "Les demandes de bourses d'études de l'État malagasy se font désormais en ligne via la plateforme officielle du Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (MESupReS).",
+            ),
+            button: t('bourse.externe_bouton', 'Accéder à la plateforme MESupReS'),
+            href: 'https://boursesext.mesupres.edu.mg/',
+        },
+        {
+            logo: '/images/partenariat/tresor-public.png',
+            title: t('bourse.tresor_titre', 'Créer votre portefeuille Trésor Public'),
+            description: t(
+                'bourse.tresor_desc',
+                "Inscrivez-vous sur la plateforme du Trésor Public de Madagascar pour créer votre propre portefeuille électronique et gérer directement votre bourse d'études.",
+            ),
+            button: t('bourse.tresor_bouton', 'Accéder à la plateforme Trésor Public'),
+            href: 'https://app.tresorpublic.mg:12000/wallet/login',
+        },
+    ];
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -40,8 +46,9 @@ export default function Bourse() {
             <main className="mx-auto max-w-4xl px-6 py-12">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {links.map((link) => (
-                        <Card key={link.title} className="flex flex-col p-7 text-center">
-                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{link.title}</h2>
+                        <Card key={link.title} className="flex flex-col items-center p-7 text-center">
+                            <img src={link.logo} alt="" className="h-14 w-auto object-contain" loading="lazy" />
+                            <h2 className="mt-4 text-lg font-semibold text-isstm-navy dark:text-white">{link.title}</h2>
                             <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{link.description}</p>
                             <a
                                 href={link.href}

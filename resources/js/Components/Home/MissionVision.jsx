@@ -1,4 +1,10 @@
+import { Link } from '@inertiajs/react';
 import { useTranslations } from '../../lib/useTranslations';
+
+const BLOB_PATHS = {
+    left: 'M0,0 H68 C80,15 60,30 75,45 C85,60 65,75 78,90 C82,95 75,100 70,100 H0 Z',
+    right: 'M100,0 H32 C20,15 40,30 25,45 C15,60 35,75 22,90 C18,95 25,100 30,100 H100 Z',
+};
 
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
@@ -17,22 +23,58 @@ export default function MissionVision({ content }) {
 
     return (
         <section className="bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
-            <div className="mx-auto max-w-6xl space-y-16 px-6 sm:space-y-24">
-                {blocks.map((block, index) => (
-                    <div key={block.title} className="grid grid-cols-1 items-center gap-8 sm:gap-12 md:grid-cols-2">
+            <div className="mx-auto max-w-6xl space-y-12 px-6">
+                {blocks.map((block, index) => {
+                    const reverse = index % 2 === 1;
+
+                    return (
                         <div
-                            className={`aspect-[4/3] overflow-hidden rounded-2xl bg-isstm-navy/5 dark:bg-slate-800 ${
-                                index % 2 === 1 ? 'md:order-2' : ''
-                            }`}
+                            key={block.title}
+                            className="relative overflow-hidden rounded-[2.5rem] bg-white shadow-xl dark:bg-slate-800"
                         >
-                            <img src={`/${block.image}`} alt="" className="h-full w-full object-contain" loading="lazy" />
+                            <svg
+                                className={`absolute inset-y-0 h-full w-[70%] text-isstm-navy ${reverse ? 'right-0' : 'left-0'}`}
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="none"
+                                aria-hidden="true"
+                            >
+                                <path d={reverse ? BLOB_PATHS.right : BLOB_PATHS.left} fill="currentColor" />
+                            </svg>
+
+                            <div className="relative grid grid-cols-1 items-center md:grid-cols-2">
+                                <div className={`px-8 py-14 sm:px-12 sm:py-20 ${reverse ? 'md:order-2' : ''}`}>
+                                    <span className="mb-5 flex gap-1.5" aria-hidden="true">
+                                        <span className="h-2 w-2 rounded-full bg-isstm-gold" />
+                                        <span className="h-2 w-2 rounded-full bg-white/40" />
+                                        <span className="h-2 w-2 rounded-full bg-white/40" />
+                                    </span>
+                                    <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">{block.title}</h3>
+                                    <p className="mt-5 max-w-md leading-relaxed text-white/80">{block.text}</p>
+                                    <Link
+                                        href="/historique"
+                                        className="mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
+                                    >
+                                        {t('filieres.en_savoir_plus', 'En savoir plus')}
+                                    </Link>
+                                </div>
+
+                                <div className={`relative flex items-center justify-center px-8 py-14 sm:px-12 ${reverse ? 'md:order-1' : ''}`}>
+                                    <span
+                                        className="absolute top-6 right-10 h-16 w-16 rounded-full bg-isstm-gold/25"
+                                        aria-hidden="true"
+                                    />
+                                    <span
+                                        className="absolute bottom-8 left-8 h-8 w-8 rounded-full bg-isstm-navy/10 dark:bg-white/10"
+                                        aria-hidden="true"
+                                    />
+                                    <div className="relative aspect-[4/3] w-full max-w-sm overflow-hidden rounded-[45%_55%_60%_40%/50%_45%_55%_50%] shadow-2xl ring-4 ring-white dark:ring-slate-800">
+                                        <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">{block.title}</h3>
-                            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">{block.text}</p>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </section>
     );
