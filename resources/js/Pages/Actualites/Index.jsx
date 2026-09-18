@@ -1,8 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Search } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import Partenaires from '../../Components/Home/Partenaires';
+import ListGridToggle from '../../Components/Layout/ListGridToggle';
+import { useTranslations } from '../../lib/useTranslations';
 
 function formatDate(value) {
     if (!value) return null;
@@ -10,6 +13,26 @@ function formatDate(value) {
 }
 
 export default function Index({ articles, partenaires }) {
+    const { t } = useTranslations();
+    const [search, setSearch] = useState('');
+    const [category, setCategory] = useState('');
+    const [view, setView] = useState('grid');
+
+    const categories = useMemo(
+        () => [...new Set(articles.map((a) => a.category?.name_fr).filter(Boolean))].sort(),
+        [articles],
+    );
+
+    const filtered = useMemo(() => {
+        const query = search.trim().toLowerCase();
+        return articles.filter((article) => {
+            const matchesQuery =
+                !query || article.title.toLowerCase().includes(query) || (article.excerpt ?? '').toLowerCase().includes(query);
+            const matchesCategory = !category || article.category?.name_fr === category;
+            return matchesQuery && matchesCategory;
+        });
+    }, [articles, search, category]);
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title="Actualités" />
@@ -22,11 +45,11 @@ export default function Index({ articles, partenaires }) {
                 </div>
             </div>
 
-            <div className="border-b border-slate-200 bg-white">
+            <div className="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
                 <div className="mx-auto max-w-6xl px-6 py-4">
                     <Link
                         href="/evenements"
-                        className="inline-flex items-center gap-2 rounded-full bg-isstm-navy/5 px-4 py-2 text-sm font-medium text-isstm-navy transition hover:bg-isstm-navy/10"
+                        className="inline-flex items-center gap-2 rounded-full bg-isstm-navy/5 px-4 py-2 text-sm font-medium text-isstm-navy transition hover:bg-isstm-navy/10 dark:text-white"
                     >
                         <CalendarDays className="h-4 w-4" aria-hidden="true" />
                         Voir les événements à venir
@@ -35,34 +58,90 @@ export default function Index({ articles, partenaires }) {
             </div>
 
             <main className="mx-auto max-w-6xl px-6 py-12">
-                {articles.length === 0 ? (
-                    <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
-                        Aucune actualité publiée pour le moment.
+                <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="relative flex-1 sm:max-w-sm">
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                        <input
+                            type="search"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={t('actualites.rechercher', 'Rechercher une actualité...')}
+                            className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm text-slate-700 placeholder:text-slate-400 focus:border-isstm-gold focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        {categories.length > 1 && (
+                            <select
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-isstm-gold focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                            >
+                                <option value="">{t('actualites.toutes_categories', 'Toutes les catégories')}</option>
+                                {categories.map((c) => (
+                                    <option key={c} value={c}>
+                                        {c}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        <ListGridToggle view={view} onChange={setView} />
+                    </div>
+                </div>
+
+                {filtered.length === 0 ? (
+                    <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
+                        {articles.length === 0
+                            ? 'Aucune actualité publiée pour le moment.'
+                            : t('actualites.aucun_resultat', 'Aucune actualité ne correspond à votre recherche.')}
                     </p>
                 ) : (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {articles.map((article) => (
-                            <Link
-                                key={article.slug}
-                                href={`/actualites/${article.slug}`}
-                                className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg"
-                            >
-                                <div
-                                    className="h-44 bg-cover bg-center"
-                                    style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
-                                />
-                                <div className="p-5">
-                                    {article.category && (
-                                        <span className="rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy">
-                                            {article.category.name_fr}
-                                        </span>
-                                    )}
-                                    <h2 className="mt-3 text-lg font-semibold text-isstm-navy">{article.title}</h2>
-                                    <p className="mt-2 line-clamp-3 text-sm text-slate-500">{article.excerpt}</p>
-                                    <p className="mt-3 text-xs text-slate-400">{formatDate(article.published_at)}</p>
-                                </div>
-                            </Link>
-                        ))}
+                    <div className={view === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col gap-4'}>
+                        {filtered.map((article) =>
+                            view === 'grid' ? (
+                                <Link
+                                    key={article.slug}
+                                    href={`/actualites/${article.slug}`}
+                                    className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
+                                >
+                                    <div
+                                        className="h-44 bg-cover bg-center"
+                                        style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
+                                    />
+                                    <div className="p-5">
+                                        {article.category && (
+                                            <span className="rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy dark:text-white">
+                                                {article.category.name_fr}
+                                            </span>
+                                        )}
+                                        <h2 className="mt-3 text-lg font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
+                                        <p className="mt-2 line-clamp-3 text-sm text-slate-500 dark:text-slate-400">{article.excerpt}</p>
+                                        <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <Link
+                                    key={article.slug}
+                                    href={`/actualites/${article.slug}`}
+                                    className="group flex items-center gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
+                                >
+                                    <div
+                                        className="h-20 w-28 flex-shrink-0 rounded-lg bg-cover bg-center"
+                                        style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                        {article.category && (
+                                            <span className="rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy dark:text-white">
+                                                {article.category.name_fr}
+                                            </span>
+                                        )}
+                                        <h2 className="mt-1.5 text-base font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
+                                        <p className="mt-1 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{article.excerpt}</p>
+                                    </div>
+                                    <p className="flex-shrink-0 text-xs text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
+                                </Link>
+                            ),
+                        )}
                     </div>
                 )}
             </main>

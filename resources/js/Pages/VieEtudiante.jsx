@@ -49,7 +49,7 @@ export default function VieEtudiante() {
             <main className="mx-auto max-w-5xl space-y-16 px-6 py-12">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
                     <img src="/images/campus/etudiant1.png" alt="" className="w-full max-w-xs sm:w-64" />
-                    <p className="text-base leading-relaxed text-slate-700">
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
                         {t(
                             'vie_etudiante.intro_1',
                             "La vie à l'ISSTM est une aventure enrichissante qui va bien au-delà des cours. C'est un écosystème vibrant où les amitiés se forgent, les passions se révèlent et les futurs leaders prennent leur envol. Explorez les multiples facettes de notre communauté et découvrez un environnement conçu pour votre épanouissement.",
@@ -70,7 +70,7 @@ export default function VieEtudiante() {
 
                 <div className="flex flex-col items-center gap-8 sm:flex-row-reverse">
                     <img src="/images/campus/etudiant2.png" alt="" className="w-full max-w-xs sm:w-64" />
-                    <p className="text-base leading-relaxed text-slate-700">
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
                         {t(
                             'vie_etudiante.intro_2',
                             "L'engagement dans les clubs et associations est une pierre angulaire de l'expérience ISSTM. C'est ici que les compétences de leadership s'épanouissent, que les projets collaboratifs prennent vie et que des liens durables se tissent.",

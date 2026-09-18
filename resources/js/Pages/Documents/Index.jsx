@@ -29,18 +29,18 @@ export default function Index({ documents }) {
 
             <main className="mx-auto max-w-4xl px-6 py-12">
                 {documents.length === 0 ? (
-                    <Card className="p-8 text-center text-sm text-slate-500">
+                    <Card className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
                         {t('documents.aucun_document', "Aucun document n'est disponible pour le moment.")}
                     </Card>
                 ) : (
                     <Card className="overflow-hidden">
-                        <ul className="divide-y divide-slate-100">
+                        <ul className="divide-y divide-slate-100 dark:divide-slate-700">
                             {documents.map((doc) => (
                                 <li key={doc.id} className="flex items-center justify-between gap-4 px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <FileText className="h-5 w-5 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                        <FileText className="h-5 w-5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                                         <div>
-                                            <p className="font-medium text-slate-700">{doc.title}</p>
+                                            <p className="font-medium text-slate-700 dark:text-slate-200">{doc.title}</p>
                                             <Badge className="mt-1">{categoryLabels[doc.category] ?? doc.category}</Badge>
                                         </div>
                                     </div>
@@ -59,7 +59,7 @@ export default function Index({ documents }) {
                 )}
 
                 {!auth?.user && (
-                    <p className="mt-6 text-center text-sm text-slate-500">
+                    <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
                         {t('documents.connexion_requise', 'Connectez-vous pour accéder aux documents réservés aux étudiants.')}
                     </p>
                 )}

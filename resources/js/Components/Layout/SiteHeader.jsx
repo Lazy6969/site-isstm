@@ -24,17 +24,21 @@ function NavDropdown({ label, items }) {
         <NavigationMenuItem>
             <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
             <NavigationMenuContent>
-                <ul className="w-56 rounded-xl bg-popover py-1.5 text-popover-foreground shadow-xl ring-1 ring-border">
+                <div className="grid w-[420px] grid-cols-2 gap-1 rounded-xl bg-popover p-2 text-popover-foreground shadow-xl ring-1 ring-border">
                     {items.map((item) => (
-                        <li key={item.href}>
-                            <NavigationMenuLink asChild>
-                                <Link href={item.href} className="block px-4 py-2 text-sm text-slate-700 hover:bg-accent hover:text-accent-foreground dark:text-slate-200">
-                                    {item.label}
-                                </Link>
-                            </NavigationMenuLink>
-                        </li>
+                        <NavigationMenuLink asChild key={item.href}>
+                            <Link
+                                href={item.href}
+                                className="flex items-start gap-3 rounded-lg p-3 text-sm transition hover:bg-accent hover:text-accent-foreground"
+                            >
+                                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-isstm-navy/10 text-isstm-navy dark:bg-isstm-gold/15 dark:text-isstm-gold">
+                                    {item.icon && <item.icon className="h-[18px] w-[18px]" aria-hidden="true" />}
+                                </span>
+                                <span className="font-medium text-slate-700 dark:text-slate-200">{item.label}</span>
+                            </Link>
+                        </NavigationMenuLink>
                     ))}
-                </ul>
+                </div>
             </NavigationMenuContent>
         </NavigationMenuItem>
     );
@@ -54,7 +58,7 @@ export default function SiteHeader() {
 
     return (
         <header
-            className={`sticky top-0 z-40 bg-isstm-navy text-white transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
+            className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
         >
             <div className="flex items-center justify-between px-4 py-3 sm:px-6">
                 <div className="flex items-center gap-6">
@@ -62,7 +66,7 @@ export default function SiteHeader() {
                         <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-auto" />
                         <BrandTitle />
                     </Link>
-                    <NavigationMenu className="hidden lg:flex">
+                    <NavigationMenu className="hidden md:flex">
                         <NavigationMenuList>
                             <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
                             <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
@@ -99,7 +103,7 @@ export default function SiteHeader() {
                     </NavigationMenu>
                 </div>
 
-                <div className="hidden items-center gap-3 lg:flex">
+                <div className="hidden items-center gap-3 md:flex">
                     <HeaderSearchButton />
                     <DarkModeToggle />
                     <LanguageSwitcher />

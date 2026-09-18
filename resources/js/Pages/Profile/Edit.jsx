@@ -36,8 +36,8 @@ export default function Edit({ user }) {
             <SiteHeader />
 
             <main className="mx-auto max-w-3xl px-6 py-12">
-                <h1 className="text-2xl font-bold text-isstm-navy">{t('profil.mon_profil', 'Mon profil')}</h1>
-                <p className="mt-1 text-sm text-slate-500">
+                <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{t('profil.mon_profil', 'Mon profil')}</h1>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {t('profil.visibilite', 'Ces informations sont visibles par les autres membres de la communauté ISSTM.')}
                 </p>
 
@@ -56,7 +56,7 @@ export default function Edit({ user }) {
                                 <AvatarFallback>{user.name?.[0]}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <label htmlFor="avatar" className="block text-sm font-medium text-slate-700">
+                                <label htmlFor="avatar" className="block text-sm font-medium text-slate-700 dark:text-slate-200">
                                     {t('profil.photo_profil', 'Photo de profil')}
                                 </label>
                                 <input
@@ -64,7 +64,7 @@ export default function Edit({ user }) {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => setData('avatar', e.target.files[0])}
-                                    className="mt-1 text-sm text-slate-500"
+                                    className="mt-1 text-sm text-slate-500 dark:text-slate-400"
                                 />
                                 {errors.avatar && <p className="mt-1 text-sm text-red-600">{errors.avatar}</p>}
                             </div>
@@ -80,7 +80,7 @@ export default function Edit({ user }) {
                         </div>
 
                         <div>
-                            <label htmlFor="bio" className="mb-1 block text-sm font-medium text-slate-700">
+                            <label htmlFor="bio" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                 {t('profil.bio', 'Bio')}
                             </label>
                             <textarea

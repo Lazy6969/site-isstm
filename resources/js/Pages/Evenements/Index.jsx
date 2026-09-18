@@ -39,7 +39,7 @@ export default function Index({ evenements }) {
 
             <main className="mx-auto max-w-5xl px-6 py-12">
                 {evenements.length === 0 ? (
-                    <Card className="p-8 text-center text-sm text-slate-500">
+                    <Card className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
                         {t('evenements.aucun_resultat', "Aucun événement à venir n'est programmé pour le moment.")}
                     </Card>
                 ) : (
@@ -53,13 +53,13 @@ export default function Index({ evenements }) {
                                         <span className="text-xs uppercase">{formatMonth(event.date_debut)}</span>
                                     </div>
                                     <div className="min-w-0">
-                                        <span className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy">
+                                        <span className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white">
                                             <CategoryIcon className="h-3.5 w-3.5" aria-hidden="true" />
                                             {event.categorie}
                                         </span>
-                                        <h2 className="mt-1 font-semibold text-slate-700">{event.titre}</h2>
+                                        <h2 className="mt-1 font-semibold text-slate-700 dark:text-slate-200">{event.titre}</h2>
                                         {event.lieu && (
-                                            <p className="mt-1 flex items-center gap-1 text-sm text-slate-500">
+                                            <p className="mt-1 flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                                                 <MapPin className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
                                                 {event.lieu}
                                             </p>

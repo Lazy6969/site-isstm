@@ -8,13 +8,13 @@ import { useTranslations } from '../../lib/useTranslations';
 function FeeTable({ title, rows }) {
     return (
         <Card className="overflow-hidden">
-            <h3 className="border-b border-slate-100 bg-isstm-navy/5 px-5 py-3 font-semibold text-isstm-navy">{title}</h3>
+            <h3 className="border-b border-slate-100 dark:border-slate-700 bg-isstm-navy/5 px-5 py-3 font-semibold text-isstm-navy dark:text-white">{title}</h3>
             <table className="w-full text-sm">
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                     {rows.map(([label, value]) => (
                         <tr key={label}>
-                            <td className="px-5 py-2.5 text-slate-500">{label}</td>
-                            <td className="px-5 py-2.5 text-right font-medium text-slate-700">{value}</td>
+                            <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">{label}</td>
+                            <td className="px-5 py-2.5 text-right font-medium text-slate-700 dark:text-slate-200">{value}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -34,7 +34,10 @@ export default function Index({ content }) {
             <Head title="Inscription" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div
+                className="relative bg-isstm-navy bg-cover bg-center py-14 text-white"
+                style={{ backgroundImage: "linear-gradient(to bottom, rgba(0,51,102,0.85), rgba(0,31,63,0.9)), url('/images/portal_campus_1.jpg')" }}
+            >
                 <div className="mx-auto max-w-4xl px-6">
                     <h1 className="text-3xl font-bold">
                         {t('inscription.titre', 'Inscription — Année')} {content.inscription_annee_universitaire}
@@ -54,13 +57,13 @@ export default function Index({ content }) {
                 {dateLimite && (
                     <Card className="flex flex-col items-center gap-1 p-5 text-center">
                         <CalendarClock className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                        <p className="text-sm text-slate-500">{t('inscription.date_limite', 'Date limite de dépôt des dossiers')}</p>
-                        <p className="text-xl font-bold text-isstm-navy">{dateLimite}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{t('inscription.date_limite', 'Date limite de dépôt des dossiers')}</p>
+                        <p className="text-xl font-bold text-isstm-navy dark:text-white">{dateLimite}</p>
                     </Card>
                 )}
 
                 <section>
-                    <h2 className="mb-4 text-lg font-semibold text-isstm-navy">
+                    <h2 className="mb-4 text-lg font-semibold text-isstm-navy dark:text-white">
                         {t('inscription.frais_nationaux', 'Frais de scolarité — Étudiants nationaux')}
                     </h2>
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -83,13 +86,13 @@ export default function Index({ content }) {
                             ]}
                         />
                     </div>
-                    <p className="mt-3 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                         {t('inscription.tenue_reglementaire', 'Tenue réglementaire :')} {content.frais_nat_tenue}
                     </p>
                 </section>
 
                 <section>
-                    <h2 className="mb-4 text-lg font-semibold text-isstm-navy">
+                    <h2 className="mb-4 text-lg font-semibold text-isstm-navy dark:text-white">
                         {t('inscription.frais_etrangers', 'Frais de scolarité — Étudiants étrangers')}
                     </h2>
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -112,21 +115,21 @@ export default function Index({ content }) {
                             ]}
                         />
                     </div>
-                    <p className="mt-3 text-sm text-slate-500">
+                    <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                         {t('inscription.tenue_reglementaire', 'Tenue réglementaire :')} {content.frais_etr_tenue}
                     </p>
                 </section>
 
                 <Card className="p-6">
-                    <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy">
+                    <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
                         <MapPin className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
                         {t('inscription.modalites_titre', 'Modalités de dépôt')}
                     </h2>
-                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{content.inscription_adresse_bloc}</p>
-                    <p className="mt-4 flex items-center gap-2 text-sm text-slate-500">
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{content.inscription_adresse_bloc}</p>
+                    <p className="mt-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                         <Wallet className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                         {t('inscription.compte_bancaire', 'Compte bancaire :')}{' '}
-                        <span className="font-medium text-slate-700">{content.inscription_compte_bancaire}</span>
+                        <span className="font-medium text-slate-700 dark:text-slate-200">{content.inscription_compte_bancaire}</span>
                     </p>
                 </Card>
             </main>

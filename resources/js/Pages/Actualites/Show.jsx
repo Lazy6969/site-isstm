@@ -42,7 +42,7 @@ export default function Show({ article }) {
             </div>
 
             <main className="mx-auto max-w-3xl px-6 py-12">
-                <div className="whitespace-pre-line text-base leading-relaxed text-slate-700">{article.content}</div>
+                <div className="whitespace-pre-line text-base leading-relaxed text-slate-700 dark:text-slate-200">{article.content}</div>
             </main>
 
             <Footer />

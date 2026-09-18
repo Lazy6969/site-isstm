@@ -54,9 +54,9 @@ export default function Index({ query, results }) {
 
             <main className="mx-auto max-w-3xl px-6 py-12">
                 {query === '' ? (
-                    <p className="text-center text-sm text-slate-500">{t('recherche.invite', 'Saisissez un mot-clé pour commencer.')}</p>
+                    <p className="text-center text-sm text-slate-500 dark:text-slate-400">{t('recherche.invite', 'Saisissez un mot-clé pour commencer.')}</p>
                 ) : totalResults === 0 ? (
-                    <p className="text-center text-sm text-slate-500">
+                    <p className="text-center text-sm text-slate-500 dark:text-slate-400">
                         {t('recherche.aucun_resultat', 'Aucun résultat pour')} « {query} ».
                     </p>
                 ) : (
@@ -67,13 +67,13 @@ export default function Index({ query, results }) {
                                     {sectionLabels[key] ?? key}
                                 </h2>
                                 <Card className="overflow-hidden">
-                                    <ul className="divide-y divide-slate-100">
+                                    <ul className="divide-y divide-slate-100 dark:divide-slate-700">
                                         {items.map((item) => (
                                             <li key={item.url + item.title}>
                                                 <Link href={item.url} className="block px-5 py-3 transition hover:bg-slate-50">
-                                                    <p className="font-medium text-slate-700">{item.title}</p>
+                                                    <p className="font-medium text-slate-700 dark:text-slate-200">{item.title}</p>
                                                     {item.subtitle && (
-                                                        <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">{item.subtitle}</p>
+                                                        <p className="mt-0.5 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{item.subtitle}</p>
                                                     )}
                                                 </Link>
                                             </li>

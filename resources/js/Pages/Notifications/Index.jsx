@@ -61,7 +61,7 @@ export default function Index({ groups, pagination }) {
             {pageLoading && (
                 <div className="space-y-2">
                     {[...Array(5)].map((_, i) => (
-                        <div key={i} className="flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                        <div key={i} className="flex items-start gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
                             <Skeleton className="h-9 w-9 flex-shrink-0 rounded-full" />
                             <div className="flex-1 space-y-2">
                                 <Skeleton className="h-3.5 w-2/3" />
@@ -73,7 +73,7 @@ export default function Index({ groups, pagination }) {
             )}
 
             {!pageLoading && !hasAny && (
-                <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
+                <p className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 text-center text-sm text-slate-400 dark:text-slate-500">
                     {t('notifications.aucune_notification', 'Aucune notification pour le moment.')}
                 </p>
             )}
@@ -84,7 +84,7 @@ export default function Index({ groups, pagination }) {
                     (period) =>
                         groups[period]?.length > 0 && (
                             <section key={period}>
-                                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{period}</h2>
+                                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">{period}</h2>
                                 <div className="space-y-2">
                                     {groups[period].map((notification) => (
                                         <Card
@@ -96,16 +96,16 @@ export default function Index({ groups, pagination }) {
                                                 <AvatarFallback>{notification.actor?.name?.[0] ?? '?'}</AvatarFallback>
                                             </Avatar>
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-sm text-slate-700">{notificationText(notification)}</p>
-                                                <p className="mt-0.5 text-xs text-slate-400">{formatTime(notification.created_at)}</p>
+                                                <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
+                                                <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
                                             </div>
                                             <div className="flex flex-shrink-0 gap-3 text-xs">
                                                 {!notification.read && (
-                                                    <button onClick={() => markRead(notification.id)} className="font-medium text-isstm-navy hover:underline">
+                                                    <button onClick={() => markRead(notification.id)} className="font-medium text-isstm-navy dark:text-white hover:underline">
                                                         {t('notifications.marquer_lu', 'Marquer lu')}
                                                     </button>
                                                 )}
-                                                <button onClick={() => destroy(notification.id)} className="text-slate-400 hover:text-red-600" aria-label={t('communaute.supprimer', 'Supprimer')}>
+                                                <button onClick={() => destroy(notification.id)} className="text-slate-400 dark:text-slate-500 hover:text-red-600" aria-label={t('communaute.supprimer', 'Supprimer')}>
                                                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </button>
                                             </div>
@@ -123,14 +123,14 @@ export default function Index({ groups, pagination }) {
                     <button
                         disabled={pagination.current_page <= 1}
                         onClick={() => goToPage(pagination.current_page - 1)}
-                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
+                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 disabled:opacity-40"
                     >
                         {t('pagination.precedent', 'Précédent')}
                     </button>
                     <button
                         disabled={pagination.current_page >= pagination.last_page}
                         onClick={() => goToPage(pagination.current_page + 1)}
-                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
+                        className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 disabled:opacity-40"
                     >
                         {t('pagination.suivant', 'Suivant')}
                     </button>

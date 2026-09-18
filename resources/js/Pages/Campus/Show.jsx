@@ -10,8 +10,8 @@ function Fact({ label, value }) {
 
     return (
         <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</dt>
-            <dd className="mt-1 whitespace-pre-line text-sm text-slate-700">{value}</dd>
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">{label}</dt>
+            <dd className="mt-1 whitespace-pre-line text-sm text-slate-700 dark:text-slate-200">{value}</dd>
         </div>
     );
 }
@@ -63,14 +63,14 @@ export default function Show({ bloc }) {
                 <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {bloc.objectifs && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy">{t('campus.objectifs', 'Objectifs')}</h2>
-                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{bloc.objectifs}</p>
+                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('campus.objectifs', 'Objectifs')}</h2>
+                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{bloc.objectifs}</p>
                         </div>
                     )}
                     {bloc.activites && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy">{t('campus.activites', 'Activités')}</h2>
-                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{bloc.activites}</p>
+                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('campus.activites', 'Activités')}</h2>
+                            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{bloc.activites}</p>
                         </div>
                     )}
                 </section>

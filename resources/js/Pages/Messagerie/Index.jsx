@@ -104,21 +104,21 @@ export default function Index({ others: initialOthers, messages: initialMessages
     }
 
     return (
-        <div className="flex min-h-screen flex-col bg-slate-50">
+        <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
             <Head title="Messagerie interne" />
             <SiteHeader />
 
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold text-isstm-navy">{t('messagerie.titre', 'Messagerie interne')}</h1>
-                        <p className="mt-1 text-sm text-slate-400">
+                        <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{t('messagerie.titre', 'Messagerie interne')}</h1>
+                        <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
                             {t('messagerie.soustitre', 'Conversation unique entre tous les comptes de la messagerie.')}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
                         {others.map((o) => (
-                            <div key={o.id} className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs text-slate-600 shadow-sm" title={o.name}>
+                            <div key={o.id} className="flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 shadow-sm" title={o.name}>
                                 <span className={`h-2 w-2 rounded-full ${o.online ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                                 {o.name}
                             </div>
@@ -135,7 +135,7 @@ export default function Index({ others: initialOthers, messages: initialMessages
                             placeholder={t('messagerie.placeholder_recherche', 'Rechercher dans les messages…')}
                             className="w-64 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
                         />
-                        <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white">
+                        <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-white">
                             <Search className="h-3.5 w-3.5" aria-hidden="true" />
                             {t('nav.rechercher', 'Rechercher')}
                         </button>
@@ -146,7 +146,7 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                     setSearch('');
                                     setSearchResults(null);
                                 }}
-                                className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white"
+                                className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-400 dark:text-slate-500 hover:bg-white"
                             >
                                 <X className="h-3.5 w-3.5" aria-hidden="true" />
                                 {t('galerie.fermer', 'Fermer')}
@@ -154,10 +154,10 @@ export default function Index({ others: initialOthers, messages: initialMessages
                         )}
                     </form>
                     <div className="flex gap-2 text-xs">
-                        <button onClick={() => deleteConversation('me')} className="text-slate-400 hover:text-red-600">
+                        <button onClick={() => deleteConversation('me')} className="text-slate-400 dark:text-slate-500 hover:text-red-600">
                             {t('messagerie.masquer_tout', 'Masquer tout pour moi')}
                         </button>
-                        <button onClick={() => deleteConversation('everyone')} className="text-slate-400 hover:text-red-600">
+                        <button onClick={() => deleteConversation('everyone')} className="text-slate-400 dark:text-slate-500 hover:text-red-600">
                             {t('groupes.supprimer_pour_tous', 'Supprimer pour tous')}
                         </button>
                     </div>
@@ -165,22 +165,22 @@ export default function Index({ others: initialOthers, messages: initialMessages
 
                 {searchResults !== null ? (
                     <Card className="p-4">
-                        <h2 className="mb-3 text-sm font-semibold text-isstm-navy">
+                        <h2 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">
                             {t('messagerie.resultats', 'Résultats')} ({searchResults.length})
                         </h2>
-                        {searchResults.length === 0 && <p className="text-sm text-slate-400">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
+                        {searchResults.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
                         {searchResults.map((m) => (
                             <div key={m.id} className="border-b border-slate-50 py-2 text-sm">
-                                <span className="font-semibold text-slate-700">{m.sender_name}</span>{' '}
-                                <span className="text-xs text-slate-400">{formatTime(m.created_at)}</span>
-                                <p className="text-slate-600">{m.body}</p>
+                                <span className="font-semibold text-slate-700 dark:text-slate-200">{m.sender_name}</span>{' '}
+                                <span className="text-xs text-slate-400 dark:text-slate-500">{formatTime(m.created_at)}</span>
+                                <p className="text-slate-600 dark:text-slate-300">{m.body}</p>
                             </div>
                         ))}
                     </Card>
                 ) : (
                     <Card className="flex h-[60vh] flex-col overflow-hidden">
                         <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                            {messages.length === 0 && <p className="text-center text-sm text-slate-400">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
+                            {messages.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                             {messages.map((m) => {
                                 const isMine = m.sender_id === auth.user.id;
                                 return (
@@ -188,27 +188,27 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-baseline gap-2">
                                                 <span className="text-sm font-semibold text-slate-800">{m.sender_name}</span>
-                                                <span className="text-xs text-slate-400">{formatTime(m.created_at)}</span>
+                                                <span className="text-xs text-slate-400 dark:text-slate-500">{formatTime(m.created_at)}</span>
                                                 {isMine && (
-                                                    <span className="text-[11px] text-slate-400">
+                                                    <span className="text-[11px] text-slate-400 dark:text-slate-500">
                                                         {m.read_at ? t('messagerie.lu', 'Lu') : t('messagerie.envoye', 'Envoyé')}
                                                     </span>
                                                 )}
                                             </div>
-                                            {m.body && <p className="text-sm text-slate-700">{m.body}</p>}
+                                            {m.body && <p className="text-sm text-slate-700 dark:text-slate-200">{m.body}</p>}
                                             {m.attachments.map((a) => (
                                                 <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
                                                     {a.file_type === 'image' ? (
                                                         <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
                                                     ) : (
-                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy underline">
+                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
                                                             <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                                                             {a.original_name}
                                                         </span>
                                                     )}
                                                 </a>
                                             ))}
-                                            <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 opacity-0 group-hover:opacity-100">
+                                            <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
                                                     {t('groupes.masquer_pour_moi', 'Masquer pour moi')}
                                                 </button>
@@ -225,8 +225,8 @@ export default function Index({ others: initialOthers, messages: initialMessages
                             <div ref={bottomRef} />
                         </div>
 
-                        <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
-                            <label className="flex-shrink-0 text-slate-400" title={t('groupes.piece_jointe', 'Pièce jointe')}>
+                        <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
+                            <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
                                 <Paperclip className="h-4 w-4" aria-hidden="true" />
                                 <input type="file" multiple onChange={(e) => setData('attachments', Array.from(e.target.files))} className="hidden" />
                             </label>

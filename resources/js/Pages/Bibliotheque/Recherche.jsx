@@ -33,30 +33,30 @@ export default function Recherche({ query, canevas, memoires }) {
             {query && (
                 <div className="grid gap-8 sm:grid-cols-2">
                     <section>
-                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                             {t('bibliotheque.canevas_titre', 'Canevas')} ({canevas.length})
                         </h2>
-                        {canevas.length === 0 && <p className="text-sm text-slate-400">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
+                        {canevas.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
                         <div className="space-y-2">
                             {canevas.map((c) => (
-                                <a key={c.id} href={`/bibliotheque/canevas/${c.id}/telecharger`} className="block rounded-xl border border-slate-100 bg-white p-3 text-sm shadow-sm hover:border-isstm-navy/30">
-                                    <span className="font-medium text-slate-700">{c.titre}</span>
-                                    <span className="ml-2 text-xs text-slate-400">{c.niveau} · {c.annee}</span>
+                                <a key={c.id} href={`/bibliotheque/canevas/${c.id}/telecharger`} className="block rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 text-sm shadow-sm hover:border-isstm-navy/30">
+                                    <span className="font-medium text-slate-700 dark:text-slate-200">{c.titre}</span>
+                                    <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">{c.niveau} · {c.annee}</span>
                                 </a>
                             ))}
                         </div>
                     </section>
 
                     <section>
-                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
                             {t('bibliotheque.memoires_titre', 'Mémoires & projets')} ({memoires.length})
                         </h2>
-                        {memoires.length === 0 && <p className="text-sm text-slate-400">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
+                        {memoires.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
                         <div className="space-y-2">
                             {memoires.map((m) => (
-                                <Link key={m.id} href={`/bibliotheque/memoires/${m.id}/consulter`} className="block rounded-xl border border-slate-100 bg-white p-3 text-sm shadow-sm hover:border-isstm-navy/30">
-                                    <span className="font-medium text-slate-700">{m.titre}</span>
-                                    <span className="ml-2 text-xs text-slate-400">{m.categorie} · {m.filiere} · {m.auteur}</span>
+                                <Link key={m.id} href={`/bibliotheque/memoires/${m.id}/consulter`} className="block rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 text-sm shadow-sm hover:border-isstm-navy/30">
+                                    <span className="font-medium text-slate-700 dark:text-slate-200">{m.titre}</span>
+                                    <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">{m.categorie} · {m.filiere} · {m.auteur}</span>
                                 </Link>
                             ))}
                         </div>

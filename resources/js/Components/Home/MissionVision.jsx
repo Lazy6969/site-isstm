@@ -29,15 +29,13 @@ export default function MissionVision({ content }) {
                 >
                     <div className="absolute inset-0 bg-isstm-navy-dark/45" />
                     <div className="relative mx-auto w-full max-w-6xl">
-                        <div className={`max-w-xl ${block.align === 'right' ? 'ml-auto text-right' : ''}`}>
-                            <h3
-                                className="font-script text-5xl text-isstm-gold drop-shadow-[2px_2px_5px_rgba(0,0,0,0.5)] sm:text-6xl"
-                            >
-                                {block.title}
-                            </h3>
-                            <p className="font-lora mt-5 text-lg leading-relaxed font-medium drop-shadow-[1px_1px_3px_rgba(0,0,0,0.7)] sm:text-xl">
-                                {block.text}
-                            </p>
+                        <div
+                            className={`max-w-lg rounded-2xl bg-isstm-navy-dark/35 p-7 backdrop-blur-md sm:p-9 ${
+                                block.align === 'right' ? 'ml-auto text-right' : ''
+                            }`}
+                        >
+                            <h3 className="text-xl font-bold text-isstm-gold sm:text-2xl">{block.title}</h3>
+                            <p className="mt-4 leading-relaxed text-white/90">{block.text}</p>
                         </div>
                     </div>
                 </div>

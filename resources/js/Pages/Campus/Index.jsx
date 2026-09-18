@@ -40,8 +40,8 @@ export default function Index({ blocs }) {
                                     style={bloc.images?.[0] ? { backgroundImage: `url('/${bloc.images[0]}')` } : undefined}
                                 />
                                 <div className="p-3">
-                                    <h2 className="truncate text-sm font-semibold text-isstm-navy">{bloc.nom}</h2>
-                                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{bloc.signification}</p>
+                                    <h2 className="truncate text-sm font-semibold text-isstm-navy dark:text-white">{bloc.nom}</h2>
+                                    <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{bloc.signification}</p>
                                 </div>
                             </Card>
                         </Link>

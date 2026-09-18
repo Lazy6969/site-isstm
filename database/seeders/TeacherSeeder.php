@@ -18,6 +18,7 @@ class TeacherSeeder extends Seeder
                 'specialty_en' => 'Physics',
                 'specialty_mg' => 'Fizika',
                 'email' => 'rakotovelo.geoslin@isstm.mg',
+                'photo_path' => 'images/teachers/rakotovelo-geoslin.jpg',
                 'display_order' => 1,
             ],
             [
@@ -54,6 +55,7 @@ class TeacherSeeder extends Seeder
                 'specialty_en' => 'Nuclear and automatic engineering',
                 'specialty_mg' => 'Injeniera nokleary sy mandeha ho azy',
                 'email' => 'ramarojaona.hubert@isstm.mg',
+                'photo_path' => 'images/teachers/ramarojaona-hubert.jpg',
                 'display_order' => 5,
             ],
         ];

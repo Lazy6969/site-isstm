@@ -28,7 +28,7 @@ export default function Index({ groups, canCreate }) {
 
             <div className="mb-8 grid gap-4 sm:grid-cols-2">
                 <Card className="p-5">
-                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy">
+                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy dark:text-white">
                         <KeySquare className="h-4 w-4 text-isstm-gold" aria-hidden="true" />
                         {t('groupes.rejoindre_titre', 'Rejoindre un groupe')}
                     </h2>
@@ -49,7 +49,7 @@ export default function Index({ groups, canCreate }) {
 
                 {canCreate && (
                     <Card className="p-5">
-                        <button onClick={() => setShowCreate((v) => !v)} className="flex items-center gap-1.5 text-sm font-semibold text-isstm-navy">
+                        <button onClick={() => setShowCreate((v) => !v)} className="flex items-center gap-1.5 text-sm font-semibold text-isstm-navy dark:text-white">
                             {showCreate ? <X className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
                             {showCreate ? t('groupes.annuler', 'Annuler') : t('groupes.creer_titre', 'Créer un groupe de classe')}
                         </button>
@@ -90,7 +90,7 @@ export default function Index({ groups, canCreate }) {
 
             <div className="grid gap-3 sm:grid-cols-2">
                 {groups.length === 0 && (
-                    <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400 sm:col-span-2">
+                    <p className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 text-center text-sm text-slate-400 dark:text-slate-500 sm:col-span-2">
                         {t(
                             'groupes.aucun_groupe',
                             "Vous n'êtes membre d'aucun groupe. Rejoignez-en un avec un code, ou créez-en un si vous êtes enseignant.",
@@ -103,7 +103,7 @@ export default function Index({ groups, canCreate }) {
                             <div className="flex items-start justify-between">
                                 <div>
                                     <h3 className="font-semibold text-slate-800">{group.name}</h3>
-                                    <p className="mt-0.5 text-xs text-slate-400">
+                                    <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
                                         {[group.filiere, group.niveau, group.annee].filter(Boolean).join(' · ') || group.type_label}
                                     </p>
                                 </div>
@@ -113,7 +113,7 @@ export default function Index({ groups, canCreate }) {
                                     </span>
                                 )}
                             </div>
-                            <p className="mt-3 text-xs text-slate-400">
+                            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
                                 {t('groupes.enseignant', 'Enseignant :')} {group.teacher_name}
                             </p>
                             <div className="mt-2 flex items-center gap-2">

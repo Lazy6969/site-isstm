@@ -12,11 +12,11 @@ function Section({ icon: Icon, title, text }) {
     return (
         <section>
             <Separator className="mb-6" />
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
                 <Icon className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
                 {title}
             </h2>
-            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{text}</p>
+            <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{text}</p>
         </section>
     );
 }
@@ -50,7 +50,7 @@ export default function Show({ filiere }) {
             </div>
 
             <main className="mx-auto max-w-4xl space-y-6 px-6 py-12">
-                <p className="text-base leading-relaxed text-slate-700">{filiere.description}</p>
+                <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">{filiere.description}</p>
                 <Section icon={Briefcase} title={t('filieres.debouches', 'Débouchés professionnels')} text={filiere.debouches} />
                 <Section icon={Landmark} title={t('filieres.histoire', "Un peu d'histoire")} text={filiere.historique} />
                 <Section icon={Sparkles} title={t('filieres.avantages', 'Pourquoi choisir cette filière ?')} text={filiere.avantages} />

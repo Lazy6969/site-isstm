@@ -73,46 +73,46 @@ export default function Associations() {
                 </div>
 
                 <Card className="p-7">
-                    <h2 className="text-lg font-semibold text-isstm-navy">{t('associations.identite_titre', "Carte d'Identité de l'Association")}</h2>
+                    <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('associations.identite_titre', "Carte d'Identité de l'Association")}</h2>
                     <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                         {identityCard.map((item) => (
                             <div key={item.label}>
-                                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{item.label}</dt>
-                                <dd className="mt-1 text-sm text-slate-700">{item.value}</dd>
+                                <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">{item.label}</dt>
+                                <dd className="mt-1 text-sm text-slate-700 dark:text-slate-200">{item.value}</dd>
                             </div>
                         ))}
                     </dl>
-                    <div className="mt-5 border-t border-slate-100 pt-5">
-                        <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{t('associations.membres_honneur', "Membres d'honneur")}</dt>
-                        <dd className="mt-1 text-sm text-slate-700">Directeur et Directeur Adjoint de l'ISSTM</dd>
+                    <div className="mt-5 border-t border-slate-100 dark:border-slate-700 pt-5">
+                        <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">{t('associations.membres_honneur', "Membres d'honneur")}</dt>
+                        <dd className="mt-1 text-sm text-slate-700 dark:text-slate-200">Directeur et Directeur Adjoint de l'ISSTM</dd>
                     </div>
                 </Card>
 
                 <section>
-                    <h2 className="text-lg font-semibold text-isstm-navy">{t('associations.bureau_titre', 'Composition du Bureau Exécutif')}</h2>
-                    <p className="mt-1 text-sm text-slate-500">{t('associations.bureau_article', 'Article 13 des statuts')}</p>
+                    <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('associations.bureau_titre', 'Composition du Bureau Exécutif')}</h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('associations.bureau_article', 'Article 13 des statuts')}</p>
                     <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {bureauRoles.map((item) => (
                             <Card key={item.role} className="p-5">
                                 <div className="flex items-baseline justify-between">
-                                    <h3 className="font-semibold text-isstm-navy">{item.role}</h3>
-                                    <span className="text-xs font-medium text-slate-400">× {item.count}</span>
+                                    <h3 className="font-semibold text-isstm-navy dark:text-white">{item.role}</h3>
+                                    <span className="text-xs font-medium text-slate-400 dark:text-slate-500">× {item.count}</span>
                                 </div>
-                                <p className="mt-1.5 text-sm text-slate-500">{item.critere}</p>
+                                <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{item.critere}</p>
                             </Card>
                         ))}
                     </div>
                 </section>
 
                 <section>
-                    <h2 className="text-lg font-semibold text-isstm-navy">{t('associations.fondateur_titre', 'Bureau fondateur')}</h2>
-                    <p className="mt-1 text-sm text-slate-500">{t('associations.fondateur_date', 'Élu lors du procès-verbal du 10 mai 2022')}</p>
+                    <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('associations.fondateur_titre', 'Bureau fondateur')}</h2>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('associations.fondateur_date', 'Élu lors du procès-verbal du 10 mai 2022')}</p>
                     <Card className="mt-5 overflow-hidden">
-                        <ul className="divide-y divide-slate-100">
+                        <ul className="divide-y divide-slate-100 dark:divide-slate-700">
                             {bureauFondateur.map((membre, index) => (
                                 <li key={index} className="flex items-center justify-between px-5 py-3 text-sm">
-                                    <span className="text-slate-500">{membre.role}</span>
-                                    <span className="font-medium text-slate-700">{membre.nom}</span>
+                                    <span className="text-slate-500 dark:text-slate-400">{membre.role}</span>
+                                    <span className="font-medium text-slate-700 dark:text-slate-200">{membre.nom}</span>
                                 </li>
                             ))}
                         </ul>

@@ -8,7 +8,7 @@ export default function Partenaires({ partenaires }) {
     const track = [...partenaires, ...partenaires];
 
     return (
-        <section className="bg-white py-16 dark:bg-slate-950">
+        <section className="bg-slate-50 py-16 dark:bg-slate-900">
             <div className="mx-auto max-w-6xl px-6 text-center">
                 <h2 className="text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">{t('partenaires.titre', 'Nos Partenaires')}</h2>
                 <p className="mt-2 text-slate-500 dark:text-slate-400">

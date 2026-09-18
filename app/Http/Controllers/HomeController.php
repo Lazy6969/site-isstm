@@ -26,7 +26,7 @@ class HomeController extends Controller
                     'quote' => $item->{"quote_{$locale}"} ?: $item->quote_fr,
                 ]),
             'filieres' => Filiere::orderBy('display_order')
-                ->take(6)
+                ->take(8)
                 ->get(['slug', 'mention', 'nom_fr', 'nom_en', 'nom_mg', 'description_fr', 'description_en', 'description_mg', 'image_path'])
                 ->map(fn (Filiere $item) => [
                     'slug' => $item->slug,

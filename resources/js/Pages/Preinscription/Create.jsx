@@ -98,8 +98,8 @@ export default function Create({ filieres }) {
                     <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
                         <CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />
                     </div>
-                    <h1 className="mt-6 text-2xl font-bold text-isstm-navy">{t('preinscription.envoyee_titre', 'Préinscription envoyée')}</h1>
-                    <p className="mt-3 text-slate-600">{flash.status}</p>
+                    <h1 className="mt-6 text-2xl font-bold text-isstm-navy dark:text-white">{t('preinscription.envoyee_titre', 'Préinscription envoyée')}</h1>
+                    <p className="mt-3 text-slate-600 dark:text-slate-300">{flash.status}</p>
                 </main>
                 <Footer />
             </div>
@@ -124,7 +124,7 @@ export default function Create({ filieres }) {
                 {step === 'form' ? (
                     <form onSubmit={reviewForm} encType="multipart/form-data" className="space-y-8">
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_identite', 'Identité')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_identite', 'Identité')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <TextField id="nom" label={fieldLabels.nom} value={data.nom} onChange={set('nom')} error={errors.nom} required />
                                 <TextField id="prenoms" label={fieldLabels.prenoms} value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required />
@@ -148,7 +148,7 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_bac', 'Parcours bac')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_bac', 'Parcours bac')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <TextField id="annee_bacc" label={t('preinscription.champ_annee_obtention', "Année d'obtention du bac")} value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
                                 <SelectField id="serie_bacc" label={fieldLabels.serie_bacc} value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
@@ -171,7 +171,7 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_filiere', 'Filière souhaitée')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_filiere', 'Filière souhaitée')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <SelectField
                                     id="filiere_id"
@@ -194,7 +194,7 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_contact', 'Contact')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_contact', 'Contact')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <TextField id="adresse" label={fieldLabels.adresse} value={data.adresse} onChange={set('adresse')} error={errors.adresse} required />
                                 <TextField id="telephone" label={fieldLabels.telephone} value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
@@ -203,7 +203,7 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_filiation', 'Filiation (facultatif)')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_filiation', 'Filiation (facultatif)')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <TextField id="nom_pere" label={t('preinscription.champ_nom_pere', 'Nom du père')} value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
                                 <TextField id="profession_pere" label={t('preinscription.champ_profession_pere', 'Profession du père')} value={data.profession_pere} onChange={set('profession_pere')} error={errors.profession_pere} />
@@ -216,11 +216,11 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.section_photo', "Photo d'identité")}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_photo', "Photo d'identité")}</h2>
                             <div className="flex items-center gap-5">
                                 {photoPreview && <img src={photoPreview} alt="" className="h-20 w-20 rounded-full object-cover ring-2 ring-isstm-navy/10" />}
                                 <div>
-                                    <input id="photo" type="file" accept="image/*" onChange={onPhotoChange} className="text-sm text-slate-500" />
+                                    <input id="photo" type="file" accept="image/*" onChange={onPhotoChange} className="text-sm text-slate-500 dark:text-slate-400" />
                                     {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}
                                 </div>
                             </div>
@@ -237,15 +237,15 @@ export default function Create({ filieres }) {
                 ) : (
                     <div className="space-y-6">
                         <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy">{t('preinscription.recapitulatif', 'Récapitulatif')}</h2>
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.recapitulatif', 'Récapitulatif')}</h2>
                             <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                                 {Object.entries(fieldLabels).map(([key, label]) => {
                                     const value = key === 'filiere' ? selectedFiliere?.nom : data[key];
                                     if (!value) return null;
                                     return (
                                         <div key={key}>
-                                            <dt className="text-slate-400">{label}</dt>
-                                            <dd className="font-medium text-slate-700">{value}</dd>
+                                            <dt className="text-slate-400 dark:text-slate-500">{label}</dt>
+                                            <dd className="font-medium text-slate-700 dark:text-slate-200">{value}</dd>
                                         </div>
                                     );
                                 })}
@@ -259,7 +259,7 @@ export default function Create({ filieres }) {
                             <button
                                 type="button"
                                 onClick={() => setStep('form')}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100"
                             >
                                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                                 {t('preinscription.modifier', 'Modifier')}

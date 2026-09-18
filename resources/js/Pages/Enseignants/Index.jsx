@@ -56,8 +56,8 @@ export default function Index({ teachers }) {
                                 <AvatarFallback>{teacher.name?.[0]}</AvatarFallback>
                             </Avatar>
                             <div className="min-w-0">
-                                <h3 className="truncate font-semibold text-isstm-navy">{teacher.name}</h3>
-                                <p className="text-sm text-slate-500">{teacher.specialty}</p>
+                                <h3 className="truncate font-semibold text-isstm-navy dark:text-white">{teacher.name}</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">{teacher.specialty}</p>
                                 <Badge className="mt-1">{categoryLabels[teacher.category] ?? teacher.category}</Badge>
                             </div>
                         </Card>
@@ -65,7 +65,7 @@ export default function Index({ teachers }) {
                 </div>
 
                 {filtered.length === 0 && (
-                    <p className="text-center text-slate-500">{t('enseignants.aucun_resultat', 'Aucun enseignant dans cette catégorie.')}</p>
+                    <p className="text-center text-slate-500 dark:text-slate-400">{t('enseignants.aucun_resultat', 'Aucun enseignant dans cette catégorie.')}</p>
                 )}
             </main>
 

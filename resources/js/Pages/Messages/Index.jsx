@@ -54,11 +54,11 @@ export default function Index({ conversations, friends, activeConversation, mess
         <AppLayout title={t('nav.messages', 'Messages')}>
             <Head title="Messages" />
 
-            <div className="flex h-[70vh] overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <aside className="w-72 flex-shrink-0 border-r border-slate-100">
-                    <div className="border-b border-slate-100 p-3">
+            <div className="flex h-[70vh] overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+                <aside className="w-72 flex-shrink-0 border-r border-slate-100 dark:border-slate-700">
+                    <div className="border-b border-slate-100 dark:border-slate-700 p-3">
                         <label className="flex items-center gap-2 rounded-full border border-slate-300 px-3.5 py-1.5">
-                            <Search className="h-3.5 w-3.5 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                            <Search className="h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                             <input
                                 type="text"
                                 value={filter}
@@ -69,7 +69,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                         </label>
                     </div>
                     <div className="h-[calc(70vh-57px)] overflow-y-auto">
-                        {items.length === 0 && <p className="p-4 text-center text-sm text-slate-400">{t('messages.aucune_conversation', 'Aucune conversation.')}</p>}
+                        {items.length === 0 && <p className="p-4 text-center text-sm text-slate-400 dark:text-slate-500">{t('messages.aucune_conversation', 'Aucune conversation.')}</p>}
                         {items.map((item) => (
                             <button
                                 key={item.user.id}
@@ -84,7 +84,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </Avatar>
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-slate-800">{item.user.name}</p>
-                                    <p className="truncate text-xs text-slate-400">{item.last_message ?? t('messages.demarrer_conversation', 'Démarrer la conversation')}</p>
+                                    <p className="truncate text-xs text-slate-400 dark:text-slate-500">{item.last_message ?? t('messages.demarrer_conversation', 'Démarrer la conversation')}</p>
                                 </div>
                                 {item.unread_count > 0 && (
                                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-isstm-gold px-1 text-[10px] font-bold text-white">
@@ -98,14 +98,14 @@ export default function Index({ conversations, friends, activeConversation, mess
 
                 <section className="flex flex-1 flex-col">
                     {!activeConversation && (
-                        <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
+                        <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-slate-500">
                             {t('messages.selectionner_conversation', 'Sélectionnez une conversation à gauche.')}
                         </div>
                     )}
 
                     {activeConversation && (
                         <>
-                            <div className="flex items-center justify-between border-b border-slate-100 p-3">
+                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 p-3">
                                 <Link href={`/profil/${activeConversation.user.id}`} className="flex items-center gap-2.5">
                                     <Avatar className="h-9 w-9">
                                         <AvatarImage src={activeConversation.user.avatar_path ? `/storage/${activeConversation.user.avatar_path}` : undefined} alt="" />
@@ -113,15 +113,15 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     </Avatar>
                                     <span className="font-semibold text-slate-800">{activeConversation.user.name}</span>
                                 </Link>
-                                <button onClick={() => setShowMedia((v) => !v)} className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy hover:underline">
+                                <button onClick={() => setShowMedia((v) => !v)} className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
                                     <Images className="h-3.5 w-3.5" aria-hidden="true" />
                                     {showMedia ? t('messages.masquer_medias', 'Masquer les médias') : t('messages.medias_echanges', 'Médias échangés')}
                                 </button>
                             </div>
 
                             {showMedia && (
-                                <div className="flex gap-2 overflow-x-auto border-b border-slate-100 bg-slate-50 p-3">
-                                    {media.length === 0 && <p className="text-xs text-slate-400">{t('messages.aucun_media', 'Aucun média échangé.')}</p>}
+                                <div className="flex gap-2 overflow-x-auto border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3">
+                                    {media.length === 0 && <p className="text-xs text-slate-400 dark:text-slate-500">{t('messages.aucun_media', 'Aucun média échangé.')}</p>}
                                     {media.map((m) => (
                                         <a key={m.id} href={`/storage/${m.path}`} target="_blank" rel="noopener">
                                             <img src={`/storage/${m.path}`} alt="" className="h-16 w-16 rounded-lg object-cover" />
@@ -151,14 +151,14 @@ export default function Index({ conversations, friends, activeConversation, mess
                                                         {a.file_type === 'image' ? (
                                                             <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
                                                         ) : (
-                                                            <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy underline">
+                                                            <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
                                                                 <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                                                                 {a.original_name}
                                                             </span>
                                                         )}
                                                     </a>
                                                 ))}
-                                                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-400">
+                                                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
                                                     <span>{formatTime(m.created_at)}</span>
                                                     <button onClick={() => hideMessage(m.id)} className="opacity-0 hover:underline group-hover:opacity-100">
                                                         {t('messages.masquer', 'Masquer')}
@@ -170,8 +170,8 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </div>
                             )}
 
-                            <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
-                                <label className="flex-shrink-0 text-slate-400" title={t('groupes.piece_jointe', 'Pièce jointe')}>
+                            <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
+                                <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
                                     <Paperclip className="h-4 w-4" aria-hidden="true" />
                                     <input type="file" multiple onChange={(e) => setData('attachments', Array.from(e.target.files))} className="hidden" />
                                 </label>
