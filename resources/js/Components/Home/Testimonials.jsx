@@ -38,7 +38,7 @@ export default function Testimonials({ testimonials }) {
                 </h2>
 
                 <div
-                    className="relative flex flex-col items-center gap-6 rounded-[63%_37%_41%_59%/47%_60%_40%_53%] px-5 py-10 transition-colors duration-700 sm:flex-row sm:gap-14 sm:px-16 sm:py-14"
+                    className="relative flex flex-col items-center gap-6 rounded-3xl px-6 py-10 transition-colors duration-700 sm:flex-row sm:gap-14 sm:rounded-[63%_37%_41%_59%/47%_60%_40%_53%] sm:px-16 sm:py-14"
                     style={{ backgroundColor: BG_TINTS[current % BG_TINTS.length] }}
                 >
                     <div className="relative z-20 h-40 w-40 flex-shrink-0 sm:h-56 sm:w-56" style={{ perspective: '1400px' }}>
@@ -64,8 +64,8 @@ export default function Testimonials({ testimonials }) {
                         })}
                     </div>
 
-                    <div className="relative min-h-[9rem] flex-1">
-                        <Quote className="mb-2.5 h-8 w-8 text-isstm-gold/60" aria-hidden="true" />
+                    <div className="relative min-h-[10rem] flex-1 text-center sm:min-h-[9rem] sm:text-left">
+                        <Quote className="mx-auto mb-2.5 h-7 w-7 text-isstm-gold/60 sm:mx-0 sm:h-8 sm:w-8" aria-hidden="true" />
                         {testimonials.map((testimonial, index) => (
                             <div
                                 key={testimonial.author_name}
@@ -75,8 +75,10 @@ export default function Testimonials({ testimonials }) {
                                         : 'pointer-events-none absolute inset-x-0 top-0 translate-x-4 opacity-0'
                                 }`}
                             >
-                                <blockquote className="font-serif text-xl italic leading-relaxed text-isstm-navy">{testimonial.quote}</blockquote>
-                                <p className="mt-4 text-lg font-bold text-isstm-navy">{testimonial.author_name}</p>
+                                <blockquote className="font-serif text-base italic leading-relaxed text-isstm-navy sm:text-xl">
+                                    {testimonial.quote}
+                                </blockquote>
+                                <p className="mt-4 text-base font-bold text-isstm-navy sm:text-lg">{testimonial.author_name}</p>
                                 <p className="text-sm text-slate-500">{testimonial.program}</p>
                             </div>
                         ))}
