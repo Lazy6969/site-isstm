@@ -1,9 +1,14 @@
 import { Link, router, usePage } from '@inertiajs/react';
+import { ChevronDown, LogOut, MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import HeaderSearchButton from '../Layout/HeaderSearchButton';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import MobileTabBar from '../Layout/MobileTabBar';
-import { etablissementLinks, vieEtudianteLinks } from '../Layout/headerNavLinks';
+import NotificationBell from '../Layout/NotificationBell';
+import BrandTitle from '../Layout/BrandTitle';
+import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from '../Layout/headerNavLinks';
+import { useHideOnScroll } from '../../lib/useHideOnScroll';
+import { useTranslations } from '../../lib/useTranslations';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -12,6 +17,7 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
 } from '../ui/navigation-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 function NavDropdown({ label, items }) {
     return (
@@ -36,8 +42,11 @@ function NavDropdown({ label, items }) {
 
 export default function Header() {
     const { auth } = usePage().props;
+    const { t } = useTranslations();
     const user = auth?.user;
+    const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const [scrolled, setScrolled] = useState(false);
+    const hidden = useHideOnScroll();
 
     useEffect(() => {
         function onScroll() {
@@ -55,40 +64,49 @@ export default function Header() {
 
     return (
         <header
-            className={`fixed inset-x-0 top-0 z-40 text-white transition-colors duration-300 ${
+            className={`fixed inset-x-0 top-0 z-40 text-white transition-[background-color,box-shadow,transform] duration-300 ${
                 scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
-            }`}
+            } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
         >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-                <a href="#accueil" className="flex items-center">
+                <a href="#accueil" className="flex items-center gap-3.5">
                     <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
+                    <BrandTitle />
                 </a>
 
                 <NavigationMenu className="hidden md:flex">
                     <NavigationMenuList className="gap-2">
-                        <NavDropdown label="Établissement" items={etablissementLinks} />
-                        <NavDropdown label="Vie étudiante" items={vieEtudianteLinks} />
+                        <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
+                        <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
                                 <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    Actualités
+                                    {t('nav.actualites', 'Actualités')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.galerie', 'Galerie')}
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
                                 <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    Inscription
+                                    {t('nav.inscription', 'Inscription')}
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
                                 <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                    Contact
+                                    {t('nav.contact', 'Contact')}
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
+                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
                         <NavigationMenuItem>
                             <HeaderSearchButton variant="labelled" />
                         </NavigationMenuItem>
@@ -98,23 +116,57 @@ export default function Header() {
                 <div className="hidden items-center gap-3 sm:flex">
                     <LanguageSwitcher />
                     {user ? (
-                        <>
-                            <Link href="/profil" className="text-sm font-medium transition hover:text-isstm-gold">
-                                {user.name}
-                            </Link>
-                            <button
-                                onClick={logout}
-                                className="rounded-full border border-white/60 px-4 py-2 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                            >
-                                Déconnexion
-                            </button>
-                        </>
+                        <div className="flex items-center gap-3 text-sm">
+                            {user.is_messagerie && (
+                                <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
+                                    <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
+                                </Link>
+                            )}
+                            {isCommunityMember && <NotificationBell />}
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/10 focus:outline-none">
+                                    <img
+                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
+                                        alt=""
+                                        className="h-7 w-7 rounded-full object-cover"
+                                    />
+                                    {user.name}
+                                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/bibliotheque">{t('bibliotheque.titre', 'Bibliothèque numérique')}</Link>
+                                    </DropdownMenuItem>
+                                    {user.role === 'admin' && (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/admin/preinscriptions">{t('preinscriptions_admin.titre_menu', 'Préinscriptions')}</Link>
+                                        </DropdownMenuItem>
+                                    )}
+                                    {['admin', 'bibliotheque'].includes(user.role) && (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/bibliotheque/admin">{t('bibliotheque_admin.gerer_bibliotheque', 'Gérer la bibliothèque')}</Link>
+                                        </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={logout}>
+                                        <LogOut className="h-4 w-4" aria-hidden="true" />
+                                        {t('nav.deconnexion', 'Déconnexion')}
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     ) : (
                         <Link
                             href="/inscription"
                             className="rounded-full bg-isstm-gold px-4 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                         >
-                            Inscrivez-vous
+                            {t('nav.inscrivez_vous', 'Inscrivez-vous')}
                         </Link>
                     )}
                 </div>

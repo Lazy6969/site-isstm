@@ -24,7 +24,7 @@ class HomeContentSeeder extends Seeder
     private function seedSiteContent(): void
     {
         $entries = [
-            'directeur_nom' => ['MANASINA Ruffin', 'MANASINA Ruffin', 'MANASINA Ruffin'],
+            'directeur_nom' => ['Professeur MANASINA Ruffin', 'Professor MANASINA Ruffin', 'Profesora MANASINA Ruffin'],
             'mot_directeur_contenu' => [
                 "C'est avec une immense fierté que je vous accueille à l'ISSTM, un lieu où l'excellence académique rencontre l'innovation et la discipline. Notre mission est de former les leaders de demain, des professionnels compétents et des citoyens responsables, prêts à relever les défis de notre temps. Nous nous engageons à vous offrir un environnement d'apprentissage stimulant, soutenu par un corps enseignant dévoué. Rejoignez-nous pour construire ensemble votre avenir.",
                 'It is with immense pride that I welcome you to the ISSTM, a place where academic excellence meets innovation and discipline. Our mission is to develop the leaders of tomorrow, competent professionals and responsible citizens, ready to meet the challenges of our time. We are committed to providing you with a challenging learning environment, supported by dedicated faculty. Join us in building your future together.',

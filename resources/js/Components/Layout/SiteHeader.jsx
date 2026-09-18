@@ -4,7 +4,10 @@ import NotificationBell from './NotificationBell';
 import HeaderSearchButton from './HeaderSearchButton';
 import LanguageSwitcher from './LanguageSwitcher';
 import MobileTabBar from './MobileTabBar';
-import { etablissementLinks, vieEtudianteLinks, communauteLinks } from './headerNavLinks';
+import BrandTitle from './BrandTitle';
+import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from './headerNavLinks';
+import { useHideOnScroll } from '../../lib/useHideOnScroll';
+import { useTranslations } from '../../lib/useTranslations';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -38,8 +41,10 @@ function NavDropdown({ label, items }) {
 
 export default function SiteHeader() {
     const { auth } = usePage().props;
+    const { t } = useTranslations();
     const user = auth?.user;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
+    const hidden = useHideOnScroll();
 
     function logout(e) {
         e.preventDefault();
@@ -47,45 +52,48 @@ export default function SiteHeader() {
     }
 
     return (
-        <header className="sticky top-0 z-40 bg-isstm-navy text-white">
+        <header
+            className={`sticky top-0 z-40 bg-isstm-navy text-white transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
+        >
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-                <div className="flex items-center gap-8">
-                    <Link href="/" className="flex items-center">
+                <div className="flex items-center gap-6">
+                    <Link href="/" className="flex items-center gap-3.5">
                         <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-auto" />
+                        <BrandTitle />
                     </Link>
                     <NavigationMenu className="hidden lg:flex">
                         <NavigationMenuList>
-                            <NavDropdown label="Établissement" items={etablissementLinks} />
-                            <NavDropdown label="Vie étudiante" items={vieEtudianteLinks} />
+                            <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
+                            <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
                                     <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        Actualités
+                                        {t('nav.actualites', 'Actualités')}
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
                                     <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        Galerie
+                                        {t('nav.galerie', 'Galerie')}
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
                                     <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        Inscription
+                                        {t('nav.inscription', 'Inscription')}
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild>
                                     <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        Contact
+                                        {t('nav.contact', 'Contact')}
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
-                            {isCommunityMember && <NavDropdown label="Communauté" items={communauteLinks} />}
+                            {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
                         </NavigationMenuList>
                     </NavigationMenu>
                 </div>
@@ -97,7 +105,7 @@ export default function SiteHeader() {
                     {user ? (
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
-                                <Link href="/messagerie" className="hover:text-isstm-gold" title="Messagerie interne">
+                                <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
                                     <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
                                 </Link>
                             )}
@@ -114,28 +122,28 @@ export default function SiteHeader() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
                                     <DropdownMenuItem asChild>
-                                        <Link href={`/profil/${user.id}`}>Voir mon profil public</Link>
+                                        <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/profil">Modifier mon profil</Link>
+                                        <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/bibliotheque">Bibliothèque numérique</Link>
+                                        <Link href="/bibliotheque">{t('bibliotheque.titre', 'Bibliothèque numérique')}</Link>
                                     </DropdownMenuItem>
                                     {user.role === 'admin' && (
                                         <DropdownMenuItem asChild>
-                                            <Link href="/admin/preinscriptions">Préinscriptions</Link>
+                                            <Link href="/admin/preinscriptions">{t('preinscriptions_admin.titre_menu', 'Préinscriptions')}</Link>
                                         </DropdownMenuItem>
                                     )}
                                     {['admin', 'bibliotheque'].includes(user.role) && (
                                         <DropdownMenuItem asChild>
-                                            <Link href="/bibliotheque/admin">Gérer la bibliothèque</Link>
+                                            <Link href="/bibliotheque/admin">{t('bibliotheque_admin.gerer_bibliotheque', 'Gérer la bibliothèque')}</Link>
                                         </DropdownMenuItem>
                                     )}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onSelect={logout}>
                                         <LogOut className="h-4 w-4" aria-hidden="true" />
-                                        Déconnexion
+                                        {t('nav.deconnexion', 'Déconnexion')}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -145,7 +153,7 @@ export default function SiteHeader() {
                             href="/login"
                             className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
                         >
-                            Se connecter
+                            {t('nav.se_connecter', 'Se connecter')}
                         </Link>
                     )}
                 </div>

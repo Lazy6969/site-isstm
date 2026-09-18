@@ -1,24 +1,9 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
-import { etablissementLinks, vieEtudianteLinks } from '../Layout/headerNavLinks';
+import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
+import { useTranslations } from '../../lib/useTranslations';
 
-const quickLinks = [
-    { href: '/', label: 'Accueil' },
-    ...etablissementLinks,
-    ...vieEtudianteLinks,
-    { href: '/actualites', label: 'Actualités' },
-    { href: '/galerie', label: 'Galerie' },
-    { href: '/inscription', label: 'Inscription' },
-    { href: '/bibliotheque', label: 'Bibliothèque numérique' },
-    { href: '/contact', label: 'Contact' },
-];
-
-const locations = [
-    { key: 'principale', titleKey: 'localisation_principale' },
-    { key: 'annexe', titleKey: 'localisation_annexe_titre' },
-];
-
-function NewsletterForm() {
+function NewsletterForm({ t }) {
     const { flash } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({ email: '' });
 
@@ -29,8 +14,8 @@ function NewsletterForm() {
 
     return (
         <div className="mt-6">
-            <h5 className="text-xs font-semibold uppercase tracking-wide text-white/50">Newsletter</h5>
-            <p className="mt-1.5 text-sm text-white/60">Recevez les actualités de l'ISSTM par e-mail.</p>
+            <h5 className="text-xs font-semibold uppercase tracking-wide text-white/50">{t('footer.newsletter', 'Newsletter')}</h5>
+            <p className="mt-1.5 text-sm text-white/60">{t('footer.newsletter_texte', "Recevez les actualités de l'ISSTM par e-mail.")}</p>
             <form onSubmit={submit} className="mt-3 flex max-w-sm gap-2">
                 <input
                     type="email"
@@ -43,7 +28,7 @@ function NewsletterForm() {
                 <button
                     type="submit"
                     disabled={processing}
-                    aria-label="S'abonner"
+                    aria-label={t('footer.sabonner', "S'abonner")}
                     className="flex flex-shrink-0 items-center justify-center rounded-lg bg-isstm-gold px-3.5 text-isstm-navy-dark transition hover:brightness-110 disabled:opacity-50"
                 >
                     <Send className="h-4 w-4" aria-hidden="true" />
@@ -57,13 +42,30 @@ function NewsletterForm() {
 
 export default function Footer() {
     const { props } = usePage();
+    const { t } = useTranslations();
     const content = props.content ?? {};
+
+    const quickLinks = [
+        { href: '/', label: t('nav.accueil', 'Accueil') },
+        ...getEtablissementLinks(t),
+        ...getVieEtudianteLinks(t),
+        { href: '/actualites', label: t('nav.actualites', 'Actualités') },
+        { href: '/galerie', label: t('nav.galerie', 'Galerie') },
+        { href: '/inscription', label: t('nav.inscription', 'Inscription') },
+        { href: '/bibliotheque', label: t('bibliotheque.titre', 'Bibliothèque numérique') },
+        { href: '/contact', label: t('nav.contact', 'Contact') },
+    ];
+
+    const locations = [
+        { key: 'principale', titleKey: 'localisation_principale' },
+        { key: 'annexe', titleKey: 'localisation_annexe_titre' },
+    ];
 
     return (
         <footer className="bg-isstm-navy-dark text-white/70">
             <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">Liens rapides</h4>
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">{t('footer.liens_rapides', 'Liens rapides')}</h4>
                     <nav className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         {quickLinks.map((item) => (
                             <Link key={item.href} href={item.href} className="hover:text-white">
@@ -79,11 +81,11 @@ export default function Footer() {
                     </Link>
                     {content.devise && <p className="mt-3 text-sm font-medium text-isstm-gold">{content.devise}</p>}
                     {content.footer_description && <p className="mt-3 max-w-sm text-sm leading-relaxed">{content.footer_description}</p>}
-                    <NewsletterForm />
+                    <NewsletterForm t={t} />
                 </div>
 
                 <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">Contactez-nous</h4>
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">{t('footer.contact', 'Contactez-nous')}</h4>
                     <div className="mt-4 space-y-2.5 text-sm">
                         {content.contact_email && (
                             <a href={`mailto:${content.contact_email}`} className="flex items-center gap-2.5 hover:text-white">
@@ -115,7 +117,7 @@ export default function Footer() {
                         )}
                     </div>
 
-                    <h5 className="mt-6 text-xs font-semibold uppercase tracking-wide text-white/50">Nos localisations</h5>
+                    <h5 className="mt-6 text-xs font-semibold uppercase tracking-wide text-white/50">{t('footer.localisation', 'Nos localisations')}</h5>
                     <div className="mt-2 space-y-1.5 text-sm">
                         {locations.map((location) => (
                             <p key={location.key} className="text-white/60">
@@ -128,10 +130,12 @@ export default function Footer() {
 
             <div className="border-t border-white/10 py-6">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-xs sm:flex-row">
-                    <p>&copy; {new Date().getFullYear()} ISSTM — Institut Supérieur des Sciences et Technologies de Mahajanga.</p>
+                    <p>
+                        &copy; {new Date().getFullYear()} ISSTM — {t('footer.institut_complet', 'Institut Supérieur des Sciences et Technologies de Mahajanga.')}
+                    </p>
                     <nav className="flex gap-4">
-                        <Link href="/mentions-legales" className="hover:text-white">Mentions légales</Link>
-                        <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
+                        <Link href="/mentions-legales" className="hover:text-white">{t('footer.mentions_legales', 'Mentions légales')}</Link>
+                        <Link href="/confidentialite" className="hover:text-white">{t('footer.confidentialite', 'Confidentialité')}</Link>
                     </nav>
                 </div>
             </div>

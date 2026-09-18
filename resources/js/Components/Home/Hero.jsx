@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Hero({ slides }) {
+    const { t } = useTranslations();
     const [active, setActive] = useState(0);
     const safeSlides = slides.length > 0 ? slides : [{ image_path: 'images/slide1.jpg' }];
 
@@ -33,29 +35,31 @@ export default function Hero({ slides }) {
                     <span className="align-top text-[1.15em] leading-none text-isstm-gold" aria-hidden="true">
                         &ldquo;
                     </span>
-                    L'excellence technique
+                    {t('accueil.hero_titre_ligne1', "L'excellence technique")}
                     <br />
-                    au service de votre avenir
+                    {t('accueil.hero_titre_ligne2', 'au service de votre avenir')}
                     <span className="align-bottom text-[1.15em] leading-none text-isstm-gold" aria-hidden="true">
                         &rdquo;
                     </span>
                 </h1>
                 <p className="mx-auto mt-6 max-w-xl text-lg text-white/85">
-                    L'Institut Supérieur des Sciences, Techniques et Management forme les ingénieurs
-                    et techniciens de demain à Mahajanga, Madagascar.
+                    {t(
+                        'accueil.hero_soustitre',
+                        "L'Institut Supérieur des Sciences, Techniques et Management forme les ingénieurs et techniciens de demain à Mahajanga, Madagascar.",
+                    )}
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                     <Link
                         href="/inscription"
                         className="rounded-full bg-isstm-gold px-7 py-3 text-sm font-semibold text-isstm-navy-dark shadow-lg transition hover:brightness-110"
                     >
-                        Inscrivez-vous
+                        {t('nav.inscrivez_vous', 'Inscrivez-vous')}
                     </Link>
                     <Link
                         href="/login"
                         className="rounded-full border border-white/70 px-7 py-3 text-sm font-semibold transition hover:bg-white hover:text-isstm-navy"
                     >
-                        Se connecter
+                        {t('nav.se_connecter', 'Se connecter')}
                     </Link>
                 </div>
             </div>
@@ -66,7 +70,7 @@ export default function Hero({ slides }) {
                         <button
                             key={slide.image_path}
                             type="button"
-                            aria-label={`Aller à la diapositive ${index + 1}`}
+                            aria-label={`${t('accueil.aller_diapositive', 'Aller à la diapositive')} ${index + 1}`}
                             onClick={() => setActive(index)}
                             className={`h-2.5 rounded-full transition-all ${
                                 index === active ? 'w-8 bg-isstm-gold' : 'w-2.5 bg-white/50'
