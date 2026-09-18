@@ -116,7 +116,7 @@ export default function Header() {
                     </NavigationMenu>
                 </div>
 
-                <div className="hidden items-center gap-3 sm:flex">
+                <div className="hidden items-center gap-3 md:flex">
                     <DarkModeToggle />
                     <LanguageSwitcher />
                     {user ? (
