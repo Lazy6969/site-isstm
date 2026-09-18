@@ -76,8 +76,8 @@ export default function Header() {
                 } ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
             <div className="relative flex items-center justify-between px-4 py-3 sm:px-6">
-                <a href="#accueil" className="flex flex-shrink-0 items-center gap-3.5">
-                    <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-12 w-auto" />
+                <a href="#accueil" className="flex min-w-0 items-center gap-3.5">
+                    <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-12 w-auto flex-shrink-0" />
                     <BrandTitle />
                 </a>
 

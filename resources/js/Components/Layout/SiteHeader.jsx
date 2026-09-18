@@ -63,9 +63,9 @@ export default function SiteHeader() {
                 className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
             <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-                <div className="flex items-center gap-6">
-                    <Link href="/" className="flex items-center gap-3.5">
-                        <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto" />
+                <div className="flex min-w-0 items-center gap-6">
+                    <Link href="/" className="flex min-w-0 items-center gap-3.5">
+                        <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto flex-shrink-0" />
                         <BrandTitle />
                     </Link>
                     <NavigationMenu className="hidden md:flex">
