@@ -26,7 +26,7 @@ export default function Index({ memoires, categories, filieresList, annees, filt
                 <select
                     value={data.categorie}
                     onChange={(e) => applyFilters({ categorie: e.target.value })}
-                    className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                    className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                 >
                     <option value="">{t('bibliotheque.toutes_categories', 'Toutes les catégories')}</option>
                     {categories.map((c) => (
@@ -36,7 +36,7 @@ export default function Index({ memoires, categories, filieresList, annees, filt
                 <select
                     value={data.filiere_id}
                     onChange={(e) => applyFilters({ filiere_id: e.target.value })}
-                    className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                    className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                 >
                     <option value="">{t('bibliotheque.toutes_filieres', 'Toutes les filières')}</option>
                     {filieresList.map((f) => (
@@ -46,7 +46,7 @@ export default function Index({ memoires, categories, filieresList, annees, filt
                 <select
                     value={data.annee_id}
                     onChange={(e) => applyFilters({ annee_id: e.target.value })}
-                    className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                    className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                 >
                     <option value="">{t('bibliotheque.toutes_annees', 'Toutes les années')}</option>
                     {annees.map((a) => (
@@ -57,7 +57,7 @@ export default function Index({ memoires, categories, filieresList, annees, filt
 
             <div className="space-y-2">
                 {memoires.length === 0 && (
-                    <Card className="p-8 text-center text-sm text-slate-400">
+                    <Card className="p-8 text-center text-sm text-slate-400 dark:text-slate-500">
                         {t('bibliotheque.aucun_memoire_filtre', 'Aucun document ne correspond à ces filtres.')}
                     </Card>
                 )}
@@ -66,8 +66,8 @@ export default function Index({ memoires, categories, filieresList, annees, filt
                         <Card className="p-4 transition hover:border-isstm-navy/30">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                    <p className="truncate font-medium text-slate-700">{m.titre}</p>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="truncate font-medium text-slate-700 dark:text-slate-200">{m.titre}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
                                         {m.auteur} · {m.filiere} ({m.niveau}) · {m.mention} · {m.annee}
                                     </p>
                                 </div>

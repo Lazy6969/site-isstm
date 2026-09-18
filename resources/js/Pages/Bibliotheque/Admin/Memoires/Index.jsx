@@ -38,7 +38,7 @@ export default function Index({ memoires, filieresList, annees }) {
 
             <Card className="mb-8 p-5">
                 <form onSubmit={submit}>
-                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy">
+                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy dark:text-white">
                         <Upload className="h-4 w-4 text-isstm-gold" aria-hidden="true" />
                         {t('bibliotheque_admin.ajouter_memoire', 'Ajouter un mémoire ou projet')}
                     </h2>
@@ -48,26 +48,26 @@ export default function Index({ memoires, filieresList, annees }) {
                             value={data.titre}
                             onChange={(e) => setData('titre', e.target.value)}
                             placeholder={t('bibliotheque_admin.titre_memoire', 'Titre du mémoire')}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
                         />
                         <input
                             type="text"
                             value={data.auteur}
                             onChange={(e) => setData('auteur', e.target.value)}
                             placeholder={t('bibliotheque_admin.auteur', 'Auteur')}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         />
                         <input
                             type="text"
                             value={data.encadreur}
                             onChange={(e) => setData('encadreur', e.target.value)}
                             placeholder={t('bibliotheque_admin.encadreur_facultatif', 'Encadreur (facultatif)')}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         />
                         <select
                             value={data.categorie}
                             onChange={(e) => setData('categorie', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             <option value="Mémoire">Mémoire</option>
                             <option value="Projet">Projet</option>
@@ -75,7 +75,7 @@ export default function Index({ memoires, filieresList, annees }) {
                         <select
                             value={data.filiere_id}
                             onChange={(e) => setData('filiere_id', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             {filieresList.map((f) => (
                                 <option key={f.id} value={f.id}>{f.label}</option>
@@ -84,7 +84,7 @@ export default function Index({ memoires, filieresList, annees }) {
                         <select
                             value={data.annee_id}
                             onChange={(e) => setData('annee_id', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             {annees.map((a) => (
                                 <option key={a.id} value={a.id}>{a.libelle}</option>
@@ -95,13 +95,13 @@ export default function Index({ memoires, filieresList, annees }) {
                             onChange={(e) => setData('resume', e.target.value)}
                             rows={2}
                             placeholder={t('bibliotheque_admin.resume_facultatif', 'Résumé (facultatif)')}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
                         />
                         <input
                             type="file"
                             accept=".pdf"
                             onChange={(e) => setData('fichier', e.target.files[0] ?? null)}
-                            className="text-sm text-slate-500 sm:col-span-2"
+                            className="text-sm text-slate-500 dark:text-slate-400 sm:col-span-2"
                         />
                     </div>
                     {Object.keys(errors).length > 0 && <p className="mt-2 text-sm text-red-600">{Object.values(errors)[0]}</p>}
@@ -116,10 +116,10 @@ export default function Index({ memoires, filieresList, annees }) {
                 {memoires.map((m) => (
                     <Card key={m.id} className="flex items-center gap-3 p-4">
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium text-slate-700">{m.titre}</p>
-                            <p className="text-xs text-slate-400">{m.auteur} · {m.categorie} · {m.filiere} · {m.annee}</p>
+                            <p className="truncate font-medium text-slate-700 dark:text-slate-200">{m.titre}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500">{m.auteur} · {m.categorie} · {m.filiere} · {m.annee}</p>
                         </div>
-                        <button onClick={() => destroy(m.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-600">
+                        <button onClick={() => destroy(m.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-red-600">
                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             {t('communaute.supprimer', 'Supprimer')}
                         </button>

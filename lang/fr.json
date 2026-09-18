@@ -425,6 +425,7 @@
     "preinscription.soustitre": "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.",
     "preinscription.titre": "Préinscription en ligne",
     "preinscription.verifier_cta": "Vérifier ma préinscription",
+    "preinscriptions_admin.approbation_en_cours": "Approbation…",
     "preinscriptions_admin.approuver": "Approuver",
     "preinscriptions_admin.aucune_preinscription": "Aucune préinscription en attente.",
     "preinscriptions_admin.confirmer_approbation": "Créer le compte étudiant pour cette préinscription ?",

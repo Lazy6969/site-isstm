@@ -75,8 +75,8 @@ export default function Show({ group, membership, members, messages, announcemen
 
             <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-bold text-isstm-navy">{group.name}</h1>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{group.name}</h1>
+                    <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
                         {[group.filiere, group.niveau, group.annee].filter(Boolean).join(' · ') || group.type_label}
                     </p>
                 </div>
@@ -89,7 +89,7 @@ export default function Show({ group, membership, members, messages, announcemen
                     {membership.can_download_presence && (
                         <Link
                             href={`/groupes/${group.id}/presence`}
-                            className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/5"
+                            className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:bg-isstm-navy/5"
                         >
                             <Printer className="h-3.5 w-3.5" aria-hidden="true" />
                             {t('groupes.feuille_presence', 'Feuille de présence')}
@@ -98,7 +98,7 @@ export default function Show({ group, membership, members, messages, announcemen
                 </div>
             </div>
 
-            <div className="mb-6 flex gap-1 border-b border-slate-200">
+            <div className="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
                 {tabs.map((item) => (
                     <button
                         key={item.key}
@@ -115,32 +115,32 @@ export default function Show({ group, membership, members, messages, announcemen
             {tab === 'discussion' && (
                 <Card className="flex h-[60vh] flex-col overflow-hidden">
                     <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                        {messages.length === 0 && <p className="text-center text-sm text-slate-400">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
+                        {messages.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                         {messages.map((m) => (
                             <div key={m.id} className="group flex items-start gap-2.5">
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-sm font-semibold text-slate-800">{m.sender_name}</span>
-                                        <span className="text-xs text-slate-400">{formatTime(m.created_at)}</span>
+                                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{m.sender_name}</span>
+                                        <span className="text-xs text-slate-400 dark:text-slate-500">{formatTime(m.created_at)}</span>
                                     </div>
                                     {m.deleted_for_everyone ? (
-                                        <p className="text-sm italic text-slate-400">{t('groupes.message_supprime', 'Message supprimé')}</p>
+                                        <p className="text-sm italic text-slate-400 dark:text-slate-500">{t('groupes.message_supprime', 'Message supprimé')}</p>
                                     ) : (
                                         <>
-                                            {m.body && <p className="text-sm text-slate-700">{m.body}</p>}
+                                            {m.body && <p className="text-sm text-slate-700 dark:text-slate-200">{m.body}</p>}
                                             {m.attachments.map((a) => (
                                                 <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
                                                     {a.file_type === 'image' ? (
                                                         <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
                                                     ) : (
-                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy underline">
+                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
                                                             <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                                                             {a.original_name}
                                                         </span>
                                                     )}
                                                 </a>
                                             ))}
-                                            <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 opacity-0 group-hover:opacity-100">
+                                            <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
                                                     {t('groupes.masquer_pour_moi', 'Masquer pour moi')}
                                                 </button>
@@ -155,8 +155,8 @@ export default function Show({ group, membership, members, messages, announcemen
                         ))}
                     </div>
 
-                    <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
-                        <label className="flex-shrink-0 text-slate-400" title={t('groupes.piece_jointe', 'Pièce jointe')}>
+                    <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
+                        <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
                             <Paperclip className="h-4 w-4" aria-hidden="true" />
                             <input
                                 type="file"
@@ -170,7 +170,7 @@ export default function Show({ group, membership, members, messages, announcemen
                             value={messageForm.data.body}
                             onChange={(e) => messageForm.setData('body', e.target.value)}
                             placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
-                            className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="flex-1 rounded-full border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         />
                         <button disabled={messageForm.processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
                             <Send className="h-3.5 w-3.5" aria-hidden="true" />
@@ -189,8 +189,8 @@ export default function Show({ group, membership, members, messages, announcemen
                                 <AvatarFallback>{m.name?.[0]}</AvatarFallback>
                             </Avatar>
                             <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold text-slate-800">{m.name}</p>
-                                <p className="text-xs text-slate-400">
+                                <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{m.name}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">
                                     {m.role_in_group === 'enseignant' ? t('groupes.enseignant_role', 'Enseignant') : t('groupes.etudiant_role', 'Étudiant')}
                                     {m.is_delegate ? ` · ${t('groupes.delegue_classe', 'Délégué de classe')}` : ''}
                                     {m.is_banned ? ` · ${t('groupes.banni', 'Banni')}` : ''}
@@ -200,7 +200,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => toggleDelegate(m.id)}
-                                        className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                        className="flex items-center gap-1.5 rounded-full border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                                     >
                                         <Crown className="h-3.5 w-3.5" aria-hidden="true" />
                                         {m.is_delegate ? t('groupes.retirer_delegue', 'Retirer délégué') : t('groupes.nommer_delegue', 'Nommer délégué')}
@@ -208,7 +208,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                     {m.is_banned ? (
                                         <button
                                             onClick={() => unbanMember(m.id)}
-                                            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                            className="flex items-center gap-1.5 rounded-full border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                                         >
                                             <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
                                             {t('groupes.reintegrer', 'Réintégrer')}
@@ -238,7 +238,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                     <select
                                         value={announcementForm.data.type}
                                         onChange={(e) => announcementForm.setData('type', e.target.value)}
-                                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                        className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                     >
                                         {announcementTypes.map((type) => (
                                             <option key={type.value} value={type.value}>
@@ -251,13 +251,13 @@ export default function Show({ group, membership, members, messages, announcemen
                                         value={announcementForm.data.title}
                                         onChange={(e) => announcementForm.setData('title', e.target.value)}
                                         placeholder={t('groupes.titre_placeholder', 'Titre')}
-                                        className="flex-1 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                        className="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                     />
                                     <input
                                         type="date"
                                         value={announcementForm.data.due_date}
                                         onChange={(e) => announcementForm.setData('due_date', e.target.value)}
-                                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                        className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                     />
                                 </div>
                                 <textarea
@@ -265,7 +265,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                     onChange={(e) => announcementForm.setData('description', e.target.value)}
                                     rows={2}
                                     placeholder={t('groupes.description_facultatif', 'Description (facultatif)')}
-                                    className="mt-2 w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                    className="mt-2 w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                 />
                                 {announcementForm.errors.title && <p className="mt-1 text-sm text-red-600">{announcementForm.errors.title}</p>}
                                 <div className="mt-2 flex justify-end">
@@ -279,7 +279,7 @@ export default function Show({ group, membership, members, messages, announcemen
                     )}
 
                     {announcements.length === 0 && (
-                        <Card className="p-8 text-center text-sm text-slate-400">
+                        <Card className="p-8 text-center text-sm text-slate-400 dark:text-slate-500">
                             {t('groupes.aucune_annonce', 'Aucune annonce épinglée.')}
                         </Card>
                     )}
@@ -288,17 +288,17 @@ export default function Show({ group, membership, members, messages, announcemen
                             <div className="flex items-start justify-between">
                                 <div>
                                     <Badge variant="gold">{a.type_label}</Badge>
-                                    <h3 className="mt-2 font-semibold text-slate-800">{a.title}</h3>
+                                    <h3 className="mt-2 font-semibold text-slate-800 dark:text-slate-100">{a.title}</h3>
                                 </div>
                                 {membership.can_moderate && (
-                                    <button onClick={() => deleteAnnouncement(a.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-600">
+                                    <button onClick={() => deleteAnnouncement(a.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-red-600">
                                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                                         {t('communaute.supprimer', 'Supprimer')}
                                     </button>
                                 )}
                             </div>
-                            {a.description && <p className="mt-2 text-sm text-slate-600">{a.description}</p>}
-                            <p className="mt-3 text-xs text-slate-400">
+                            {a.description && <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{a.description}</p>}
+                            <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
                                 {t('groupes.par', 'Par')} {a.teacher_name} · {formatTime(a.created_at)}
                                 {a.due_date ? ` · ${t('groupes.echeance', 'Échéance :')} ${a.due_date}` : ''}
                             </p>

@@ -23,7 +23,7 @@ export default function Login() {
             <Head title="Connexion" />
 
             {flash?.status && (
-                <p className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                <p className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
                     <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                     {flash.status}
                 </p>
@@ -51,7 +51,7 @@ export default function Login() {
                 />
 
                 <div className="flex items-center justify-between text-sm">
-                    <label className="flex items-center gap-2 text-slate-600">
+                    <label className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <input
                             type="checkbox"
                             checked={data.remember}
@@ -60,7 +60,7 @@ export default function Login() {
                         />
                         {t('auth.se_souvenir', 'Se souvenir de moi')}
                     </label>
-                    <Link href="/mot-de-passe-oublie" className="font-medium text-isstm-navy hover:underline">
+                    <Link href="/mot-de-passe-oublie" className="font-medium text-isstm-navy hover:underline dark:text-isstm-gold">
                         {t('auth.mot_de_passe_oublie', 'Mot de passe oublié ?')}
                     </Link>
                 </div>

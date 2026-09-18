@@ -47,7 +47,7 @@ export default function ResetPassword({ email, token }) {
 
                 <ul className="space-y-1 text-xs">
                     {criteria.map((c) => (
-                        <li key={c.key} className={`flex items-center gap-2 ${c.met ? 'text-emerald-600' : 'text-slate-400'}`}>
+                        <li key={c.key} className={`flex items-center gap-2 ${c.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
                             {c.met ? (
                                 <Check className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
                             ) : (

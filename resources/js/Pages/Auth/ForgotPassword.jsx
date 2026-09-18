@@ -23,11 +23,11 @@ export default function ForgotPassword() {
 
             {flash?.status ? (
                 <div>
-                    <p className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                    <p className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
                         <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                         {flash.status}
                     </p>
-                    <Link href="/login" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline">
+                    <Link href="/login" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-isstm-gold">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('auth.retour_connexion', 'Retour à la connexion')}
                     </Link>
@@ -54,7 +54,7 @@ export default function ForgotPassword() {
                         {t('auth.envoyer_lien', 'Envoyer le lien')}
                     </button>
 
-                    <Link href="/login" className="flex items-center justify-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline">
+                    <Link href="/login" className="flex items-center justify-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-isstm-gold">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('auth.retour_connexion', 'Retour à la connexion')}
                     </Link>

@@ -21,7 +21,7 @@ export default function Show({ album }) {
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('galerie.toute_la_galerie', 'Toute la galerie')}
                     </Link>
-                    <h1 className="mt-2 text-3xl font-bold">{album.title}</h1>
+                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{album.title}</h1>
                     {album.description && <p className="mt-2 max-w-2xl text-white/80">{album.description}</p>}
                 </div>
             </div>

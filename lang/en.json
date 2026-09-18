@@ -425,6 +425,7 @@
     "preinscription.soustitre": "Fill out this form to submit your application to ISSTM.",
     "preinscription.titre": "Online Pre-registration",
     "preinscription.verifier_cta": "Review my pre-registration",
+    "preinscriptions_admin.approbation_en_cours": "Approving…",
     "preinscriptions_admin.approuver": "Approve",
     "preinscriptions_admin.aucune_preinscription": "No pending pre-registrations.",
     "preinscriptions_admin.confirmer_approbation": "Create the student account for this pre-registration?",

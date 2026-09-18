@@ -34,7 +34,7 @@ export default function Index({ canevas, annees }) {
 
             <Card className="mb-8 p-5">
                 <form onSubmit={submit}>
-                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy">
+                    <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-isstm-navy dark:text-white">
                         <Upload className="h-4 w-4 text-isstm-gold" aria-hidden="true" />
                         {t('bibliotheque_admin.ajouter_canevas', 'Ajouter un canevas')}
                     </h2>
@@ -44,12 +44,12 @@ export default function Index({ canevas, annees }) {
                             value={data.titre}
                             onChange={(e) => setData('titre', e.target.value)}
                             placeholder={t('bibliotheque_admin.titre_placeholder', 'Titre (ex : Canevas mémoire Licence 2026)')}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none sm:col-span-2"
                         />
                         <select
                             value={data.niveau}
                             onChange={(e) => setData('niveau', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             <option value="Licence">Licence</option>
                             <option value="Master">Master</option>
@@ -57,7 +57,7 @@ export default function Index({ canevas, annees }) {
                         <select
                             value={data.annee_id}
                             onChange={(e) => setData('annee_id', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             {annees.map((a) => (
                                 <option key={a.id} value={a.id}>{a.libelle}</option>
@@ -67,7 +67,7 @@ export default function Index({ canevas, annees }) {
                             type="file"
                             accept=".doc,.docx,.pdf,.ppt,.pptx"
                             onChange={(e) => setData('fichier', e.target.files[0] ?? null)}
-                            className="text-sm text-slate-500 sm:col-span-2"
+                            className="text-sm text-slate-500 dark:text-slate-400 sm:col-span-2"
                         />
                     </div>
                     {(errors.titre || errors.fichier || errors.annee_id) && (
@@ -84,10 +84,10 @@ export default function Index({ canevas, annees }) {
                 {canevas.map((c) => (
                     <Card key={c.id} className="flex items-center gap-3 p-4">
                         <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium text-slate-700">{c.titre}</p>
-                            <p className="text-xs text-slate-400">{c.niveau} · {c.annee}</p>
+                            <p className="truncate font-medium text-slate-700 dark:text-slate-200">{c.titre}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500">{c.niveau} · {c.annee}</p>
                         </div>
-                        <button onClick={() => destroy(c.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-600">
+                        <button onClick={() => destroy(c.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 dark:text-slate-500 hover:text-red-600">
                             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                             {t('communaute.supprimer', 'Supprimer')}
                         </button>

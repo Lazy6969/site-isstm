@@ -13,9 +13,9 @@ export default function AuthLayout({ title, subtitle, children }) {
                     <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-16 w-auto" />
                 </Link>
 
-                <div className="rounded-2xl bg-white p-8 shadow-2xl">
-                    <h1 className="text-xl font-bold text-isstm-navy">{title}</h1>
-                    {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+                <div className="rounded-2xl bg-white p-8 shadow-2xl dark:bg-slate-800">
+                    <h1 className="text-xl font-bold text-isstm-navy dark:text-white">{title}</h1>
+                    {subtitle && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
                     <div className="mt-6">{children}</div>
                 </div>
             </div>

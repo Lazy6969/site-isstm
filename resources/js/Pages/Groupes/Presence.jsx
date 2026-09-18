@@ -42,21 +42,21 @@ export default function Presence({ group, canMark, students, sessions }) {
                 {canMark && (
                     <Card className="p-5">
                         <form onSubmit={submit}>
-                            <h2 className="mb-3 text-sm font-semibold text-isstm-navy">{t('groupes.faire_appel', "Faire l'appel")}</h2>
+                            <h2 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">{t('groupes.faire_appel', "Faire l'appel")}</h2>
                             <input
                                 type="date"
                                 value={data.session_date}
                                 onChange={(e) => setData('session_date', e.target.value)}
-                                className="mb-3 w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                className="mb-3 w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                             />
                             <div className="max-h-80 space-y-1 overflow-y-auto">
                                 {students.map((s) => (
-                                    <label key={s.id} className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
+                                    <label key={s.id} className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50">
                                         <input
                                             type="checkbox"
                                             checked={data.present_user_ids.includes(s.id)}
                                             onChange={() => toggleStudent(s.id)}
-                                            className="h-4 w-4 rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy"
+                                            className="h-4 w-4 rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy dark:border-slate-600 dark:bg-slate-900"
                                         />
                                         {s.name}
                                     </label>
@@ -71,11 +71,11 @@ export default function Presence({ group, canMark, students, sessions }) {
 
                 <Card className="p-5">
                     <div className="mb-3 flex items-center justify-between">
-                        <h2 className="text-sm font-semibold text-isstm-navy">{t('groupes.seances_enregistrees', 'Séances enregistrées')}</h2>
+                        <h2 className="text-sm font-semibold text-isstm-navy dark:text-white">{t('groupes.seances_enregistrees', 'Séances enregistrées')}</h2>
                         {selectedSession && (
                             <button
                                 onClick={() => window.print()}
-                                className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/5"
+                                className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:bg-isstm-navy/5"
                             >
                                 <Printer className="h-3.5 w-3.5" aria-hidden="true" />
                                 {t('groupes.imprimer', 'Imprimer')}
@@ -83,13 +83,13 @@ export default function Presence({ group, canMark, students, sessions }) {
                         )}
                     </div>
 
-                    {sessions.length === 0 && <p className="text-sm text-slate-400">{t('groupes.aucune_seance', 'Aucune séance enregistrée pour ce groupe.')}</p>}
+                    {sessions.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('groupes.aucune_seance', 'Aucune séance enregistrée pour ce groupe.')}</p>}
 
                     {sessions.length > 0 && (
                         <select
                             value={selectedSessionId ?? ''}
                             onChange={(e) => setSelectedSessionId(Number(e.target.value))}
-                            className="mb-3 w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="mb-3 w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
                             {sessions.map((s) => (
                                 <option key={s.id} value={s.id}>
@@ -106,14 +106,14 @@ export default function Presence({ group, canMark, students, sessions }) {
                             </h3>
                             <table className="w-full text-left text-sm">
                                 <thead>
-                                    <tr className="border-b border-slate-200 text-xs uppercase text-slate-400">
+                                    <tr className="border-b border-slate-200 dark:border-slate-700 text-xs uppercase text-slate-400 dark:text-slate-500">
                                         <th className="py-2">{t('groupes.etudiant', 'Étudiant')}</th>
                                         <th className="py-2">{t('groupes.statut', 'Statut')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {students.map((s) => (
-                                        <tr key={s.id} className="border-b border-slate-50">
+                                        <tr key={s.id} className="border-b border-slate-50 dark:border-slate-800">
                                             <td className="py-2">{s.name}</td>
                                             <td className="py-2">
                                                 {presentIdsForPrint.has(String(s.id)) ? (

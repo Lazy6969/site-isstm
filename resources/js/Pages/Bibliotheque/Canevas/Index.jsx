@@ -24,7 +24,7 @@ export default function Index({ canevas, niveaux, annees, filters }) {
                 <select
                     value={data.niveau}
                     onChange={(e) => applyFilters({ niveau: e.target.value })}
-                    className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                    className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                 >
                     <option value="">{t('bibliotheque.tous_niveaux', 'Tous les niveaux')}</option>
                     {niveaux.map((n) => (
@@ -34,7 +34,7 @@ export default function Index({ canevas, niveaux, annees, filters }) {
                 <select
                     value={data.annee_id}
                     onChange={(e) => applyFilters({ annee_id: e.target.value })}
-                    className="rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                    className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                 >
                     <option value="">{t('bibliotheque.toutes_annees', 'Toutes les années')}</option>
                     {annees.map((a) => (
@@ -45,7 +45,7 @@ export default function Index({ canevas, niveaux, annees, filters }) {
 
             <div className="space-y-2">
                 {canevas.length === 0 && (
-                    <Card className="p-8 text-center text-sm text-slate-400">
+                    <Card className="p-8 text-center text-sm text-slate-400 dark:text-slate-500">
                         {t('bibliotheque.aucun_canevas_filtre', 'Aucun canevas ne correspond à ces filtres.')}
                     </Card>
                 )}
@@ -55,8 +55,8 @@ export default function Index({ canevas, niveaux, annees, filters }) {
                         <Card key={c.id} className="flex items-center gap-3 p-4">
                             <Icon className="h-6 w-6 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
                             <div className="min-w-0 flex-1">
-                                <p className="truncate font-medium text-slate-700">{c.titre}</p>
-                                <p className="text-xs text-slate-400">{c.niveau} · {c.annee}</p>
+                                <p className="truncate font-medium text-slate-700 dark:text-slate-200">{c.titre}</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">{c.niveau} · {c.annee}</p>
                             </div>
                             <a
                                 href={`/bibliotheque/canevas/${c.id}/telecharger`}
