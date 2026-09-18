@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, MessageSquare } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import HeaderSearchButton from './HeaderSearchButton';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -47,12 +47,11 @@ export default function SiteHeader() {
     }
 
     return (
-        <header className="bg-isstm-navy text-white">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <header className="sticky top-0 z-40 bg-isstm-navy text-white">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
                 <div className="flex items-center gap-8">
-                    <Link href="/" className="flex items-center gap-3">
-                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-9 w-9 rounded-full object-cover" />
-                        <span className="text-base font-semibold tracking-wide">ISSTM</span>
+                    <Link href="/" className="flex items-center">
+                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-auto" />
                     </Link>
                     <NavigationMenu className="hidden lg:flex">
                         <NavigationMenuList>
@@ -99,14 +98,14 @@ export default function SiteHeader() {
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title="Messagerie interne">
-                                    ✉️
+                                    <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
                                 </Link>
                             )}
                             {isCommunityMember && <NotificationBell />}
                             <DropdownMenu>
                                 <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/10 focus:outline-none">
                                     <img
-                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.png'}
+                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
                                         alt=""
                                         className="h-7 w-7 rounded-full object-cover"
                                     />

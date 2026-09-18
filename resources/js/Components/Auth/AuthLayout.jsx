@@ -9,9 +9,8 @@ export default function AuthLayout({ title, subtitle, children }) {
             </div>
 
             <div className="relative w-full max-w-md">
-                <Link href="/" className="mb-8 flex items-center justify-center gap-3">
-                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-11 rounded-full object-cover" />
-                    <span className="text-lg font-semibold tracking-wide text-white">ISSTM</span>
+                <Link href="/" className="mb-8 flex items-center justify-center">
+                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-16 w-auto" />
                 </Link>
 
                 <div className="rounded-2xl bg-white p-8 shadow-2xl">

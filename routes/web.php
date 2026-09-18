@@ -21,6 +21,7 @@ use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PreinscriptionController;
@@ -36,6 +37,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('historique', [HistoriqueController::class, 'index'])->name('historique');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
 Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
+Route::post('newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
 
 Route::get('filieres', [FiliereController::class, 'index'])->name('filieres.index');
 Route::get('filieres/{filiere:slug}', [FiliereController::class, 'show'])->name('filieres.show');

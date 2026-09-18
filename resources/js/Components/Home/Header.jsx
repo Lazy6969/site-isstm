@@ -1,4 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 import HeaderSearchButton from '../Layout/HeaderSearchButton';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import MobileTabBar from '../Layout/MobileTabBar';
@@ -36,6 +37,16 @@ function NavDropdown({ label, items }) {
 export default function Header() {
     const { auth } = usePage().props;
     const user = auth?.user;
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        function onScroll() {
+            setScrolled(window.scrollY > 40);
+        }
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     function logout(e) {
         e.preventDefault();
@@ -43,11 +54,14 @@ export default function Header() {
     }
 
     return (
-        <header className="absolute inset-x-0 top-0 z-30 text-white">
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-                <a href="#accueil" className="flex items-center gap-3">
-                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-11 rounded-full object-cover" />
-                    <span className="text-lg font-semibold tracking-wide">ISSTM</span>
+        <header
+            className={`fixed inset-x-0 top-0 z-40 text-white transition-colors duration-300 ${
+                scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
+            }`}
+        >
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+                <a href="#accueil" className="flex items-center">
+                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
                 </a>
 
                 <NavigationMenu className="hidden md:flex">

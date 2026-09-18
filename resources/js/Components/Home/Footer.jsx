@@ -1,5 +1,5 @@
-import { Link, usePage } from '@inertiajs/react';
-import { Mail, Phone, MapPin, Link2 } from 'lucide-react';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import { Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
 import { etablissementLinks, vieEtudianteLinks } from '../Layout/headerNavLinks';
 
 const quickLinks = [
@@ -17,6 +17,43 @@ const locations = [
     { key: 'principale', titleKey: 'localisation_principale' },
     { key: 'annexe', titleKey: 'localisation_annexe_titre' },
 ];
+
+function NewsletterForm() {
+    const { flash } = usePage().props;
+    const { data, setData, post, processing, errors, reset } = useForm({ email: '' });
+
+    function submit(e) {
+        e.preventDefault();
+        post('/newsletter', { preserveScroll: true, onSuccess: () => reset('email') });
+    }
+
+    return (
+        <div className="mt-6">
+            <h5 className="text-xs font-semibold uppercase tracking-wide text-white/50">Newsletter</h5>
+            <p className="mt-1.5 text-sm text-white/60">Recevez les actualités de l'ISSTM par e-mail.</p>
+            <form onSubmit={submit} className="mt-3 flex max-w-sm gap-2">
+                <input
+                    type="email"
+                    required
+                    value={data.email}
+                    onChange={(e) => setData('email', e.target.value)}
+                    placeholder="votre@email.com"
+                    className="w-full rounded-lg border border-white/15 bg-white/5 px-3.5 py-2 text-sm text-white placeholder:text-white/40 focus:border-isstm-gold focus:outline-none"
+                />
+                <button
+                    type="submit"
+                    disabled={processing}
+                    aria-label="S'abonner"
+                    className="flex flex-shrink-0 items-center justify-center rounded-lg bg-isstm-gold px-3.5 text-isstm-navy-dark transition hover:brightness-110 disabled:opacity-50"
+                >
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                </button>
+            </form>
+            {errors.email && <p className="mt-1.5 text-xs text-red-300">{errors.email}</p>}
+            {flash?.status && <p className="mt-1.5 text-xs text-isstm-gold">{flash.status}</p>}
+        </div>
+    );
+}
 
 export default function Footer() {
     const { props } = usePage();
@@ -37,12 +74,12 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <Link href="/" className="flex items-center gap-3">
-                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-11 rounded-full object-cover" />
-                        <span className="text-base font-semibold text-white">ISSTM</span>
+                    <Link href="/" className="inline-flex items-center">
+                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-16 w-auto" />
                     </Link>
                     {content.devise && <p className="mt-3 text-sm font-medium text-isstm-gold">{content.devise}</p>}
                     {content.footer_description && <p className="mt-3 max-w-sm text-sm leading-relaxed">{content.footer_description}</p>}
+                    <NewsletterForm />
                 </div>
 
                 <div>
