@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import HeaderSearchButton from '../Layout/HeaderSearchButton';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import MobileTabBar from '../Layout/MobileTabBar';
+import MobileMenuButton from '../Layout/MobileMenuButton';
 import NotificationBell from '../Layout/NotificationBell';
 import BrandTitle from '../Layout/BrandTitle';
 import DarkModeToggle from '../Layout/DarkModeToggle';
@@ -175,6 +176,11 @@ export default function Header() {
                             {t('nav.se_connecter', 'Se connecter')}
                         </Link>
                     )}
+                </div>
+
+                <div className="flex items-center gap-2 md:hidden">
+                    <HeaderSearchButton />
+                    <MobileMenuButton />
                 </div>
             </div>
 

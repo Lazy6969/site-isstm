@@ -4,6 +4,7 @@ import NotificationBell from './NotificationBell';
 import HeaderSearchButton from './HeaderSearchButton';
 import LanguageSwitcher from './LanguageSwitcher';
 import MobileTabBar from './MobileTabBar';
+import MobileMenuButton from './MobileMenuButton';
 import BrandTitle from './BrandTitle';
 import DarkModeToggle from './DarkModeToggle';
 import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from './headerNavLinks';
@@ -162,6 +163,11 @@ export default function SiteHeader() {
                             {t('nav.se_connecter', 'Se connecter')}
                         </Link>
                     )}
+                </div>
+
+                <div className="flex items-center gap-2 md:hidden">
+                    <HeaderSearchButton />
+                    <MobileMenuButton />
                 </div>
             </div>
 

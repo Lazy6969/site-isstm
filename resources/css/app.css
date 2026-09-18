@@ -45,58 +45,6 @@
     }
 }
 
-/* Brand title next to the header logo: typewriter reveal, replayed on every page load,
-   matching the legacy site's animation (see header.php / style.css upstream). */
-.brand-title span {
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    width: 0;
-    border-right: 2px solid transparent;
-    animation-fill-mode: forwards;
-}
-
-.brand-title .brand-title-line1 {
-    animation: isstm-typing 1.5s steps(32, end) forwards, isstm-blink-caret 0.75s step-end 2;
-}
-
-.brand-title .brand-title-line2 {
-    animation: isstm-typing 1.5s steps(30, end) forwards, isstm-blink-caret 0.75s step-end 2;
-    animation-delay: 1.5s;
-}
-
-.brand-title .brand-title-motto {
-    animation: isstm-typing 1.8s steps(35, end) forwards, isstm-blink-caret 0.75s step-end 3;
-    animation-delay: 3s;
-}
-
-@keyframes isstm-typing {
-    from {
-        width: 0;
-    }
-    to {
-        width: 100%;
-    }
-}
-
-@keyframes isstm-blink-caret {
-    from,
-    to {
-        border-color: transparent;
-    }
-    50% {
-        border-color: currentColor;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .brand-title span {
-        width: auto;
-        animation: none !important;
-        border-right: 0;
-    }
-}
-
 /* Infinite-scrolling partner-logo marquee (see legacy .partenaires-track). */
 .partenaires-marquee {
     -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);

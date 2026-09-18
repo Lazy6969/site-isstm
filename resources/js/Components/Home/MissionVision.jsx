@@ -7,39 +7,33 @@ export default function MissionVision({ content }) {
             title: t('accueil.mission_titre', 'Notre Mission'),
             text: content.mission_contenu,
             image: content.mission_image_path ?? 'images/mission.jpg',
-            align: 'left',
         },
         {
             title: t('accueil.vision_titre', 'Notre Vision'),
             text: content.vision_contenu,
             image: content.vision_image_path ?? 'images/vision.jpg',
-            align: 'right',
         },
     ];
 
     return (
-        <section className="flex flex-col shadow-[inset_0_10px_15px_-10px_rgba(0,0,0,0.5),inset_0_-10px_15px_-10px_rgba(0,0,0,0.5)]">
-            {blocks.map((block) => (
-                <div
-                    key={block.title}
-                    className={`relative flex min-h-[60vh] items-center overflow-hidden bg-fixed bg-cover bg-center px-6 py-20 text-white ${
-                        block.align === 'left' ? 'border-b-[3px] border-isstm-gold' : ''
-                    }`}
-                    style={{ backgroundImage: `url('/${block.image}')` }}
-                >
-                    <div className="absolute inset-0 bg-isstm-navy-dark/45" />
-                    <div className="relative mx-auto w-full max-w-6xl">
+        <section className="bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
+            <div className="mx-auto max-w-6xl space-y-16 px-6 sm:space-y-24">
+                {blocks.map((block, index) => (
+                    <div key={block.title} className="grid grid-cols-1 items-center gap-8 sm:gap-12 md:grid-cols-2">
                         <div
-                            className={`max-w-lg rounded-2xl bg-isstm-navy-dark/35 p-7 backdrop-blur-md sm:p-9 ${
-                                block.align === 'right' ? 'ml-auto text-right' : ''
+                            className={`aspect-[4/3] overflow-hidden rounded-2xl bg-isstm-navy/5 dark:bg-slate-800 ${
+                                index % 2 === 1 ? 'md:order-2' : ''
                             }`}
                         >
-                            <h3 className="text-xl font-bold text-isstm-gold sm:text-2xl">{block.title}</h3>
-                            <p className="mt-4 leading-relaxed text-white/90">{block.text}</p>
+                            <img src={`/${block.image}`} alt="" className="h-full w-full object-contain" loading="lazy" />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">{block.title}</h3>
+                            <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-300">{block.text}</p>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </section>
     );
 }
