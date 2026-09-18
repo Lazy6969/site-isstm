@@ -23,13 +23,13 @@ export default function Director({ content }) {
 
     return (
         <section className="bg-white px-6 py-12 sm:py-20 dark:bg-slate-950">
-            <div className="mx-auto max-w-6xl">
-                <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[220px_1fr]">
-                    <div className="text-center" ref={imgRef}>
+            <div className="mx-auto max-w-4xl">
+                <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:gap-8 sm:text-left md:gap-10">
+                    <div className="flex-shrink-0" ref={imgRef}>
                         <img
                             src={`/${content.directeur_image_path ?? 'images/directeur.jpg'}`}
                             alt={t('accueil.directeur_photo_alt', "Photo du Directeur de l'ISSTM")}
-                            className={`mx-auto h-44 w-44 rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/40 transition-all duration-700 ease-out md:h-52 md:w-52 ${
+                            className={`mx-auto h-28 w-28 rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/40 transition-all duration-700 ease-out sm:h-36 sm:w-36 md:h-44 md:w-44 ${
                                 visible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
                             }`}
                             loading="lazy"
@@ -38,13 +38,13 @@ export default function Director({ content }) {
                             {t('accueil.directeur_fonction', "Directeur de l'ISSTM")}
                         </p>
                     </div>
-                    <div>
+                    <div className="w-full min-w-0 sm:w-auto sm:flex-1">
                         <h2 className="text-xl font-bold text-isstm-navy sm:text-2xl dark:text-white">
                             {t('accueil.mot_directeur_titre', 'Le mot du Directeur')}
                         </h2>
-                        <blockquote className="mt-3 flex gap-2.5 text-sm leading-relaxed text-slate-600 italic dark:text-slate-300">
+                        <blockquote className="mt-3 flex justify-center gap-2.5 text-sm leading-relaxed text-slate-600 italic sm:justify-start dark:text-slate-300">
                             <Quote className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                            <span className="line-clamp-3">{content.mot_directeur_contenu}</span>
+                            <span className="line-clamp-3 text-left">{content.mot_directeur_contenu}</span>
                         </blockquote>
                         <p className="mt-4 text-sm font-semibold text-isstm-navy dark:text-white">{content.directeur_nom}</p>
                         <Link
