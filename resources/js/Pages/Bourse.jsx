@@ -47,8 +47,8 @@ export default function Bourse() {
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {links.map((link) => (
                         <Card key={link.title} className="flex flex-col items-center p-7 text-center">
-                            <img src={link.logo} alt="" className="h-14 w-auto object-contain" loading="lazy" />
-                            <h2 className="mt-4 text-lg font-semibold text-isstm-navy dark:text-white">{link.title}</h2>
+                            <img src={link.logo} alt="" className="h-32 w-auto object-contain sm:h-40" loading="lazy" />
+                            <h2 className="mt-6 text-lg font-semibold text-isstm-navy dark:text-white">{link.title}</h2>
                             <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{link.description}</p>
                             <a
                                 href={link.href}
