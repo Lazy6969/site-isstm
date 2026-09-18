@@ -28,9 +28,9 @@ export default function Parcours() {
             <Head title="Organigramme & Parcours" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-5xl px-6">
-                    <h1 className="text-3xl font-bold">{t('parcours.titre', 'Organigramme & Parcours')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('parcours.titre', 'Organigramme & Parcours')}</h1>
                     <p className="mt-2 text-white/80">{t('parcours.soustitre', "Structure organisationnelle et académique de l'ISSTM.")}</p>
                 </div>
             </div>

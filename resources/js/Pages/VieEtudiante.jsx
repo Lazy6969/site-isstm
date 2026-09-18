@@ -39,9 +39,9 @@ export default function VieEtudiante() {
             <Head title="Vie étudiante" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">{t('vie_etudiante.titre', 'Vie Étudiante')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('vie_etudiante.titre', 'Vie Étudiante')}</h1>
                     <p className="mt-2 text-white/80">{t('vie_etudiante.soustitre', "L'expérience ISSTM au-delà des salles de classe.")}</p>
                 </div>
             </div>

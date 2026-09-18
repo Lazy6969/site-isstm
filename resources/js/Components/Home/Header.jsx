@@ -75,7 +75,7 @@ export default function Header() {
         >
             <div className="relative flex items-center justify-between px-4 py-3 sm:px-6">
                 <a href="#accueil" className="flex flex-shrink-0 items-center gap-3.5">
-                    <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
+                    <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-12 w-auto" />
                     <BrandTitle />
                 </a>
 

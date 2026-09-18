@@ -63,7 +63,7 @@ export default function SiteHeader() {
             <div className="flex items-center justify-between px-4 py-3 sm:px-6">
                 <div className="flex items-center gap-6">
                     <Link href="/" className="flex items-center gap-3.5">
-                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-11 w-auto" />
+                        <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto" />
                         <BrandTitle />
                     </Link>
                     <NavigationMenu className="hidden md:flex">

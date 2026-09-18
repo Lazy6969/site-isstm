@@ -24,9 +24,9 @@ export default function Index({ preinscriptions }) {
             <Head title="Préinscriptions en attente" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-5xl px-6">
-                    <h1 className="text-3xl font-bold">{t('preinscriptions_admin.titre', 'Préinscriptions en attente')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('preinscriptions_admin.titre', 'Préinscriptions en attente')}</h1>
                     <p className="mt-2 text-white/80">
                         {preinscriptions.length} {t('preinscriptions_admin.dossiers_a_traiter', 'dossier(s) à traiter.')}
                     </p>

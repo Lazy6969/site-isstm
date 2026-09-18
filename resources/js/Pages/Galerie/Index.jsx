@@ -31,9 +31,9 @@ export default function Index({ albums }) {
             <Head title="Galerie" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-3xl font-bold">{t('nav.galerie', 'Galerie')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.galerie', 'Galerie')}</h1>
                     <p className="mt-2 text-white/80">{t('galerie.soustitre', "Les temps forts de la vie à l'ISSTM, en images.")}</p>
                 </div>
             </div>

@@ -4,11 +4,13 @@ import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
+import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ query, results }) {
     const { t } = useTranslations();
     const [term, setTerm] = useState(query ?? '');
+    const [loading, setLoading] = useState(false);
     const sections = Object.entries(results ?? {}).filter(([, items]) => items.length > 0);
     const totalResults = sections.reduce((sum, [, items]) => sum + items.length, 0);
 
@@ -21,7 +23,11 @@ export default function Index({ query, results }) {
 
     function submit(e) {
         e.preventDefault();
-        router.get('/recherche', { q: term }, { preserveState: true });
+        router.get(
+            '/recherche',
+            { q: term },
+            { preserveState: true, onStart: () => setLoading(true), onFinish: () => setLoading(false) },
+        );
     }
 
     return (
@@ -29,9 +35,9 @@ export default function Index({ query, results }) {
             <Head title="Recherche" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-3xl px-6">
-                    <h1 className="text-3xl font-bold">{t('nav.recherche', 'Recherche')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.recherche', 'Recherche')}</h1>
                     <form onSubmit={submit} className="mt-5 flex gap-2">
                         <input
                             type="search"
@@ -53,7 +59,25 @@ export default function Index({ query, results }) {
             </div>
 
             <main className="mx-auto max-w-3xl px-6 py-12">
-                {query === '' ? (
+                {loading ? (
+                    <div className="space-y-10">
+                        {[0, 1].map((section) => (
+                            <section key={section}>
+                                <Skeleton className="mb-3 h-3.5 w-24" />
+                                <Card className="overflow-hidden">
+                                    <ul className="divide-y divide-slate-100 dark:divide-slate-700">
+                                        {[0, 1, 2].map((row) => (
+                                            <li key={row} className="space-y-2 px-5 py-3">
+                                                <Skeleton className="h-3.5 w-2/3" />
+                                                <Skeleton className="h-3 w-1/3" />
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </Card>
+                            </section>
+                        ))}
+                    </div>
+                ) : query === '' ? (
                     <p className="text-center text-sm text-slate-500 dark:text-slate-400">{t('recherche.invite', 'Saisissez un mot-clé pour commencer.')}</p>
                 ) : totalResults === 0 ? (
                     <p className="text-center text-sm text-slate-500 dark:text-slate-400">

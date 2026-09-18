@@ -27,9 +27,9 @@ export default function Index({ teachers }) {
             <Head title="Enseignants" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-3xl font-bold">{t('enseignants.titre', 'Corps enseignant')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('enseignants.titre', 'Corps enseignant')}</h1>
                     <p className="mt-2 max-w-2xl text-white/80">
                         {t(
                             'enseignants.soustitre',

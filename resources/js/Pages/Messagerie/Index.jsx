@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
+import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
 
 const POLL_INTERVAL_MS = 8000;
@@ -19,6 +20,7 @@ export default function Index({ others: initialOthers, messages: initialMessages
     const [others, setOthers] = useState(initialOthers);
     const [search, setSearch] = useState('');
     const [searchResults, setSearchResults] = useState(null);
+    const [searchLoading, setSearchLoading] = useState(false);
     const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [] });
     const lastIdRef = useRef(initialMessages.at(-1)?.id ?? 0);
     const bottomRef = useRef(null);
@@ -98,9 +100,11 @@ export default function Index({ others: initialOthers, messages: initialMessages
             setSearchResults(null);
             return;
         }
+        setSearchLoading(true);
         fetch(`/messagerie/recherche?q=${encodeURIComponent(search)}`, { headers: { Accept: 'application/json' } })
             .then((res) => res.json())
-            .then((json) => setSearchResults(json.results));
+            .then((json) => setSearchResults(json.results))
+            .finally(() => setSearchLoading(false));
     }
 
     return (
@@ -163,7 +167,17 @@ export default function Index({ others: initialOthers, messages: initialMessages
                     </div>
                 </div>
 
-                {searchResults !== null ? (
+                {searchLoading ? (
+                    <Card className="space-y-3 p-4">
+                        <Skeleton className="h-3.5 w-24" />
+                        {[0, 1, 2].map((row) => (
+                            <div key={row} className="space-y-1.5 border-b border-slate-50 py-2 dark:border-slate-700">
+                                <Skeleton className="h-3 w-1/4" />
+                                <Skeleton className="h-3.5 w-3/4" />
+                            </div>
+                        ))}
+                    </Card>
+                ) : searchResults !== null ? (
                     <Card className="p-4">
                         <h2 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">
                             {t('messagerie.resultats', 'Résultats')} ({searchResults.length})

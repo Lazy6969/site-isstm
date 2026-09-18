@@ -39,7 +39,7 @@ export default function Index({ content }) {
                 style={{ backgroundImage: "linear-gradient(to bottom, rgba(0,51,102,0.85), rgba(0,31,63,0.9)), url('/images/portal_campus_1.jpg')" }}
             >
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">
+                    <h1 className="text-2xl font-bold sm:text-3xl">
                         {t('inscription.titre', 'Inscription — Année')} {content.inscription_annee_universitaire}
                     </h1>
                     <p className="mt-2 text-white/80">{t('inscription.soustitre', 'Frais de scolarité, dates et modalités de dépôt.')}</p>

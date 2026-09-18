@@ -31,17 +31,17 @@ export default function Testimonials({ testimonials }) {
     }
 
     return (
-        <section id="temoignages" className="bg-white py-20 dark:bg-slate-950">
+        <section id="temoignages" className="bg-white py-12 sm:py-20 dark:bg-slate-950">
             <div className="mx-auto max-w-4xl px-6">
                 <h2 className="mb-12 text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
                     {t('accueil.temoignages_titre', "Paroles d'étudiants")}
                 </h2>
 
                 <div
-                    className="relative flex flex-col items-center gap-10 rounded-[63%_37%_41%_59%/47%_60%_40%_53%] px-8 py-14 transition-colors duration-700 sm:flex-row sm:gap-14 sm:px-16"
+                    className="relative flex flex-col items-center gap-6 rounded-[63%_37%_41%_59%/47%_60%_40%_53%] px-5 py-10 transition-colors duration-700 sm:flex-row sm:gap-14 sm:px-16 sm:py-14"
                     style={{ backgroundColor: BG_TINTS[current % BG_TINTS.length] }}
                 >
-                    <div className="relative z-20 h-56 w-56 flex-shrink-0" style={{ perspective: '1400px' }}>
+                    <div className="relative z-20 h-40 w-40 flex-shrink-0 sm:h-56 sm:w-56" style={{ perspective: '1400px' }}>
                         {testimonials.map((testimonial, index) => {
                             const dist = (index - current + total) % total;
                             if (dist > 2) return null;

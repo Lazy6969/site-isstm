@@ -22,7 +22,7 @@ export default function Director({ content }) {
     }, []);
 
     return (
-        <section className="bg-white px-6 py-20 dark:bg-slate-950">
+        <section className="bg-white px-6 py-12 sm:py-20 dark:bg-slate-950">
             <div className="mx-auto max-w-6xl">
                 <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-[220px_1fr]">
                     <div className="text-center" ref={imgRef}>

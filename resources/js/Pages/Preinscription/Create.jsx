@@ -111,9 +111,9 @@ export default function Create({ filieres }) {
             <Head title="Préinscription" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-3xl px-6">
-                    <h1 className="text-3xl font-bold">{t('preinscription.titre', 'Préinscription en ligne')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('preinscription.titre', 'Préinscription en ligne')}</h1>
                     <p className="mt-2 text-white/80">
                         {t('preinscription.soustitre', "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.")}
                     </p>

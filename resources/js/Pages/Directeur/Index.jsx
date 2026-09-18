@@ -12,9 +12,9 @@ export default function Index({ content }) {
             <Head title={t('accueil.mot_directeur_titre', 'Le mot du Directeur')} />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">{t('accueil.mot_directeur_titre', 'Le mot du Directeur')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('accueil.mot_directeur_titre', 'Le mot du Directeur')}</h1>
                 </div>
             </div>
 

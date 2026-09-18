@@ -33,7 +33,7 @@ export default function Show({ article }) {
                             <Badge variant="gold">{article.category.name_fr}</Badge>
                         </div>
                     )}
-                    <h1 className="text-3xl font-bold">{article.title}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{article.title}</h1>
                     <p className="mt-2 text-sm text-white/70">
                         {formatDate(article.published_at)}
                         {article.author ? ` · ${article.author}` : ''}

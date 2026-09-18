@@ -10,7 +10,7 @@ export default function Filieres({ filieres }) {
     if (filieres.length === 0) return null;
 
     return (
-        <section id="filieres" className="bg-slate-50 py-20 dark:bg-slate-900">
+        <section id="filieres" className="bg-slate-50 py-12 sm:py-20 dark:bg-slate-900">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
                     <div>

@@ -20,9 +20,9 @@ export default function Index({ documents }) {
             <Head title="Documents administratifs" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">{t('nav.documents', 'Documents administratifs')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.documents', 'Documents administratifs')}</h1>
                     <p className="mt-2 text-white/80">{t('documents.soustitre', 'Formulaires et documents à télécharger.')}</p>
                 </div>
             </div>

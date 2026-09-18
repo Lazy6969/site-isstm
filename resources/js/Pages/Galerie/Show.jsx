@@ -15,7 +15,7 @@ export default function Show({ album }) {
             <Head title={album.title} />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-14 text-white">
+            <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-5xl px-6">
                     <Link href="/galerie" className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
