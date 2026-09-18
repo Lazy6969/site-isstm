@@ -30,19 +30,12 @@ export default function MissionVision({ content }) {
                     return (
                         <div
                             key={block.title}
-                            className="relative overflow-hidden rounded-[2.5rem] bg-white shadow-xl dark:bg-slate-800"
+                            className="relative overflow-hidden rounded-[2.5rem] bg-slate-100 shadow-xl dark:bg-slate-800"
                         >
-                            <svg
-                                className={`absolute inset-y-0 h-full w-[70%] text-isstm-navy ${reverse ? 'right-0' : 'left-0'}`}
-                                viewBox="0 0 100 100"
-                                preserveAspectRatio="none"
-                                aria-hidden="true"
-                            >
-                                <path d={reverse ? BLOB_PATHS.right : BLOB_PATHS.left} fill="currentColor" />
-                            </svg>
-
-                            <div className="relative grid grid-cols-1 items-center md:grid-cols-2">
-                                <div className={`px-8 py-14 sm:px-12 sm:py-20 ${reverse ? 'md:order-2' : ''}`}>
+                            <div className="relative grid grid-cols-1 md:min-h-[420px] md:grid-cols-2">
+                                <div
+                                    className={`relative z-20 bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${reverse ? 'md:order-2' : ''}`}
+                                >
                                     <span className="mb-5 flex gap-1.5" aria-hidden="true">
                                         <span className="h-2 w-2 rounded-full bg-isstm-gold" />
                                         <span className="h-2 w-2 rounded-full bg-white/40" />
@@ -58,20 +51,19 @@ export default function MissionVision({ content }) {
                                     </Link>
                                 </div>
 
-                                <div className={`relative flex items-center justify-center px-8 py-14 sm:px-12 ${reverse ? 'md:order-1' : ''}`}>
-                                    <span
-                                        className="absolute top-6 right-10 h-16 w-16 rounded-full bg-isstm-gold/25"
-                                        aria-hidden="true"
-                                    />
-                                    <span
-                                        className="absolute bottom-8 left-8 h-8 w-8 rounded-full bg-isstm-navy/10 dark:bg-white/10"
-                                        aria-hidden="true"
-                                    />
-                                    <div className="relative aspect-[4/3] w-full max-w-sm overflow-hidden rounded-[45%_55%_60%_40%/50%_45%_55%_50%] shadow-2xl ring-4 ring-white dark:ring-slate-800">
-                                        <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
-                                    </div>
+                                <div className={`relative h-64 md:h-auto ${reverse ? 'md:order-1' : ''}`}>
+                                    <img src={`/${block.image}`} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                                 </div>
                             </div>
+
+                            <svg
+                                className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[70%] text-isstm-navy md:block ${reverse ? 'right-0' : 'left-0'}`}
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="none"
+                                aria-hidden="true"
+                            >
+                                <path d={reverse ? BLOB_PATHS.right : BLOB_PATHS.left} fill="currentColor" />
+                            </svg>
                         </div>
                     );
                 })}
