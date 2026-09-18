@@ -31,9 +31,9 @@ export default function Testimonials({ testimonials }) {
     }
 
     return (
-        <section id="temoignages" className="bg-slate-50 py-20">
+        <section id="temoignages" className="bg-slate-50 py-20 dark:bg-slate-900">
             <div className="mx-auto max-w-4xl px-6">
-                <h2 className="mb-12 text-center text-2xl font-bold text-isstm-navy sm:text-3xl">
+                <h2 className="mb-12 text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
                     {t('accueil.temoignages_titre', "Paroles d'étudiants")}
                 </h2>
 

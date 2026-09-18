@@ -91,7 +91,7 @@ export default function Create({ filieres }) {
 
     if (flash?.status) {
         return (
-            <div className="min-h-screen bg-slate-50">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
                 <Head title="Préinscription envoyée" />
                 <SiteHeader />
                 <main className="mx-auto flex max-w-lg flex-col items-center px-6 py-24 text-center">
@@ -107,7 +107,7 @@ export default function Create({ filieres }) {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title="Préinscription" />
             <SiteHeader />
 

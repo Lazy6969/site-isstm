@@ -26,7 +26,7 @@ export default function Show({ profile }) {
     ].filter((link) => profile[link.key]);
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title={profile.name} />
             <SiteHeader />
 

@@ -25,7 +25,7 @@ export default function Index({ query, results }) {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title="Recherche" />
             <SiteHeader />
 

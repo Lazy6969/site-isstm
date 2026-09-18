@@ -6,6 +6,7 @@ import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import MobileTabBar from '../Layout/MobileTabBar';
 import NotificationBell from '../Layout/NotificationBell';
 import BrandTitle from '../Layout/BrandTitle';
+import DarkModeToggle from '../Layout/DarkModeToggle';
 import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from '../Layout/headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
 import { useTranslations } from '../../lib/useTranslations';
@@ -28,7 +29,7 @@ function NavDropdown({ label, items }) {
                     {items.map((item) => (
                         <li key={item.href}>
                             <NavigationMenuLink asChild>
-                                <Link href={item.href} className="block px-4 py-2 text-sm text-slate-700 hover:bg-accent hover:text-accent-foreground">
+                                <Link href={item.href} className="block px-4 py-2 text-sm text-slate-700 hover:bg-accent hover:text-accent-foreground dark:text-slate-200">
                                     {item.label}
                                 </Link>
                             </NavigationMenuLink>
@@ -68,7 +69,7 @@ export default function Header() {
                 scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
             } ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
         >
-            <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+            <div className="flex items-center justify-between px-4 py-3 sm:px-6">
                 <div className="flex min-w-0 items-center gap-6">
                     <a href="#accueil" className="flex flex-shrink-0 items-center gap-3.5">
                         <img src="/images/logo-isstm.png" alt="ISSTM" className="h-12 w-auto" />
@@ -116,6 +117,7 @@ export default function Header() {
                 </div>
 
                 <div className="hidden items-center gap-3 sm:flex">
+                    <DarkModeToggle />
                     <LanguageSwitcher />
                     {user ? (
                         <div className="flex items-center gap-3 text-sm">

@@ -10,15 +10,15 @@ export default function Filieres({ filieres }) {
     if (filieres.length === 0) return null;
 
     return (
-        <section id="filieres" className="bg-slate-50 py-20">
+        <section id="filieres" className="bg-slate-50 py-20 dark:bg-slate-900">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h2 className="flex items-center gap-2 text-2xl font-bold text-isstm-navy sm:text-3xl">
+                        <h2 className="flex items-center gap-2 text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
                             <GraduationCap className="h-7 w-7 text-isstm-gold" aria-hidden="true" />
                             {t('accueil.filieres_titre', 'Nos filières')}
                         </h2>
-                        <p className="mt-2 text-slate-500">
+                        <p className="mt-2 text-slate-500 dark:text-slate-400">
                             {t('accueil.filieres_soustitre', "Des formations d'ingénieurs et de techniciens reconnues.")}
                         </p>
                     </div>
@@ -38,8 +38,8 @@ export default function Filieres({ filieres }) {
                                 {filiere.mention && (
                                     <Badge className="px-2 py-0 text-[0.65rem]">{filiere.mention}</Badge>
                                 )}
-                                <h3 className="mt-2 text-sm font-semibold text-isstm-navy">{filiere.nom}</h3>
-                                <p className="mt-1 line-clamp-2 text-xs text-slate-500">{filiere.description}</p>
+                                <h3 className="mt-2 text-sm font-semibold text-isstm-navy dark:text-white">{filiere.nom}</h3>
+                                <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{filiere.description}</p>
                             </CardContent>
                         </Card>
                     ))}

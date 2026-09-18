@@ -20,7 +20,7 @@ function SheetOverlay({ className, ...props }) {
 }
 
 const sheetVariants = cva(
-    'fixed z-50 gap-4 bg-white p-6 shadow-xl transition ease-in-out data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:duration-300 data-[state=open]:duration-500',
+    'fixed z-50 gap-4 bg-white p-6 text-slate-900 shadow-xl transition ease-in-out data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:duration-300 data-[state=open]:duration-500 dark:bg-slate-900 dark:text-slate-100',
     {
         variants: {
             side: {
@@ -38,7 +38,7 @@ export function SheetContent({ side = 'right', className, children, ...props }) 
             <SheetOverlay />
             <SheetPrimitive.Content className={cn(sheetVariants({ side }), className)} {...props}>
                 {children}
-                <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
+                <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200">
                     <X className="h-4 w-4" />
                     <span className="sr-only">Fermer</span>
                 </SheetPrimitive.Close>
@@ -48,5 +48,5 @@ export function SheetContent({ side = 'right', className, children, ...props }) 
 }
 
 export function SheetTitle({ className, ...props }) {
-    return <SheetPrimitive.Title className={cn('text-sm font-semibold text-isstm-navy', className)} {...props} />;
+    return <SheetPrimitive.Title className={cn('text-sm font-semibold text-isstm-navy dark:text-white', className)} {...props} />;
 }

@@ -44,10 +44,10 @@ function StatBox({ icon, target, label }) {
     const Icon = icon;
 
     return (
-        <div ref={ref} className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-700" ref={ref}>
             <Icon className="mx-auto h-7 w-7 text-isstm-gold" aria-hidden="true" />
-            <p className="mt-2 text-3xl font-bold text-isstm-navy">+{value}</p>
-            <p className="mt-1 text-sm text-slate-500">{label}</p>
+            <p className="mt-2 text-3xl font-bold text-isstm-navy dark:text-white">+{value}</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{label}</p>
         </div>
     );
 }

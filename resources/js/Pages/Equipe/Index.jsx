@@ -68,7 +68,7 @@ export default function Index() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title={t('equipe.titre', 'Notre Équipe')} />
             <SiteHeader />
 
@@ -82,7 +82,7 @@ export default function Index() {
             </div>
 
             <main className="mx-auto max-w-4xl px-6 py-12">
-                <p className="text-center leading-relaxed text-slate-600">
+                <p className="text-center leading-relaxed text-slate-600 dark:text-slate-300">
                     {t(
                         'equipe.intro',
                         "Derrière chaque page, chaque animation et chaque ligne de code de ce site se cache le travail d'une petite équipe d'étudiants en Génie Informatique, en Licence 3 à l'ISSTM. Ce projet est le fruit de leur travail collectif, mené avec passion dans le cadre de leur formation.",
@@ -96,8 +96,8 @@ export default function Index() {
                         return (
                             <div
                                 key={member.nom}
-                                className={`flex flex-col items-center gap-6 rounded-2xl bg-white p-6 shadow-sm ring-1 sm:flex-row sm:items-start sm:p-8 ${
-                                    member.featured ? 'ring-2 ring-isstm-gold' : 'ring-slate-100'
+                                className={`flex flex-col items-center gap-6 rounded-2xl bg-white p-6 shadow-sm ring-1 sm:flex-row sm:items-start sm:p-8 dark:bg-slate-800 ${
+                                    member.featured ? 'ring-2 ring-isstm-gold' : 'ring-slate-100 dark:ring-slate-700'
                                 }`}
                             >
                                 <div className="relative flex-shrink-0">
@@ -115,15 +115,15 @@ export default function Index() {
                                 </div>
 
                                 <div className="text-center sm:text-left">
-                                    <h3 className="text-lg font-bold text-isstm-navy">{member.nom}</h3>
+                                    <h3 className="text-lg font-bold text-isstm-navy dark:text-white">{member.nom}</h3>
                                     <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-isstm-gold">
                                         <RoleIcon className="h-4 w-4" aria-hidden="true" />
                                         {member.role}
                                     </span>
-                                    <p className="mt-1 text-sm text-slate-500">{member.mention}</p>
-                                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{member.bio}</p>
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{member.mention}</p>
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{member.bio}</p>
                                     {member.highlight && (
-                                        <p className="mt-3 flex items-start gap-2 text-sm text-slate-500 italic">
+                                        <p className="mt-3 flex items-start gap-2 text-sm text-slate-500 italic dark:text-slate-400">
                                             <Quote className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
                                             {member.highlight}
                                         </p>
@@ -132,7 +132,7 @@ export default function Index() {
                                         <a
                                             href={`tel:${member.tel}`}
                                             title={t('equipe.telephone', 'Téléphone')}
-                                            className="flex items-center gap-1.5 rounded-full bg-isstm-navy/5 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/10"
+                                            className="flex items-center gap-1.5 rounded-full bg-isstm-navy/5 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                                         >
                                             <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                                             {member.tel}
@@ -142,7 +142,7 @@ export default function Index() {
                                             target="_blank"
                                             rel="noopener"
                                             title={t('equipe.facebook', 'Facebook')}
-                                            className="flex items-center gap-1.5 rounded-full bg-isstm-navy/5 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/10"
+                                            className="flex items-center gap-1.5 rounded-full bg-isstm-navy/5 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                                         >
                                             <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
                                             Facebook
@@ -154,7 +154,7 @@ export default function Index() {
                     })}
                 </div>
 
-                <div className="mt-10 flex flex-col items-center gap-2 text-center text-slate-500">
+                <div className="mt-10 flex flex-col items-center gap-2 text-center text-slate-500 dark:text-slate-400">
                     <Heart className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
                     <p>{t('equipe.merci', 'Merci d\'avoir visité notre site, conçu avec passion par notre équipe.')}</p>
                 </div>

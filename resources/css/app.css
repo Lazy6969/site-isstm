@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -23,6 +25,18 @@
     --color-accent: #f1f5f9;
     --color-accent-foreground: #003366;
     --radius: 0.75rem;
+}
+
+.dark {
+    --color-background: #0f172a;
+    --color-foreground: #e2e8f0;
+    --color-muted: #1e293b;
+    --color-muted-foreground: #94a3b8;
+    --color-border: #334155;
+    --color-popover: #1e293b;
+    --color-popover-foreground: #e2e8f0;
+    --color-accent: #1e293b;
+    --color-accent-foreground: #f8fafc;
 }
 
 @media (max-width: 767px) {

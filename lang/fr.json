@@ -458,6 +458,8 @@
     "The given data was invalid.": "La donnée renseignée est incorrecte.",
     "The response is not a streamed response.": "La réponse n'est pas une réponse diffusée.",
     "The response is not a view.": "La réponse n'est pas une vue.",
+    "theme.mode_clair": "Mode clair",
+    "theme.mode_sombre": "Mode sombre",
     "This action is unauthorized.": "Cette action n'est pas autorisée.",
     "This password reset link will expire in :count minutes.": "Ce lien de réinitialisation du mot de passe expirera dans :count minutes.",
     "to": "à",

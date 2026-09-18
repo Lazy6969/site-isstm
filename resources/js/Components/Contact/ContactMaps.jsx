@@ -17,7 +17,7 @@ export default function ContactMaps({ content }) {
     return (
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
             {locations.map((location) => (
-                <div key={location.key} className="overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100">
+                <div key={location.key} className="overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100 dark:ring-slate-700">
                     <iframe
                         title={content[location.titleKey] ?? 'Localisation ISSTM'}
                         src={`https://www.google.com/maps?q=${location.query}&hl=fr&z=17&t=k&output=embed`}
@@ -27,8 +27,8 @@ export default function ContactMaps({ content }) {
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
                     />
-                    <div className="flex items-center justify-between gap-3 bg-white px-4 py-3">
-                        <p className="truncate text-sm font-medium text-isstm-navy">{content[location.titleKey]}</p>
+                    <div className="flex items-center justify-between gap-3 bg-white px-4 py-3 dark:bg-slate-800">
+                        <p className="truncate text-sm font-medium text-isstm-navy dark:text-white">{content[location.titleKey]}</p>
                         <a
                             href={`https://www.google.com/maps?q=${location.coords}&z=17&t=k`}
                             target="_blank"

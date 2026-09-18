@@ -458,6 +458,8 @@
     "The given data was invalid.": "The given data was invalid.",
     "The response is not a streamed response.": "The response is not a streamed response.",
     "The response is not a view.": "The response is not a view.",
+    "theme.mode_clair": "Light mode",
+    "theme.mode_sombre": "Dark mode",
     "This action is unauthorized.": "This action is unauthorized.",
     "This password reset link will expire in :count minutes.": "This password reset link will expire in :count minutes.",
     "to": "to",

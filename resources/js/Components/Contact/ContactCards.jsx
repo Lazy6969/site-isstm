@@ -16,11 +16,11 @@ export default function ContactCards({ content }) {
                     <Wrapper
                         key={card.title}
                         {...(card.href ? { href: card.href, target: card.href.startsWith('http') ? '_blank' : undefined, rel: 'noopener' } : {})}
-                        className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md"
+                        className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md dark:bg-slate-800 dark:ring-slate-700"
                     >
                         <card.icon className="mx-auto h-6 w-6 text-isstm-gold" aria-hidden="true" />
-                        <h4 className="mt-3 font-semibold text-isstm-navy">{card.title}</h4>
-                        <p className="mt-1 text-sm text-slate-500">{card.value}</p>
+                        <h4 className="mt-3 font-semibold text-isstm-navy dark:text-white">{card.title}</h4>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{card.value}</p>
                     </Wrapper>
                 );
             })}

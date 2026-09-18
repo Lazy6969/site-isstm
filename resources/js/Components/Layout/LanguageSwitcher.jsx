@@ -31,7 +31,7 @@ export default function LanguageSwitcher({ className = '' }) {
                     <DropdownMenuItem
                         key={item.code}
                         onSelect={() => switchTo(item.code)}
-                        className={item.code === locale ? 'font-semibold text-isstm-navy' : ''}
+                        className={item.code === locale ? 'font-semibold text-isstm-navy dark:text-isstm-gold' : ''}
                     >
                         {t(item.key, item.code.toUpperCase())}
                     </DropdownMenuItem>

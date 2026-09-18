@@ -8,10 +8,10 @@ export default function Partenaires({ partenaires }) {
     const track = [...partenaires, ...partenaires];
 
     return (
-        <section className="bg-white py-16">
+        <section className="bg-white py-16 dark:bg-slate-950">
             <div className="mx-auto max-w-6xl px-6 text-center">
-                <h2 className="text-2xl font-bold text-isstm-navy sm:text-3xl">{t('partenaires.titre', 'Nos Partenaires')}</h2>
-                <p className="mt-2 text-slate-500">
+                <h2 className="text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">{t('partenaires.titre', 'Nos Partenaires')}</h2>
+                <p className="mt-2 text-slate-500 dark:text-slate-400">
                     {t('partenaires.soustitre', "L'ISSTM collabore avec des institutions académiques et professionnelles de renom.")}
                 </p>
             </div>

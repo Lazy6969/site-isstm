@@ -8,10 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
     <title inertia>ISSTM</title>
+    <script>
+        (function () {
+            var stored = localStorage.getItem('theme');
+            var dark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', dark);
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
     @inertiaHead
 </head>
-<body class="antialiased">
+<body class="antialiased bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
     @inertia
 </body>
 </html>
