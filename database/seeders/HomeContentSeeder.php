@@ -82,6 +82,67 @@ class HomeContentSeeder extends Seeder
             'frais_etr_mas_v2' => ['375 000 Ar', '375 000 Ar', '375 000 Ar'],
             'frais_etr_mas_v3' => ['375 000 Ar', '375 000 Ar', '375 000 Ar'],
             'frais_etr_tenue' => ['20 000 Ar', '20 000 Ar', '20 000 Ar'],
+            'localisation_principale' => ['Campus Principal', 'Main Campus', 'Tobim-pianarana Lehibe'],
+            'localisation_annexe_titre' => [
+                'Bâtiment Ex-Lolo, en face de Leader Price, Majunga be',
+                'Ex-Lolo Building, opposite Leader Price, Majunga be',
+                "Trano Ex-Lolo, tandrifin'i Leader Price, Majunga be",
+            ],
+            'histoire_titre' => ['Notre Histoire', 'Our History', 'Ny Tantara'],
+            'histoire_soustitre' => [
+                "Découvrez la genèse et l'évolution de l'ISSTM.",
+                'Discover the genesis and evolution of ISSTM.',
+                "Fantaro ny niandohany sy ny fivoaran'ny ISSTM.",
+            ],
+            'creation_contexte' => ['Création et Contexte', 'Creation and Context', 'Fananganana sy ny manodidina'],
+            'creation_p1' => [
+                "Depuis la création du Centre Universitaire de Mahajanga en 1977, puis l'instauration des six Universités de Madagascar en 1988, l'évolution de l'offre de formation est restée relativement limitée. Toutefois, à partir de l'année universitaire 2010-2011, une diversification notable des formations a été engagée au sein de l'Université de Mahajanga.",
+                'Since the creation of the University Center of Mahajanga in 1977, then the establishment of the six Universities of Madagascar in 1988, the evolution of the training offer has remained relatively limited. However, from the 2010-2011 academic year, a notable diversification of training was initiated within the University of Mahajanga.',
+                "Hatramin'ny nananganana ny Foibem-pianarana Oniversitera an'i Mahajanga tamin'ny 1977, ary avy eo ny nanorenana ireo Oniversite enina eto Madagasikara tamin'ny 1988, dia somary voafetra ihany ny fivoaran'ny tolotra fiofanana. Na izany aza, nanomboka tamin'ny taom-pianarana 2010-2011, dia nisy fanitarana lehibe teo amin'ny sehatry ny fiofanana teo anivon'ny Oniversiten'i Mahajanga.",
+            ],
+            'creation_p2' => [
+                "C'est dans ce contexte qu'a été créé, au cours de l'année universitaire 2011-2012, l'Institut Supérieur des Sciences et Technologies de Mahajanga (ISSTM). Cet institut figure parmi les nouveaux centres de formation dédiés à la préparation de techniciens supérieurs hautement qualifiés.",
+                'It is in this context that the Higher Institute of Science and Technology of Mahajanga (ISSTM) was created during the 2011-2012 academic year. This institute is one of the new training centers dedicated to the preparation of highly qualified senior technicians.',
+                "Tao anatin'izany no nananganana ny Institut Supérieur des Sciences et Technologies de Mahajanga (ISSTM) nandritra ny taom-pianarana 2011-2012. Ity institiota ity dia anisan'ireo foibem-piofanana vaovao natokana hanomanana teknisiana ambony manana fahaizana avo.",
+            ],
+            'objectifs_majeurs' => ['Nos Objectifs Majeurs', 'Our Major Objectives', 'Ny Tanjonay Lehibe'],
+            'objectifs_p1' => [
+                "La mise en place de l'ISSTM répond à plusieurs enjeux majeurs, notamment :",
+                'The establishment of ISSTM responds to several major challenges, including:',
+                'Ny fananganana ny ISSTM dia mamaly fanamby lehibe maromaro, indrindra indrindra :',
+            ],
+            'objectif_1' => [
+                'Les exigences du développement économique régional.',
+                'The requirements of regional economic development.',
+                "Ny fitakian'ny fampandrosoana ara-toekarena isam-paritra.",
+            ],
+            'objectif_2' => [
+                'Le manque de cadres techniques intermédiaires au sein des entreprises et des collectivités territoriales décentralisées.',
+                'The lack of intermediate technical managers within companies and decentralized local authorities.',
+                "Ny tsy fahampian'ny mpiandraikitra teknika anelanelany eo anivon'ny orinasa sy ny vondrom-bahoaka itsinjaram-pahefana.",
+            ],
+            'objectif_3' => [
+                "La volonté de réduire les charges financières des familles contraintes d'envoyer leurs enfants poursuivre leurs études en dehors de la province de Mahajanga.",
+                'The desire to reduce the financial burdens of families forced to send their children to study outside the province of Mahajanga.',
+                "Ny finiavana hampihena ny fandaniana ara-bolan'ireo fianakaviana voatery mandefa ny zanany hanohy fianarana any ivelan'ny faritanin'i Mahajanga.",
+            ],
+            'statut_pedagogie' => ['Statut et Pédagogie', 'Status and Pedagogy', 'Sata sy Fampianarana'],
+            'statut_p1' => [
+                "À l'issue de leur formation, les diplômés de l'ISSTM sont directement opérationnels dans divers domaines. Par ailleurs, l'ISSTM a acquis le statut d'établissement à part entière, au même titre que l'IOSTM, la Faculté de Médecine et la FSTE, conformément au décret n°2017-418 du 06 juin 2017.",
+                'At the end of their training, ISSTM graduates are directly operational in various fields. In addition, ISSTM has acquired the status of a full-fledged establishment, in the same way as IOSTM, the Faculty of Medicine and the FSTE, in accordance with Decree No. 2017-418 of June 6, 2017.',
+                "Rehefa vita ny fiofanany, dia afaka miasa avy hatrany amin'ny sehatra isan-karazany ireo nahazo diplaoma tao amin'ny ISSTM. Ankoatra izany, ny ISSTM dia nahazo ny satan'ny sekoly feno, mitovy amin'ny IOSTM, ny Faculté de Médecine ary ny FSTE, araka ny didim-panjakana laharana faha-2017-418 tamin'ny 06 jona 2017.",
+            ],
+            'statut_p2' => [
+                "Les formations dispensées, à caractère scientifique et technique, sont renforcées par une immersion dans le milieu professionnel à travers des visites d'imprégnation, des stages en entreprise ainsi que l'intervention de professionnels spécialisés.",
+                'The training provided, of a scientific and technical nature, is reinforced by an immersion in the professional environment through impregnation visits, company internships as well as the intervention of specialized professionals.',
+                "Ny fiofanana omena, izay manana endrika siantifika sy teknika, dia hamafisina amin'ny alalan'ny fampidirana an-tsehatra eo amin'ny tontolon'ny asa amin'ny alalan'ny fitsidihana, ny fanaovana fampiharana an-trano asa ary ny fandraisan'anjaran'ireo matihanina manokana.",
+            ],
+            'offre_formation' => ['Offre de Formation (LMD)', 'Training Offer (LMD)', 'Tolotra Fiofanana (LMD)'],
+            'offre_p1' => [
+                "Organisée selon le système LMD (Licence-Master-Doctorat), la formation est payante et conduit à l'obtention d'un diplôme de Licence Professionnelle et de Master Recherche dans les mentions suivantes :",
+                'Organized according to the LMD (License-Master-Doctorate) system, the training is fee-paying and leads to a Professional License and Research Master diploma in the following fields:',
+                "Voalamina araka ny rafitra LMD (Licence-Master-Doctorat), ny fiofanana dia andoavam-bola ary mitondra mankany amin'ny fahazoana diplaoma Licence Professionnelle sy Master Recherche amin'ireto sampana manaraka ireto :",
+            ],
         ];
 
         foreach ($entries as $key => [$fr, $en, $mg]) {

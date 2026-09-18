@@ -1,4 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
+import { Bell } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Skeleton from '../Loading/Skeleton';
 
@@ -64,10 +65,10 @@ export default function NotificationBell() {
             <button
                 type="button"
                 onClick={toggle}
-                className="relative flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:bg-white/10"
+                className="relative flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-white/10"
                 aria-label="Notifications"
             >
-                🔔
+                <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
                 {unreadCount > 0 && (
                     <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                         {unreadCount > 9 ? '9+' : unreadCount}

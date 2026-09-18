@@ -1,14 +1,44 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { LogOut, ChevronDown } from 'lucide-react';
 import NotificationBell from './NotificationBell';
-import HeaderDropdown from './HeaderDropdown';
 import HeaderSearchButton from './HeaderSearchButton';
-import { etablissementLinks, vieEtudianteLinks, actualitesLinks, communauteLinks } from './headerNavLinks';
+import LanguageSwitcher from './LanguageSwitcher';
+import MobileTabBar from './MobileTabBar';
+import { etablissementLinks, vieEtudianteLinks, communauteLinks } from './headerNavLinks';
+import {
+    NavigationMenu,
+    NavigationMenuContent,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    NavigationMenuTrigger,
+} from '../ui/navigation-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+
+function NavDropdown({ label, items }) {
+    return (
+        <NavigationMenuItem>
+            <NavigationMenuTrigger>{label}</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <ul className="w-56 rounded-xl bg-popover py-1.5 text-popover-foreground shadow-xl ring-1 ring-border">
+                    {items.map((item) => (
+                        <li key={item.href}>
+                            <NavigationMenuLink asChild>
+                                <Link href={item.href} className="block px-4 py-2 text-sm text-slate-700 hover:bg-accent hover:text-accent-foreground">
+                                    {item.label}
+                                </Link>
+                            </NavigationMenuLink>
+                        </li>
+                    ))}
+                </ul>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+    );
+}
 
 export default function SiteHeader() {
     const { auth } = usePage().props;
     const user = auth?.user;
-    const [mobileOpen, setMobileOpen] = useState(false);
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
 
     function logout(e) {
@@ -16,146 +46,113 @@ export default function SiteHeader() {
         router.post('/logout');
     }
 
-    const userMenuItems = [
-        { href: `/profil/${user?.id}`, label: 'Voir mon profil public' },
-        { href: '/profil', label: 'Modifier mon profil' },
-        { href: '/bibliotheque', label: 'Bibliothèque numérique' },
-        ...(user?.role === 'admin' ? [{ href: '/admin/preinscriptions', label: 'Préinscriptions' }] : []),
-        ...(['admin', 'bibliotheque'].includes(user?.role) ? [{ href: '/bibliotheque/admin', label: 'Gérer la bibliothèque' }] : []),
-        { divider: true, key: 'divider' },
-        { label: 'Déconnexion', onClick: logout },
-    ];
-
     return (
         <header className="bg-isstm-navy text-white">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-8">
                     <Link href="/" className="flex items-center gap-3">
-                        <img src="/images/logo-isstm.jpg" alt="ISSTM" className="h-9 w-9 rounded-full object-cover ring-2 ring-white/70" />
+                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-9 w-9 rounded-full object-cover" />
                         <span className="text-base font-semibold tracking-wide">ISSTM</span>
                     </Link>
-                    <nav className="hidden items-center gap-6 lg:flex">
-                        <HeaderDropdown label="Établissement" items={etablissementLinks} />
-                        <HeaderDropdown label="Vie étudiante" items={vieEtudianteLinks} />
-                        <HeaderDropdown label="Actualités" items={actualitesLinks} />
-                        <Link href="/inscription" className="text-sm font-medium hover:text-isstm-gold">
-                            Inscription
-                        </Link>
-                        <HeaderSearchButton />
-                        {isCommunityMember && <HeaderDropdown label="Communauté" items={communauteLinks} />}
-                    </nav>
+                    <NavigationMenu className="hidden lg:flex">
+                        <NavigationMenuList>
+                            <NavDropdown label="Établissement" items={etablissementLinks} />
+                            <NavDropdown label="Vie étudiante" items={vieEtudianteLinks} />
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        Actualités
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        Galerie
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        Inscription
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        Contact
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            {isCommunityMember && <NavDropdown label="Communauté" items={communauteLinks} />}
+                        </NavigationMenuList>
+                    </NavigationMenu>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="hidden items-center gap-3 lg:flex">
+                    <HeaderSearchButton />
+                    <LanguageSwitcher />
+
                     {user ? (
-                        <div className="hidden items-center gap-4 text-sm lg:flex">
+                        <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title="Messagerie interne">
                                     ✉️
                                 </Link>
                             )}
                             {isCommunityMember && <NotificationBell />}
-                            <HeaderDropdown
-                                align="right"
-                                items={userMenuItems}
-                                trigger={
-                                    <span className="flex items-center gap-2">
-                                        <img
-                                            src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
-                                            alt=""
-                                            className="h-7 w-7 rounded-full object-cover"
-                                        />
-                                        {user.name}
-                                        <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                                            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                                        </svg>
-                                    </span>
-                                }
-                            />
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/10 focus:outline-none">
+                                    <img
+                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.png'}
+                                        alt=""
+                                        className="h-7 w-7 rounded-full object-cover"
+                                    />
+                                    {user.name}
+                                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={`/profil/${user.id}`}>Voir mon profil public</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/profil">Modifier mon profil</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href="/bibliotheque">Bibliothèque numérique</Link>
+                                    </DropdownMenuItem>
+                                    {user.role === 'admin' && (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/admin/preinscriptions">Préinscriptions</Link>
+                                        </DropdownMenuItem>
+                                    )}
+                                    {['admin', 'bibliotheque'].includes(user.role) && (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/bibliotheque/admin">Gérer la bibliothèque</Link>
+                                        </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={logout}>
+                                        <LogOut className="h-4 w-4" aria-hidden="true" />
+                                        Déconnexion
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
                     ) : (
                         <Link
                             href="/login"
-                            className="hidden rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy lg:inline-block"
+                            className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
                         >
                             Se connecter
                         </Link>
                     )}
-
-                    <button
-                        type="button"
-                        onClick={() => setMobileOpen((v) => !v)}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-xl lg:hidden"
-                        aria-label="Menu"
-                        aria-expanded={mobileOpen}
-                    >
-                        {mobileOpen ? '✕' : '☰'}
-                    </button>
                 </div>
             </div>
 
-            {mobileOpen && (
-                <div className="border-t border-white/10 px-6 py-4 lg:hidden">
-                    <nav className="flex flex-col gap-1 text-sm">
-                        {[...etablissementLinks, ...vieEtudianteLinks, ...actualitesLinks, { href: '/inscription', label: 'Inscription' }, { href: '/recherche', label: 'Recherche' }].map(
-                            (item) => (
-                                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                    {item.label}
-                                </Link>
-                            ),
-                        )}
-
-                        {isCommunityMember && (
-                            <>
-                                <div className="mt-2 border-t border-white/10 pt-2 text-xs uppercase tracking-wide text-white/50">Communauté</div>
-                                {communauteLinks.map((item) => (
-                                    <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                        {item.label}
-                                    </Link>
-                                ))}
-                                <Link href="/notifications" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                    Notifications
-                                </Link>
-                            </>
-                        )}
-
-                        {user?.is_messagerie && (
-                            <Link href="/messagerie" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                Messagerie interne
-                            </Link>
-                        )}
-
-                        <div className="mt-2 border-t border-white/10 pt-2 text-xs uppercase tracking-wide text-white/50">Mon compte</div>
-                        {user ? (
-                            <>
-                                <Link href="/profil" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                    Mon profil
-                                </Link>
-                                <Link href="/bibliotheque" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                    Bibliothèque numérique
-                                </Link>
-                                {user.role === 'admin' && (
-                                    <Link href="/admin/preinscriptions" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                        Préinscriptions
-                                    </Link>
-                                )}
-                                {['admin', 'bibliotheque'].includes(user.role) && (
-                                    <Link href="/bibliotheque/admin" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                        Gérer la bibliothèque
-                                    </Link>
-                                )}
-                                <button onClick={logout} className="rounded-lg px-2 py-2 text-left hover:bg-white/10">
-                                    Déconnexion
-                                </button>
-                            </>
-                        ) : (
-                            <Link href="/login" onClick={() => setMobileOpen(false)} className="rounded-lg px-2 py-2 hover:bg-white/10">
-                                Se connecter
-                            </Link>
-                        )}
-                    </nav>
-                </div>
-            )}
+            <MobileTabBar showLogin />
         </header>
     );
 }

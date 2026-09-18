@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteContent;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -44,6 +45,10 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'status' => fn () => $request->session()->get('status'),
             ],
+            'locale' => app()->getLocale(),
+            'translations' => fn () => app('translator')->getLoader()->load(app()->getLocale(), '*', '*'),
+            'content' => fn () => SiteContent::all()->keyBy('content_key')
+                ->map(fn (SiteContent $item) => $item->localizedValue()),
         ];
     }
 }

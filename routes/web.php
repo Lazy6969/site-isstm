@@ -8,14 +8,17 @@ use App\Http\Controllers\ClassGroupMemberController;
 use App\Http\Controllers\ClassGroupMessageController;
 use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NotificationController;
@@ -29,6 +32,10 @@ use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('historique', [HistoriqueController::class, 'index'])->name('historique');
+Route::get('contact', [ContactController::class, 'index'])->name('contact');
+Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::get('filieres', [FiliereController::class, 'index'])->name('filieres.index');
 Route::get('filieres/{filiere:slug}', [FiliereController::class, 'show'])->name('filieres.show');

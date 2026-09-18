@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { CalendarDays } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 
@@ -17,6 +18,18 @@ export default function Index({ articles }) {
                 <div className="mx-auto max-w-6xl px-6">
                     <h1 className="text-3xl font-bold">Actualités</h1>
                     <p className="mt-2 text-white/80">Toute l'actualité de l'ISSTM.</p>
+                </div>
+            </div>
+
+            <div className="border-b border-slate-200 bg-white">
+                <div className="mx-auto max-w-6xl px-6 py-4">
+                    <Link
+                        href="/evenements"
+                        className="inline-flex items-center gap-2 rounded-full bg-isstm-navy/5 px-4 py-2 text-sm font-medium text-isstm-navy transition hover:bg-isstm-navy/10"
+                    >
+                        <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                        Voir les événements à venir
+                    </Link>
                 </div>
             </div>
 
