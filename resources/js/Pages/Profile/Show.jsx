@@ -1,21 +1,28 @@
 import { Head } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
-
-const roleLabels = {
-    admin: 'Administrateur',
-    enseignant: 'Enseignant',
-    etudiant: 'Étudiant',
-    user: 'Utilisateur',
-    bibliotheque: 'Bibliothèque',
-    materiel: 'Matériel',
-};
+import { Card } from '../../Components/ui/card';
+import { Badge } from '../../Components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Show({ profile }) {
+    const { t } = useTranslations();
+
+    const roleLabels = {
+        admin: t('profil.role_admin', 'Administrateur'),
+        enseignant: t('profil.role_enseignant', 'Enseignant'),
+        etudiant: t('profil.role_etudiant', 'Étudiant'),
+        user: t('profil.role_utilisateur', 'Utilisateur'),
+        bibliotheque: t('profil.role_bibliotheque', 'Bibliothèque'),
+        materiel: t('profil.role_materiel', 'Matériel'),
+    };
+
     const links = [
         { key: 'facebook_url', label: 'Facebook' },
         { key: 'linkedin_url', label: 'LinkedIn' },
-        { key: 'personal_website', label: 'Site web' },
+        { key: 'personal_website', label: t('profil.site_web', 'Site web') },
     ].filter((link) => profile[link.key]);
 
     return (
@@ -24,16 +31,13 @@ export default function Show({ profile }) {
             <SiteHeader />
 
             <main className="mx-auto max-w-2xl px-6 py-12">
-                <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-100">
-                    <img
-                        src={profile.avatar_path ? `/storage/${profile.avatar_path}` : '/images/logo-isstm.jpg'}
-                        alt=""
-                        className="mx-auto h-24 w-24 rounded-full object-cover ring-4 ring-isstm-gold/30"
-                    />
+                <Card className="p-8 text-center">
+                    <Avatar className="mx-auto h-24 w-24 ring-4 ring-isstm-gold/30">
+                        <AvatarImage src={profile.avatar_path ? `/storage/${profile.avatar_path}` : undefined} alt="" />
+                        <AvatarFallback>{profile.name?.[0]}</AvatarFallback>
+                    </Avatar>
                     <h1 className="mt-4 text-xl font-bold text-isstm-navy">{profile.name}</h1>
-                    <span className="mt-1 inline-block rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy">
-                        {roleLabels[profile.role] ?? profile.role}
-                    </span>
+                    <Badge className="mt-1">{roleLabels[profile.role] ?? profile.role}</Badge>
 
                     {profile.bio && <p className="mt-4 text-sm leading-relaxed text-slate-600">{profile.bio}</p>}
 
@@ -41,13 +45,13 @@ export default function Show({ profile }) {
                         <dl className="mt-6 grid grid-cols-1 gap-3 border-t border-slate-100 pt-6 text-left text-sm sm:grid-cols-2">
                             {profile.city && (
                                 <div>
-                                    <dt className="text-slate-400">Ville</dt>
+                                    <dt className="text-slate-400">{t('profil.ville', 'Ville')}</dt>
                                     <dd className="font-medium text-slate-700">{profile.city}</dd>
                                 </div>
                             )}
                             {profile.interests && (
                                 <div>
-                                    <dt className="text-slate-400">Centres d'intérêt</dt>
+                                    <dt className="text-slate-400">{t('profil.centres_interet', "Centres d'intérêt")}</dt>
                                     <dd className="font-medium text-slate-700">{profile.interests}</dd>
                                 </div>
                             )}
@@ -62,14 +66,15 @@ export default function Show({ profile }) {
                                     href={profile[link.key]}
                                     target="_blank"
                                     rel="noopener"
-                                    className="font-medium text-isstm-navy hover:underline"
+                                    className="flex items-center gap-1.5 font-medium text-isstm-navy hover:underline"
                                 >
                                     {link.label}
+                                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                                 </a>
                             ))}
                         </div>
                     )}
-                </div>
+                </Card>
             </main>
 
             <Footer />

@@ -1,7 +1,11 @@
 import { Head, router } from '@inertiajs/react';
+import { CheckCheck, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import Skeleton from '../../Components/Loading/Skeleton';
+import { Card } from '../../Components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
+import { useTranslations } from '../../lib/useTranslations';
 
 const periodOrder = ["Aujourd'hui", 'Hier', 'Cette semaine', 'Plus ancien'];
 
@@ -9,16 +13,17 @@ function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-function notificationText(notification) {
-    const actor = notification.actor?.name ?? "Quelqu'un";
-
-    return notification.type === 'reponse_commentaire'
-        ? `${actor} a répondu à votre commentaire`
-        : `${actor} a publié : « ${notification.post_excerpt ?? ''} »`;
-}
-
 export default function Index({ groups, pagination }) {
+    const { t } = useTranslations();
     const [pageLoading, setPageLoading] = useState(false);
+
+    function notificationText(notification) {
+        const actor = notification.actor?.name ?? t('notifications.quelquun', "Quelqu'un");
+
+        return notification.type === 'reponse_commentaire'
+            ? `${actor} ${t('notifications.a_repondu', 'a répondu à votre commentaire')}`
+            : `${actor} ${t('notifications.a_publie', 'a publié :')} « ${notification.post_excerpt ?? ''} »`;
+    }
 
     function markRead(id) {
         router.post(`/notifications/${id}/lu`, {}, { preserveScroll: true });
@@ -43,12 +48,13 @@ export default function Index({ groups, pagination }) {
     const hasAny = periodOrder.some((period) => groups[period]?.length > 0);
 
     return (
-        <AppLayout title="Notifications">
+        <AppLayout title={t('nav.notifications', 'Notifications')}>
             <Head title="Notifications" />
 
             <div className="mb-6 flex justify-end">
-                <button onClick={markAllRead} className="text-sm font-medium text-isstm-gold hover:underline">
-                    Tout marquer comme lu
+                <button onClick={markAllRead} className="flex items-center gap-1.5 text-sm font-medium text-isstm-gold hover:underline">
+                    <CheckCheck className="h-4 w-4" aria-hidden="true" />
+                    {t('notifications.tout_marquer_lu', 'Tout marquer comme lu')}
                 </button>
             </div>
 
@@ -68,7 +74,7 @@ export default function Index({ groups, pagination }) {
 
             {!pageLoading && !hasAny && (
                 <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-                    Aucune notification pour le moment.
+                    {t('notifications.aucune_notification', 'Aucune notification pour le moment.')}
                 </p>
             )}
 
@@ -81,17 +87,14 @@ export default function Index({ groups, pagination }) {
                                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{period}</h2>
                                 <div className="space-y-2">
                                     {groups[period].map((notification) => (
-                                        <div
+                                        <Card
                                             key={notification.id}
-                                            className={`flex items-start gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm ${
-                                                !notification.read ? 'ring-1 ring-isstm-gold/30' : ''
-                                            }`}
+                                            className={`flex items-start gap-3 p-4 ${!notification.read ? 'ring-1 ring-isstm-gold/30' : ''}`}
                                         >
-                                            <img
-                                                src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : '/images/logo-isstm.jpg'}
-                                                alt=""
-                                                className="mt-0.5 h-9 w-9 flex-shrink-0 rounded-full object-cover"
-                                            />
+                                            <Avatar className="mt-0.5 h-9 w-9 flex-shrink-0">
+                                                <AvatarImage src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : undefined} alt="" />
+                                                <AvatarFallback>{notification.actor?.name?.[0] ?? '?'}</AvatarFallback>
+                                            </Avatar>
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm text-slate-700">{notificationText(notification)}</p>
                                                 <p className="mt-0.5 text-xs text-slate-400">{formatTime(notification.created_at)}</p>
@@ -99,14 +102,14 @@ export default function Index({ groups, pagination }) {
                                             <div className="flex flex-shrink-0 gap-3 text-xs">
                                                 {!notification.read && (
                                                     <button onClick={() => markRead(notification.id)} className="font-medium text-isstm-navy hover:underline">
-                                                        Marquer lu
+                                                        {t('notifications.marquer_lu', 'Marquer lu')}
                                                     </button>
                                                 )}
-                                                <button onClick={() => destroy(notification.id)} className="font-medium text-slate-400 hover:text-red-600">
-                                                    Supprimer
+                                                <button onClick={() => destroy(notification.id)} className="text-slate-400 hover:text-red-600" aria-label={t('communaute.supprimer', 'Supprimer')}>
+                                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                                                 </button>
                                             </div>
-                                        </div>
+                                        </Card>
                                     ))}
                                 </div>
                             </section>
@@ -122,14 +125,14 @@ export default function Index({ groups, pagination }) {
                         onClick={() => goToPage(pagination.current_page - 1)}
                         className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
                     >
-                        Précédent
+                        {t('pagination.precedent', 'Précédent')}
                     </button>
                     <button
                         disabled={pagination.current_page >= pagination.last_page}
                         onClick={() => goToPage(pagination.current_page + 1)}
                         className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
                     >
-                        Suivant
+                        {t('pagination.suivant', 'Suivant')}
                     </button>
                 </div>
             )}

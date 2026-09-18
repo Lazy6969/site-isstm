@@ -1,7 +1,11 @@
 import { Link, router, useForm } from '@inertiajs/react';
+import { Send } from 'lucide-react';
 import { useState } from 'react';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function CommentItem({ postId, comment, depth = 0 }) {
+    const { t } = useTranslations();
     const [replying, setReplying] = useState(false);
     const { data, setData, post, processing, reset } = useForm({ body: '', parent_id: comment.id });
 
@@ -17,7 +21,7 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
     }
 
     function destroy() {
-        if (confirm('Supprimer ce commentaire ?')) {
+        if (confirm(t('communaute.confirmer_suppression_commentaire', 'Supprimer ce commentaire ?'))) {
             router.delete(`/commentaires/${comment.id}`, { preserveScroll: true });
         }
     }
@@ -25,11 +29,10 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
     return (
         <div className={depth > 0 ? 'ml-8 mt-3' : 'mt-3'}>
             <div className="flex items-start gap-2.5">
-                <img
-                    src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : '/images/logo-isstm.jpg'}
-                    alt=""
-                    className="mt-0.5 h-8 w-8 flex-shrink-0 rounded-full object-cover"
-                />
+                <Avatar className="mt-0.5 h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : undefined} alt="" />
+                    <AvatarFallback>{comment.user.name?.[0]}</AvatarFallback>
+                </Avatar>
                 <div className="min-w-0 flex-1">
                     <div className="inline-block rounded-2xl bg-slate-100 px-3.5 py-2">
                         <Link href={`/profil/${comment.user.id}`} className="text-sm font-semibold text-slate-800 hover:text-isstm-navy">
@@ -40,12 +43,12 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
                     <div className="mt-1 flex gap-3 px-3.5 text-xs text-slate-400">
                         {depth === 0 && (
                             <button onClick={() => setReplying((v) => !v)} className="font-medium hover:text-isstm-navy">
-                                Répondre
+                                {t('communaute.repondre', 'Répondre')}
                             </button>
                         )}
                         {comment.can_manage && (
                             <button onClick={destroy} className="font-medium hover:text-red-600">
-                                Supprimer
+                                {t('communaute.supprimer', 'Supprimer')}
                             </button>
                         )}
                     </div>
@@ -56,12 +59,16 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
                                 type="text"
                                 value={data.body}
                                 onChange={(e) => setData('body', e.target.value)}
-                                placeholder="Votre réponse…"
+                                placeholder={t('communaute.votre_reponse', 'Votre réponse…')}
                                 className="w-full rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
                                 autoFocus
                             />
-                            <button disabled={processing} className="rounded-full bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">
-                                Envoyer
+                            <button
+                                disabled={processing}
+                                className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                            >
+                                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                                {t('communaute.envoyer', 'Envoyer')}
                             </button>
                         </form>
                     )}

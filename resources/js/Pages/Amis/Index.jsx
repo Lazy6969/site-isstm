@@ -1,19 +1,24 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Check, Search, X } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import UserCard from '../../Components/Amis/UserCard';
 import UserCardSkeleton from '../../Components/Loading/UserCardSkeleton';
-
-const tabs = [
-    { key: 'recherche', label: 'Recherche' },
-    { key: 'recues', label: 'Reçues' },
-    { key: 'envoyees', label: 'Envoyées' },
-    { key: 'amis', label: 'Amis' },
-];
+import { Card } from '../../Components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ query, searchResults, friends, received, sent, suggestions }) {
+    const { t } = useTranslations();
     const [tab, setTab] = useState('recherche');
     const { data, setData, get, processing } = useForm({ q: query ?? '' });
+
+    const tabs = [
+        { key: 'recherche', label: t('amis.onglet_recherche', 'Recherche') },
+        { key: 'recues', label: t('amis.onglet_recues', 'Reçues') },
+        { key: 'envoyees', label: t('amis.onglet_envoyees', 'Envoyées') },
+        { key: 'amis', label: t('amis.onglet_amis', 'Amis') },
+    ];
 
     function search(e) {
         e.preventDefault();
@@ -27,20 +32,20 @@ export default function Index({ query, searchResults, friends, received, sent, s
     const counts = { recues: received.length, envoyees: sent.length, amis: friends.length };
 
     return (
-        <AppLayout title="Amis">
+        <AppLayout title={t('nav.amis', 'Amis')}>
             <Head title="Amis" />
 
             <div className="mb-6 flex gap-1 border-b border-slate-200">
-                {tabs.map((t) => (
+                {tabs.map((item) => (
                     <button
-                        key={t.key}
-                        onClick={() => setTab(t.key)}
+                        key={item.key}
+                        onClick={() => setTab(item.key)}
                         className={`px-4 py-2 text-sm font-medium transition ${
-                            tab === t.key ? 'border-b-2 border-isstm-gold text-isstm-navy' : 'text-slate-500 hover:text-isstm-navy'
+                            tab === item.key ? 'border-b-2 border-isstm-gold text-isstm-navy' : 'text-slate-500 hover:text-isstm-navy'
                         }`}
                     >
-                        {t.label}
-                        {counts[t.key] > 0 && <span className="ml-1.5 text-xs text-slate-400">({counts[t.key]})</span>}
+                        {item.label}
+                        {counts[item.key] > 0 && <span className="ml-1.5 text-xs text-slate-400">({counts[item.key]})</span>}
                     </button>
                 ))}
             </div>
@@ -52,20 +57,23 @@ export default function Index({ query, searchResults, friends, received, sent, s
                             type="text"
                             value={data.q}
                             onChange={(e) => setData('q', e.target.value)}
-                            placeholder="Rechercher un utilisateur par nom ou e-mail…"
+                            placeholder={t('amis.placeholder_recherche', 'Rechercher un utilisateur par nom ou e-mail…')}
                             className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm shadow-sm focus:border-isstm-navy focus:outline-none focus:ring-2 focus:ring-isstm-navy/20"
                         />
                         <button
                             disabled={processing}
-                            className="rounded-lg bg-isstm-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-isstm-navy-dark disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-lg bg-isstm-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-isstm-navy-dark disabled:opacity-50"
                         >
-                            Rechercher
+                            <Search className="h-4 w-4" aria-hidden="true" />
+                            {t('nav.rechercher', 'Rechercher')}
                         </button>
                     </form>
 
                     {(processing || query) && (
                         <section>
-                            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Résultats pour « {query} »</h2>
+                            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                                {t('amis.resultats_pour', 'Résultats pour')} « {query} »
+                            </h2>
                             {processing ? (
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {[...Array(4)].map((_, i) => (
@@ -73,7 +81,7 @@ export default function Index({ query, searchResults, friends, received, sent, s
                                     ))}
                                 </div>
                             ) : searchResults.length === 0 ? (
-                                <p className="text-sm text-slate-400">Aucun utilisateur trouvé.</p>
+                                <p className="text-sm text-slate-400">{t('amis.aucun_utilisateur', 'Aucun utilisateur trouvé.')}</p>
                             ) : (
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {searchResults.map((u) => (
@@ -85,9 +93,11 @@ export default function Index({ query, searchResults, friends, received, sent, s
                     )}
 
                     <section>
-                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Suggestions pour vous</h2>
+                        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                            {t('amis.suggestions', 'Suggestions pour vous')}
+                        </h2>
                         {suggestions.length === 0 ? (
-                            <p className="text-sm text-slate-400">Pas de suggestion pour le moment.</p>
+                            <p className="text-sm text-slate-400">{t('amis.aucune_suggestion', 'Pas de suggestion pour le moment.')}</p>
                         ) : (
                             <div className="grid gap-3 sm:grid-cols-2">
                                 {suggestions.map((u) => (
@@ -101,14 +111,13 @@ export default function Index({ query, searchResults, friends, received, sent, s
 
             {tab === 'recues' && (
                 <div className="space-y-3">
-                    {received.length === 0 && <p className="text-sm text-slate-400">Aucune demande reçue.</p>}
+                    {received.length === 0 && <p className="text-sm text-slate-400">{t('amis.aucune_demande_recue', 'Aucune demande reçue.')}</p>}
                     {received.map((request) => (
-                        <div key={request.id} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-                            <img
-                                src={request.user.avatar_path ? `/storage/${request.user.avatar_path}` : '/images/logo-isstm.jpg'}
-                                alt=""
-                                className="h-12 w-12 rounded-full object-cover"
-                            />
+                        <Card key={request.id} className="flex items-center gap-3 p-4">
+                            <Avatar className="h-12 w-12">
+                                <AvatarImage src={request.user.avatar_path ? `/storage/${request.user.avatar_path}` : undefined} alt="" />
+                                <AvatarFallback>{request.user.name?.[0]}</AvatarFallback>
+                            </Avatar>
                             <div className="min-w-0 flex-1">
                                 <Link href={`/profil/${request.user.id}`} className="block truncate font-semibold text-slate-800 hover:text-isstm-navy">
                                     {request.user.name}
@@ -118,25 +127,27 @@ export default function Index({ query, searchResults, friends, received, sent, s
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => respond(request.id, 'accepter')}
-                                    className="rounded-full bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-isstm-navy-dark"
+                                    className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-isstm-navy-dark"
                                 >
-                                    Accepter
+                                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('amis.accepter', 'Accepter')}
                                 </button>
                                 <button
                                     onClick={() => respond(request.id, 'refuser')}
-                                    className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50"
+                                    className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-50"
                                 >
-                                    Refuser
+                                    <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('amis.refuser', 'Refuser')}
                                 </button>
                             </div>
-                        </div>
+                        </Card>
                     ))}
                 </div>
             )}
 
             {tab === 'envoyees' && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                    {sent.length === 0 && <p className="text-sm text-slate-400">Aucune demande envoyée.</p>}
+                    {sent.length === 0 && <p className="text-sm text-slate-400">{t('amis.aucune_demande_envoyee', 'Aucune demande envoyée.')}</p>}
                     {sent.map((request) => (
                         <UserCard key={request.id} user={{ ...request.user, status: 'envoyee', friend_request_id: request.id }} />
                     ))}
@@ -145,7 +156,7 @@ export default function Index({ query, searchResults, friends, received, sent, s
 
             {tab === 'amis' && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                    {friends.length === 0 && <p className="text-sm text-slate-400">Vous n'avez pas encore d'amis.</p>}
+                    {friends.length === 0 && <p className="text-sm text-slate-400">{t('amis.aucun_ami', "Vous n'avez pas encore d'amis.")}</p>}
                     {friends.map((u) => (
                         <UserCard key={u.id} user={u} />
                     ))}

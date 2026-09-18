@@ -1,10 +1,13 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import { Paperclip, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ posts, canPublish, postTypes }) {
+    const { t } = useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
     const [pageLoading, setPageLoading] = useState(false);
 
@@ -28,7 +31,7 @@ export default function Index({ posts, canPublish, postTypes }) {
     }
 
     return (
-        <AppLayout title="Fil communautaire">
+        <AppLayout title={t('communaute.titre', 'Fil communautaire')}>
             <Head title="Communauté" />
 
             {canPublish && (
@@ -39,33 +42,32 @@ export default function Index({ posts, canPublish, postTypes }) {
                             onChange={(e) => setData('type', e.target.value)}
                             className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
-                            {postTypes.map((t) => (
-                                <option key={t.value} value={t.value}>
-                                    {t.label}
+                            {postTypes.map((type) => (
+                                <option key={type.value} value={type.value}>
+                                    {type.label}
                                 </option>
                             ))}
                         </select>
-                        <input
-                            type="file"
-                            multiple
-                            onChange={(e) => setData('media', Array.from(e.target.files))}
-                            className="flex-1 text-sm text-slate-500"
-                        />
+                        <label className="flex flex-1 items-center gap-2 text-sm text-slate-500">
+                            <Paperclip className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            <input type="file" multiple onChange={(e) => setData('media', Array.from(e.target.files))} className="flex-1 text-sm" />
+                        </label>
                     </div>
                     <textarea
                         value={data.body}
                         onChange={(e) => setData('body', e.target.value)}
                         rows={3}
-                        placeholder="Partager une actualité avec la communauté…"
+                        placeholder={t('communaute.placeholder_publication', 'Partager une actualité avec la communauté…')}
                         className="mt-3 w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-isstm-navy focus:outline-none focus:ring-2 focus:ring-isstm-navy/20"
                     />
                     {errors.body && <p className="mt-1 text-sm text-red-600">{errors.body}</p>}
                     <div className="mt-3 flex justify-end">
                         <button
                             disabled={processing}
-                            className="rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white transition hover:bg-isstm-navy-dark disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white transition hover:bg-isstm-navy-dark disabled:opacity-50"
                         >
-                            Publier
+                            <Send className="h-4 w-4" aria-hidden="true" />
+                            {t('communaute.publier', 'Publier')}
                         </button>
                     </div>
                 </form>
@@ -76,7 +78,7 @@ export default function Index({ posts, canPublish, postTypes }) {
 
                 {!pageLoading && posts.data.length === 0 && (
                     <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-                        Aucune publication pour le moment.
+                        {t('communaute.aucune_publication', 'Aucune publication pour le moment.')}
                     </p>
                 )}
                 {!pageLoading && posts.data.map((p) => <PostCard key={p.id} post={p} />)}
@@ -89,14 +91,14 @@ export default function Index({ posts, canPublish, postTypes }) {
                         onClick={() => goToPage(posts.prev_page_url)}
                         className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
                     >
-                        Précédent
+                        {t('pagination.precedent', 'Précédent')}
                     </button>
                     <button
                         disabled={!posts.next_page_url}
                         onClick={() => goToPage(posts.next_page_url)}
                         className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 disabled:opacity-40"
                     >
-                        Suivant
+                        {t('pagination.suivant', 'Suivant')}
                     </button>
                 </div>
             )}
