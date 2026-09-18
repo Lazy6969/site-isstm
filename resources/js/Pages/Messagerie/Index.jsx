@@ -1,7 +1,10 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { FileText, Paperclip, Search, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import { Card } from '../../Components/ui/card';
+import { useTranslations } from '../../lib/useTranslations';
 
 const POLL_INTERVAL_MS = 8000;
 
@@ -11,6 +14,7 @@ function formatTime(dateString) {
 
 export default function Index({ others: initialOthers, messages: initialMessages }) {
     const { auth } = usePage().props;
+    const { t } = useTranslations();
     const [messages, setMessages] = useState(initialMessages);
     const [others, setOthers] = useState(initialOthers);
     const [search, setSearch] = useState('');
@@ -81,8 +85,8 @@ export default function Index({ others: initialOthers, messages: initialMessages
     function deleteConversation(scope) {
         const warning =
             scope === 'everyone'
-                ? 'Supprimer toute la conversation pour tout le monde ? Cette action est irréversible.'
-                : 'Masquer tout votre historique de cette conversation ?';
+                ? t('messagerie.confirmer_suppression_tous', 'Supprimer toute la conversation pour tout le monde ? Cette action est irréversible.')
+                : t('messagerie.confirmer_masquage', 'Masquer tout votre historique de cette conversation ?');
         if (confirm(warning)) {
             router.post('/messagerie/supprimer', { scope }, { preserveScroll: true });
         }
@@ -107,8 +111,10 @@ export default function Index({ others: initialOthers, messages: initialMessages
             <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <h1 className="text-2xl font-bold text-isstm-navy">Messagerie interne</h1>
-                        <p className="mt-1 text-sm text-slate-400">Conversation unique entre tous les comptes de la messagerie.</p>
+                        <h1 className="text-2xl font-bold text-isstm-navy">{t('messagerie.titre', 'Messagerie interne')}</h1>
+                        <p className="mt-1 text-sm text-slate-400">
+                            {t('messagerie.soustitre', 'Conversation unique entre tous les comptes de la messagerie.')}
+                        </p>
                     </div>
                     <div className="flex items-center gap-2">
                         {others.map((o) => (
@@ -126,11 +132,12 @@ export default function Index({ others: initialOthers, messages: initialMessages
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Rechercher dans les messages…"
+                            placeholder={t('messagerie.placeholder_recherche', 'Rechercher dans les messages…')}
                             className="w-64 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
                         />
-                        <button className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white">
-                            Rechercher
+                        <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white">
+                            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('nav.rechercher', 'Rechercher')}
                         </button>
                         {searchResults !== null && (
                             <button
@@ -139,26 +146,29 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                     setSearch('');
                                     setSearchResults(null);
                                 }}
-                                className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white"
+                                className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-400 hover:bg-white"
                             >
-                                Fermer
+                                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                {t('galerie.fermer', 'Fermer')}
                             </button>
                         )}
                     </form>
                     <div className="flex gap-2 text-xs">
                         <button onClick={() => deleteConversation('me')} className="text-slate-400 hover:text-red-600">
-                            Masquer tout pour moi
+                            {t('messagerie.masquer_tout', 'Masquer tout pour moi')}
                         </button>
                         <button onClick={() => deleteConversation('everyone')} className="text-slate-400 hover:text-red-600">
-                            Supprimer pour tous
+                            {t('groupes.supprimer_pour_tous', 'Supprimer pour tous')}
                         </button>
                     </div>
                 </div>
 
                 {searchResults !== null ? (
-                    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                        <h2 className="mb-3 text-sm font-semibold text-isstm-navy">Résultats ({searchResults.length})</h2>
-                        {searchResults.length === 0 && <p className="text-sm text-slate-400">Aucun résultat.</p>}
+                    <Card className="p-4">
+                        <h2 className="mb-3 text-sm font-semibold text-isstm-navy">
+                            {t('messagerie.resultats', 'Résultats')} ({searchResults.length})
+                        </h2>
+                        {searchResults.length === 0 && <p className="text-sm text-slate-400">{t('recherche.aucun_resultat_simple', 'Aucun résultat.')}</p>}
                         {searchResults.map((m) => (
                             <div key={m.id} className="border-b border-slate-50 py-2 text-sm">
                                 <span className="font-semibold text-slate-700">{m.sender_name}</span>{' '}
@@ -166,11 +176,11 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                 <p className="text-slate-600">{m.body}</p>
                             </div>
                         ))}
-                    </div>
+                    </Card>
                 ) : (
-                    <div className="flex h-[60vh] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+                    <Card className="flex h-[60vh] flex-col overflow-hidden">
                         <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                            {messages.length === 0 && <p className="text-center text-sm text-slate-400">Aucun message pour le moment.</p>}
+                            {messages.length === 0 && <p className="text-center text-sm text-slate-400">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                             {messages.map((m) => {
                                 const isMine = m.sender_id === auth.user.id;
                                 return (
@@ -179,7 +189,11 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                             <div className="flex items-baseline gap-2">
                                                 <span className="text-sm font-semibold text-slate-800">{m.sender_name}</span>
                                                 <span className="text-xs text-slate-400">{formatTime(m.created_at)}</span>
-                                                {isMine && <span className="text-[11px] text-slate-400">{m.read_at ? 'Lu' : 'Envoyé'}</span>}
+                                                {isMine && (
+                                                    <span className="text-[11px] text-slate-400">
+                                                        {m.read_at ? t('messagerie.lu', 'Lu') : t('messagerie.envoye', 'Envoyé')}
+                                                    </span>
+                                                )}
                                             </div>
                                             {m.body && <p className="text-sm text-slate-700">{m.body}</p>}
                                             {m.attachments.map((a) => (
@@ -187,17 +201,20 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                                     {a.file_type === 'image' ? (
                                                         <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
                                                     ) : (
-                                                        <span className="text-xs font-medium text-isstm-navy underline">{a.original_name}</span>
+                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy underline">
+                                                            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                                                            {a.original_name}
+                                                        </span>
                                                     )}
                                                 </a>
                                             ))}
                                             <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
-                                                    Masquer pour moi
+                                                    {t('groupes.masquer_pour_moi', 'Masquer pour moi')}
                                                 </button>
                                                 {isMine && (
                                                     <button onClick={() => deleteMessage(m.id, 'everyone')} className="hover:text-red-600 hover:underline">
-                                                        Supprimer pour tous
+                                                        {t('groupes.supprimer_pour_tous', 'Supprimer pour tous')}
                                                     </button>
                                                 )}
                                             </div>
@@ -209,24 +226,23 @@ export default function Index({ others: initialOthers, messages: initialMessages
                         </div>
 
                         <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
-                            <input
-                                type="file"
-                                multiple
-                                onChange={(e) => setData('attachments', Array.from(e.target.files))}
-                                className="w-32 text-xs text-slate-400"
-                            />
+                            <label className="flex-shrink-0 text-slate-400" title={t('groupes.piece_jointe', 'Pièce jointe')}>
+                                <Paperclip className="h-4 w-4" aria-hidden="true" />
+                                <input type="file" multiple onChange={(e) => setData('attachments', Array.from(e.target.files))} className="hidden" />
+                            </label>
                             <input
                                 type="text"
                                 value={data.body}
                                 onChange={(e) => setData('body', e.target.value)}
-                                placeholder="Écrire un message…"
+                                placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                                 className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                             />
-                            <button disabled={processing} className="rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                                Envoyer
+                            <button disabled={processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                                <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                                {t('communaute.envoyer', 'Envoyer')}
                             </button>
                         </form>
-                    </div>
+                    </Card>
                 )}
             </main>
 

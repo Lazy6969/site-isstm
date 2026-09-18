@@ -1,28 +1,34 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Ban, Crown, FileText, Paperclip, Printer, Send, ShieldCheck, Trash2, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
-
-const announcementTypes = [
-    { value: 'devoir', label: 'Devoir' },
-    { value: 'examen', label: 'Examen' },
-    { value: 'resultat', label: 'Résultat' },
-    { value: 'autre', label: 'Autre' },
-];
+import { Card } from '../../Components/ui/card';
+import { Badge } from '../../Components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
+import { useTranslations } from '../../lib/useTranslations';
 
 function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-const tabs = [
-    { key: 'discussion', label: 'Discussion' },
-    { key: 'membres', label: 'Membres' },
-    { key: 'annonces', label: 'Annonces' },
-];
-
 export default function Show({ group, membership, members, messages, announcements }) {
+    const { t } = useTranslations();
     const [tab, setTab] = useState('discussion');
     const messageForm = useForm({ body: '', attachments: [] });
     const announcementForm = useForm({ type: 'devoir', title: '', description: '', due_date: '' });
+
+    const announcementTypes = [
+        { value: 'devoir', label: t('groupes.type_devoir', 'Devoir') },
+        { value: 'examen', label: t('groupes.type_examen', 'Examen') },
+        { value: 'resultat', label: t('groupes.type_resultat', 'Résultat') },
+        { value: 'autre', label: t('groupes.type_autre', 'Autre') },
+    ];
+
+    const tabs = [
+        { key: 'discussion', label: t('groupes.onglet_discussion', 'Discussion') },
+        { key: 'membres', label: t('groupes.onglet_membres', 'Membres') },
+        { key: 'annonces', label: t('groupes.onglet_annonces', 'Annonces') },
+    ];
 
     function sendMessage(e) {
         e.preventDefault();
@@ -46,7 +52,7 @@ export default function Show({ group, membership, members, messages, announcemen
     }
 
     function deleteAnnouncement(id) {
-        if (confirm('Supprimer cette annonce ?')) {
+        if (confirm(t('groupes.confirmer_suppression_annonce', 'Supprimer cette annonce ?'))) {
             router.delete(`/groupes/annonces/${id}`, { preserveScroll: true });
         }
     }
@@ -76,34 +82,40 @@ export default function Show({ group, membership, members, messages, announcemen
                 </div>
                 <div className="flex items-center gap-2">
                     {group.join_code && (
-                        <span className="rounded-full bg-isstm-navy/10 px-3 py-1.5 text-xs font-semibold text-isstm-navy">Code : {group.join_code}</span>
+                        <Badge>
+                            {t('groupes.code', 'Code :')} {group.join_code}
+                        </Badge>
                     )}
                     {membership.can_download_presence && (
-                        <Link href={`/groupes/${group.id}/presence`} className="rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/5">
-                            Feuille de présence
+                        <Link
+                            href={`/groupes/${group.id}/presence`}
+                            className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/5"
+                        >
+                            <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('groupes.feuille_presence', 'Feuille de présence')}
                         </Link>
                     )}
                 </div>
             </div>
 
             <div className="mb-6 flex gap-1 border-b border-slate-200">
-                {tabs.map((t) => (
+                {tabs.map((item) => (
                     <button
-                        key={t.key}
-                        onClick={() => setTab(t.key)}
+                        key={item.key}
+                        onClick={() => setTab(item.key)}
                         className={`px-4 py-2 text-sm font-medium transition ${
-                            tab === t.key ? 'border-b-2 border-isstm-gold text-isstm-navy' : 'text-slate-500 hover:text-isstm-navy'
+                            tab === item.key ? 'border-b-2 border-isstm-gold text-isstm-navy' : 'text-slate-500 hover:text-isstm-navy'
                         }`}
                     >
-                        {t.label}
+                        {item.label}
                     </button>
                 ))}
             </div>
 
             {tab === 'discussion' && (
-                <div className="flex h-[60vh] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+                <Card className="flex h-[60vh] flex-col overflow-hidden">
                     <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                        {messages.length === 0 && <p className="text-center text-sm text-slate-400">Aucun message pour le moment.</p>}
+                        {messages.length === 0 && <p className="text-center text-sm text-slate-400">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                         {messages.map((m) => (
                             <div key={m.id} className="group flex items-start gap-2.5">
                                 <div className="min-w-0 flex-1">
@@ -112,7 +124,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                         <span className="text-xs text-slate-400">{formatTime(m.created_at)}</span>
                                     </div>
                                     {m.deleted_for_everyone ? (
-                                        <p className="text-sm italic text-slate-400">Message supprimé</p>
+                                        <p className="text-sm italic text-slate-400">{t('groupes.message_supprime', 'Message supprimé')}</p>
                                     ) : (
                                         <>
                                             {m.body && <p className="text-sm text-slate-700">{m.body}</p>}
@@ -121,16 +133,19 @@ export default function Show({ group, membership, members, messages, announcemen
                                                     {a.file_type === 'image' ? (
                                                         <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
                                                     ) : (
-                                                        <span className="text-xs font-medium text-isstm-navy underline">{a.original_name}</span>
+                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy underline">
+                                                            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                                                            {a.original_name}
+                                                        </span>
                                                     )}
                                                 </a>
                                             ))}
                                             <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
-                                                    Masquer pour moi
+                                                    {t('groupes.masquer_pour_moi', 'Masquer pour moi')}
                                                 </button>
                                                 <button onClick={() => deleteMessage(m.id, 'everyone')} className="hover:text-red-600 hover:underline">
-                                                    Supprimer pour tous
+                                                    {t('groupes.supprimer_pour_tous', 'Supprimer pour tous')}
                                                 </button>
                                             </div>
                                         </>
@@ -141,60 +156,75 @@ export default function Show({ group, membership, members, messages, announcemen
                     </div>
 
                     <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 p-3">
-                        <input
-                            type="file"
-                            multiple
-                            onChange={(e) => messageForm.setData('attachments', Array.from(e.target.files))}
-                            className="w-32 text-xs text-slate-400"
-                        />
+                        <label className="flex-shrink-0 text-slate-400" title={t('groupes.piece_jointe', 'Pièce jointe')}>
+                            <Paperclip className="h-4 w-4" aria-hidden="true" />
+                            <input
+                                type="file"
+                                multiple
+                                onChange={(e) => messageForm.setData('attachments', Array.from(e.target.files))}
+                                className="hidden"
+                            />
+                        </label>
                         <input
                             type="text"
                             value={messageForm.data.body}
                             onChange={(e) => messageForm.setData('body', e.target.value)}
-                            placeholder="Écrire un message…"
+                            placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                             className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         />
-                        <button disabled={messageForm.processing} className="rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                            Envoyer
+                        <button disabled={messageForm.processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                            <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('communaute.envoyer', 'Envoyer')}
                         </button>
                     </form>
-                </div>
+                </Card>
             )}
 
             {tab === 'membres' && (
                 <div className="space-y-2">
                     {members.map((m) => (
-                        <div key={m.id} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
-                            <img
-                                src={m.avatar_path ? `/storage/${m.avatar_path}` : '/images/logo-isstm.jpg'}
-                                alt=""
-                                className="h-10 w-10 rounded-full object-cover"
-                            />
+                        <Card key={m.id} className="flex items-center gap-3 p-4">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={m.avatar_path ? `/storage/${m.avatar_path}` : undefined} alt="" />
+                                <AvatarFallback>{m.name?.[0]}</AvatarFallback>
+                            </Avatar>
                             <div className="min-w-0 flex-1">
                                 <p className="truncate text-sm font-semibold text-slate-800">{m.name}</p>
                                 <p className="text-xs text-slate-400">
-                                    {m.role_in_group === 'enseignant' ? 'Enseignant' : 'Étudiant'}
-                                    {m.is_delegate ? ' · Délégué de classe' : ''}
-                                    {m.is_banned ? ' · Banni' : ''}
+                                    {m.role_in_group === 'enseignant' ? t('groupes.enseignant_role', 'Enseignant') : t('groupes.etudiant_role', 'Étudiant')}
+                                    {m.is_delegate ? ` · ${t('groupes.delegue_classe', 'Délégué de classe')}` : ''}
+                                    {m.is_banned ? ` · ${t('groupes.banni', 'Banni')}` : ''}
                                 </p>
                             </div>
                             {membership.can_moderate && m.role_in_group !== 'enseignant' && (
                                 <div className="flex gap-2">
-                                    <button onClick={() => toggleDelegate(m.id)} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-                                        {m.is_delegate ? 'Retirer délégué' : 'Nommer délégué'}
+                                    <button
+                                        onClick={() => toggleDelegate(m.id)}
+                                        className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                    >
+                                        <Crown className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {m.is_delegate ? t('groupes.retirer_delegue', 'Retirer délégué') : t('groupes.nommer_delegue', 'Nommer délégué')}
                                     </button>
                                     {m.is_banned ? (
-                                        <button onClick={() => unbanMember(m.id)} className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-                                            Réintégrer
+                                        <button
+                                            onClick={() => unbanMember(m.id)}
+                                            className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                                        >
+                                            <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                                            {t('groupes.reintegrer', 'Réintégrer')}
                                         </button>
                                     ) : (
-                                        <button onClick={() => banMember(m.id)} className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50">
-                                            Bannir
+                                        <button
+                                            onClick={() => banMember(m.id)}
+                                            className="flex items-center gap-1.5 rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50"
+                                        >
+                                            <Ban className="h-3.5 w-3.5" aria-hidden="true" />
+                                            {t('groupes.bannir', 'Bannir')}
                                         </button>
                                     )}
                                 </div>
                             )}
-                        </div>
+                        </Card>
                     ))}
                 </div>
             )}
@@ -202,73 +232,77 @@ export default function Show({ group, membership, members, messages, announcemen
             {tab === 'annonces' && (
                 <div className="space-y-4">
                     {membership.can_moderate && (
-                        <form onSubmit={submitAnnouncement} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                            <div className="flex gap-2">
-                                <select
-                                    value={announcementForm.data.type}
-                                    onChange={(e) => announcementForm.setData('type', e.target.value)}
-                                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
-                                >
-                                    {announcementTypes.map((t) => (
-                                        <option key={t.value} value={t.value}>
-                                            {t.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <input
-                                    type="text"
-                                    value={announcementForm.data.title}
-                                    onChange={(e) => announcementForm.setData('title', e.target.value)}
-                                    placeholder="Titre"
-                                    className="flex-1 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                        <Card className="p-5">
+                            <form onSubmit={submitAnnouncement}>
+                                <div className="flex gap-2">
+                                    <select
+                                        value={announcementForm.data.type}
+                                        onChange={(e) => announcementForm.setData('type', e.target.value)}
+                                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                    >
+                                        {announcementTypes.map((type) => (
+                                            <option key={type.value} value={type.value}>
+                                                {type.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <input
+                                        type="text"
+                                        value={announcementForm.data.title}
+                                        onChange={(e) => announcementForm.setData('title', e.target.value)}
+                                        placeholder={t('groupes.titre_placeholder', 'Titre')}
+                                        className="flex-1 rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                    />
+                                    <input
+                                        type="date"
+                                        value={announcementForm.data.due_date}
+                                        onChange={(e) => announcementForm.setData('due_date', e.target.value)}
+                                        className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
+                                    />
+                                </div>
+                                <textarea
+                                    value={announcementForm.data.description}
+                                    onChange={(e) => announcementForm.setData('description', e.target.value)}
+                                    rows={2}
+                                    placeholder={t('groupes.description_facultatif', 'Description (facultatif)')}
+                                    className="mt-2 w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                 />
-                                <input
-                                    type="date"
-                                    value={announcementForm.data.due_date}
-                                    onChange={(e) => announcementForm.setData('due_date', e.target.value)}
-                                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
-                                />
-                            </div>
-                            <textarea
-                                value={announcementForm.data.description}
-                                onChange={(e) => announcementForm.setData('description', e.target.value)}
-                                rows={2}
-                                placeholder="Description (facultatif)"
-                                className="mt-2 w-full rounded-lg border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
-                            />
-                            {announcementForm.errors.title && <p className="mt-1 text-sm text-red-600">{announcementForm.errors.title}</p>}
-                            <div className="mt-2 flex justify-end">
-                                <button disabled={announcementForm.processing} className="rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">
-                                    Publier l'annonce
-                                </button>
-                            </div>
-                        </form>
+                                {announcementForm.errors.title && <p className="mt-1 text-sm text-red-600">{announcementForm.errors.title}</p>}
+                                <div className="mt-2 flex justify-end">
+                                    <button disabled={announcementForm.processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                                        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                                        {t('groupes.publier_annonce', "Publier l'annonce")}
+                                    </button>
+                                </div>
+                            </form>
+                        </Card>
                     )}
 
                     {announcements.length === 0 && (
-                        <p className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-                            Aucune annonce épinglée.
-                        </p>
+                        <Card className="p-8 text-center text-sm text-slate-400">
+                            {t('groupes.aucune_annonce', 'Aucune annonce épinglée.')}
+                        </Card>
                     )}
                     {announcements.map((a) => (
-                        <div key={a.id} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                        <Card key={a.id} className="p-5">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <span className="rounded-full bg-isstm-gold/10 px-2.5 py-1 text-xs font-semibold text-isstm-gold">{a.type_label}</span>
+                                    <Badge variant="gold">{a.type_label}</Badge>
                                     <h3 className="mt-2 font-semibold text-slate-800">{a.title}</h3>
                                 </div>
                                 {membership.can_moderate && (
-                                    <button onClick={() => deleteAnnouncement(a.id)} className="text-xs font-medium text-slate-400 hover:text-red-600">
-                                        Supprimer
+                                    <button onClick={() => deleteAnnouncement(a.id)} className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-red-600">
+                                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {t('communaute.supprimer', 'Supprimer')}
                                     </button>
                                 )}
                             </div>
                             {a.description && <p className="mt-2 text-sm text-slate-600">{a.description}</p>}
                             <p className="mt-3 text-xs text-slate-400">
-                                Par {a.teacher_name} · {formatTime(a.created_at)}
-                                {a.due_date ? ` · Échéance : ${a.due_date}` : ''}
+                                {t('groupes.par', 'Par')} {a.teacher_name} · {formatTime(a.created_at)}
+                                {a.due_date ? ` · ${t('groupes.echeance', 'Échéance :')} ${a.due_date}` : ''}
                             </p>
-                        </div>
+                        </Card>
                     ))}
                 </div>
             )}
