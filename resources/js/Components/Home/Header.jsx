@@ -69,11 +69,12 @@ export default function Header() {
     }
 
     return (
-        <header
-            className={`fixed inset-x-0 top-0 z-40 text-white transition-[background-color,box-shadow,transform,opacity] duration-500 ${
-                scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
-            } ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
-        >
+        <>
+            <header
+                className={`fixed inset-x-0 top-0 z-40 text-white transition-[background-color,box-shadow,transform,opacity] duration-500 ${
+                    scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
+                } ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
+            >
             <div className="relative flex items-center justify-between px-4 py-3 sm:px-6">
                 <a href="#accueil" className="flex flex-shrink-0 items-center gap-3.5">
                     <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-12 w-auto" />
@@ -183,8 +184,9 @@ export default function Header() {
                     <MobileMenuButton />
                 </div>
             </div>
+            </header>
 
             <MobileTabBar showLogin={false} />
-        </header>
+        </>
     );
 }

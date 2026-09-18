@@ -58,9 +58,10 @@ export default function SiteHeader() {
     }
 
     return (
-        <header
-            className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
-        >
+        <>
+            <header
+                className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
+            >
             <div className="flex items-center justify-between px-4 py-3 sm:px-6">
                 <div className="flex items-center gap-6">
                     <Link href="/" className="flex items-center gap-3.5">
@@ -170,8 +171,9 @@ export default function SiteHeader() {
                     <MobileMenuButton />
                 </div>
             </div>
+            </header>
 
             <MobileTabBar showLogin />
-        </header>
+        </>
     );
 }
