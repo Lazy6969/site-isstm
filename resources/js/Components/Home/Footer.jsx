@@ -1,5 +1,5 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
+import { Code, Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
 import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -130,8 +130,15 @@ export default function Footer() {
 
             <div className="border-t border-white/10 py-6">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-xs sm:flex-row">
-                    <p>
-                        &copy; {new Date().getFullYear()} ISSTM — {t('footer.institut_complet', 'Institut Supérieur des Sciences et Technologies de Mahajanga.')}
+                    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:justify-start">
+                        <span>
+                            &copy; {new Date().getFullYear()} ISSTM — {t('footer.institut_complet', 'Institut Supérieur des Sciences et Technologies de Mahajanga.')}
+                        </span>
+                        <span aria-hidden="true">·</span>
+                        <Link href="/equipe" className="inline-flex items-center gap-1.5 hover:text-white">
+                            <Code className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('footer.concue_par', "Conçue par les étudiants de l'ISSTM")}
+                        </Link>
                     </p>
                     <nav className="flex gap-4">
                         <Link href="/mentions-legales" className="hover:text-white">{t('footer.mentions_legales', 'Mentions légales')}</Link>

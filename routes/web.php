@@ -59,6 +59,7 @@ Route::get('documents', [DocumentController::class, 'index'])->name('documents.i
 
 Route::inertia('mentions-legales', 'MentionsLegales')->name('mentions-legales');
 Route::inertia('confidentialite', 'Confidentialite')->name('confidentialite');
+Route::inertia('equipe', 'Equipe/Index')->name('equipe');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 
