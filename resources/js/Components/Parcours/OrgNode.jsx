@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
 export default function OrgNode({ node, depth = 0 }) {
@@ -24,15 +25,10 @@ export default function OrgNode({ node, depth = 0 }) {
                     </span>
                 </span>
                 {hasChildren && (
-                    <svg
+                    <ChevronDown
                         className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                        aria-hidden="true"
+                    />
                 )}
             </button>
 

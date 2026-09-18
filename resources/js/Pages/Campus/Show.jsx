@@ -1,6 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Quote } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import { Card } from '../../Components/ui/card';
+import { useTranslations } from '../../lib/useTranslations';
 
 function Fact({ label, value }) {
     if (!value) return null;
@@ -14,6 +17,7 @@ function Fact({ label, value }) {
 }
 
 export default function Show({ bloc }) {
+    const { t } = useTranslations();
     const images = bloc.images ?? [];
 
     return (
@@ -23,12 +27,18 @@ export default function Show({ bloc }) {
 
             <div className="bg-isstm-navy py-14 text-white">
                 <div className="mx-auto max-w-4xl px-6">
-                    <Link href="/campus" className="text-sm text-white/70 hover:text-white hover:underline">
-                        ← Tous les blocs
+                    <Link href="/campus" className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline">
+                        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                        {t('campus.tous_les_blocs', 'Tous les blocs')}
                     </Link>
                     <h1 className="mt-2 text-3xl font-bold">{bloc.nom}</h1>
                     {bloc.signification && <p className="mt-2 max-w-2xl text-white/80">{bloc.signification}</p>}
-                    {bloc.slogan && <p className="mt-3 text-sm italic text-isstm-gold">« {bloc.slogan} »</p>}
+                    {bloc.slogan && (
+                        <p className="mt-3 flex items-center gap-1.5 text-sm italic text-isstm-gold">
+                            <Quote className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {bloc.slogan}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -41,23 +51,25 @@ export default function Show({ bloc }) {
                     </div>
                 )}
 
-                <dl className="grid grid-cols-1 gap-6 rounded-2xl bg-white p-7 shadow-sm ring-1 ring-slate-100 sm:grid-cols-2">
-                    <Fact label="Fondation" value={bloc.fondation} />
-                    <Fact label="Fondateurs" value={bloc.fondateurs} />
-                    <Fact label="Danses" value={bloc.danse} />
-                    <Fact label="Ce qui les distingue" value={bloc.mampiavaka} />
-                </dl>
+                <Card className="p-7">
+                    <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <Fact label={t('campus.fondation', 'Fondation')} value={bloc.fondation} />
+                        <Fact label={t('campus.fondateurs', 'Fondateurs')} value={bloc.fondateurs} />
+                        <Fact label={t('campus.danses', 'Danses')} value={bloc.danse} />
+                        <Fact label={t('campus.distinction', 'Ce qui les distingue')} value={bloc.mampiavaka} />
+                    </dl>
+                </Card>
 
                 <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {bloc.objectifs && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy">Objectifs</h2>
+                            <h2 className="text-lg font-semibold text-isstm-navy">{t('campus.objectifs', 'Objectifs')}</h2>
                             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{bloc.objectifs}</p>
                         </div>
                     )}
                     {bloc.activites && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy">Activités</h2>
+                            <h2 className="text-lg font-semibold text-isstm-navy">{t('campus.activites', 'Activités')}</h2>
                             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600">{bloc.activites}</p>
                         </div>
                     )}

@@ -1,6 +1,9 @@
 import { Head } from '@inertiajs/react';
+import { ExternalLink } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
+import { Card } from '../Components/ui/card';
+import { useTranslations } from '../lib/useTranslations';
 
 const links = [
     {
@@ -20,6 +23,8 @@ const links = [
 ];
 
 export default function Bourse() {
+    const { t } = useTranslations();
+
     return (
         <div className="min-h-screen bg-slate-50">
             <Head title="Bourse d'études" />
@@ -27,26 +32,27 @@ export default function Bourse() {
 
             <div className="bg-isstm-navy py-14 text-white">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">Demande de Bourse d'Études</h1>
-                    <p className="mt-2 text-white/80">Nous soutenons l'excellence et l'égalité des chances.</p>
+                    <h1 className="text-3xl font-bold">{t('bourse.titre', "Demande de Bourse d'Études")}</h1>
+                    <p className="mt-2 text-white/80">{t('bourse.soustitre', "Nous soutenons l'excellence et l'égalité des chances.")}</p>
                 </div>
             </div>
 
             <main className="mx-auto max-w-4xl px-6 py-12">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {links.map((link) => (
-                        <div key={link.title} className="flex flex-col rounded-2xl bg-white p-7 text-center shadow-sm ring-1 ring-slate-100">
+                        <Card key={link.title} className="flex flex-col p-7 text-center">
                             <h2 className="text-lg font-semibold text-isstm-navy">{link.title}</h2>
                             <p className="mt-3 flex-1 text-sm leading-relaxed text-slate-500">{link.description}</p>
                             <a
                                 href={link.href}
                                 target="_blank"
                                 rel="noopener"
-                                className="mt-5 inline-block rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                                className="mt-5 flex items-center justify-center gap-1.5 rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
                             >
-                                {link.button} ↗
+                                {link.button}
+                                <ExternalLink className="h-4 w-4" aria-hidden="true" />
                             </a>
-                        </div>
+                        </Card>
                     ))}
                 </div>
             </main>
