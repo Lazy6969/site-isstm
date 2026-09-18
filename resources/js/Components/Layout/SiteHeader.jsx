@@ -62,48 +62,47 @@ export default function SiteHeader() {
             <header
                 className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
-            <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-                <div className="flex min-w-0 items-center gap-6">
-                    <Link href="/" className="flex min-w-0 items-center gap-3.5">
-                        <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto flex-shrink-0" />
-                        <BrandTitle />
-                    </Link>
-                    <NavigationMenu className="hidden md:flex">
-                        <NavigationMenuList>
-                            <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
-                            <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        {t('nav.actualites', 'Actualités')}
-                                    </Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        {t('nav.galerie', 'Galerie')}
-                                    </Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        {t('nav.inscription', 'Inscription')}
-                                    </Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            <NavigationMenuItem>
-                                <NavigationMenuLink asChild>
-                                    <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                        {t('nav.contact', 'Contact')}
-                                    </Link>
-                                </NavigationMenuLink>
-                            </NavigationMenuItem>
-                            {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
-                        </NavigationMenuList>
-                    </NavigationMenu>
-                </div>
+            <div className="relative flex items-center justify-between px-4 py-3 sm:px-6">
+                <Link href="/" className="flex min-w-0 items-center gap-3.5">
+                    <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto flex-shrink-0" />
+                    <BrandTitle />
+                </Link>
+
+                <NavigationMenu className="hidden md:absolute md:top-1/2 md:left-1/2 md:flex md:-translate-x-1/2 md:-translate-y-1/2">
+                    <NavigationMenuList>
+                        <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
+                        <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.actualites', 'Actualités')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.galerie', 'Galerie')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.inscription', 'Inscription')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.contact', 'Contact')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                    </NavigationMenuList>
+                </NavigationMenu>
 
                 <div className="hidden items-center gap-3 md:flex">
                     <HeaderSearchButton />
