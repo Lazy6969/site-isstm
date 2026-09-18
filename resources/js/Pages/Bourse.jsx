@@ -10,7 +10,7 @@ export default function Bourse() {
 
     const links = [
         {
-            logo: '/images/partenariat/mesupres.png?v=2',
+            logo: '/images/partenariat/mesupres.png',
             title: t('bourse.externe_titre', "Postuler pour une Bourse d'État"),
             description: t(
                 'bourse.externe_desc',
@@ -20,7 +20,7 @@ export default function Bourse() {
             href: 'https://boursesext.mesupres.edu.mg/',
         },
         {
-            logo: '/images/partenariat/tresor-public.png?v=2',
+            logo: '/images/partenariat/tresor-public.png',
             title: t('bourse.tresor_titre', 'Créer votre portefeuille Trésor Public'),
             description: t(
                 'bourse.tresor_desc',

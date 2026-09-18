@@ -88,7 +88,7 @@ export default function Footer() {
                             title={t('footer.universite_mahajanga', 'Université de Mahajanga')}
                             className="inline-flex items-center rounded-md bg-white p-1.5"
                         >
-                            <img src="/images/partenariat/universite-mahajanga.svg?v=2" alt="Université de Mahajanga" className="h-11 w-auto" />
+                            <img src="/images/partenariat/universite-mahajanga-footer.svg" alt="Université de Mahajanga" className="h-11 w-auto" />
                         </a>
                         <a
                             href="https://mesupres.gov.mg/"
@@ -97,7 +97,7 @@ export default function Footer() {
                             title="MESUPRES"
                             className="inline-flex items-center rounded-md bg-white p-1.5"
                         >
-                            <img src="/images/partenariat/mesupres.png?v=2" alt="MESUPRES" className="h-11 w-auto" />
+                            <img src="/images/partenariat/mesupres-footer.png" alt="MESUPRES" className="h-11 w-auto" />
                         </a>
                     </div>
                     {content.devise && <p className="mt-3 text-sm font-medium text-isstm-gold">{content.devise}</p>}
