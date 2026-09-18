@@ -38,10 +38,10 @@ export default function Testimonials({ testimonials }) {
                 </h2>
 
                 <div
-                    className="relative flex flex-col items-center gap-10 overflow-hidden rounded-[63%_37%_41%_59%/47%_60%_40%_53%] px-8 py-14 transition-colors duration-700 sm:flex-row sm:gap-14 sm:px-16"
+                    className="relative flex flex-col items-center gap-10 rounded-[63%_37%_41%_59%/47%_60%_40%_53%] px-8 py-14 transition-colors duration-700 sm:flex-row sm:gap-14 sm:px-16"
                     style={{ backgroundColor: BG_TINTS[current % BG_TINTS.length] }}
                 >
-                    <div className="relative h-56 w-56 flex-shrink-0" style={{ perspective: '1400px' }}>
+                    <div className="relative z-20 h-56 w-56 flex-shrink-0" style={{ perspective: '1400px' }}>
                         {testimonials.map((testimonial, index) => {
                             const dist = (index - current + total) % total;
                             if (dist > 2) return null;
