@@ -50,7 +50,7 @@ export function NavigationMenuViewport({ className, ...props }) {
         <div className="absolute left-0 top-full flex justify-center">
             <NavigationMenuPrimitive.Viewport
                 className={cn(
-                    'relative mt-2 w-full origin-top overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-xl ring-1 ring-border data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]',
+                    'relative mt-2 h-[var(--radix-navigation-menu-viewport-height)] w-full origin-top overflow-hidden rounded-xl bg-popover text-popover-foreground shadow-xl ring-1 ring-border transition-[width,height] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]',
                     className,
                 )}
                 {...props}
