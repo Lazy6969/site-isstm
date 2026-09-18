@@ -1,16 +1,19 @@
 import { Link, usePage } from '@inertiajs/react';
+import { BookOpen } from 'lucide-react';
 import SiteHeader from '../Layout/SiteHeader';
 import Footer from '../Home/Footer';
-
-const navItems = [
-    { href: '/bibliotheque/admin', label: 'Tableau de bord' },
-    { href: '/bibliotheque/admin/canevas', label: 'Canevas' },
-    { href: '/bibliotheque/admin/memoires', label: 'Mémoires & projets' },
-    { href: '/bibliotheque/admin/reglages', label: 'Réglages' },
-];
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function BiblioAdminLayout({ children, title }) {
     const { url } = usePage();
+    const { t } = useTranslations();
+
+    const navItems = [
+        { href: '/bibliotheque/admin', label: t('bibliotheque_admin.nav_dashboard', 'Tableau de bord') },
+        { href: '/bibliotheque/admin/canevas', label: t('bibliotheque.nav_canevas', 'Canevas') },
+        { href: '/bibliotheque/admin/memoires', label: t('bibliotheque.nav_memoires', 'Mémoires & projets') },
+        { href: '/bibliotheque/admin/reglages', label: t('bibliotheque_admin.nav_reglages', 'Réglages') },
+    ];
 
     return (
         <div className="flex min-h-screen flex-col bg-slate-50">
@@ -36,8 +39,9 @@ export default function BiblioAdminLayout({ children, title }) {
                             );
                         })}
                     </div>
-                    <Link href="/bibliotheque" className="whitespace-nowrap py-3 text-sm font-medium text-isstm-navy hover:text-isstm-gold">
-                        Voir la bibliothèque
+                    <Link href="/bibliotheque" className="flex items-center gap-1.5 whitespace-nowrap py-3 text-sm font-medium text-isstm-navy hover:text-isstm-gold">
+                        <BookOpen className="h-4 w-4" aria-hidden="true" />
+                        {t('bibliotheque_admin.voir_bibliotheque', 'Voir la bibliothèque')}
                     </Link>
                 </nav>
             </div>

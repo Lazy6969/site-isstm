@@ -1,8 +1,11 @@
 import { Head } from '@inertiajs/react';
+import { Lock } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import BiblioLayout from '../../../Components/Bibliotheque/BiblioLayout';
+import { useTranslations } from '../../../lib/useTranslations';
 
 export default function Consulter({ memoire, token }) {
+    const { t } = useTranslations();
     const containerRef = useRef(null);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -98,16 +101,17 @@ export default function Consulter({ memoire, token }) {
             <h1 className="text-xl font-bold text-isstm-navy">{memoire.titre}</h1>
             <p className="mt-1 text-sm text-slate-500">
                 {memoire.auteur}
-                {memoire.encadreur ? ` — Encadreur : ${memoire.encadreur}` : ''} — {memoire.categorie} — {memoire.niveau} - {memoire.filiere} ({memoire.mention}) — {memoire.annee}
+                {memoire.encadreur ? ` — ${t('bibliotheque.encadreur', 'Encadreur :')} ${memoire.encadreur}` : ''} — {memoire.categorie} — {memoire.niveau} - {memoire.filiere} ({memoire.mention}) — {memoire.annee}
             </p>
 
-            <div className="mt-4 rounded-xl bg-isstm-gold/10 px-4 py-2.5 text-sm text-isstm-navy">
-                🔒 Consultation en ligne uniquement — téléchargement désactivé.
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-isstm-gold/10 px-4 py-2.5 text-sm text-isstm-navy">
+                <Lock className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                {t('bibliotheque.consultation_seule', 'Consultation en ligne uniquement — téléchargement désactivé.')}
             </div>
 
             <div ref={containerRef} className="mt-6 select-none">
-                {loading && !error && <p className="text-center text-sm text-slate-400">Chargement du document…</p>}
-                {error && <p className="text-center text-sm text-red-500">Impossible de charger le document. Rechargez la page.</p>}
+                {loading && !error && <p className="text-center text-sm text-slate-400">{t('bibliotheque.chargement', 'Chargement du document…')}</p>}
+                {error && <p className="text-center text-sm text-red-500">{t('bibliotheque.erreur_chargement', 'Impossible de charger le document. Rechargez la page.')}</p>}
             </div>
         </BiblioLayout>
     );

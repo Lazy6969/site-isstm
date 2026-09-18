@@ -1,6 +1,10 @@
 import { Head, router, usePage } from '@inertiajs/react';
+import { CheckCircle2, UserCheck } from 'lucide-react';
 import SiteHeader from '../../../Components/Layout/SiteHeader';
 import Footer from '../../../Components/Home/Footer';
+import { Card } from '../../../Components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '../../../Components/ui/avatar';
+import { useTranslations } from '../../../lib/useTranslations';
 
 function formatDate(value) {
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -8,9 +12,10 @@ function formatDate(value) {
 
 export default function Index({ preinscriptions }) {
     const { flash } = usePage().props;
+    const { t } = useTranslations();
 
     function approve(id) {
-        if (!confirm('Créer le compte étudiant pour cette préinscription ?')) return;
+        if (!confirm(t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'))) return;
         router.post(`/admin/preinscriptions/${id}/approve`, {}, { preserveScroll: true });
     }
 
@@ -21,43 +26,50 @@ export default function Index({ preinscriptions }) {
 
             <div className="bg-isstm-navy py-14 text-white">
                 <div className="mx-auto max-w-5xl px-6">
-                    <h1 className="text-3xl font-bold">Préinscriptions en attente</h1>
-                    <p className="mt-2 text-white/80">{preinscriptions.length} dossier(s) à traiter.</p>
+                    <h1 className="text-3xl font-bold">{t('preinscriptions_admin.titre', 'Préinscriptions en attente')}</h1>
+                    <p className="mt-2 text-white/80">
+                        {preinscriptions.length} {t('preinscriptions_admin.dossiers_a_traiter', 'dossier(s) à traiter.')}
+                    </p>
                 </div>
             </div>
 
             <main className="mx-auto max-w-5xl px-6 py-12">
                 {flash?.status && (
-                    <p className="mb-6 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{flash.status}</p>
+                    <p className="mb-6 flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                        <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        {flash.status}
+                    </p>
                 )}
 
                 {preinscriptions.length === 0 ? (
-                    <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
-                        Aucune préinscription en attente.
-                    </p>
+                    <Card className="p-8 text-center text-sm text-slate-500">
+                        {t('preinscriptions_admin.aucune_preinscription', 'Aucune préinscription en attente.')}
+                    </Card>
                 ) : (
                     <div className="space-y-4">
                         {preinscriptions.map((p) => (
-                            <div key={p.id} className="flex items-center gap-5 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-                                {p.photo_path ? (
-                                    <img src={`/storage/${p.photo_path}`} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" />
-                                ) : (
-                                    <div className="h-16 w-16 shrink-0 rounded-full bg-isstm-navy/10" />
-                                )}
+                            <Card key={p.id} className="flex items-center gap-5 p-5">
+                                <Avatar className="h-16 w-16 flex-shrink-0">
+                                    <AvatarImage src={p.photo_path ? `/storage/${p.photo_path}` : undefined} alt="" />
+                                    <AvatarFallback>{p.nom?.[0]}</AvatarFallback>
+                                </Avatar>
                                 <div className="min-w-0 flex-1">
                                     <p className="font-semibold text-slate-700">{p.nom} {p.prenoms}</p>
                                     <p className="text-sm text-slate-500">
                                         {p.filiere?.nom_fr} · {p.niveau} · {p.email}
                                     </p>
-                                    <p className="text-xs text-slate-400">Déposée le {formatDate(p.created_at)}</p>
+                                    <p className="text-xs text-slate-400">
+                                        {t('preinscriptions_admin.deposee_le', 'Déposée le')} {formatDate(p.created_at)}
+                                    </p>
                                 </div>
                                 <button
                                     onClick={() => approve(p.id)}
-                                    className="shrink-0 rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white transition hover:brightness-110"
+                                    className="flex flex-shrink-0 items-center gap-2 rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white transition hover:brightness-110"
                                 >
-                                    Approuver
+                                    <UserCheck className="h-4 w-4" aria-hidden="true" />
+                                    {t('preinscriptions_admin.approuver', 'Approuver')}
                                 </button>
-                            </div>
+                            </Card>
                         ))}
                     </div>
                 )}
