@@ -11,9 +11,16 @@ class FiliereController extends Controller
     public function index(): Response
     {
         return Inertia::render('Filieres/Index', [
-            'filieres' => Filiere::orderBy('display_order')->get([
-                'slug', 'mention', 'niveaux', 'nom_fr as nom', 'description_fr as description', 'image_path',
-            ]),
+            'filieres' => Filiere::orderBy('display_order')
+                ->get(['slug', 'mention', 'niveaux', 'nom_fr', 'nom_en', 'nom_mg', 'description_fr', 'description_en', 'description_mg', 'image_path'])
+                ->map(fn (Filiere $item) => [
+                    'slug' => $item->slug,
+                    'mention' => $item->mention,
+                    'niveaux' => $item->niveaux,
+                    'nom' => $item->localized('nom'),
+                    'description' => $item->localized('description'),
+                    'image_path' => $item->image_path,
+                ]),
         ]);
     }
 
@@ -25,11 +32,11 @@ class FiliereController extends Controller
                 'code' => $filiere->code,
                 'mention' => $filiere->mention,
                 'niveaux' => $filiere->niveaux,
-                'nom' => $filiere->nom_fr,
-                'description' => $filiere->description_fr,
-                'debouches' => $filiere->debouches_fr,
-                'historique' => $filiere->historique_fr,
-                'avantages' => $filiere->avantages_fr,
+                'nom' => $filiere->localized('nom'),
+                'description' => $filiere->localized('description'),
+                'debouches' => $filiere->localized('debouches'),
+                'historique' => $filiere->localized('historique'),
+                'avantages' => $filiere->localized('avantages'),
                 'image_path' => $filiere->image_path,
             ],
         ]);

@@ -1,18 +1,21 @@
 import { Link, usePage } from '@inertiajs/react';
+import { Settings } from 'lucide-react';
 import SiteHeader from '../Layout/SiteHeader';
 import Footer from '../Home/Footer';
-
-const navItems = [
-    { href: '/bibliotheque', label: 'Accueil' },
-    { href: '/bibliotheque/canevas', label: 'Canevas' },
-    { href: '/bibliotheque/memoires', label: 'Mémoires & projets' },
-    { href: '/bibliotheque/recherche', label: 'Recherche' },
-];
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function BiblioLayout({ children, title }) {
     const { url, props } = usePage();
+    const { t } = useTranslations();
     const user = props.auth?.user;
     const canManage = ['admin', 'bibliotheque'].includes(user?.role);
+
+    const navItems = [
+        { href: '/bibliotheque', label: t('bibliotheque.nav_accueil', 'Accueil') },
+        { href: '/bibliotheque/canevas', label: t('bibliotheque.nav_canevas', 'Canevas') },
+        { href: '/bibliotheque/memoires', label: t('bibliotheque.nav_memoires', 'Mémoires & projets') },
+        { href: '/bibliotheque/recherche', label: t('bibliotheque.nav_recherche', 'Recherche') },
+    ];
 
     return (
         <div className="flex min-h-screen flex-col bg-slate-50">
@@ -39,8 +42,12 @@ export default function BiblioLayout({ children, title }) {
                         })}
                     </div>
                     {canManage && (
-                        <Link href="/bibliotheque/admin" className="whitespace-nowrap py-3 text-sm font-medium text-isstm-navy hover:text-isstm-gold">
-                            Back-office
+                        <Link
+                            href="/bibliotheque/admin"
+                            className="flex items-center gap-1.5 whitespace-nowrap py-3 text-sm font-medium text-isstm-navy hover:text-isstm-gold"
+                        >
+                            <Settings className="h-4 w-4" aria-hidden="true" />
+                            {t('bibliotheque.back_office', 'Back-office')}
                         </Link>
                     )}
                 </nav>

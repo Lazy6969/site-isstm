@@ -34,4 +34,15 @@ class Filiere extends Model
         'image_path',
         'display_order',
     ];
+
+    /**
+     * A {$field}_{locale} value, falling back to French when the localized
+     * column is empty (some filières are only fully translated in fr/en).
+     */
+    public function localized(string $field): ?string
+    {
+        $locale = app()->getLocale();
+
+        return $this->{"{$field}_{$locale}"} ?: $this->{"{$field}_fr"};
+    }
 }

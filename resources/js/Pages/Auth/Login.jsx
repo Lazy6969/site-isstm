@@ -1,9 +1,12 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { CheckCircle2, LogIn } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Login() {
     const { flash } = usePage().props;
+    const { t } = useTranslations();
     const { data, setData, post, processing, errors } = useForm({
         email: '',
         password: '',
@@ -16,17 +19,20 @@ export default function Login() {
     }
 
     return (
-        <AuthLayout title="Connexion" subtitle="Accédez à votre espace ISSTM.">
+        <AuthLayout title={t('auth.connexion_titre', 'Connexion')} subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}>
             <Head title="Connexion" />
 
             {flash?.status && (
-                <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{flash.status}</p>
+                <p className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                    {flash.status}
+                </p>
             )}
 
             <form onSubmit={submit} className="space-y-4">
                 <TextField
                     id="email"
-                    label="Adresse e-mail"
+                    label={t('auth.email', 'Adresse e-mail')}
                     type="email"
                     value={data.email}
                     onChange={(e) => setData('email', e.target.value)}
@@ -36,7 +42,7 @@ export default function Login() {
                 />
                 <TextField
                     id="password"
-                    label="Mot de passe"
+                    label={t('auth.mot_de_passe', 'Mot de passe')}
                     type="password"
                     value={data.password}
                     onChange={(e) => setData('password', e.target.value)}
@@ -52,19 +58,20 @@ export default function Login() {
                             onChange={(e) => setData('remember', e.target.checked)}
                             className="rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
                         />
-                        Se souvenir de moi
+                        {t('auth.se_souvenir', 'Se souvenir de moi')}
                     </label>
                     <Link href="/mot-de-passe-oublie" className="font-medium text-isstm-navy hover:underline">
-                        Mot de passe oublié ?
+                        {t('auth.mot_de_passe_oublie', 'Mot de passe oublié ?')}
                     </Link>
                 </div>
 
                 <button
                     type="submit"
                     disabled={processing}
-                    className="w-full rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
                 >
-                    Se connecter
+                    <LogIn className="h-4 w-4" aria-hidden="true" />
+                    {t('nav.se_connecter', 'Se connecter')}
                 </button>
             </form>
         </AuthLayout>

@@ -1,13 +1,16 @@
+import { useTranslations } from '../../lib/useTranslations';
+
 export default function MissionVision({ content }) {
+    const { t } = useTranslations();
     const blocks = [
         {
-            title: 'Notre Mission',
+            title: t('accueil.mission_titre', 'Notre Mission'),
             text: content.mission_contenu,
             image: content.mission_image_path ?? 'images/mission.jpg',
             align: 'left',
         },
         {
-            title: 'Notre Vision',
+            title: t('accueil.vision_titre', 'Notre Vision'),
             text: content.vision_contenu,
             image: content.vision_image_path ?? 'images/vision.jpg',
             align: 'right',

@@ -1,4 +1,6 @@
+import { GraduationCap, Users, Compass } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from '../../lib/useTranslations';
 
 function useCountUp(target, active) {
     const [value, setValue] = useState(0);
@@ -39,9 +41,11 @@ function StatBox({ icon, target, label }) {
         return () => observer.disconnect();
     }, []);
 
+    const Icon = icon;
+
     return (
         <div ref={ref} className="rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100">
-            <span className="text-2xl" aria-hidden="true">{icon}</span>
+            <Icon className="mx-auto h-7 w-7 text-isstm-gold" aria-hidden="true" />
             <p className="mt-2 text-3xl font-bold text-isstm-navy">+{value}</p>
             <p className="mt-1 text-sm text-slate-500">{label}</p>
         </div>
@@ -49,10 +53,11 @@ function StatBox({ icon, target, label }) {
 }
 
 export default function Stats({ content }) {
+    const { t } = useTranslations();
     const items = [
-        { icon: '🎓', target: Number(content.stat_students ?? 0), label: 'Étudiants' },
-        { icon: '👨‍🏫', target: Number(content.stat_teachers ?? 0), label: 'Enseignants' },
-        { icon: '🧭', target: Number(content.stat_majors ?? 0), label: 'Filières' },
+        { icon: GraduationCap, target: Number(content.stat_students ?? 0), label: t('accueil.stat_etudiants', 'Étudiants') },
+        { icon: Users, target: Number(content.stat_teachers ?? 0), label: t('accueil.stat_enseignants', 'Enseignants') },
+        { icon: Compass, target: Number(content.stat_majors ?? 0), label: t('accueil.stat_filieres', 'Filières') },
     ];
 
     return (
