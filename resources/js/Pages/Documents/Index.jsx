@@ -1,14 +1,19 @@
 import { Head, usePage } from '@inertiajs/react';
+import { Download, FileText } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
-
-const categoryLabels = {
-    public: 'Public',
-    etudiant: 'Étudiants',
-};
+import { Card } from '../../Components/ui/card';
+import { Badge } from '../../Components/ui/badge';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ documents }) {
     const { auth } = usePage().props;
+    const { t } = useTranslations();
+
+    const categoryLabels = {
+        public: t('documents.public', 'Public'),
+        etudiant: t('documents.etudiants', 'Étudiants'),
+    };
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -17,41 +22,45 @@ export default function Index({ documents }) {
 
             <div className="bg-isstm-navy py-14 text-white">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-3xl font-bold">Documents administratifs</h1>
-                    <p className="mt-2 text-white/80">Formulaires et documents à télécharger.</p>
+                    <h1 className="text-3xl font-bold">{t('nav.documents', 'Documents administratifs')}</h1>
+                    <p className="mt-2 text-white/80">{t('documents.soustitre', 'Formulaires et documents à télécharger.')}</p>
                 </div>
             </div>
 
             <main className="mx-auto max-w-4xl px-6 py-12">
                 {documents.length === 0 ? (
-                    <p className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
-                        Aucun document n'est disponible pour le moment.
-                    </p>
+                    <Card className="p-8 text-center text-sm text-slate-500">
+                        {t('documents.aucun_document', "Aucun document n'est disponible pour le moment.")}
+                    </Card>
                 ) : (
-                    <ul className="divide-y divide-slate-100 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
-                        {documents.map((doc) => (
-                            <li key={doc.id} className="flex items-center justify-between gap-4 px-6 py-4">
-                                <div>
-                                    <p className="font-medium text-slate-700">{doc.title}</p>
-                                    <span className="mt-1 inline-block rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-xs font-medium text-isstm-navy">
-                                        {categoryLabels[doc.category] ?? doc.category}
-                                    </span>
-                                </div>
-                                <a
-                                    href={`/${doc.file_path}`}
-                                    download
-                                    className="shrink-0 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
-                                >
-                                    Télécharger
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    <Card className="overflow-hidden">
+                        <ul className="divide-y divide-slate-100">
+                            {documents.map((doc) => (
+                                <li key={doc.id} className="flex items-center justify-between gap-4 px-6 py-4">
+                                    <div className="flex items-center gap-3">
+                                        <FileText className="h-5 w-5 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                        <div>
+                                            <p className="font-medium text-slate-700">{doc.title}</p>
+                                            <Badge className="mt-1">{categoryLabels[doc.category] ?? doc.category}</Badge>
+                                        </div>
+                                    </div>
+                                    <a
+                                        href={`/${doc.file_path}`}
+                                        download
+                                        className="flex shrink-0 items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
+                                    >
+                                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {t('documents.telecharger', 'Télécharger')}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </Card>
                 )}
 
                 {!auth?.user && (
                     <p className="mt-6 text-center text-sm text-slate-500">
-                        Connectez-vous pour accéder aux documents réservés aux étudiants.
+                        {t('documents.connexion_requise', 'Connectez-vous pour accéder aux documents réservés aux étudiants.')}
                     </p>
                 )}
             </main>

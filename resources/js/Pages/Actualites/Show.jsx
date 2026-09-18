@@ -1,6 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import { Badge } from '../../Components/ui/badge';
+import { useTranslations } from '../../lib/useTranslations';
 
 function formatDate(value) {
     if (!value) return null;
@@ -8,6 +11,8 @@ function formatDate(value) {
 }
 
 export default function Show({ article }) {
+    const { t } = useTranslations();
+
     return (
         <div className="min-h-screen bg-slate-50">
             <Head title={article.title} />
@@ -19,13 +24,14 @@ export default function Show({ article }) {
             >
                 <div className="absolute inset-0 bg-isstm-navy-dark/70" />
                 <div className="relative mx-auto flex h-full max-w-3xl flex-col justify-end px-6 pb-8 text-white">
-                    <Link href="/actualites" className="mb-3 text-sm text-white/80 hover:underline">
-                        ← Toutes les actualités
+                    <Link href="/actualites" className="mb-3 flex items-center gap-1.5 text-sm text-white/80 hover:underline">
+                        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                        {t('actualites.toutes_les_actualites', 'Toutes les actualités')}
                     </Link>
                     {article.category && (
-                        <span className="mb-2 inline-block w-fit rounded-full bg-isstm-gold px-3 py-1 text-xs font-semibold text-isstm-navy-dark">
-                            {article.category.name_fr}
-                        </span>
+                        <div className="mb-2 w-fit">
+                            <Badge variant="gold">{article.category.name_fr}</Badge>
+                        </div>
                     )}
                     <h1 className="text-3xl font-bold">{article.title}</h1>
                     <p className="mt-2 text-sm text-white/70">

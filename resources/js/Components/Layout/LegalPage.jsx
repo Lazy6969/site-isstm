@@ -1,8 +1,12 @@
 import { Head } from '@inertiajs/react';
+import { Calendar } from 'lucide-react';
 import SiteHeader from './SiteHeader';
 import Footer from '../Home/Footer';
+import { useTranslations } from '../../lib/useTranslations';
 
 export default function LegalPage({ title, subtitle, updated, sections }) {
+    const { t } = useTranslations();
+
     return (
         <div className="min-h-screen bg-slate-50">
             <Head title={title} />
@@ -17,8 +21,9 @@ export default function LegalPage({ title, subtitle, updated, sections }) {
 
             <main className="mx-auto max-w-3xl space-y-8 px-6 py-12">
                 {updated && (
-                    <p className="text-sm text-slate-500">
-                        <strong className="text-slate-700">Dernière mise à jour :</strong> {updated}
+                    <p className="flex items-center gap-2 text-sm text-slate-500">
+                        <Calendar className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        <strong className="text-slate-700">{t('legal.derniere_maj', 'Dernière mise à jour :')}</strong> {updated}
                     </p>
                 )}
 
