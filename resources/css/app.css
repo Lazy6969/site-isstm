@@ -82,3 +82,32 @@
         border-right: 0;
     }
 }
+
+/* Infinite-scrolling partner-logo marquee (see legacy .partenaires-track). */
+.partenaires-marquee {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.partenaires-track {
+    animation: partenaires-scroll 32s linear infinite;
+}
+
+.partenaires-marquee:hover .partenaires-track {
+    animation-play-state: paused;
+}
+
+@keyframes partenaires-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .partenaires-track {
+        animation: none;
+    }
+}

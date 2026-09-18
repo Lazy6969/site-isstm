@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsArticle;
+use App\Models\Partenaire;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +17,10 @@ class NewsController extends Controller
             ->orderByDesc('published_at')
             ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'image_path', 'author', 'published_at']);
 
-        return Inertia::render('Actualites/Index', ['articles' => $articles]);
+        return Inertia::render('Actualites/Index', [
+            'articles' => $articles,
+            'partenaires' => Partenaire::orderBy('display_order')->get(['nom', 'logo_path', 'site_url']),
+        ]);
     }
 
     public function show(NewsArticle $article): Response

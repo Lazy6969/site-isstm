@@ -6,10 +6,11 @@ import Director from '../Components/Home/Director';
 import MissionVision from '../Components/Home/MissionVision';
 import Filieres from '../Components/Home/Filieres';
 import Testimonials from '../Components/Home/Testimonials';
+import Partenaires from '../Components/Home/Partenaires';
 import Contact from '../Components/Home/Contact';
 import Footer from '../Components/Home/Footer';
 
-export default function Home({ content, heroSlides, testimonials, filieres }) {
+export default function Home({ content, heroSlides, testimonials, filieres, partenaires }) {
     return (
         <>
             <Head title="Accueil" />
@@ -21,6 +22,7 @@ export default function Home({ content, heroSlides, testimonials, filieres }) {
             <MissionVision content={content} />
             <Filieres filieres={filieres} />
             <Testimonials testimonials={testimonials} />
+            <Partenaires partenaires={partenaires} />
             <Contact content={content} />
             <Footer />
         </>

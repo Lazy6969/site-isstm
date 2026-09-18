@@ -1,4 +1,5 @@
-import { GraduationCap } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { ArrowRight, GraduationCap } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
@@ -42,6 +43,16 @@ export default function Filieres({ filieres }) {
                             </CardContent>
                         </Card>
                     ))}
+                </div>
+
+                <div className="mt-10 text-center">
+                    <Link
+                        href="/filieres"
+                        className="inline-flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                    >
+                        {t('filieres.toutes_les_filieres', 'Toutes les filières')}
+                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
                 </div>
             </div>
         </section>

@@ -2,13 +2,14 @@ import { Head, Link } from '@inertiajs/react';
 import { CalendarDays } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import Partenaires from '../../Components/Home/Partenaires';
 
 function formatDate(value) {
     if (!value) return null;
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export default function Index({ articles }) {
+export default function Index({ articles, partenaires }) {
     return (
         <div className="min-h-screen bg-slate-50">
             <Head title="Actualités" />
@@ -65,6 +66,8 @@ export default function Index({ articles }) {
                     </div>
                 )}
             </main>
+
+            <Partenaires partenaires={partenaires} />
 
             <Footer />
         </div>

@@ -76,9 +76,21 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <Link href="/" className="inline-flex items-center">
-                        <img src="/images/logo-isstm.png" alt="ISSTM" className="h-16 w-auto" />
-                    </Link>
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="inline-flex items-center">
+                            <img src="/images/logo-isstm.png" alt="ISSTM" className="h-16 w-auto" />
+                        </Link>
+                        <span className="h-10 w-px bg-white/15" aria-hidden="true" />
+                        <a
+                            href="https://www.mahajanga-univ.mg/"
+                            target="_blank"
+                            rel="noopener"
+                            title={t('footer.universite_mahajanga', 'Université de Mahajanga')}
+                            className="inline-flex items-center rounded-md bg-white p-1.5"
+                        >
+                            <img src="/images/partenariat/universite-mahajanga.png" alt="Université de Mahajanga" className="h-11 w-auto" />
+                        </a>
+                    </div>
                     {content.devise && <p className="mt-3 text-sm font-medium text-isstm-gold">{content.devise}</p>}
                     {content.footer_description && <p className="mt-3 max-w-sm text-sm leading-relaxed">{content.footer_description}</p>}
                     <NewsletterForm t={t} />
