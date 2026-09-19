@@ -22,7 +22,7 @@ class EnsureUserHasRole
 
         $allowed = array_map(fn (string $role) => Role::from($role), $roles);
 
-        abort_unless($user->hasRole(...$allowed), 403);
+        abort_unless($user->hasLegacyRole(...$allowed), 403);
 
         return $next($request);
     }

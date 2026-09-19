@@ -2,6 +2,7 @@ import { Link, useForm, usePage } from '@inertiajs/react';
 import { Code, Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
 import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../QuickEdit/EditableText';
 
 function NewsletterForm({ t }) {
     const { flash } = usePage().props;
@@ -52,7 +53,6 @@ export default function Footer() {
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie') },
         { href: '/inscription', label: t('nav.inscription', 'Inscription') },
-        { href: '/bibliotheque', label: t('bibliotheque.titre', 'Bibliothèque numérique') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
     ];
 
@@ -100,8 +100,16 @@ export default function Footer() {
                             <img src="/images/partenariat/mesupres-footer.png" alt="MESUPRES" className="h-11 w-auto" />
                         </a>
                     </div>
-                    {content.devise && <p className="mt-3 text-sm font-medium text-isstm-gold">{content.devise}</p>}
-                    {content.footer_description && <p className="mt-3 max-w-sm text-sm leading-relaxed">{content.footer_description}</p>}
+                    {content.devise && (
+                        <EditableText as="p" contentKey="devise" className="mt-3 text-sm font-medium text-isstm-gold">
+                            {content.devise}
+                        </EditableText>
+                    )}
+                    {content.footer_description && (
+                        <EditableText as="p" contentKey="footer_description" className="mt-3 max-w-sm text-sm leading-relaxed">
+                            {content.footer_description}
+                        </EditableText>
+                    )}
                     <NewsletterForm t={t} />
                 </div>
 
@@ -130,9 +138,13 @@ export default function Footer() {
                             <p className="flex items-start gap-2.5">
                                 <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
                                 <span>
-                                    {content.contact_adresse}
+                                    <EditableText as="span" contentKey="contact_adresse">
+                                        {content.contact_adresse}
+                                    </EditableText>
                                     <br />
-                                    <span className="text-white/50">{content.contact_adresse_detail}</span>
+                                    <EditableText as="span" contentKey="contact_adresse_detail" className="text-white/50">
+                                        {content.contact_adresse_detail}
+                                    </EditableText>
                                 </span>
                             </p>
                         )}
@@ -141,9 +153,9 @@ export default function Footer() {
                     <h5 className="mt-6 text-xs font-semibold uppercase tracking-wide text-white/50">{t('footer.localisation', 'Nos localisations')}</h5>
                     <div className="mt-2 space-y-1.5 text-sm">
                         {locations.map((location) => (
-                            <p key={location.key} className="text-white/60">
+                            <EditableText as="p" key={location.key} contentKey={location.titleKey} className="text-white/60">
                                 {content[location.titleKey]}
-                            </p>
+                            </EditableText>
                         ))}
                     </div>
                 </div>

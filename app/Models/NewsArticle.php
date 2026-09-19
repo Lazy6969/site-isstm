@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\NewsStatus;
 use Database\Factories\NewsArticleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,7 @@ class NewsArticle extends Model
     protected function casts(): array
     {
         return [
+            'status' => NewsStatus::class,
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];

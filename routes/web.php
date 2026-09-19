@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\PreinscriptionController as AdminPreinscriptionController;
 use App\Http\Controllers\CampusController;
 use App\Http\Controllers\ClassGroupAnnouncementController;
 use App\Http\Controllers\ClassGroupController;
@@ -77,11 +76,6 @@ Route::get('inscription', [InscriptionController::class, 'index'])->name('inscri
 Route::get('preinscription', [PreinscriptionController::class, 'create'])->name('preinscription.create');
 Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('preinscriptions', [AdminPreinscriptionController::class, 'index'])->name('preinscriptions.index');
-    Route::post('preinscriptions/{preinscription}/approve', [AdminPreinscriptionController::class, 'approve'])->name('preinscriptions.approve');
-});
-
 Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
     Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
@@ -132,5 +126,9 @@ Route::middleware(['auth', 'messagerie'])->prefix('messagerie')->name('staff-mes
     Route::delete('{message}', [StaffMessageController::class, 'destroy'])->name('destroy');
 });
 
+require __DIR__.'/admin.php';
+require __DIR__.'/scolarite.php';
+require __DIR__.'/quick-edit.php';
+require __DIR__.'/news.php';
+require __DIR__.'/galerie.php';
 require __DIR__.'/auth.php';
-require __DIR__.'/bibliotheque.php';

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\GalleryStatus;
 use App\Models\GalleryAlbum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +23,7 @@ class GalleryAlbumFactory extends Factory
         return [
             'title' => $title,
             'slug' => str($title)->slug().'-'.fake()->unique()->numberBetween(1, 100000),
-            'status' => 'publie',
+            'status' => GalleryStatus::Publie,
             'event_date' => fake()->date(),
         ];
     }

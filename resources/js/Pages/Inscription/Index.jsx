@@ -4,17 +4,28 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../../Components/QuickEdit/EditableText';
 
 function FeeTable({ title, rows }) {
     return (
         <Card className="overflow-hidden">
-            <h3 className="border-b border-slate-100 dark:border-slate-700 bg-isstm-navy/5 px-5 py-3 font-semibold text-isstm-navy dark:text-white">{title}</h3>
+            <h3 className="border-b border-slate-100 bg-isstm-navy/5 px-5 py-3 font-semibold text-isstm-navy dark:border-slate-700 dark:text-white">
+                {title}
+            </h3>
+
             <table className="w-full text-sm">
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {rows.map(([label, value]) => (
+                    {rows.map(([label, value, contentKey]) => (
                         <tr key={label}>
-                            <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">{label}</td>
-                            <td className="px-5 py-2.5 text-right font-medium text-slate-700 dark:text-slate-200">{value}</td>
+                            <td className="px-5 py-2.5 text-slate-500 dark:text-slate-400">
+                                {label}
+                            </td>
+
+                            <td className="px-5 py-2.5 text-right font-medium text-slate-700 dark:text-slate-200">
+                                <EditableText as="span" contentKey={contentKey}>
+                                    {value}
+                                </EditableText>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -25,30 +36,58 @@ function FeeTable({ title, rows }) {
 
 export default function Index({ content }) {
     const { t } = useTranslations();
+
     const dateLimite = content.inscription_date_limite
-        ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+        ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+          })
         : null;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title="Inscription" />
+
             <SiteHeader />
 
             <div
                 className="relative bg-isstm-navy bg-cover bg-center py-14 text-white"
-                style={{ backgroundImage: "linear-gradient(to bottom, rgba(0,51,102,0.85), rgba(0,31,63,0.9)), url('/images/portal_campus_1.jpg')" }}
+                style={{
+                    backgroundImage:
+                        "linear-gradient(to bottom, rgba(0,51,102,0.85), rgba(0,31,63,0.9)), url('/images/portal_campus_1.jpg')",
+                }}
             >
                 <div className="mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
-                        {t('inscription.titre', 'Inscription — Année')} {content.inscription_annee_universitaire}
+                        {t('inscription.titre', 'Inscription — Année')}{' '}
+                        <EditableText
+                            as="span"
+                            contentKey="inscription_annee_universitaire"
+                        >
+                            {content.inscription_annee_universitaire}
+                        </EditableText>
                     </h1>
-                    <p className="mt-2 text-white/80">{t('inscription.soustitre', 'Frais de scolarité, dates et modalités de dépôt.')}</p>
+
+                    <p className="mt-2 text-white/80">
+                        {t(
+                            'inscription.soustitre',
+                            'Frais de scolarité, dates et modalités de dépôt.',
+                        )}
+                    </p>
+
                     <Link
                         href="/preinscription"
                         className="mt-5 flex w-fit items-center gap-2 rounded-full bg-isstm-gold px-6 py-2.5 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                     >
-                        <FileSignature className="h-4 w-4" aria-hidden="true" />
-                        {t('inscription.preinscription_cta', 'Faire ma préinscription en ligne')}
+                        <FileSignature
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                        />
+                        {t(
+                            'inscription.preinscription_cta',
+                            'Faire ma préinscription en ligne',
+                        )}
                     </Link>
                 </div>
             </div>
@@ -56,80 +95,211 @@ export default function Index({ content }) {
             <main className="mx-auto max-w-4xl space-y-10 px-6 py-12">
                 {dateLimite && (
                     <Card className="flex flex-col items-center gap-1 p-5 text-center">
-                        <CalendarClock className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                        <p className="text-sm text-slate-500 dark:text-slate-400">{t('inscription.date_limite', 'Date limite de dépôt des dossiers')}</p>
-                        <p className="text-xl font-bold text-isstm-navy dark:text-white">{dateLimite}</p>
+                        <CalendarClock
+                            className="h-5 w-5 text-isstm-gold"
+                            aria-hidden="true"
+                        />
+
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {t(
+                                'inscription.date_limite',
+                                'Date limite de dépôt des dossiers',
+                            )}
+                        </p>
+
+                        <p className="text-xl font-bold text-isstm-navy dark:text-white">
+                            {dateLimite}
+                        </p>
                     </Card>
                 )}
 
                 <section>
                     <h2 className="mb-4 text-lg font-semibold text-isstm-navy dark:text-white">
-                        {t('inscription.frais_nationaux', 'Frais de scolarité — Étudiants nationaux')}
+                        {t(
+                            'inscription.frais_nationaux',
+                            'Frais de scolarité — Étudiants nationaux',
+                        )}
                     </h2>
+
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <FeeTable
                             title="Licence"
                             rows={[
-                                ["Droit d'inscription", content.frais_nat_lic_droit],
-                                ['1ère versement', content.frais_nat_lic_v1],
-                                ['2ème versement', content.frais_nat_lic_v2],
-                                ['3ème versement', content.frais_nat_lic_v3],
+                                [
+                                    'Droit d'inscription',
+                                    content.frais_nat_lic_droit,
+                                    'frais_nat_lic_droit',
+                                ],
+                                [
+                                    '1ère versement',
+                                    content.frais_nat_lic_v1,
+                                    'frais_nat_lic_v1',
+                                ],
+                                [
+                                    '2ème versement',
+                                    content.frais_nat_lic_v2,
+                                    'frais_nat_lic_v2',
+                                ],
+                                [
+                                    '3ème versement',
+                                    content.frais_nat_lic_v3,
+                                    'frais_nat_lic_v3',
+                                ],
                             ]}
                         />
+
                         <FeeTable
                             title="Master"
                             rows={[
-                                ["Droit d'inscription", content.frais_nat_mas_droit],
-                                ['1ère versement', content.frais_nat_mas_v1],
-                                ['2ème versement', content.frais_nat_mas_v2],
-                                ['3ème versement', content.frais_nat_mas_v3],
+                                [
+                                    'Droit d'inscription',
+                                    content.frais_nat_mas_droit,
+                                    'frais_nat_mas_droit',
+                                ],
+                                [
+                                    '1ère versement',
+                                    content.frais_nat_mas_v1,
+                                    'frais_nat_mas_v1',
+                                ],
+                                [
+                                    '2ème versement',
+                                    content.frais_nat_mas_v2,
+                                    'frais_nat_mas_v2',
+                                ],
+                                [
+                                    '3ème versement',
+                                    content.frais_nat_mas_v3,
+                                    'frais_nat_mas_v3',
+                                ],
                             ]}
                         />
                     </div>
+
                     <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-                        {t('inscription.tenue_reglementaire', 'Tenue réglementaire :')} {content.frais_nat_tenue}
+                        {t(
+                            'inscription.tenue_reglementaire',
+                            'Tenue réglementaire :',
+                        )}{' '}
+                        <EditableText
+                            as="span"
+                            contentKey="frais_nat_tenue"
+                        >
+                            {content.frais_nat_tenue}
+                        </EditableText>
                     </p>
                 </section>
 
                 <section>
                     <h2 className="mb-4 text-lg font-semibold text-isstm-navy dark:text-white">
-                        {t('inscription.frais_etrangers', 'Frais de scolarité — Étudiants étrangers')}
+                        {t(
+                            'inscription.frais_etrangers',
+                            'Frais de scolarité — Étudiants étrangers',
+                        )}
                     </h2>
+
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <FeeTable
                             title="Licence"
                             rows={[
-                                ["Droit d'inscription", content.frais_etr_lic_droit],
-                                ['1ère versement', content.frais_etr_lic_v1],
-                                ['2ème versement', content.frais_etr_lic_v2],
-                                ['3ème versement', content.frais_etr_lic_v3],
+                                [
+                                    'Droit d'inscription',
+                                    content.frais_etr_lic_droit,
+                                    'frais_etr_lic_droit',
+                                ],
+                                [
+                                    '1ère versement',
+                                    content.frais_etr_lic_v1,
+                                    'frais_etr_lic_v1',
+                                ],
+                                [
+                                    '2ème versement',
+                                    content.frais_etr_lic_v2,
+                                    'frais_etr_lic_v2',
+                                ],
+                                [
+                                    '3ème versement',
+                                    content.frais_etr_lic_v3,
+                                    'frais_etr_lic_v3',
+                                ],
                             ]}
                         />
+
                         <FeeTable
                             title="Master"
                             rows={[
-                                ["Droit d'inscription", content.frais_etr_mas_droit],
-                                ['1ère versement', content.frais_etr_mas_v1],
-                                ['2ème versement', content.frais_etr_mas_v2],
-                                ['3ème versement', content.frais_etr_mas_v3],
+                                [
+                                    'Droit d'inscription',
+                                    content.frais_etr_mas_droit,
+                                    'frais_etr_mas_droit',
+                                ],
+                                [
+                                    '1ère versement',
+                                    content.frais_etr_mas_v1,
+                                    'frais_etr_mas_v1',
+                                ],
+                                [
+                                    '2ème versement',
+                                    content.frais_etr_mas_v2,
+                                    'frais_etr_mas_v2',
+                                ],
+                                [
+                                    '3ème versement',
+                                    content.frais_etr_mas_v3,
+                                    'frais_etr_mas_v3',
+                                ],
                             ]}
                         />
                     </div>
+
                     <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-                        {t('inscription.tenue_reglementaire', 'Tenue réglementaire :')} {content.frais_etr_tenue}
+                        {t(
+                            'inscription.tenue_reglementaire',
+                            'Tenue réglementaire :',
+                        )}{' '}
+                        <EditableText
+                            as="span"
+                            contentKey="frais_etr_tenue"
+                        >
+                            {content.frais_etr_tenue}
+                        </EditableText>
                     </p>
                 </section>
 
                 <Card className="p-6">
                     <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
-                        <MapPin className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                        {t('inscription.modalites_titre', 'Modalités de dépôt')}
+                        <MapPin
+                            className="h-5 w-5 text-isstm-gold"
+                            aria-hidden="true"
+                        />
+                        {t(
+                            'inscription.modalites_titre',
+                            'Modalités de dépôt',
+                        )}
                     </h2>
-                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{content.inscription_adresse_bloc}</p>
+
+                    <EditableText
+                        as="p"
+                        contentKey="inscription_adresse_bloc"
+                        className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                    >
+                        {content.inscription_adresse_bloc}
+                    </EditableText>
+
                     <p className="mt-4 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                        <Wallet className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        <Wallet
+                            className="h-4 w-4 flex-shrink-0"
+                            aria-hidden="true"
+                        />
+
                         {t('inscription.compte_bancaire', 'Compte bancaire :')}{' '}
-                        <span className="font-medium text-slate-700 dark:text-slate-200">{content.inscription_compte_bancaire}</span>
+
+                        <EditableText
+                            as="span"
+                            contentKey="inscription_compte_bancaire"
+                            className="font-medium text-slate-700 dark:text-slate-200"
+                        >
+                            {content.inscription_compte_bancaire}
+                        </EditableText>
                     </p>
                 </Card>
             </main>

@@ -15,7 +15,6 @@ export default function Show({ profile }) {
         enseignant: t('profil.role_enseignant', 'Enseignant'),
         etudiant: t('profil.role_etudiant', 'Étudiant'),
         user: t('profil.role_utilisateur', 'Utilisateur'),
-        bibliotheque: t('profil.role_bibliotheque', 'Bibliothèque'),
         materiel: t('profil.role_materiel', 'Matériel'),
     };
 

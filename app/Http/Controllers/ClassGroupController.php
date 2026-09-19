@@ -50,7 +50,7 @@ class ClassGroupController extends Controller
 
         return Inertia::render('Groupes/Index', [
             'groups' => $groups,
-            'canCreate' => $user->hasRole(Role::Enseignant, Role::Admin),
+            'canCreate' => $user->hasLegacyRole(Role::Enseignant, Role::Admin),
         ]);
     }
 
@@ -81,7 +81,7 @@ class ClassGroupController extends Controller
 
         $group->members()->create([
             'user_id' => $user->id,
-            'role_in_group' => $user->hasRole(Role::Enseignant) ? GroupMemberRole::Enseignant : GroupMemberRole::Etudiant,
+            'role_in_group' => $user->hasLegacyRole(Role::Enseignant) ? GroupMemberRole::Enseignant : GroupMemberRole::Etudiant,
             'last_read_at' => now(),
         ]);
 

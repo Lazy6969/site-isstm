@@ -2,16 +2,17 @@
 
 namespace Tests;
 
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * RefreshDatabase only keeps an in-memory SQLite connection alive across tests for
-     * connections listed here — without it, the separate "bibliotheque" connection would
-     * reconnect to a brand new, empty :memory: database on every single test.
-     *
-     * @var array<int, string>
+     * Spatie roles/permissions are reference data every test relies on
+     * (factories assign roles), not per-test fixtures — seed them once
+     * per RefreshDatabase migration instead of per test.
      */
-    protected $connectionsToTransact = ['sqlite', 'bibliotheque'];
+    protected $seed = true;
+
+    protected $seeder = RolePermissionSeeder::class;
 }

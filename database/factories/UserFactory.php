@@ -48,7 +48,11 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => $role,
-        ]);
+        ])->afterCreating(function (User $user) use ($role) {
+            if ($role->spatieRole() !== null) {
+                $user->assignRole($role->spatieRole());
+            }
+        });
     }
 
     public function messagerie(): static

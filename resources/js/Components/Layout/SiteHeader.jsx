@@ -134,19 +134,6 @@ export default function SiteHeader() {
                                     <DropdownMenuItem asChild>
                                         <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/bibliotheque">{t('bibliotheque.titre', 'Bibliothèque numérique')}</Link>
-                                    </DropdownMenuItem>
-                                    {user.role === 'admin' && (
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/admin/preinscriptions">{t('preinscriptions_admin.titre_menu', 'Préinscriptions')}</Link>
-                                        </DropdownMenuItem>
-                                    )}
-                                    {['admin', 'bibliotheque'].includes(user.role) && (
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/bibliotheque/admin">{t('bibliotheque_admin.gerer_bibliotheque', 'Gérer la bibliothèque')}</Link>
-                                        </DropdownMenuItem>
-                                    )}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onSelect={logout}>
                                         <LogOut className="h-4 w-4" aria-hidden="true" />

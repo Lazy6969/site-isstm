@@ -1,3 +1,4 @@
+
 {
     "(and :count more error)": "(et :count erreur en plus)",
     "(and :count more errors)": "(et :count erreur en plus)|(et :count erreurs en plus)|(et :count erreurs en plus)",
@@ -449,7 +450,6 @@
     "profil.nom_complet": "Nom complet",
     "profil.photo_profil": "Photo de profil",
     "profil.role_admin": "Administrateur",
-    "profil.role_bibliotheque": "Bibliothèque",
     "profil.role_enseignant": "Enseignant",
     "profil.role_etudiant": "Étudiant",
     "profil.role_materiel": "Matériel",

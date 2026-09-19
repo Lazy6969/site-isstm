@@ -7,6 +7,7 @@ use Database\Factories\PreinscriptionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Preinscription extends Model
 {
@@ -58,5 +59,10 @@ class Preinscription extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function etudiant(): HasOne
+    {
+        return $this->hasOne(Etudiant::class);
     }
 }

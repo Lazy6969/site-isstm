@@ -6,6 +6,8 @@ use App\Models\Filiere;
 use App\Models\HeroSlide;
 use App\Models\SiteContent;
 use App\Models\Testimonial;
+use App\SiteContentType;
+use App\SiteIcon;
 use Illuminate\Database\Seeder;
 
 class HomeContentSeeder extends Seeder
@@ -16,9 +18,39 @@ class HomeContentSeeder extends Seeder
     public function run(): void
     {
         $this->seedSiteContent();
+        $this->seedIcons();
         $this->seedHeroSlides();
         $this->seedTestimonials();
         $this->seedFilieres();
+    }
+
+    /**
+     * Icon choices behind the quick-edit icon picker — one value shared across
+     * locales (see SiteContent::updateForCurrentLocale()), not a translation.
+     */
+    private function seedIcons(): void
+    {
+        $icons = [
+            'contact_email_icon' => SiteIcon::Mail,
+            'contact_telephone_icon' => SiteIcon::Phone,
+            'contact_adresse_icon' => SiteIcon::MapPin,
+            'contact_facebook_icon' => SiteIcon::Link2,
+            'stat_students_icon' => SiteIcon::GraduationCap,
+            'stat_teachers_icon' => SiteIcon::Users,
+            'stat_majors_icon' => SiteIcon::Compass,
+        ];
+
+        foreach ($icons as $key => $icon) {
+            SiteContent::updateOrCreate(
+                ['content_key' => $key],
+                [
+                    'type' => SiteContentType::Icon,
+                    'content_value_fr' => $icon->value,
+                    'content_value_en' => $icon->value,
+                    'content_value_mg' => $icon->value,
+                ],
+            );
+        }
     }
 
     private function seedSiteContent(): void
@@ -142,6 +174,124 @@ class HomeContentSeeder extends Seeder
                 "Organisée selon le système LMD (Licence-Master-Doctorat), la formation est payante et conduit à l'obtention d'un diplôme de Licence Professionnelle et de Master Recherche dans les mentions suivantes :",
                 'Organized according to the LMD (License-Master-Doctorate) system, the training is fee-paying and leads to a Professional License and Research Master diploma in the following fields:',
                 "Voalamina araka ny rafitra LMD (Licence-Master-Doctorat), ny fiofanana dia andoavam-bola ary mitondra mankany amin'ny fahazoana diplaoma Licence Professionnelle sy Master Recherche amin'ireto sampana manaraka ireto :",
+            ],
+
+            // Bourse
+            'bourse_lien1_titre' => ["Postuler pour une Bourse d'État", "Postuler pour une Bourse d'État", "Postuler pour une Bourse d'État"],
+            'bourse_lien1_description' => [
+                "Les demandes de bourses d'études de l'État malagasy se font désormais en ligne via la plateforme officielle du Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (MESupReS).",
+                "Les demandes de bourses d'études de l'État malagasy se font désormais en ligne via la plateforme officielle du Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (MESupReS).",
+                "Les demandes de bourses d'études de l'État malagasy se font désormais en ligne via la plateforme officielle du Ministère de l'Enseignement Supérieur et de la Recherche Scientifique (MESupReS).",
+            ],
+            'bourse_lien2_titre' => ['Créer votre portefeuille Trésor Public', 'Créer votre portefeuille Trésor Public', 'Créer votre portefeuille Trésor Public'],
+            'bourse_lien2_description' => [
+                "Inscrivez-vous sur la plateforme du Trésor Public de Madagascar pour créer votre propre portefeuille électronique et gérer directement votre bourse d'études.",
+                "Inscrivez-vous sur la plateforme du Trésor Public de Madagascar pour créer votre propre portefeuille électronique et gérer directement votre bourse d'études.",
+                "Inscrivez-vous sur la plateforme du Trésor Public de Madagascar pour créer votre propre portefeuille électronique et gérer directement votre bourse d'études.",
+            ],
+
+            // Mentions légales
+            'mentions_legales_s1_texte' => [
+                "Ce site est édité par l'Institut Supérieur des Sciences et Technologies de Mahajanga (ISSTM), établissement d'enseignement supérieur basé à Mahajanga, Madagascar.",
+                "Ce site est édité par l'Institut Supérieur des Sciences et Technologies de Mahajanga (ISSTM), établissement d'enseignement supérieur basé à Mahajanga, Madagascar.",
+                "Ce site est édité par l'Institut Supérieur des Sciences et Technologies de Mahajanga (ISSTM), établissement d'enseignement supérieur basé à Mahajanga, Madagascar.",
+            ],
+            'mentions_legales_s2_texte' => [
+                'Email : isstm.univ.umg@gmail.com — Téléphone : +261 38 15 439 77 — Adresse : Mahajanga, Madagascar.',
+                'Email : isstm.univ.umg@gmail.com — Téléphone : +261 38 15 439 77 — Adresse : Mahajanga, Madagascar.',
+                'Email : isstm.univ.umg@gmail.com — Téléphone : +261 38 15 439 77 — Adresse : Mahajanga, Madagascar.',
+            ],
+            'mentions_legales_s3_texte' => [
+                "Le site est hébergé sur l'infrastructure technique mise à disposition par l'ISSTM.",
+                "Le site est hébergé sur l'infrastructure technique mise à disposition par l'ISSTM.",
+                "Le site est hébergé sur l'infrastructure technique mise à disposition par l'ISSTM.",
+            ],
+            'mentions_legales_s4_texte' => [
+                "L'ensemble des contenus présents sur ce site (textes, images, logos, mise en page) est la propriété de l'ISSTM, sauf mention contraire, et ne peut être reproduit sans autorisation préalable.",
+                "L'ensemble des contenus présents sur ce site (textes, images, logos, mise en page) est la propriété de l'ISSTM, sauf mention contraire, et ne peut être reproduit sans autorisation préalable.",
+                "L'ensemble des contenus présents sur ce site (textes, images, logos, mise en page) est la propriété de l'ISSTM, sauf mention contraire, et ne peut être reproduit sans autorisation préalable.",
+            ],
+            'mentions_legales_s5_texte' => [
+                "L'ISSTM s'efforce d'assurer l'exactitude des informations diffusées sur ce site, mais ne saurait être tenu responsable des erreurs, omissions ou de l'indisponibilité temporaire du service.",
+                "L'ISSTM s'efforce d'assurer l'exactitude des informations diffusées sur ce site, mais ne saurait être tenu responsable des erreurs, omissions ou de l'indisponibilité temporaire du service.",
+                "L'ISSTM s'efforce d'assurer l'exactitude des informations diffusées sur ce site, mais ne saurait être tenu responsable des erreurs, omissions ou de l'indisponibilité temporaire du service.",
+            ],
+
+            // Confidentialité
+            'confidentialite_s1_texte' => [
+                "Dans le cadre de l'utilisation de ce site (inscription en ligne, création de compte, formulaire de contact, newsletter), nous pouvons collecter : votre nom, prénom, adresse email, numéro de téléphone, ainsi que les informations que vous saisissez volontairement dans nos formulaires.",
+                "Dans le cadre de l'utilisation de ce site (inscription en ligne, création de compte, formulaire de contact, newsletter), nous pouvons collecter : votre nom, prénom, adresse email, numéro de téléphone, ainsi que les informations que vous saisissez volontairement dans nos formulaires.",
+                "Dans le cadre de l'utilisation de ce site (inscription en ligne, création de compte, formulaire de contact, newsletter), nous pouvons collecter : votre nom, prénom, adresse email, numéro de téléphone, ainsi que les informations que vous saisissez volontairement dans nos formulaires.",
+            ],
+            'confidentialite_s2_texte' => [
+                "Ces données sont utilisées exclusivement pour le traitement des inscriptions et candidatures, la gestion de votre compte, la réponse à vos demandes de contact, et l'envoi de la newsletter si vous y êtes abonné(e). Elles ne sont jamais vendues ni cédées à des tiers à des fins commerciales.",
+                "Ces données sont utilisées exclusivement pour le traitement des inscriptions et candidatures, la gestion de votre compte, la réponse à vos demandes de contact, et l'envoi de la newsletter si vous y êtes abonné(e). Elles ne sont jamais vendues ni cédées à des tiers à des fins commerciales.",
+                "Ces données sont utilisées exclusivement pour le traitement des inscriptions et candidatures, la gestion de votre compte, la réponse à vos demandes de contact, et l'envoi de la newsletter si vous y êtes abonné(e). Elles ne sont jamais vendues ni cédées à des tiers à des fins commerciales.",
+            ],
+            'confidentialite_s3_texte' => [
+                "Le site utilise des cookies de session strictement nécessaires à son fonctionnement (maintien de la connexion, préférence de langue, thème visuel, comptage d'une visite par session). Aucun cookie publicitaire ou de traçage tiers n'est utilisé.",
+                "Le site utilise des cookies de session strictement nécessaires à son fonctionnement (maintien de la connexion, préférence de langue, thème visuel, comptage d'une visite par session). Aucun cookie publicitaire ou de traçage tiers n'est utilisé.",
+                "Le site utilise des cookies de session strictement nécessaires à son fonctionnement (maintien de la connexion, préférence de langue, thème visuel, comptage d'une visite par session). Aucun cookie publicitaire ou de traçage tiers n'est utilisé.",
+            ],
+            'confidentialite_s4_texte' => [
+                "Les mots de passe sont stockés de façon chiffrée et l'accès aux données personnelles est restreint au personnel administratif habilité de l'ISSTM. Les données sont conservées le temps nécessaire à la finalité pour laquelle elles ont été collectées.",
+                "Les mots de passe sont stockés de façon chiffrée et l'accès aux données personnelles est restreint au personnel administratif habilité de l'ISSTM. Les données sont conservées le temps nécessaire à la finalité pour laquelle elles ont été collectées.",
+                "Les mots de passe sont stockés de façon chiffrée et l'accès aux données personnelles est restreint au personnel administratif habilité de l'ISSTM. Les données sont conservées le temps nécessaire à la finalité pour laquelle elles ont été collectées.",
+            ],
+            'confidentialite_s5_texte' => [
+                "Vous pouvez à tout moment demander l'accès, la correction ou la suppression de vos données personnelles en nous contactant à isstm.univ.umg@gmail.com.",
+                "Vous pouvez à tout moment demander l'accès, la correction ou la suppression de vos données personnelles en nous contactant à isstm.univ.umg@gmail.com.",
+                "Vous pouvez à tout moment demander l'accès, la correction ou la suppression de vos données personnelles en nous contactant à isstm.univ.umg@gmail.com.",
+            ],
+
+            // Associations — carte d'identité
+            'associations_identite_regime' => [
+                'Association à but non lucratif — Ordonnance n°60-133 du 03/10/1960',
+                'Association à but non lucratif — Ordonnance n°60-133 du 03/10/1960',
+                'Association à but non lucratif — Ordonnance n°60-133 du 03/10/1960',
+            ],
+            'associations_identite_siege' => [
+                'ISSTM, Majunga Be, Commune Urbaine Mahajanga-I',
+                'ISSTM, Majunga Be, Commune Urbaine Mahajanga-I',
+                'ISSTM, Majunga Be, Commune Urbaine Mahajanga-I',
+            ],
+            'associations_identite_duree' => ['Illimitée', 'Illimitée', 'Illimitée'],
+            'associations_identite_but' => [
+                "Rassembler et unir tous les étudiants de l'ISSTM",
+                "Rassembler et unir tous les étudiants de l'ISSTM",
+                "Rassembler et unir tous les étudiants de l'ISSTM",
+            ],
+
+            // Associations — critères du bureau exécutif
+            'associations_bureau_role1_critere' => [
+                "Seuls les niveaux L2 et M1 peuvent être élus Président de l'A.E.I.",
+                "Seuls les niveaux L2 et M1 peuvent être élus Président de l'A.E.I.",
+                "Seuls les niveaux L2 et M1 peuvent être élus Président de l'A.E.I.",
+            ],
+            'associations_bureau_role2_critere' => [
+                'Désigné par le Président ; aucune restriction de niveau, sauf L1.',
+                'Désigné par le Président ; aucune restriction de niveau, sauf L1.',
+                'Désigné par le Président ; aucune restriction de niveau, sauf L1.',
+            ],
+            'associations_bureau_role3_critere' => [
+                "Doit être un des candidats non-élus lors de l'élection du Président.",
+                "Doit être un des candidats non-élus lors de l'élection du Président.",
+                "Doit être un des candidats non-élus lors de l'élection du Président.",
+            ],
+            'associations_bureau_role4_critere' => [
+                'Désigné par les autres membres du bureau et les chefs de classe.',
+                'Désigné par les autres membres du bureau et les chefs de classe.',
+                'Désigné par les autres membres du bureau et les chefs de classe.',
+            ],
+            'associations_bureau_role5_critere' => [
+                'Chaque niveau (L1, L2, L3, M1, M2) envoie un représentant.',
+                'Chaque niveau (L1, L2, L3, M1, M2) envoie un représentant.',
+                'Chaque niveau (L1, L2, L3, M1, M2) envoie un représentant.',
+            ],
+            'associations_bureau_role6_critere' => [
+                "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
+                "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
+                "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
             ],
         ];
 

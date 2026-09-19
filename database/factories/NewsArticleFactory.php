@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\NewsArticle;
+use App\NewsStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,7 +25,7 @@ class NewsArticleFactory extends Factory
             'slug' => str($title)->slug().'-'.fake()->unique()->numberBetween(1, 100000),
             'excerpt' => fake()->sentence(),
             'content' => fake()->paragraphs(3, true),
-            'status' => 'publie',
+            'status' => NewsStatus::Publie,
             'published_at' => fake()->dateTimeBetween('-6 months'),
         ];
     }

@@ -1,0 +1,117 @@
+import { useState } from 'react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Menu, Search, Bell, ChevronDown, LogOut, User } from 'lucide-react';
+import DarkModeToggle from '../Layout/DarkModeToggle';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+
+const quickLinks = [
+    { href: '/console/dashboard', label: 'Tableau de bord' },
+    { href: '/console/preinscriptions', label: 'Préinscriptions' },
+    { href: '/console/scolarite/etudiants', label: 'Étudiants' },
+    { href: '/console/scolarite/inscriptions', label: 'Inscriptions' },
+    { href: '/console/scolarite/classes', label: 'Classes' },
+    { href: '/console/actualites', label: 'Actualités' },
+    { href: '/console/galerie', label: 'Galerie' },
+];
+
+export default function AdminHeader({ onOpenSidebar }) {
+    const { auth } = usePage().props;
+    const user = auth?.user;
+    const [query, setQuery] = useState('');
+
+    const results = query.trim() ? quickLinks.filter((item) => item.label.toLowerCase().includes(query.trim().toLowerCase())) : [];
+
+    function logout(e) {
+        e.preventDefault();
+        router.post('/logout');
+    }
+
+    return (
+        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-admin-border bg-admin-surface px-4 py-3 sm:px-6">
+            <button
+                type="button"
+                onClick={onOpenSidebar}
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text lg:hidden"
+                aria-label="Ouvrir le menu"
+            >
+                <Menu className="h-5 w-5" aria-hidden="true" />
+            </button>
+
+            <div className="relative w-full max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
+                <input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Rechercher une page..."
+                    className="h-9 w-full rounded-lg border border-admin-border bg-admin-bg pl-9 pr-3 text-sm text-admin-text placeholder:text-admin-muted outline-none transition focus:border-admin-text/40 focus:ring-2 focus:ring-admin-text/10"
+                />
+                {results.length > 0 && (
+                    <ul className="absolute left-0 right-0 top-full z-40 mt-1.5 overflow-hidden rounded-lg border border-admin-border bg-admin-card shadow-xl">
+                        {results.map((item) => (
+                            <li key={item.href}>
+                                <Link
+                                    href={item.href}
+                                    onClick={() => setQuery('')}
+                                    className="block px-3.5 py-2.5 text-sm text-admin-text transition hover:bg-admin-hover"
+                                >
+                                    {item.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+
+            <div className="ml-auto flex items-center gap-1.5">
+                <DarkModeToggle className="text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text" />
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text focus:outline-none"
+                        aria-label="Notifications"
+                    >
+                        <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-72 bg-admin-card text-admin-text">
+                        <p className="px-3 py-2 text-sm font-semibold text-admin-text">Notifications</p>
+                        <DropdownMenuSeparator className="bg-admin-border" />
+                        <p className="px-3 py-6 text-center text-sm text-admin-muted">Aucune notification pour le moment.</p>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                {user && (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-admin-hover focus:outline-none">
+                            <Avatar className="h-7 w-7">
+                                <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />
+                                <AvatarFallback className="bg-admin-hover text-admin-text">{user.name?.[0]}</AvatarFallback>
+                            </Avatar>
+                            <span className="hidden text-sm font-medium text-admin-text sm:inline">{user.name}</span>
+                            <ChevronDown className="h-3.5 w-3.5 text-admin-muted" aria-hidden="true" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56 bg-admin-card text-admin-text">
+                            <div className="px-3 py-2">
+                                <p className="text-sm font-medium text-admin-text">{user.name}</p>
+                                <p className="text-xs text-admin-muted">{user.email}</p>
+                            </div>
+                            <DropdownMenuSeparator className="bg-admin-border" />
+                            <DropdownMenuItem asChild className="text-admin-text hover:bg-admin-hover">
+                                <Link href="/profil">
+                                    <User className="h-4 w-4" aria-hidden="true" />
+                                    Mon profil
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-admin-border" />
+                            <DropdownMenuItem onSelect={logout} className="text-admin-text hover:bg-admin-hover">
+                                <LogOut className="h-4 w-4" aria-hidden="true" />
+                                Déconnexion
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+            </div>
+        </header>
+    );
+}

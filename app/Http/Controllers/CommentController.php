@@ -33,7 +33,7 @@ class CommentController extends Controller
     public function destroy(Request $request, Comment $comment): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::Admin) || $comment->user_id === $user->id, 403);
+        abort_unless($user->hasLegacyRole(Role::Admin) || $comment->user_id === $user->id, 403);
 
         $comment->delete();
 

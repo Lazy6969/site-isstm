@@ -15,7 +15,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole(Role::Admin, Role::Enseignant);
+        return $this->user()->hasLegacyRole(Role::Admin, Role::Enseignant);
     }
 
     /**

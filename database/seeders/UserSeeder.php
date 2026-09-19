@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@isstm.test'],
             [
                 'name' => 'Administrateur ISSTM',
@@ -25,5 +25,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ],
         );
+
+        $admin->syncRoles([Role::Admin->spatieRole()]);
     }
 }

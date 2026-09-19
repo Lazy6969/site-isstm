@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Notification;
 it('forbids a non-admin from viewing pending preinscriptions', function () {
     $etudiant = User::factory()->role(Role::Etudiant)->create();
 
-    $this->actingAs($etudiant)->get('/admin/preinscriptions')->assertForbidden();
+    $this->actingAs($etudiant)->get('/console/preinscriptions')->assertForbidden();
 });
 
 it('lists only pending preinscriptions for an admin', function () {
@@ -18,7 +18,7 @@ it('lists only pending preinscriptions for an admin', function () {
     Preinscription::factory()->create(['nom' => 'EnAttente', 'status' => PreinscriptionStatus::EnAttente]);
     Preinscription::factory()->create(['nom' => 'DejaApprouve', 'status' => PreinscriptionStatus::Approuve]);
 
-    $this->actingAs($admin)->get('/admin/preinscriptions')->assertInertia(fn ($page) => $page
+    $this->actingAs($admin)->get('/console/preinscriptions')->assertInertia(fn ($page) => $page
         ->component('Admin/Preinscriptions/Index')
         ->has('preinscriptions', 1)
         ->where('preinscriptions.0.nom', 'EnAttente')
@@ -36,7 +36,7 @@ it('creates a student account when an admin approves a preinscription', function
     ]);
 
     $this->actingAs($admin)
-        ->post("/admin/preinscriptions/{$preinscription->id}/approve")
+        ->post("/console/preinscriptions/{$preinscription->id}/approve")
         ->assertRedirect();
 
     $preinscription->refresh();
@@ -53,6 +53,6 @@ it('refuses to approve a preinscription twice', function () {
     $preinscription = Preinscription::factory()->create(['status' => PreinscriptionStatus::Approuve]);
 
     $this->actingAs($admin)
-        ->post("/admin/preinscriptions/{$preinscription->id}/approve")
+        ->post("/console/preinscriptions/{$preinscription->id}/approve")
         ->assertStatus(409);
 });

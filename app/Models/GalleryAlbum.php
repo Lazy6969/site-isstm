@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\GalleryStatus;
 use Database\Factories\GalleryAlbumFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,6 +30,7 @@ class GalleryAlbum extends Model
     protected function casts(): array
     {
         return [
+            'status' => GalleryStatus::class,
             'event_date' => 'date',
             'published_at' => 'datetime',
         ];

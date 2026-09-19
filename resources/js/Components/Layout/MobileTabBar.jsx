@@ -33,7 +33,6 @@ export default function MobileTabBar({ showLogin = true }) {
         { href: '/galerie', label: t('nav.galerie', 'Galerie'), icon: Image },
         { href: '/contact', label: t('nav.contact', 'Contact') },
         { href: '/recherche', label: t('nav.recherche', 'Recherche'), icon: Search },
-        { href: '/bibliotheque', label: t('bibliotheque.titre', 'Bibliothèque numérique') },
         ...(isCommunityMember ? getCommunauteLinks(t) : []),
     ];
 

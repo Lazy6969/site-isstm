@@ -39,7 +39,7 @@ class PostController extends Controller
 
         return Inertia::render('Communaute/Index', [
             'posts' => $posts,
-            'canPublish' => $user->hasRole(Role::Admin, Role::Enseignant),
+            'canPublish' => $user->hasLegacyRole(Role::Admin, Role::Enseignant),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
         ]);
     }
@@ -79,7 +79,7 @@ class PostController extends Controller
     public function destroy(Request $request, Post $post): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user->hasRole(Role::Admin) || $post->user_id === $user->id, 403);
+        abort_unless($user->hasLegacyRole(Role::Admin) || $post->user_id === $user->id, 403);
 
         $post->delete();
 
@@ -106,7 +106,7 @@ class PostController extends Controller
                 'avatar_path' => $post->user->avatar_path,
                 'role_label' => $post->user->role->label(),
             ],
-            'can_manage' => $viewer->hasRole(Role::Admin) || $post->user_id === $viewer->id,
+            'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $post->user_id === $viewer->id,
             'media' => $post->media->map(fn (PostMedia $media) => [
                 'id' => $media->id,
                 'path' => $media->path,
@@ -128,7 +128,7 @@ class PostController extends Controller
             'id' => $comment->id,
             'body' => $comment->body,
             'created_at' => $comment->created_at,
-            'can_manage' => $viewer->hasRole(Role::Admin) || $comment->user_id === $viewer->id,
+            'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $comment->user_id === $viewer->id,
             'user' => [
                 'id' => $comment->user->id,
                 'name' => $comment->user->name,

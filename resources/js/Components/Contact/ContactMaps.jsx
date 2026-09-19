@@ -1,3 +1,5 @@
+import EditableText from '../QuickEdit/EditableText';
+
 const locations = [
     {
         key: 'principale',
@@ -28,7 +30,13 @@ export default function ContactMaps({ content }) {
                         referrerPolicy="no-referrer-when-downgrade"
                     />
                     <div className="flex items-center justify-between gap-3 bg-white px-4 py-3 dark:bg-slate-800">
-                        <p className="truncate text-sm font-medium text-isstm-navy dark:text-white">{content[location.titleKey]}</p>
+                        <EditableText
+                            as="p"
+                            contentKey={location.titleKey}
+                            className="truncate text-sm font-medium text-isstm-navy dark:text-white"
+                        >
+                            {content[location.titleKey]}
+                        </EditableText>
                         <a
                             href={`https://www.google.com/maps?q=${location.coords}&z=17&t=k`}
                             target="_blank"

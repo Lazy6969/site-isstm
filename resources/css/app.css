@@ -25,6 +25,18 @@
     --color-accent: #f1f5f9;
     --color-accent-foreground: #003366;
     --radius: 0.75rem;
+
+    /* Admin panel palette — deliberately separate from the tokens above so the
+       public site's navy/gold identity is untouched. Dark is the priority; the
+       light values here just keep the admin panel usable before a toggle is added. */
+    --color-admin-bg: #f4f4f5;
+    --color-admin-surface: #ffffff;
+    --color-admin-card: #ffffff;
+    --color-admin-border: #e4e4e7;
+    --color-admin-text: #18181b;
+    --color-admin-text-secondary: #52525b;
+    --color-admin-muted: #71717a;
+    --color-admin-hover: #f4f4f5;
 }
 
 .dark {
@@ -37,6 +49,15 @@
     --color-popover-foreground: #e2e8f0;
     --color-accent: #1e293b;
     --color-accent-foreground: #f8fafc;
+
+    --color-admin-bg: #09090b;
+    --color-admin-surface: #111113;
+    --color-admin-card: #18181b;
+    --color-admin-border: #27272a;
+    --color-admin-text: #fafafa;
+    --color-admin-text-secondary: #a1a1aa;
+    --color-admin-muted: #71717a;
+    --color-admin-hover: #27272a;
 }
 
 @media (max-width: 767px) {

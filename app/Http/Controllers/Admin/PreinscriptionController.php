@@ -37,6 +37,7 @@ class PreinscriptionController extends Controller
             'role' => Role::Etudiant,
             'avatar_path' => $preinscription->photo_path,
         ]);
+        $user->assignRole(Role::Etudiant->spatieRole());
 
         $preinscription->status = PreinscriptionStatus::Approuve;
         $preinscription->user_id = $user->id;

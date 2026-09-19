@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
+use App\NewsStatus;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,7 +14,7 @@ class NewsController extends Controller
     {
         $articles = NewsArticle::query()
             ->with('category:id,name_fr,icon')
-            ->where('status', 'publie')
+            ->where('status', NewsStatus::Publie)
             ->orderByDesc('published_at')
             ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'image_path', 'author', 'published_at']);
 
@@ -25,7 +26,7 @@ class NewsController extends Controller
 
     public function show(NewsArticle $article): Response
     {
-        abort_unless($article->status === 'publie', 404);
+        abort_unless($article->status === NewsStatus::Publie, 404);
 
         $article->increment('views');
         $article->load('category:id,name_fr,icon');

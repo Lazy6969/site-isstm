@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable([
     'name',
@@ -35,7 +37,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -59,9 +61,20 @@ class User extends Authenticatable
         return $this->last_activity !== null && $this->last_activity->gt(now()->subSeconds(25));
     }
 
-    public function hasRole(Role ...$roles): bool
+    /**
+     * Checks the legacy `role` enum column. Named distinctly from Spatie's
+     * HasRoles::hasRole() (string/BackedEnum role names) — Spatie's own internals
+     * call $user->hasRole() with incompatible arguments, so the two can't share a name.
+     * Use hasAnyRole()/can() for Spatie permission checks.
+     */
+    public function hasLegacyRole(Role ...$roles): bool
     {
         return in_array($this->role, $roles, true);
+    }
+
+    public function etudiant(): HasOne
+    {
+        return $this->hasOne(Etudiant::class);
     }
 
     public function sentFriendRequests(): HasMany

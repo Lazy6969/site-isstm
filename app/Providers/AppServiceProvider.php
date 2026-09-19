@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -34,5 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 Str::lower((string) $request->string('email')).'|'.$request->ip()
             ));
         });
+
+        Gate::before(fn (User $user, string $ability) => $user->hasAnyRole('super-admin') ? true : null);
     }
 }
