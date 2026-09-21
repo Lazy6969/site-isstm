@@ -1,4 +1,3 @@
-```jsx
 import { Head } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
@@ -102,11 +101,6 @@ export default function Bourse({ content = {} }) {
                                     link.description}
                             </EditableText>
 
-                            {/*
-                             * Le bouton reste statique car EditableText utilise
-                             * lui-même un bouton pour l'édition et ne peut pas
-                             * être imbriqué dans un lien <a>.
-                             */}
                             <a
                                 href={link.href}
                                 target="_blank"
@@ -114,6 +108,7 @@ export default function Bourse({ content = {} }) {
                                 className="mt-5 flex items-center justify-center gap-1.5 rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
                             >
                                 {link.button}
+
                                 <ExternalLink
                                     className="h-4 w-4"
                                     aria-hidden="true"
@@ -128,4 +123,3 @@ export default function Bourse({ content = {} }) {
         </div>
     );
 }
-```

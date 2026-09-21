@@ -1,10 +1,9 @@
-```jsx
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import { Card } from '../Components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '../Components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 
@@ -36,51 +35,72 @@ const bureauRoles = [
         key: 'associations_bureau_role1',
         role: 'Président',
         count: 1,
-        critere: "Seuls les niveaux L2 et M1 peuvent être élus Président de l'A.E.I.",
+        critere:
+            "Seuls les niveaux L2 et M1 peuvent être élus Président de l'A.E.I.",
     },
     {
         key: 'associations_bureau_role2',
         role: 'Vice-Président',
         count: 1,
-        critere: 'Désigné par le Président ; aucune restriction de niveau, sauf L1.',
+        critere:
+            'Désigné par le Président ; aucune restriction de niveau, sauf L1.',
     },
     {
         key: 'associations_bureau_role3',
         role: 'Secrétaire Général',
         count: 1,
-        critere: "Doit être un des candidats non-élus lors de l'élection du Président.",
+        critere:
+            "Doit être un des candidats non-élus lors de l'élection du Président.",
     },
     {
         key: 'associations_bureau_role4',
         role: 'Trésorier',
         count: 1,
-        critere: 'Désigné par les autres membres du bureau et les chefs de classe.',
+        critere:
+            'Désigné par les autres membres du bureau et les chefs de classe.',
     },
     {
         key: 'associations_bureau_role5',
         role: 'Commissaire aux Comptes',
         count: 5,
-        critere: 'Chaque niveau (L1, L2, L3, M1, M2) envoie un représentant.',
+        critere:
+            'Chaque niveau (L1, L2, L3, M1, M2) envoie un représentant.',
     },
     {
         key: 'associations_bureau_role6',
         role: 'Conseillers',
         count: 4,
-        critere: "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
+        critere:
+            "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
     },
 ];
 
 const bureauFondateur = [
     { role: 'Président', nom: 'NOMENJANAHARY Narcisse Isidore' },
     { role: 'Vice-président', nom: 'RAKOTOARIVELO Vannyaud Bruno' },
-    { role: 'Secrétaire Générale', nom: 'HARENANTENAINA Florentinoh Jobela Adelin' },
+    {
+        role: 'Secrétaire Générale',
+        nom: 'HARENANTENAINA Florentinoh Jobela Adelin',
+    },
     { role: 'Trésorier', nom: 'RATSIMALAIMANANA Mamy Nirina' },
-    { role: 'Commissaire au compte', nom: 'RANDRIANARIMALALA Jean Leonard' },
-    { role: 'Commissaire au compte', nom: 'RABARIVELOMANANA Maxwell Ny Aina' },
+    {
+        role: 'Commissaire au compte',
+        nom: 'RANDRIANARIMALALA Jean Leonard',
+    },
+    {
+        role: 'Commissaire au compte',
+        nom: 'RABARIVELOMANANA Maxwell Ny Aina',
+    },
     { role: 'Commissaire au compte', nom: 'RAZAFINDRAFITA Zagarino' },
-    { role: 'Commissaire au compte', nom: 'RANDRIANAIVOSOLO Aina Daniel' },
+    {
+        role: 'Commissaire au compte',
+        nom: 'RANDRIANAIVOSOLO Aina Daniel',
+    },
     { role: 'Commissaire au compte', nom: 'ADIALHAM Tonganjara' },
-    { role: 'Conseiller', nom: 'RABOTOVAO Harimboahangitiana Kanto' },
+    {
+        role: 'Conseiller',
+        nom: 'RABOTOVAO Harimboahangitiana Kanto',
+    },
     { role: 'Conseiller', nom: 'RANDRIAMANTENA Judicaël' },
     { role: 'Conseiller', nom: 'FIDERANA Nardah Mamelphina' },
     { role: 'Conseiller', nom: 'FREDERIC Moise' },
@@ -107,7 +127,10 @@ export default function Associations({ content = {} }) {
                         href="/vie-etudiante"
                         className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline"
                     >
-                        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                        <ArrowLeft
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                        />
                         {t('nav.vie_etudiante', 'Vie étudiante')}
                     </Link>
 
@@ -127,7 +150,10 @@ export default function Associations({ content = {} }) {
             <main className="mx-auto max-w-4xl space-y-12 px-6 py-12">
                 <div className="flex justify-center">
                     <Avatar className="h-20 w-20 ring-4 ring-isstm-gold/30">
-                        <AvatarImage src="/images/aei.jpeg" alt="Logo AEI" />
+                        <AvatarImage
+                            src="/images/aei.jpeg"
+                            alt="Logo AEI"
+                        />
                         <AvatarFallback>AEI</AvatarFallback>
                     </Avatar>
                 </div>
@@ -205,7 +231,8 @@ export default function Associations({ content = {} }) {
                                     contentKey={`${item.key}_critere`}
                                     className="mt-1.5 text-sm text-slate-500 dark:text-slate-400"
                                 >
-                                    {content[`${item.key}_critere`] ?? item.critere}
+                                    {content[`${item.key}_critere`] ??
+                                        item.critere}
                                 </EditableText>
                             </Card>
                         ))}
@@ -264,4 +291,3 @@ export default function Associations({ content = {} }) {
         </div>
     );
 }
-```

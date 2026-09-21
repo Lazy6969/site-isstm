@@ -1,9 +1,8 @@
-```jsx
 import { router, usePage } from '@inertiajs/react';
 import { CheckCircle2, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
-import { Avatar, AvatarImage, AvatarFallback } from '../../../Components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../../../Components/ui/avatar';
 import { Button } from '../../../Components/ui/button';
 import { useTranslations } from '../../../lib/useTranslations';
 
@@ -21,14 +20,14 @@ export default function Index({ preinscriptions }) {
     const [processingId, setProcessingId] = useState(null);
 
     function approve(id) {
-        if (
-            !confirm(
-                t(
-                    'preinscriptions_admin.confirmer_approbation',
-                    'Créer le compte étudiant pour cette préinscription ?',
-                ),
-            )
-        ) {
+        const confirmed = window.confirm(
+            t(
+                'preinscriptions_admin.confirmer_approbation',
+                'Créer le compte étudiant pour cette préinscription ?',
+            ),
+        );
+
+        if (!confirmed) {
             return;
         }
 
@@ -45,10 +44,18 @@ export default function Index({ preinscriptions }) {
     }
 
     return (
-        <AdminLayout title={t('preinscriptions_admin.titre', 'Préinscriptions en attente')}>
+        <AdminLayout
+            title={t(
+                'preinscriptions_admin.titre',
+                'Préinscriptions en attente',
+            )}
+        >
             <p className="-mt-4 mb-6 text-sm text-admin-text-secondary">
                 {preinscriptions.length}{' '}
-                {t('preinscriptions_admin.dossiers_a_traiter', 'dossier(s) à traiter.')}
+                {t(
+                    'preinscriptions_admin.dossiers_a_traiter',
+                    'dossier(s) à traiter.',
+                )}
             </p>
 
             {flash?.status && (
@@ -134,4 +141,3 @@ export default function Index({ preinscriptions }) {
         </AdminLayout>
     );
 }
-```

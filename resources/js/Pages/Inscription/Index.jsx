@@ -84,6 +84,7 @@ export default function Index({ content }) {
                             className="h-4 w-4"
                             aria-hidden="true"
                         />
+
                         {t(
                             'inscription.preinscription_cta',
                             'Faire ma préinscription en ligne',
@@ -126,7 +127,7 @@ export default function Index({ content }) {
                             title="Licence"
                             rows={[
                                 [
-                                    'Droit d'inscription',
+                                    "Droit d'inscription",
                                     content.frais_nat_lic_droit,
                                     'frais_nat_lic_droit',
                                 ],
@@ -152,7 +153,7 @@ export default function Index({ content }) {
                             title="Master"
                             rows={[
                                 [
-                                    'Droit d'inscription',
+                                    "Droit d'inscription",
                                     content.frais_nat_mas_droit,
                                     'frais_nat_mas_droit',
                                 ],
@@ -202,7 +203,7 @@ export default function Index({ content }) {
                             title="Licence"
                             rows={[
                                 [
-                                    'Droit d'inscription',
+                                    "Droit d'inscription",
                                     content.frais_etr_lic_droit,
                                     'frais_etr_lic_droit',
                                 ],
@@ -228,7 +229,7 @@ export default function Index({ content }) {
                             title="Master"
                             rows={[
                                 [
-                                    'Droit d'inscription',
+                                    "Droit d'inscription",
                                     content.frais_etr_mas_droit,
                                     'frais_etr_mas_droit',
                                 ],
@@ -271,6 +272,7 @@ export default function Index({ content }) {
                             className="h-5 w-5 text-isstm-gold"
                             aria-hidden="true"
                         />
+
                         {t(
                             'inscription.modalites_titre',
                             'Modalités de dépôt',
@@ -291,7 +293,10 @@ export default function Index({ content }) {
                             aria-hidden="true"
                         />
 
-                        {t('inscription.compte_bancaire', 'Compte bancaire :')}{' '}
+                        {t(
+                            'inscription.compte_bancaire',
+                            'Compte bancaire :',
+                        )}{' '}
 
                         <EditableText
                             as="span"

@@ -1,4 +1,3 @@
-```jsx
 import { Head } from '@inertiajs/react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -161,27 +160,3 @@ export default function Index({ content = {} }) {
         </div>
     );
 }
-```
-
-### Maintenant
-
-Sauvegarde puis :
-
-```bash
-git add resources/js/Pages/Historique/Index.jsx
-```
-
-Ensuite :
-
-```bash
-git status
-```
-
-Il devrait rester **un seul conflit** :
-
-```text
-both modified:
-    resources/js/Pages/Inscription/Index.jsx
-```
-
-👉 Envoie-moi maintenant le contenu de **`Inscription/Index.jsx` avec les marqueurs de conflit**. C'est le dernier fichier, puis on terminera proprement le merge.
