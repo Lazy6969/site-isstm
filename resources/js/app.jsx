@@ -24,7 +24,17 @@ createInertiaApp({
             <ToastProvider>
                 <QuickEditProvider>
                     <LogoutConfirmProvider>
-                        <div className="fixed top-1/2 left-5 z-[60] flex -translate-y-1/2 flex-col items-center gap-3">
+                        {/*
+                            Mobile-hidden: at md-/narrow widths the page content spans
+                            almost the full viewport width (only px-6 side padding), so
+                            this fixed-left-5 group would sit directly on top of section
+                            text (e.g. Mission/Vision's paragraph) instead of in a free
+                            margin. md+ layouts keep a wide unused gutter outside the
+                            centered max-w-* containers, where it never overlaps content.
+                            Mobile already has equivalent access via MobileTabBar's
+                            account tab and (for admins) AdminHeader's inline pencil.
+                        */}
+                        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 md:flex">
                             <QuickEditToggle />
                             <FloatingAccountButton />
                         </div>

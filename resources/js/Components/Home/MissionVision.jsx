@@ -68,7 +68,7 @@ export default function MissionVision({ content }) {
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 flex flex-1 flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
+                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
@@ -90,7 +90,7 @@ export default function MissionVision({ content }) {
                                         </Link>
                                     </div>
 
-                                    <div className={`relative h-64 flex-shrink-0 md:h-auto ${block.reverse ? 'md:order-1' : ''}`}>
+                                    <div className={`relative min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}>
                                         <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
                                         {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
                                     </div>
