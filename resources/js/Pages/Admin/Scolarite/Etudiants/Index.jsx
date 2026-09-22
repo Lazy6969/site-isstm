@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useForm, usePage } from '@inertiajs/react';
-import { Plus, Eye, CheckCircle2 } from 'lucide-react';
+import { Link, useForm } from '@inertiajs/react';
+import { Plus, Eye } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
@@ -26,7 +26,6 @@ const statutLabels = {
 };
 
 export default function Index({ etudiants, classes, eligibleUsers }) {
-    const { flash } = usePage().props;
     const [open, setOpen] = useState(false);
     const form = useForm({ user_id: '', classe_id: '', matricule: '' });
 
@@ -50,13 +49,6 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                     Nouveau dossier
                 </Button>
             </div>
-
-            {flash?.status && (
-                <p className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
 
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                 <Table>

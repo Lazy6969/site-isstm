@@ -1,5 +1,5 @@
-import { router, usePage } from '@inertiajs/react';
-import { CheckCircle2, UserCheck } from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { UserCheck } from 'lucide-react';
 import { useState } from 'react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../Components/ui/avatar';
@@ -15,7 +15,6 @@ function formatDate(value) {
 }
 
 export default function Index({ preinscriptions }) {
-    const { flash } = usePage().props;
     const { t } = useTranslations();
     const [processingId, setProcessingId] = useState(null);
 
@@ -57,16 +56,6 @@ export default function Index({ preinscriptions }) {
                     'dossier(s) à traiter.',
                 )}
             </p>
-
-            {flash?.status && (
-                <p className="mb-6 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2
-                        className="h-4 w-4 flex-shrink-0"
-                        aria-hidden="true"
-                    />
-                    {flash.status}
-                </p>
-            )}
 
             {preinscriptions.length === 0 ? (
                 <div className="rounded-xl border border-admin-border bg-admin-card p-8 text-center text-sm text-admin-muted">

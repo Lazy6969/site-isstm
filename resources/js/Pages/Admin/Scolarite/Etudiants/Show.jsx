@@ -1,5 +1,5 @@
-import { Link, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Link, useForm } from '@inertiajs/react';
+import { ArrowLeft } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Label } from '../../../../Components/ui/label';
@@ -20,7 +20,6 @@ function formatDate(value) {
 }
 
 export default function Show({ etudiant }) {
-    const { flash } = usePage().props;
     const form = useForm({
         matricule: etudiant.matricule,
         classe_id: etudiant.classe_id ? String(etudiant.classe_id) : '',
@@ -41,13 +40,6 @@ export default function Show({ etudiant }) {
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 Retour aux étudiants
             </Link>
-
-            {flash?.status && (
-                <p className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
 
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
                 <div className="rounded-xl border border-admin-border bg-admin-card p-5 lg:col-span-1">

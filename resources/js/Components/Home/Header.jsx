@@ -142,9 +142,15 @@ export default function Header() {
                                     <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem asChild>
-                                        <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
-                                    </DropdownMenuItem>
+                                    {user.role === 'admin' ? (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/console/dashboard">{t('nav.parametres_site', 'Paramètres du site')}</Link>
+                                        </DropdownMenuItem>
+                                    ) : (
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
+                                        </DropdownMenuItem>
+                                    )}
                                     <DropdownMenuItem asChild>
                                         <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
                                     </DropdownMenuItem>
