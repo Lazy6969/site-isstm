@@ -3,9 +3,15 @@
 use App\Models\Classe;
 use App\Models\Etudiant;
 use App\Models\Filiere;
+use App\Models\GalleryAlbum;
 use App\Models\Inscription;
+use App\Models\NewsArticle;
+use App\Models\Partenaire;
 use App\Models\Preinscription;
+use App\Models\Teacher;
+use App\Models\Testimonial;
 use App\Models\User;
+use App\NewsStatus;
 use App\PreinscriptionStatus;
 use App\Role;
 use App\StatutInscription;
@@ -33,6 +39,27 @@ it('shows aggregate stats to an admin', function () {
         ->where('stats.classes', 1)
         ->where('stats.preinscriptions_en_attente', 1)
         ->where('stats.inscriptions_validees', 1)
+    );
+});
+
+it('shows content stats to an admin', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Filiere::factory()->count(2)->create();
+    Teacher::factory()->create();
+    NewsArticle::factory()->create(['status' => NewsStatus::Publie]);
+    NewsArticle::factory()->create(['status' => NewsStatus::Brouillon]);
+    GalleryAlbum::factory()->create();
+    Testimonial::factory()->create();
+    Partenaire::factory()->count(3)->create();
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->component('Admin/Dashboard')
+        ->where('contentStats.filieres', 2)
+        ->where('contentStats.enseignants', 1)
+        ->where('contentStats.actualites_publiees', 1)
+        ->where('contentStats.albums_galerie', 1)
+        ->where('contentStats.temoignages', 1)
+        ->where('contentStats.partenaires', 3)
     );
 });
 

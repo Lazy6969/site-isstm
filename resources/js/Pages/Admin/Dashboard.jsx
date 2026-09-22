@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { GraduationCap, School, UserPlus, ClipboardCheck } from 'lucide-react';
+import { GraduationCap, School, UserPlus, ClipboardCheck, BookOpen, Presentation, Newspaper, Images, Quote, HeartHandshake } from 'lucide-react';
 import {
     ResponsiveContainer,
     AreaChart,
@@ -36,7 +36,7 @@ const periodOptions = [
     { value: 6, label: '6 mois' },
 ];
 
-export default function Dashboard({ stats, preinscriptionsParMois, etudiantsParNiveau, etudiantsParFiliere, activiteRecente }) {
+export default function Dashboard({ stats, contentStats, preinscriptionsParMois, etudiantsParNiveau, etudiantsParFiliere, activiteRecente }) {
     const [periode, setPeriode] = useState(6);
 
     const evolutionData = useMemo(() => preinscriptionsParMois.slice(-periode), [preinscriptionsParMois, periode]);
@@ -48,6 +48,16 @@ export default function Dashboard({ stats, preinscriptionsParMois, etudiantsParN
                 <StatCard label="Classes" value={stats.classes} icon={School} hint="Toutes années confondues" />
                 <StatCard label="Préinscriptions" value={stats.preinscriptions_en_attente} icon={UserPlus} hint="En attente de traitement" />
                 <StatCard label="Inscriptions validées" value={stats.inscriptions_validees} icon={ClipboardCheck} hint="Année en cours" />
+            </div>
+
+            <p className="mt-6 mb-3 text-xs font-semibold tracking-wide text-admin-muted uppercase">Contenu du site</p>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
+                <StatCard label="Filières" value={contentStats.filieres} icon={BookOpen} />
+                <StatCard label="Enseignants" value={contentStats.enseignants} icon={Presentation} />
+                <StatCard label="Actualités publiées" value={contentStats.actualites_publiees} icon={Newspaper} />
+                <StatCard label="Albums galerie" value={contentStats.albums_galerie} icon={Images} />
+                <StatCard label="Témoignages" value={contentStats.temoignages} icon={Quote} />
+                <StatCard label="Partenaires" value={contentStats.partenaires} icon={HeartHandshake} />
             </div>
 
             <div className="mt-5">

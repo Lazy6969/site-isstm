@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, UserPlus, GraduationCap, ClipboardList, School, Newspaper, Images } from 'lucide-react';
+import { LayoutDashboard, UserPlus, GraduationCap, ClipboardList, School, Newspaper, Images, BookOpen, Presentation, Quote, HeartHandshake } from 'lucide-react';
 
 const navGroups = [
     {
@@ -23,6 +23,10 @@ const navGroups = [
         items: [
             { href: '/console/actualites', label: 'Actualités', icon: Newspaper },
             { href: '/console/galerie', label: 'Galerie', icon: Images },
+            { href: '/console/filieres', label: 'Filières', icon: BookOpen },
+            { href: '/console/enseignants', label: 'Enseignants', icon: Presentation },
+            { href: '/console/temoignages', label: 'Témoignages', icon: Quote },
+            { href: '/console/partenaires', label: 'Partenaires', icon: HeartHandshake },
         ],
     },
 ];

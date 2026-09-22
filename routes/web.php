@@ -131,4 +131,8 @@ require __DIR__.'/scolarite.php';
 require __DIR__.'/quick-edit.php';
 require __DIR__.'/news.php';
 require __DIR__.'/galerie.php';
+require __DIR__.'/filieres.php';
+require __DIR__.'/teachers.php';
+require __DIR__.'/testimonials.php';
+require __DIR__.'/partenaires.php';
 require __DIR__.'/auth.php';
