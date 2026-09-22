@@ -123,7 +123,7 @@ export default function Header() {
                 <div className="hidden items-center gap-3 md:flex">
                     <DarkModeToggle />
                     <LanguageSwitcher />
-                    {user ? (
+                    {user && (
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
@@ -156,13 +156,6 @@ export default function Header() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                        >
-                            {t('nav.se_connecter', 'Se connecter')}
-                        </Link>
                     )}
                 </div>
 
@@ -173,7 +166,7 @@ export default function Header() {
             </div>
             </header>
 
-            <MobileTabBar showLogin={false} />
+            <MobileTabBar />
         </>
     );
 }

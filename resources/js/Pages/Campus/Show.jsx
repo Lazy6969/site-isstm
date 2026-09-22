@@ -31,7 +31,7 @@ export default function Show({ bloc }) {
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('campus.tous_les_blocs', 'Tous les blocs')}
                     </Link>
-                    <h1 className="mt-2 text-3xl font-bold">{bloc.nom}</h1>
+                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{bloc.nom}</h1>
                     {bloc.signification && <p className="mt-2 max-w-2xl text-white/80">{bloc.signification}</p>}
                     {bloc.slogan && (
                         <p className="mt-3 flex items-center gap-1.5 text-sm italic text-isstm-gold">

@@ -80,7 +80,7 @@ export default function Index({ preinscriptions }) {
                     {preinscriptions.map((p) => (
                         <div
                             key={p.id}
-                            className="flex items-center gap-5 rounded-xl border border-admin-border bg-admin-card p-5"
+                            className="flex flex-col items-stretch gap-4 rounded-xl border border-admin-border bg-admin-card p-5 sm:flex-row sm:items-center sm:gap-5"
                         >
                             <Avatar className="h-14 w-14 flex-shrink-0">
                                 <AvatarImage

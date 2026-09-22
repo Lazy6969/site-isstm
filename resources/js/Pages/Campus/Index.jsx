@@ -19,7 +19,7 @@ export default function Index({ blocs }) {
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('nav.vie_etudiante', 'Vie étudiante')}
                     </Link>
-                    <h1 className="mt-2 text-3xl font-bold">{t('campus.titre', 'La Vie au Campus')}</h1>
+                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{t('campus.titre', 'La Vie au Campus')}</h1>
                     <p className="mt-2 max-w-2xl text-white/80">
                         {t('campus.soustitre', "L'université est un melting-pot culturel :")} {blocs.length}{' '}
                         {t(

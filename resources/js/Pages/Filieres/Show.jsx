@@ -45,7 +45,7 @@ export default function Show({ filiere }) {
                             <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium">{filiere.niveaux}</span>
                         )}
                     </div>
-                    <h1 className="mt-3 text-3xl font-bold">{filiere.nom}</h1>
+                    <h1 className="mt-3 text-2xl font-bold sm:text-3xl">{filiere.nom}</h1>
                 </div>
             </div>
 

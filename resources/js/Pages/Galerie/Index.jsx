@@ -64,18 +64,18 @@ export default function Index({ albums }) {
                                 <Link key={album.slug} href={`/galerie/${album.slug}`} className="group block">
                                     <Card className="overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
                                         <div
-                                            className="relative h-48 bg-cover bg-center"
+                                            className="relative h-36 bg-cover bg-center"
                                             style={album.cover_image ? { backgroundImage: `url('/${album.cover_image}')` } : undefined}
                                         >
-                                            <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+                                            <span className="absolute right-2 bottom-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-white">
                                                 <Camera className="h-3 w-3" aria-hidden="true" />
                                                 {album.photos_count} photo{album.photos_count > 1 ? 's' : ''}
                                             </span>
                                         </div>
-                                        <CardContent className="p-5">
+                                        <CardContent className="p-4">
                                             {album.category && <Badge>{album.category.name_fr}</Badge>}
-                                            <h2 className="mt-3 text-lg font-semibold text-isstm-navy dark:text-white">{album.title}</h2>
-                                            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                                            <h2 className="mt-2 text-base font-semibold text-isstm-navy dark:text-white">{album.title}</h2>
+                                            <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
                                                 {formatDate(album.event_date)}
                                                 {album.location ? ` · ${album.location}` : ''}
                                             </p>
@@ -84,20 +84,20 @@ export default function Index({ albums }) {
                                 </Link>
                             ) : (
                                 <Link key={album.slug} href={`/galerie/${album.slug}`} className="group block">
-                                    <Card className="flex items-center gap-4 overflow-hidden p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                    <Card className="flex items-center gap-3 overflow-hidden p-3 transition hover:-translate-y-0.5 hover:shadow-lg">
                                         <div
-                                            className="h-20 w-28 flex-shrink-0 rounded-lg bg-cover bg-center"
+                                            className="h-16 w-24 flex-shrink-0 rounded-lg bg-cover bg-center"
                                             style={album.cover_image ? { backgroundImage: `url('/${album.cover_image}')` } : undefined}
                                         />
                                         <div className="min-w-0 flex-1">
                                             {album.category && <Badge>{album.category.name_fr}</Badge>}
-                                            <h2 className="mt-1.5 text-base font-semibold text-isstm-navy dark:text-white">{album.title}</h2>
-                                            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                                            <h2 className="mt-1 text-sm font-semibold text-isstm-navy dark:text-white">{album.title}</h2>
+                                            <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
                                                 {formatDate(album.event_date)}
                                                 {album.location ? ` · ${album.location}` : ''}
                                             </p>
                                         </div>
-                                        <span className="flex flex-shrink-0 items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                                        <span className="flex flex-shrink-0 items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
                                             <Camera className="h-3 w-3" aria-hidden="true" />
                                             {album.photos_count}
                                         </span>

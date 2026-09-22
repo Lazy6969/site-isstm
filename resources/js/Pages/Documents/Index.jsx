@@ -37,10 +37,10 @@ export default function Index({ documents }) {
                         <ul className="divide-y divide-slate-100 dark:divide-slate-700">
                             {documents.map((doc) => (
                                 <li key={doc.id} className="flex items-center justify-between gap-4 px-6 py-4">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex min-w-0 items-center gap-3">
                                         <FileText className="h-5 w-5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
-                                        <div>
-                                            <p className="font-medium text-slate-700 dark:text-slate-200">{doc.title}</p>
+                                        <div className="min-w-0">
+                                            <p className="truncate font-medium text-slate-700 dark:text-slate-200">{doc.title}</p>
                                             <Badge className="mt-1">{categoryLabels[doc.category] ?? doc.category}</Badge>
                                         </div>
                                     </div>

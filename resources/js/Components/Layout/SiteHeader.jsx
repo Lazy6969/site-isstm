@@ -109,7 +109,7 @@ export default function SiteHeader() {
                     <DarkModeToggle />
                     <LanguageSwitcher />
 
-                    {user ? (
+                    {user && (
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
@@ -142,13 +142,6 @@ export default function SiteHeader() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                        >
-                            {t('nav.se_connecter', 'Se connecter')}
-                        </Link>
                     )}
                 </div>
 
@@ -159,7 +152,7 @@ export default function SiteHeader() {
             </div>
             </header>
 
-            <MobileTabBar showLogin />
+            <MobileTabBar />
         </>
     );
 }
