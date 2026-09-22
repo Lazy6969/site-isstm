@@ -61,10 +61,10 @@ export default function MissionVision({ content }) {
                                 <div
                                     key={block.title}
                                     aria-hidden={!active}
-                                    className={`absolute inset-0 flex flex-col transition-[opacity,transform] duration-700 ease-in-out md:grid md:grid-cols-2 ${
+                                    className={`absolute inset-0 flex flex-col transition-transform duration-700 ease-in-out md:grid md:grid-cols-2 ${
                                         active
-                                            ? 'translate-x-0 opacity-100'
-                                            : `pointer-events-none opacity-0 ${block.reverse ? 'translate-x-10' : '-translate-x-10'}`
+                                            ? 'translate-x-0'
+                                            : `pointer-events-none ${block.reverse ? 'translate-x-full' : '-translate-x-full'}`
                                     }`}
                                 >
                                     <div
@@ -113,8 +113,8 @@ export default function MissionVision({ content }) {
                         </div>
 
                         <svg
-                            className={`pointer-events-none absolute inset-y-0 left-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-[transform,opacity] duration-700 ease-in-out md:block ${
-                                current === 0 ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+                            className={`pointer-events-none absolute inset-y-0 left-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-transform duration-700 ease-in-out md:block ${
+                                current === 0 ? 'translate-x-0' : '-translate-x-full'
                             }`}
                             viewBox="0 0 100 100"
                             preserveAspectRatio="none"
@@ -124,8 +124,8 @@ export default function MissionVision({ content }) {
                         </svg>
 
                         <svg
-                            className={`pointer-events-none absolute inset-y-0 right-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-[transform,opacity] duration-700 ease-in-out md:block ${
-                                current === 1 ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+                            className={`pointer-events-none absolute inset-y-0 right-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-transform duration-700 ease-in-out md:block ${
+                                current === 1 ? 'translate-x-0' : 'translate-x-full'
                             }`}
                             viewBox="0 0 100 100"
                             preserveAspectRatio="none"
