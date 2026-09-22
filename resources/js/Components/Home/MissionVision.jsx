@@ -61,7 +61,7 @@ export default function MissionVision({ content }) {
                                 <div
                                     key={block.title}
                                     aria-hidden={!active}
-                                    className={`absolute inset-0 flex flex-col transition-transform duration-700 ease-in-out md:grid md:grid-cols-2 ${
+                                    className={`absolute inset-0 z-20 flex flex-col transition-transform duration-700 ease-in-out md:grid md:grid-cols-2 ${
                                         active
                                             ? 'translate-x-0'
                                             : `pointer-events-none ${block.reverse ? 'translate-x-full' : '-translate-x-full'}`
