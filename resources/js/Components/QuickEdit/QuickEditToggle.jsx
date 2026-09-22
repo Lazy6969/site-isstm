@@ -1,35 +1,24 @@
 import { Pencil } from 'lucide-react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 
 /**
- * Floating icon-only switch for quick edit mode — visible on every page (admin
- * or public) to a user with quick-edit.access, replacing both the sidebar's
- * old text button and the "you're in edit mode" banner.
+ * Floating icon-only switch for quick edit mode — visible on public pages
+ * only. Inside /console, AdminHeader renders its own inline pencil next to
+ * the admin's profile instead, so the two never show up at once.
  */
 export default function QuickEditToggle() {
     const { canEdit, enabled, toggle } = useQuickEdit();
     const { url } = usePage();
 
-    if (!canEdit) {
+    if (!canEdit || url.startsWith('/console')) {
         return null;
-    }
-
-    function handleClick() {
-        const turningOn = !enabled;
-        toggle();
-
-        // From inside the admin panel there's nothing to edit on screen —
-        // jump to the public site so the pencils are immediately visible.
-        if (turningOn && url.startsWith('/console')) {
-            router.visit('/');
-        }
     }
 
     return (
         <button
             type="button"
-            onClick={handleClick}
+            onClick={toggle}
             title={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-label={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-pressed={enabled}

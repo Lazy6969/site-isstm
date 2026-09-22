@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 
 const QuickEditContext = createContext(null);
 
@@ -13,6 +13,7 @@ function getInitial() {
 
 export function QuickEditProvider({ children }) {
     const { auth } = usePage().props;
+    const { url } = usePage();
     const canEdit = Boolean(auth?.user) && (auth?.permissions ?? []).includes('quick-edit.access');
     const [enabled, setEnabled] = useState(getInitial);
 
@@ -24,7 +25,20 @@ export function QuickEditProvider({ children }) {
         }
     }, [enabled]);
 
-    const toggle = useCallback(() => setEnabled((value) => !value), []);
+    // Turning quick edit on from inside the admin panel jumps to the public
+    // site — there's nothing to edit on screen in /console. Turning it back
+    // off from the public site returns to the admin dashboard, so the pencil
+    // always lands the admin back where they'd expect it.
+    const toggle = useCallback(() => {
+        const next = !enabled;
+        setEnabled(next);
+
+        if (next && url.startsWith('/console')) {
+            router.visit('/');
+        } else if (!next && !url.startsWith('/console')) {
+            router.visit('/console/dashboard');
+        }
+    }, [enabled, url]);
 
     // A user who loses the permission (role change, logout) never keeps the pencils,
     // even if a stale "enabled" flag is still sitting in localStorage.

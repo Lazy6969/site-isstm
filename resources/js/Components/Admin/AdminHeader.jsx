@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Menu, Search, Bell, ChevronDown, LogOut, User } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil } from 'lucide-react';
 import DarkModeToggle from '../Layout/DarkModeToggle';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
@@ -11,13 +12,20 @@ const quickLinks = [
     { href: '/console/scolarite/etudiants', label: 'Étudiants' },
     { href: '/console/scolarite/inscriptions', label: 'Inscriptions' },
     { href: '/console/scolarite/classes', label: 'Classes' },
+    { href: '/console/filieres', label: 'Filières' },
+    { href: '/console/contenu', label: 'Contenu du site' },
     { href: '/console/actualites', label: 'Actualités' },
     { href: '/console/galerie', label: 'Galerie' },
+    { href: '/console/enseignants', label: 'Enseignants' },
+    { href: '/console/evenements', label: 'Événements' },
+    { href: '/console/campus', label: 'Campus' },
+    { href: '/console/documents', label: 'Documents' },
 ];
 
 export default function AdminHeader({ onOpenSidebar }) {
     const { auth } = usePage().props;
     const user = auth?.user;
+    const { canEdit, enabled, toggle } = useQuickEdit();
     const [query, setQuery] = useState('');
 
     const results = query.trim() ? quickLinks.filter((item) => item.label.toLowerCase().includes(query.trim().toLowerCase())) : [];
@@ -66,6 +74,23 @@ export default function AdminHeader({ onOpenSidebar }) {
 
             <div className="ml-auto flex items-center gap-1.5">
                 <DarkModeToggle className="text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text" />
+
+                {canEdit && (
+                    <button
+                        type="button"
+                        onClick={toggle}
+                        title={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
+                        aria-label={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
+                        aria-pressed={enabled}
+                        className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
+                            enabled
+                                ? 'bg-amber-400 text-amber-950 hover:bg-amber-400/90'
+                                : 'text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text'
+                        }`}
+                    >
+                        <Pencil className="h-[18px] w-[18px]" aria-hidden="true" />
+                    </button>
+                )}
 
                 <DropdownMenu>
                     <DropdownMenuTrigger

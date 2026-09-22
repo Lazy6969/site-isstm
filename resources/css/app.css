@@ -37,6 +37,8 @@
     --color-admin-text-secondary: #52525b;
     --color-admin-muted: #71717a;
     --color-admin-hover: #f4f4f5;
+    --color-admin-accent: #4f46e5;
+    --color-admin-accent-foreground: #ffffff;
 }
 
 .dark {
@@ -58,6 +60,8 @@
     --color-admin-text-secondary: #a1a1aa;
     --color-admin-muted: #71717a;
     --color-admin-hover: #27272a;
+    --color-admin-accent: #818cf8;
+    --color-admin-accent-foreground: #0b0b12;
 }
 
 @media (max-width: 767px) {
