@@ -42,17 +42,21 @@ class SiteContent extends Model
     }
 
     /**
-     * Update the value: only the active locale's column for text, or all three
-     * at once for icon/image — neither is a translation, they shouldn't vary by locale.
+     * Update the value: only one locale's column for text, or all three at
+     * once for icon/image — neither is a translation, they shouldn't vary by
+     * locale. Defaults to the active app locale, so in-place quick edit on a
+     * public page (which never sends $locale) keeps editing whatever locale
+     * the visitor is currently browsing in; the admin content list passes an
+     * explicit $locale to edit any of the three regardless of site language.
      */
-    public function updateForCurrentLocale(string $value): void
+    public function updateForCurrentLocale(string $value, ?string $locale = null): void
     {
         if ($this->type->isSharedAcrossLocales()) {
             $this->content_value_fr = $value;
             $this->content_value_en = $value;
             $this->content_value_mg = $value;
         } else {
-            $this->{'content_value_'.app()->getLocale()} = $value;
+            $this->{'content_value_'.($locale ?? app()->getLocale())} = $value;
         }
 
         $this->save();

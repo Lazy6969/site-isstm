@@ -50,6 +50,7 @@ class UpdateQuickEditContentRequest extends FormRequest
 
         return [
             'key' => ['required', 'string', Rule::exists('site_contents', 'content_key')],
+            'locale' => ['nullable', Rule::in(['fr', 'en', 'mg'])],
             ...match ($content?->type) {
                 SiteContentType::Icon => ['value' => ['required', Rule::enum(SiteIcon::class)]],
                 SiteContentType::Image => ['file' => ['required', 'image', 'max:4096']],

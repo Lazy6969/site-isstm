@@ -59,6 +59,25 @@ it('lets a super admin update a content value for the active locale', function (
     expect($content->content_value_en)->toBe('Old text');
 });
 
+it('lets a super admin target an explicit locale regardless of the active site locale', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'mission_contenu',
+        'content_value_fr' => 'Texte fr',
+        'content_value_en' => 'Texte en',
+        'content_value_mg' => 'Texte mg',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'mission_contenu', 'value' => 'Nouveau texte anglais', 'locale' => 'en'])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_en)->toBe('Nouveau texte anglais');
+    expect($content->content_value_fr)->toBe('Texte fr');
+    expect($content->content_value_mg)->toBe('Texte mg');
+});
+
 it('strips HTML tags from the submitted value', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $content = SiteContent::factory()->create(['content_key' => 'mission_contenu']);

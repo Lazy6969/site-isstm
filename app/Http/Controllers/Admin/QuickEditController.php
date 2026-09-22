@@ -37,7 +37,7 @@ class QuickEditController extends Controller
             SiteContentType::Icon => $request->validated('value'),
         };
 
-        $content->updateForCurrentLocale($value);
+        $content->updateForCurrentLocale($value, $request->validated('locale'));
 
         return back()->with('status', 'Modification enregistrée.');
     }

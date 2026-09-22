@@ -34,6 +34,11 @@ class RolePermissionSeeder extends Seeder
         'quick-edit.access', 'quick-edit.text', 'quick-edit.icon', 'quick-edit.image',
         'news.view', 'news.create', 'news.edit', 'news.delete',
         'gallery.view', 'gallery.create', 'gallery.edit', 'gallery.delete',
+        'teachers.view', 'teachers.create', 'teachers.edit', 'teachers.delete',
+        'filieres.view', 'filieres.create', 'filieres.edit', 'filieres.delete',
+        'evenements.view', 'evenements.create', 'evenements.edit', 'evenements.delete',
+        'campus.view', 'campus.create', 'campus.edit', 'campus.delete',
+        'documents.view', 'documents.create', 'documents.edit', 'documents.delete',
     ];
 
     /**
