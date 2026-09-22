@@ -88,6 +88,18 @@ export default function MissionVision({ content }) {
                                         >
                                             {t('filieres.en_savoir_plus', 'En savoir plus')}
                                         </Link>
+
+                                        <svg
+                                            className="pointer-events-none absolute inset-x-0 bottom-0 h-8 w-full translate-y-1/2 text-isstm-navy md:hidden"
+                                            viewBox="0 0 100 20"
+                                            preserveAspectRatio="none"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                d="M0,0 L0,9 C15,18 30,2 50,10 C70,18 85,2 100,9 L100,0 Z"
+                                                fill="currentColor"
+                                            />
+                                        </svg>
                                     </div>
 
                                     <div className={`relative min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}>

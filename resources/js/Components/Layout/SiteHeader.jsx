@@ -95,11 +95,13 @@ export default function SiteHeader() {
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                         {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        <NavigationMenuItem>
+                            <HeaderSearchButton variant="labelled" />
+                        </NavigationMenuItem>
                     </NavigationMenuList>
                 </NavigationMenu>
 
                 <div className="hidden items-center gap-3 md:flex">
-                    <HeaderSearchButton />
                     <DarkModeToggle />
                     <LanguageSwitcher />
 
