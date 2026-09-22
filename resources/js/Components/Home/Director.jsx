@@ -38,13 +38,19 @@ export default function Director({ content }) {
                         className="relative mx-auto h-44 w-44 md:h-52 md:w-52"
                         ref={imgRef}
                     >
+                        <div
+                            aria-hidden="true"
+                            className={`absolute -top-3 -left-3 h-full w-full rounded-2xl border-2 border-isstm-gold transition-all duration-700 ease-out ${
+                                visible ? 'translate-0 opacity-100' : 'translate-x-2 translate-y-2 opacity-0'
+                            }`}
+                        />
                         <img
                             src={`/${directeurImage}`}
                             alt={t(
                                 'accueil.directeur_photo_alt',
                                 "Photo du Directeur de l'ISSTM",
                             )}
-                            className={`h-full w-full rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/40 transition-all duration-700 ease-out ${
+                            className={`relative h-full w-full rounded-2xl object-cover shadow-xl ring-1 ring-black/5 transition-all duration-700 ease-out dark:ring-white/10 ${
                                 visible
                                     ? 'scale-100 opacity-100'
                                     : 'scale-90 opacity-0'

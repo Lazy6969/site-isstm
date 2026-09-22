@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\NewsArticle;
-use App\Models\Partenaire;
 use App\NewsStatus;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,7 +19,6 @@ class NewsController extends Controller
 
         return Inertia::render('Actualites/Index', [
             'articles' => $articles,
-            'partenaires' => Partenaire::orderBy('display_order')->get(['nom', 'logo_path', 'site_url']),
         ]);
     }
 

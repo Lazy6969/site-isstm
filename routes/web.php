@@ -23,6 +23,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ParcoursController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
@@ -52,7 +53,7 @@ Route::inertia('associations', 'Associations')->name('associations');
 Route::get('campus', [CampusController::class, 'index'])->name('campus.index');
 Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('campus.show');
 
-Route::inertia('parcours', 'Parcours')->name('parcours');
+Route::get('parcours', [ParcoursController::class, 'index'])->name('parcours');
 
 Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
 
@@ -135,6 +136,7 @@ require __DIR__.'/filieres.php';
 require __DIR__.'/teachers.php';
 require __DIR__.'/testimonials.php';
 require __DIR__.'/partenaires.php';
+require __DIR__.'/organigramme.php';
 require __DIR__.'/evenements.php';
 require __DIR__.'/campus.php';
 require __DIR__.'/documents.php';

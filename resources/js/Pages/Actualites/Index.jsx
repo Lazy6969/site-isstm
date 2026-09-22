@@ -3,7 +3,6 @@ import { CalendarDays, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
-import Partenaires from '../../Components/Home/Partenaires';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -12,7 +11,7 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export default function Index({ articles, partenaires }) {
+export default function Index({ articles }) {
     const { t } = useTranslations();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
@@ -145,8 +144,6 @@ export default function Index({ articles, partenaires }) {
                     </div>
                 )}
             </main>
-
-            <Partenaires partenaires={partenaires} />
 
             <Footer />
         </div>

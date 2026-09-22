@@ -60,21 +60,17 @@ export default function MissionVision({ content }) {
                             return (
                                 <div
                                     key={block.title}
-                                    className={`grid grid-cols-1 transition-opacity duration-700 md:min-h-[420px] md:grid-cols-2 ${
-                                        active ? 'relative opacity-100' : 'pointer-events-none absolute inset-0 opacity-0'
+                                    className={`grid grid-cols-1 transition-[opacity,transform] duration-700 ease-in-out md:min-h-[420px] md:grid-cols-2 ${
+                                        active
+                                            ? 'relative translate-x-0 opacity-100'
+                                            : `pointer-events-none absolute inset-0 opacity-0 ${block.reverse ? 'translate-x-10' : '-translate-x-10'}`
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
+                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
-                                        <span className="mb-5 flex gap-1.5" aria-hidden="true">
-                                            <span className="h-2 w-2 rounded-full bg-isstm-gold" />
-                                            <span className="h-2 w-2 rounded-full bg-white/40" />
-                                            <span className="h-2 w-2 rounded-full bg-white/40" />
-                                        </span>
-
                                         <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">{block.title}</h3>
 
                                         <EditableText
@@ -87,24 +83,10 @@ export default function MissionVision({ content }) {
 
                                         <Link
                                             href="/historique"
-                                            className="mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
+                                            className="mt-8 inline-flex w-fit items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
                                         >
                                             {t('filieres.en_savoir_plus', 'En savoir plus')}
                                         </Link>
-
-                                        <div className="mt-8 flex gap-2">
-                                            {blocks.map((b, i) => (
-                                                <button
-                                                    key={b.title}
-                                                    type="button"
-                                                    onClick={() => goTo(i)}
-                                                    aria-label={b.title}
-                                                    className={`h-2 rounded-full transition-all ${
-                                                        i === current ? 'w-8 bg-isstm-gold' : 'w-2 bg-white/30'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
                                     </div>
 
                                     <div className={`relative h-64 md:h-auto ${block.reverse ? 'md:order-1' : ''}`}>
@@ -114,6 +96,20 @@ export default function MissionVision({ content }) {
                                 </div>
                             );
                         })}
+
+                        <div className="absolute inset-x-0 bottom-4 z-30 flex justify-center gap-2 md:bottom-6">
+                            {blocks.map((b, i) => (
+                                <button
+                                    key={b.title}
+                                    type="button"
+                                    onClick={() => goTo(i)}
+                                    aria-label={b.title}
+                                    className={`h-2 rounded-full shadow transition-all ${
+                                        i === current ? 'w-8 bg-isstm-gold' : 'w-2 bg-white/50'
+                                    }`}
+                                />
+                            ))}
+                        </div>
 
                         <svg
                             className={`pointer-events-none absolute inset-y-0 left-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-[transform,opacity] duration-700 ease-in-out md:block ${

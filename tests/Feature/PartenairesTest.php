@@ -12,12 +12,3 @@ it('exposes partenaires ordered by display order on the homepage', function () {
         ->where('partenaires.0.nom', 'Premier')
     );
 });
-
-it('exposes partenaires on the actualites page', function () {
-    Partenaire::factory()->create(['nom' => 'INRIA']);
-
-    $this->get('/actualites')->assertInertia(fn ($page) => $page
-        ->component('Actualites/Index')
-        ->has('partenaires', 1)
-    );
-});

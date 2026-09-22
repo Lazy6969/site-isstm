@@ -15,9 +15,9 @@ import {
 } from 'lucide-react';
 
 export const getEtablissementLinks = (t) => [
+    { href: '/historique', label: t('nav.historique', 'Historique'), icon: History },
     { href: '/filieres', label: t('nav.filieres', 'Filières'), icon: GraduationCap },
     { href: '/enseignants', label: t('nav.enseignants', 'Enseignants'), icon: Users },
-    { href: '/historique', label: t('nav.historique', 'Historique'), icon: History },
     { href: '/parcours', label: t('nav.organigramme', 'Organigramme'), icon: Network },
 ];
 

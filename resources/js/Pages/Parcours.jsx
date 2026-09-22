@@ -3,11 +3,17 @@ import { Download, FileText, Lock } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import OrgNode from '../Components/Parcours/OrgNode';
-import { administrativePole, cursusLadder, direction, pedagogicalPole } from '../Components/Parcours/orgChartData';
+import {
+    administrativePole,
+    categories,
+    cursusLadder,
+    directionGrid,
+    pedagogicalPole,
+} from '../Components/Parcours/orgChartData';
 import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
 
-export default function Parcours() {
+export default function Parcours({ orgPeople = {} }) {
     const { auth } = usePage().props;
     const { t } = useTranslations();
     const isLoggedIn = Boolean(auth?.user);
@@ -47,17 +53,14 @@ export default function Parcours() {
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
                         {t('parcours.gouvernance', 'Gouvernance')}
                     </h2>
-                    <div className="space-y-3">
-                        <div className="rounded-xl border border-isstm-navy/20 bg-isstm-navy/5 px-4 py-3">
-                            <span className="block text-sm font-semibold text-isstm-navy dark:text-white">
-                                {t('parcours.conseil', "Conseil d'Établissement")}
+                    <div className="mx-auto max-w-sm space-y-3">
+                        <OrgNode node={{ key: 'conseil_etablissement' }} people={orgPeople} t={t} />
+                        <div className="flex justify-center">
+                            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">
+                                &#8595;
                             </span>
-                            <span className="block text-xs text-slate-500 dark:text-slate-400">{t('parcours.organe_collegial', 'Organe collégial')}</span>
                         </div>
-                        <div className="rounded-xl bg-isstm-navy px-4 py-3 text-white">
-                            <span className="block text-sm font-semibold">{t('parcours.directeur', 'Directeur')}</span>
-                            <span className="block text-xs text-white/70">Dr. Hary Tiana R.</span>
-                        </div>
+                        <OrgNode node={{ key: 'directeur' }} people={orgPeople} t={t} emphasize />
                     </div>
                 </section>
 
@@ -65,12 +68,9 @@ export default function Parcours() {
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
                         {t('parcours.direction_titre', 'Direction & Services Rattachés')}
                     </h2>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                        {direction.map((item) => (
-                            <div key={item.title} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
-                                <span className="block text-sm font-semibold text-isstm-navy dark:text-white">{item.title}</span>
-                                <span className="block text-xs text-slate-500 dark:text-slate-400">{item.name}</span>
-                            </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {directionGrid.map((key) => (
+                            <OrgNode key={key} node={{ key }} people={orgPeople} t={t} />
                         ))}
                     </div>
                 </section>
@@ -81,8 +81,22 @@ export default function Parcours() {
                     </h2>
                     <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">{t('parcours.poles_hint', 'Cliquez sur un pôle pour découvrir son équipe.')}</p>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <OrgNode node={pedagogicalPole} />
-                        <OrgNode node={administrativePole} />
+                        <OrgNode node={pedagogicalPole} people={orgPeople} t={t} />
+                        <OrgNode node={administrativePole} people={orgPeople} t={t} />
+                    </div>
+
+                    <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                            {t('parcours.legende_titre', 'Légende')}
+                        </h3>
+                        <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                            {Object.values(categories).map((category) => (
+                                <div key={category.label} className="flex items-center gap-2">
+                                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${category.swatch}`} aria-hidden="true" />
+                                    <span className="text-xs text-slate-600 dark:text-slate-300">{category.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
 

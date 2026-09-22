@@ -15,6 +15,7 @@ import {
     Building2,
     FileEdit,
     FileText,
+    Network,
 } from 'lucide-react';
 
 const navGroups = [
@@ -44,6 +45,7 @@ const navGroups = [
             { href: '/console/enseignants', label: 'Enseignants', icon: Presentation },
             { href: '/console/temoignages', label: 'Témoignages', icon: Quote },
             { href: '/console/partenaires', label: 'Partenaires', icon: HeartHandshake },
+            { href: '/console/organigramme', label: 'Organigramme', icon: Network },
             { href: '/console/evenements', label: 'Événements', icon: CalendarDays },
             { href: '/console/campus', label: 'Campus', icon: Building2 },
             { href: '/console/documents', label: 'Documents', icon: FileText },
