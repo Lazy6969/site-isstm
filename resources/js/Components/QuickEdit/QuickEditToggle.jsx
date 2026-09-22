@@ -22,7 +22,7 @@ export default function QuickEditToggle() {
             title={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-label={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-pressed={enabled}
-            className={`fixed bottom-5 right-5 z-[60] flex h-12 w-12 items-center justify-center rounded-full shadow-lg ring-2 ring-white transition hover:scale-105 ${
+            className={`fixed top-1/2 left-5 z-[60] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full shadow-lg ring-2 ring-white transition hover:scale-105 ${
                 enabled ? 'bg-amber-400 text-amber-950' : 'bg-admin-text text-admin-bg'
             }`}
         >

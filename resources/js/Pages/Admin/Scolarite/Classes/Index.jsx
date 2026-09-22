@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, CheckCircle2 } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
@@ -12,7 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 const emptyForm = { nom: '', filiere_id: '', niveau: '', annee: '', effectif_max: '' };
 
 export default function Index({ classes, filieres }) {
-    const { flash } = usePage().props;
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const form = useForm(emptyForm);
@@ -62,13 +61,6 @@ export default function Index({ classes, filieres }) {
                     Nouvelle classe
                 </Button>
             </div>
-
-            {flash?.status && (
-                <p className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
 
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                 <Table>

@@ -11,7 +11,7 @@ function PortalCard({ slides, logo, title, description, href }) {
         <section className="relative overflow-hidden rounded-3xl">
             <div className="grid grid-cols-3 gap-1">
                 {slides.map((slide) => (
-                    <div key={slide} className="h-56 bg-cover bg-center" style={{ backgroundImage: `url('/${slide}')` }} />
+                    <div key={slide} className="h-24 bg-cover bg-center sm:h-56" style={{ backgroundImage: `url('/${slide}')` }} />
                 ))}
             </div>
             <div className="absolute inset-0 bg-isstm-navy-dark/75" />

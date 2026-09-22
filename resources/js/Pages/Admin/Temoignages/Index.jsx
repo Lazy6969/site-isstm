@@ -5,33 +5,26 @@ import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
 import { Label } from '../../../Components/ui/label';
-import { Select } from '../../../Components/ui/select';
 import { Textarea } from '../../../Components/ui/textarea';
-import { Checkbox } from '../../../Components/ui/checkbox';
-import { Badge } from '../../../Components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
 
 const emptyForm = {
-    news_category_id: '',
-    title: '',
-    excerpt: '',
-    content: '',
-    author: '',
-    status: 'brouillon',
-    is_featured: false,
+    author_name: '',
+    program: '',
+    quote_fr: '',
+    quote_en: '',
+    quote_mg: '',
+    display_order: '',
     image: null,
 };
 
-const statutVariants = { brouillon: 'outline', publie: 'success' };
-const statutLabels = { brouillon: 'Brouillon', publie: 'Publié' };
-
-function formatDate(value) {
+function truncate(value, length = 80) {
     if (!value) return '—';
-    return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    return value.length > length ? `${value.slice(0, length)}…` : value;
 }
 
-export default function Index({ articles, categories }) {
+export default function Index({ testimonials }) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -45,16 +38,15 @@ export default function Index({ articles, categories }) {
         setOpen(true);
     }
 
-    function openEdit(article) {
-        setEditing(article);
+    function openEdit(testimonial) {
+        setEditing(testimonial);
         form.setData({
-            news_category_id: article.news_category_id ? String(article.news_category_id) : '',
-            title: article.title,
-            excerpt: article.excerpt ?? '',
-            content: article.content ?? '',
-            author: article.author ?? '',
-            status: article.status,
-            is_featured: article.is_featured,
+            author_name: testimonial.author_name,
+            program: testimonial.program ?? '',
+            quote_fr: testimonial.quote_fr ?? '',
+            quote_en: testimonial.quote_en ?? '',
+            quote_mg: testimonial.quote_mg ?? '',
+            display_order: testimonial.display_order ?? '',
             image: null,
         });
         form.clearErrors();
@@ -73,24 +65,24 @@ export default function Index({ articles, categories }) {
         const onSuccess = () => setOpen(false);
 
         if (editing) {
-            form.put(`/console/actualites/${editing.id}`, { onSuccess, preserveScroll: true, forceFormData: true });
+            form.put(`/console/temoignages/${editing.id}`, { onSuccess, preserveScroll: true, forceFormData: true });
         } else {
-            form.post('/console/actualites', { onSuccess, preserveScroll: true, forceFormData: true });
+            form.post('/console/temoignages', { onSuccess, preserveScroll: true, forceFormData: true });
         }
     }
 
-    function destroy(article) {
-        if (!confirm(`Supprimer l'article « ${article.title} » ?`)) return;
-        router.delete(`/console/actualites/${article.id}`, { preserveScroll: true });
+    function destroy(testimonial) {
+        if (!confirm(`Supprimer le témoignage de « ${testimonial.author_name} » ?`)) return;
+        router.delete(`/console/temoignages/${testimonial.id}`, { preserveScroll: true });
     }
 
     return (
-        <AdminLayout title="Actualités">
+        <AdminLayout title="Témoignages">
             <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm text-admin-text-secondary">{articles.length} article(s)</p>
+                <p className="text-sm text-admin-text-secondary">{testimonials.length} témoignage(s)</p>
                 <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Nouvel article
+                    Nouveau témoignage
                 </Button>
             </div>
 
@@ -98,44 +90,52 @@ export default function Index({ articles, categories }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Titre</TableHead>
-                            <TableHead>Catégorie</TableHead>
+                            <TableHead>Photo</TableHead>
                             <TableHead>Auteur</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead>Publié le</TableHead>
+                            <TableHead>Filière/Programme</TableHead>
+                            <TableHead>Extrait</TableHead>
+                            <TableHead>Ordre</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {articles.length === 0 && (
+                        {testimonials.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
-                                    Aucun article pour le moment.
+                                    Aucun témoignage pour le moment.
                                 </TableCell>
                             </TableRow>
                         )}
-                        {articles.map((article) => (
-                            <TableRow key={article.id}>
-                                <TableCell className="font-medium">{article.title}</TableCell>
-                                <TableCell>{article.category?.name_fr ?? '—'}</TableCell>
-                                <TableCell>{article.author ?? '—'}</TableCell>
+                        {testimonials.map((testimonial) => (
+                            <TableRow key={testimonial.id}>
                                 <TableCell>
-                                    <Badge variant={statutVariants[article.status]}>{statutLabels[article.status]}</Badge>
+                                    {testimonial.image_path ? (
+                                        <img
+                                            src={`/${testimonial.image_path}`}
+                                            alt=""
+                                            className="h-10 w-10 rounded-full border border-admin-border object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-admin-muted">—</span>
+                                    )}
                                 </TableCell>
-                                <TableCell>{formatDate(article.published_at)}</TableCell>
+                                <TableCell className="font-medium">{testimonial.author_name}</TableCell>
+                                <TableCell>{testimonial.program ?? '—'}</TableCell>
+                                <TableCell className="max-w-xs whitespace-normal">{truncate(testimonial.quote_fr)}</TableCell>
+                                <TableCell>{testimonial.display_order ?? '—'}</TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">
                                         <button
-                                            onClick={() => openEdit(article)}
+                                            onClick={() => openEdit(testimonial)}
                                             className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                                            aria-label={`Modifier ${article.title}`}
+                                            aria-label={`Modifier ${testimonial.author_name}`}
                                         >
                                             <Pencil className="h-4 w-4" aria-hidden="true" />
                                         </button>
                                         <button
-                                            onClick={() => destroy(article)}
+                                            onClick={() => destroy(testimonial)}
                                             className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
-                                            aria-label={`Supprimer ${article.title}`}
+                                            aria-label={`Supprimer ${testimonial.author_name}`}
                                         >
                                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                                         </button>
@@ -150,75 +150,72 @@ export default function Index({ articles, categories }) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>{editing ? "Modifier l'article" : 'Nouvel article'}</DialogTitle>
+                        <DialogTitle>{editing ? 'Modifier le témoignage' : 'Nouveau témoignage'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="title">Titre</Label>
-                            <Input id="title" value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="mt-1.5" />
-                            {form.errors.title && <p className="mt-1 text-sm text-red-500">{form.errors.title}</p>}
-                        </div>
-
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label htmlFor="news_category_id">Catégorie</Label>
-                                <Select
-                                    id="news_category_id"
-                                    value={form.data.news_category_id}
-                                    onChange={(e) => form.setData('news_category_id', e.target.value)}
+                                <Label htmlFor="author_name">Auteur</Label>
+                                <Input
+                                    id="author_name"
+                                    value={form.data.author_name}
+                                    onChange={(e) => form.setData('author_name', e.target.value)}
                                     className="mt-1.5"
-                                >
-                                    <option value="">Aucune</option>
-                                    {categories.map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.name_fr}
-                                        </option>
-                                    ))}
-                                </Select>
+                                />
+                                {form.errors.author_name && <p className="mt-1 text-sm text-red-500">{form.errors.author_name}</p>}
                             </div>
                             <div>
-                                <Label htmlFor="status">Statut</Label>
-                                <Select id="status" value={form.data.status} onChange={(e) => form.setData('status', e.target.value)} className="mt-1.5">
-                                    <option value="brouillon">Brouillon</option>
-                                    <option value="publie">Publié</option>
-                                </Select>
+                                <Label htmlFor="program">Filière/Programme (optionnel)</Label>
+                                <Input
+                                    id="program"
+                                    value={form.data.program}
+                                    onChange={(e) => form.setData('program', e.target.value)}
+                                    className="mt-1.5"
+                                />
                             </div>
                         </div>
 
                         <div>
-                            <Label htmlFor="author">Auteur (optionnel)</Label>
-                            <Input id="author" value={form.data.author} onChange={(e) => form.setData('author', e.target.value)} className="mt-1.5" />
+                            <Label htmlFor="quote_fr">Citation (français)</Label>
+                            <Textarea
+                                id="quote_fr"
+                                value={form.data.quote_fr}
+                                onChange={(e) => form.setData('quote_fr', e.target.value)}
+                                rows={3}
+                                className="mt-1.5"
+                            />
+                            {form.errors.quote_fr && <p className="mt-1 text-sm text-red-500">{form.errors.quote_fr}</p>}
                         </div>
 
                         <div>
-                            <Label htmlFor="excerpt">Résumé (optionnel)</Label>
+                            <Label htmlFor="quote_en">Citation (anglais, optionnel)</Label>
                             <Textarea
-                                id="excerpt"
-                                value={form.data.excerpt}
-                                onChange={(e) => form.setData('excerpt', e.target.value)}
-                                rows={2}
+                                id="quote_en"
+                                value={form.data.quote_en}
+                                onChange={(e) => form.setData('quote_en', e.target.value)}
+                                rows={3}
                                 className="mt-1.5"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="content">Contenu (optionnel)</Label>
+                            <Label htmlFor="quote_mg">Citation (malgache, optionnel)</Label>
                             <Textarea
-                                id="content"
-                                value={form.data.content}
-                                onChange={(e) => form.setData('content', e.target.value)}
-                                rows={6}
+                                id="quote_mg"
+                                value={form.data.quote_mg}
+                                onChange={(e) => form.setData('quote_mg', e.target.value)}
+                                rows={3}
                                 className="mt-1.5"
                             />
                         </div>
 
                         <div>
-                            <Label htmlFor="image">Image (optionnel)</Label>
+                            <Label htmlFor="image">Photo (optionnel)</Label>
                             {(preview || (editing && editing.image_path)) && (
                                 <img
                                     src={preview ?? `/${editing.image_path}`}
                                     alt=""
-                                    className="mt-1.5 h-32 w-full rounded-lg border border-admin-border object-cover"
+                                    className="mt-1.5 h-32 w-32 rounded-full border border-admin-border object-cover"
                                 />
                             )}
                             <input
@@ -231,10 +228,17 @@ export default function Index({ articles, categories }) {
                             {form.errors.image && <p className="mt-1 text-sm text-red-500">{form.errors.image}</p>}
                         </div>
 
-                        <label className="flex items-center gap-2 text-sm text-admin-text-secondary">
-                            <Checkbox checked={form.data.is_featured} onChange={(e) => form.setData('is_featured', e.target.checked)} />
-                            Mettre en avant
-                        </label>
+                        <div>
+                            <Label htmlFor="display_order">Ordre d'affichage (optionnel)</Label>
+                            <Input
+                                id="display_order"
+                                type="number"
+                                value={form.data.display_order}
+                                onChange={(e) => form.setData('display_order', e.target.value)}
+                                className="mt-1.5"
+                            />
+                            {form.errors.display_order && <p className="mt-1 text-sm text-red-500">{form.errors.display_order}</p>}
+                        </div>
 
                         <DialogFooter>
                             <Button

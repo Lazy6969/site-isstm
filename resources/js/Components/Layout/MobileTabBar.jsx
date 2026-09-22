@@ -7,7 +7,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function MobileTabBar({ showLogin = true }) {
+export default function MobileTabBar() {
     const { auth } = usePage().props;
     const { t } = useTranslations();
     const user = auth?.user;
@@ -24,9 +24,7 @@ export default function MobileTabBar({ showLogin = true }) {
 
     const accountTab = user
         ? { href: '/profil', label: t('nav.compte', 'Compte'), icon: User }
-        : showLogin
-          ? { href: '/login', label: t('nav.se_connecter', 'Se connecter'), icon: LogIn }
-          : { href: '/inscription', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
+        : { href: '/inscription', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
 
     const moreLinks = [
         ...getVieEtudianteLinks(t),

@@ -20,9 +20,10 @@ class TeacherController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Enseignants/Index', [
-            'teachers' => Teacher::orderBy('display_order')->orderBy('name')->get([
+            'teachers' => Teacher::orderBy('display_order')->get([
                 'id', 'name', 'category', 'specialty_fr', 'specialty_en', 'specialty_mg',
-                'description_fr', 'description_en', 'description_mg', 'photo_path', 'email', 'display_order',
+                'description_fr', 'description_en', 'description_mg',
+                'photo_path', 'email', 'display_order',
             ]),
         ]);
     }
@@ -31,10 +32,10 @@ class TeacherController extends Controller
     {
         $validated = $request->validated();
         $validated['category'] = TeacherCategory::from($validated['category']);
-        $validated['display_order'] = $validated['display_order'] ?? 0;
+        $validated['specialty_fr'] ??= '';
 
         if ($request->hasFile('photo')) {
-            $validated['photo_path'] = $this->storeUploadedImage($request, 'photo', 'enseignants');
+            $validated['photo_path'] = $this->storeUploadedImage($request, 'photo', 'teachers');
         }
         unset($validated['photo']);
 
@@ -46,25 +47,25 @@ class TeacherController extends Controller
     public function update(Request $request, Teacher $teacher): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string', 'max:255'],
             'category' => ['required', Rule::enum(TeacherCategory::class)],
-            'specialty_fr' => ['required', 'string', 'max:255'],
+            'specialty_fr' => ['nullable', 'string', 'max:255'],
             'specialty_en' => ['nullable', 'string', 'max:255'],
             'specialty_mg' => ['nullable', 'string', 'max:255'],
             'description_fr' => ['nullable', 'string'],
             'description_en' => ['nullable', 'string'],
             'description_mg' => ['nullable', 'string'],
-            'email' => ['nullable', 'email', 'max:190'],
-            'display_order' => ['nullable', 'integer', 'min:0'],
+            'email' => ['nullable', 'email', 'max:255'],
             'photo' => ['nullable', 'image', 'max:4096'],
+            'display_order' => ['nullable', 'integer'],
         ]);
 
         $validated['category'] = TeacherCategory::from($validated['category']);
-        $validated['display_order'] = $validated['display_order'] ?? 0;
+        $validated['specialty_fr'] ??= '';
 
         if ($request->hasFile('photo')) {
-            $this->deleteUploadedImage($teacher->photo_path, 'enseignants');
-            $validated['photo_path'] = $this->storeUploadedImage($request, 'photo', 'enseignants');
+            $this->deleteUploadedImage($teacher->photo_path, 'teachers');
+            $validated['photo_path'] = $this->storeUploadedImage($request, 'photo', 'teachers');
         }
         unset($validated['photo']);
 
@@ -75,7 +76,7 @@ class TeacherController extends Controller
 
     public function destroy(Teacher $teacher): RedirectResponse
     {
-        $this->deleteUploadedImage($teacher->photo_path, 'enseignants');
+        $this->deleteUploadedImage($teacher->photo_path, 'teachers');
         $teacher->delete();
 
         return back()->with('status', 'Enseignant supprimé.');

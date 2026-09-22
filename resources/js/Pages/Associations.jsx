@@ -134,7 +134,7 @@ export default function Associations({ content = {} }) {
                         {t('nav.vie_etudiante', 'Vie étudiante')}
                     </Link>
 
-                    <h1 className="mt-2 text-3xl font-bold">
+                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
                         {t('associations.titre', 'Clubs et Associations')}
                     </h1>
 

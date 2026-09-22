@@ -1,5 +1,21 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, UserPlus, GraduationCap, ClipboardList, School, Newspaper, Images, Users, Layers, CalendarDays, Building2, FileEdit, FileText } from 'lucide-react';
+import {
+    LayoutDashboard,
+    UserPlus,
+    GraduationCap,
+    ClipboardList,
+    School,
+    Newspaper,
+    Images,
+    BookOpen,
+    Presentation,
+    Quote,
+    HeartHandshake,
+    CalendarDays,
+    Building2,
+    FileEdit,
+    FileText,
+} from 'lucide-react';
 
 const navGroups = [
     {
@@ -16,7 +32,6 @@ const navGroups = [
             { href: '/console/scolarite/etudiants', label: 'Étudiants', icon: GraduationCap },
             { href: '/console/scolarite/inscriptions', label: 'Inscriptions', icon: ClipboardList },
             { href: '/console/scolarite/classes', label: 'Classes', icon: School },
-            { href: '/console/filieres', label: 'Filières', icon: Layers },
         ],
     },
     {
@@ -25,7 +40,10 @@ const navGroups = [
             { href: '/console/contenu', label: 'Contenu du site', icon: FileEdit },
             { href: '/console/actualites', label: 'Actualités', icon: Newspaper },
             { href: '/console/galerie', label: 'Galerie', icon: Images },
-            { href: '/console/enseignants', label: 'Enseignants', icon: Users },
+            { href: '/console/filieres', label: 'Filières', icon: BookOpen },
+            { href: '/console/enseignants', label: 'Enseignants', icon: Presentation },
+            { href: '/console/temoignages', label: 'Témoignages', icon: Quote },
+            { href: '/console/partenaires', label: 'Partenaires', icon: HeartHandshake },
             { href: '/console/evenements', label: 'Événements', icon: CalendarDays },
             { href: '/console/campus', label: 'Campus', icon: Building2 },
             { href: '/console/documents', label: 'Documents', icon: FileText },

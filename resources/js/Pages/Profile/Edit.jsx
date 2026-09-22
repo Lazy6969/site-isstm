@@ -1,5 +1,5 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle2, Save } from 'lucide-react';
+import { Head, useForm } from '@inertiajs/react';
+import { Save } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
@@ -8,7 +8,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar'
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Edit({ user }) {
-    const { flash } = usePage().props;
     const { t } = useTranslations();
     const { data, setData, post, processing, errors } = useForm({
         _method: 'patch',
@@ -40,13 +39,6 @@ export default function Edit({ user }) {
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {t('profil.visibilite', 'Ces informations sont visibles par les autres membres de la communauté ISSTM.')}
                 </p>
-
-                {flash?.status && (
-                    <p className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-                        <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                        {flash.status}
-                    </p>
-                )}
 
                 <Card className="mt-8 space-y-6 p-8">
                     <form onSubmit={submit} encType="multipart/form-data" className="space-y-6">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, CheckCircle2 } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
@@ -33,39 +33,39 @@ const emptyForm = {
 };
 
 const locales = [
-    { key: 'fr', label: 'Français' },
-    { key: 'en', label: 'Anglais (optionnel)' },
-    { key: 'mg', label: 'Malagasy (optionnel)' },
+    { key: 'fr', label: 'FR' },
+    { key: 'en', label: 'EN' },
+    { key: 'mg', label: 'MG' },
 ];
 
-function LocalizedGroup({ title, field, form, multiline = false }) {
-    const Field = multiline ? Textarea : Input;
+function LocaleFieldGroup({ label, base, form, textarea = false }) {
+    const Field = textarea ? Textarea : Input;
 
     return (
-        <div className="space-y-3 rounded-lg border border-admin-border p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-admin-muted">{title}</p>
-            {locales.map(({ key, label }) => {
-                const name = `${field}_${key}`;
-                return (
-                    <div key={name}>
-                        <Label htmlFor={name}>{label}</Label>
-                        <Field
-                            id={name}
-                            value={form.data[name]}
-                            onChange={(e) => form.setData(name, e.target.value)}
-                            rows={multiline ? 3 : undefined}
-                            className="mt-1.5"
-                        />
-                        {form.errors[name] && <p className="mt-1 text-sm text-red-500">{form.errors[name]}</p>}
-                    </div>
-                );
-            })}
+        <div>
+            <Label>{label}</Label>
+            <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {locales.map(({ key, label: localeLabel }) => {
+                    const name = `${base}_${key}`;
+                    return (
+                        <div key={name}>
+                            <span className="mb-1 block text-xs font-medium text-admin-muted">{localeLabel}</span>
+                            <Field
+                                id={name}
+                                value={form.data[name]}
+                                onChange={(e) => form.setData(name, e.target.value)}
+                                rows={textarea ? 3 : undefined}
+                            />
+                            {form.errors[name] && <p className="mt-1 text-sm text-red-500">{form.errors[name]}</p>}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }
 
 export default function Index({ filieres }) {
-    const { flash } = usePage().props;
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -82,10 +82,10 @@ export default function Index({ filieres }) {
     function openEdit(filiere) {
         setEditing(filiere);
         form.setData({
-            code: filiere.code,
+            code: filiere.code ?? '',
             mention: filiere.mention ?? '',
             niveaux: filiere.niveaux ?? '',
-            nom_fr: filiere.nom_fr,
+            nom_fr: filiere.nom_fr ?? '',
             nom_en: filiere.nom_en ?? '',
             nom_mg: filiere.nom_mg ?? '',
             description_fr: filiere.description_fr ?? '',
@@ -126,7 +126,7 @@ export default function Index({ filieres }) {
     }
 
     function destroy(filiere) {
-        if (!confirm(`Supprimer la filière « ${filiere.nom_fr} » ? Les classes associées seront aussi supprimées.`)) return;
+        if (!confirm(`Supprimer la filière « ${filiere.nom_fr} » ?`)) return;
         router.delete(`/console/filieres/${filiere.id}`, { preserveScroll: true });
     }
 
@@ -140,21 +140,13 @@ export default function Index({ filieres }) {
                 </Button>
             </div>
 
-            {flash?.status && (
-                <p className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
-
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Code</TableHead>
                             <TableHead>Nom</TableHead>
                             <TableHead>Mention</TableHead>
-                            <TableHead>Niveaux</TableHead>
+                            <TableHead>Code</TableHead>
                             <TableHead>Ordre</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -162,18 +154,17 @@ export default function Index({ filieres }) {
                     <TableBody>
                         {filieres.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
+                                <TableCell colSpan={5} className="py-8 text-center text-admin-muted">
                                     Aucune filière pour le moment.
                                 </TableCell>
                             </TableRow>
                         )}
                         {filieres.map((filiere) => (
                             <TableRow key={filiere.id}>
-                                <TableCell className="font-medium">{filiere.code}</TableCell>
-                                <TableCell>{filiere.nom_fr}</TableCell>
+                                <TableCell className="font-medium">{filiere.nom_fr}</TableCell>
                                 <TableCell>{filiere.mention ?? '—'}</TableCell>
-                                <TableCell>{filiere.niveaux ?? '—'}</TableCell>
-                                <TableCell>{filiere.display_order}</TableCell>
+                                <TableCell>{filiere.code ?? '—'}</TableCell>
+                                <TableCell>{filiere.display_order ?? '—'}</TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">
                                         <button
@@ -199,73 +190,76 @@ export default function Index({ filieres }) {
             </div>
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editing ? 'Modifier la filière' : 'Nouvelle filière'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <div>
                                 <Label htmlFor="code">Code</Label>
                                 <Input id="code" value={form.data.code} onChange={(e) => form.setData('code', e.target.value)} className="mt-1.5" />
                                 {form.errors.code && <p className="mt-1 text-sm text-red-500">{form.errors.code}</p>}
                             </div>
                             <div>
-                                <Label htmlFor="mention">Mention (optionnel)</Label>
+                                <Label htmlFor="mention">Mention</Label>
                                 <Input
                                     id="mention"
                                     value={form.data.mention}
                                     onChange={(e) => form.setData('mention', e.target.value)}
                                     className="mt-1.5"
                                 />
+                                {form.errors.mention && <p className="mt-1 text-sm text-red-500">{form.errors.mention}</p>}
                             </div>
                             <div>
-                                <Label htmlFor="niveaux">Niveaux (optionnel)</Label>
+                                <Label htmlFor="niveaux">Niveaux</Label>
                                 <Input
                                     id="niveaux"
                                     value={form.data.niveaux}
                                     onChange={(e) => form.setData('niveaux', e.target.value)}
-                                    placeholder="L1,L2,L3"
                                     className="mt-1.5"
+                                    placeholder="L1,L2,L3"
                                 />
+                                {form.errors.niveaux && <p className="mt-1 text-sm text-red-500">{form.errors.niveaux}</p>}
                             </div>
                         </div>
 
-                        <div>
-                            <Label htmlFor="display_order">Ordre d'affichage</Label>
-                            <Input
-                                id="display_order"
-                                type="number"
-                                min="0"
-                                value={form.data.display_order}
-                                onChange={(e) => form.setData('display_order', e.target.value)}
-                                className="mt-1.5 max-w-[160px]"
-                            />
-                        </div>
+                        <LocaleFieldGroup label="Nom" base="nom" form={form} />
+                        <LocaleFieldGroup label="Description" base="description" form={form} textarea />
+                        <LocaleFieldGroup label="Débouchés" base="debouches" form={form} textarea />
+                        <LocaleFieldGroup label="Historique" base="historique" form={form} textarea />
+                        <LocaleFieldGroup label="Avantages" base="avantages" form={form} textarea />
 
-                        <LocalizedGroup title="Nom" field="nom" form={form} />
-                        <LocalizedGroup title="Description" field="description" form={form} multiline />
-                        <LocalizedGroup title="Débouchés" field="debouches" form={form} multiline />
-                        <LocalizedGroup title="Historique" field="historique" form={form} multiline />
-                        <LocalizedGroup title="Avantages" field="avantages" form={form} multiline />
-
-                        <div>
-                            <Label htmlFor="image">Image (optionnel)</Label>
-                            {(preview || (editing && editing.image_path)) && (
-                                <img
-                                    src={preview ?? `/${editing.image_path}`}
-                                    alt=""
-                                    className="mt-1.5 h-32 w-full rounded-lg border border-admin-border object-cover"
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div>
+                                <Label htmlFor="image">Image (optionnel)</Label>
+                                {(preview || (editing && editing.image_path)) && (
+                                    <img
+                                        src={preview ?? `/${editing.image_path}`}
+                                        alt=""
+                                        className="mt-1.5 h-32 w-full rounded-lg border border-admin-border object-cover"
+                                    />
+                                )}
+                                <input
+                                    id="image"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={onImageChange}
+                                    className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
                                 />
-                            )}
-                            <input
-                                id="image"
-                                type="file"
-                                accept="image/*"
-                                onChange={onImageChange}
-                                className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
-                            />
-                            {form.errors.image && <p className="mt-1 text-sm text-red-500">{form.errors.image}</p>}
+                                {form.errors.image && <p className="mt-1 text-sm text-red-500">{form.errors.image}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="display_order">Ordre d'affichage</Label>
+                                <Input
+                                    id="display_order"
+                                    type="number"
+                                    value={form.data.display_order}
+                                    onChange={(e) => form.setData('display_order', e.target.value)}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.display_order && <p className="mt-1 text-sm text-red-500">{form.errors.display_order}</p>}
+                            </div>
                         </div>
 
                         <DialogFooter>

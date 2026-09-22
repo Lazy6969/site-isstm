@@ -105,40 +105,40 @@ export default function Index({ articles, partenaires }) {
                                     className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
                                 >
                                     <div
-                                        className="h-44 bg-cover bg-center"
+                                        className="h-36 bg-cover bg-center"
                                         style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
                                     />
-                                    <div className="p-5">
+                                    <div className="p-4">
                                         {article.category && (
-                                            <span className="rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy dark:text-white">
+                                            <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
                                                 {article.category.name_fr}
                                             </span>
                                         )}
-                                        <h2 className="mt-3 text-lg font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
-                                        <p className="mt-2 line-clamp-3 text-sm text-slate-500 dark:text-slate-400">{article.excerpt}</p>
-                                        <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
+                                        <h2 className="mt-2 text-base font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
+                                        <p className="mt-1.5 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{article.excerpt}</p>
+                                        <p className="mt-2 text-[11px] text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
                                     </div>
                                 </Link>
                             ) : (
                                 <Link
                                     key={article.slug}
                                     href={`/actualites/${article.slug}`}
-                                    className="group flex items-center gap-4 overflow-hidden rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
+                                    className="group flex items-center gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
                                 >
                                     <div
-                                        className="h-20 w-28 flex-shrink-0 rounded-lg bg-cover bg-center"
+                                        className="h-16 w-24 flex-shrink-0 rounded-lg bg-cover bg-center"
                                         style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
                                     />
                                     <div className="min-w-0 flex-1">
                                         {article.category && (
-                                            <span className="rounded-full bg-isstm-navy/10 px-3 py-1 text-xs font-semibold text-isstm-navy dark:text-white">
+                                            <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
                                                 {article.category.name_fr}
                                             </span>
                                         )}
-                                        <h2 className="mt-1.5 text-base font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
-                                        <p className="mt-1 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{article.excerpt}</p>
+                                        <h2 className="mt-1 text-sm font-semibold text-isstm-navy dark:text-white">{article.title}</h2>
+                                        <p className="mt-0.5 line-clamp-1 text-xs text-slate-500 dark:text-slate-400">{article.excerpt}</p>
                                     </div>
-                                    <p className="flex-shrink-0 text-xs text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
+                                    <p className="flex-shrink-0 text-[11px] text-slate-400 dark:text-slate-500">{formatDate(article.published_at)}</p>
                                 </Link>
                             ),
                         )}

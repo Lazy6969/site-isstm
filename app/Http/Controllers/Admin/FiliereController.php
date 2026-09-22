@@ -19,9 +19,8 @@ class FiliereController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Filieres/Index', [
-            'filieres' => Filiere::orderBy('display_order')->orderBy('nom_fr')->get([
-                'id', 'code', 'mention', 'niveaux', 'slug',
-                'nom_fr', 'nom_en', 'nom_mg',
+            'filieres' => Filiere::orderBy('display_order')->get([
+                'id', 'code', 'mention', 'niveaux', 'slug', 'nom_fr', 'nom_en', 'nom_mg',
                 'description_fr', 'description_en', 'description_mg',
                 'debouches_fr', 'debouches_en', 'debouches_mg',
                 'historique_fr', 'historique_en', 'historique_mg',
@@ -35,7 +34,7 @@ class FiliereController extends Controller
     {
         $validated = $request->validated();
         $validated['slug'] = $this->uniqueSlug($validated['nom_fr']);
-        $validated['display_order'] = $validated['display_order'] ?? 0;
+        $validated['code'] ??= '';
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $this->storeUploadedImage($request, 'image', 'filieres');
@@ -50,9 +49,9 @@ class FiliereController extends Controller
     public function update(Request $request, Filiere $filiere): RedirectResponse
     {
         $validated = $request->validate([
-            'code' => ['required', 'string', 'max:20'],
-            'mention' => ['nullable', 'string', 'max:100'],
-            'niveaux' => ['nullable', 'string', 'max:50'],
+            'code' => ['nullable', 'string', 'max:20'],
+            'mention' => ['nullable', 'string', 'max:255'],
+            'niveaux' => ['nullable', 'string', 'max:255'],
             'nom_fr' => ['required', 'string', 'max:255'],
             'nom_en' => ['nullable', 'string', 'max:255'],
             'nom_mg' => ['nullable', 'string', 'max:255'],
@@ -68,11 +67,11 @@ class FiliereController extends Controller
             'avantages_fr' => ['nullable', 'string'],
             'avantages_en' => ['nullable', 'string'],
             'avantages_mg' => ['nullable', 'string'],
-            'display_order' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:4096'],
+            'display_order' => ['nullable', 'integer'],
         ]);
 
-        $validated['display_order'] = $validated['display_order'] ?? 0;
+        $validated['code'] ??= '';
 
         if ($request->hasFile('image')) {
             $this->deleteUploadedImage($filiere->image_path, 'filieres');

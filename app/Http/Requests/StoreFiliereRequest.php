@@ -23,9 +23,9 @@ class StoreFiliereRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:20'],
-            'mention' => ['nullable', 'string', 'max:100'],
-            'niveaux' => ['nullable', 'string', 'max:50'],
+            'code' => ['nullable', 'string', 'max:20'],
+            'mention' => ['nullable', 'string', 'max:255'],
+            'niveaux' => ['nullable', 'string', 'max:255'],
             'nom_fr' => ['required', 'string', 'max:255'],
             'nom_en' => ['nullable', 'string', 'max:255'],
             'nom_mg' => ['nullable', 'string', 'max:255'],
@@ -41,8 +41,8 @@ class StoreFiliereRequest extends FormRequest
             'avantages_fr' => ['nullable', 'string'],
             'avantages_en' => ['nullable', 'string'],
             'avantages_mg' => ['nullable', 'string'],
-            'display_order' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable', 'image', 'max:4096'],
+            'display_order' => ['nullable', 'integer'],
         ];
     }
 }

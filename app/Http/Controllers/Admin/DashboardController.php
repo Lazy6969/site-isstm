@@ -5,8 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Models\Filiere;
+use App\Models\GalleryAlbum;
 use App\Models\Inscription;
+use App\Models\NewsArticle;
+use App\Models\Partenaire;
 use App\Models\Preinscription;
+use App\Models\Teacher;
+use App\Models\Testimonial;
+use App\NewsStatus;
 use App\PreinscriptionStatus;
 use App\StatutInscription;
 use Illuminate\Support\Carbon;
@@ -24,6 +31,14 @@ class DashboardController extends Controller
                 'classes' => Classe::count(),
                 'preinscriptions_en_attente' => Preinscription::where('status', PreinscriptionStatus::EnAttente)->count(),
                 'inscriptions_validees' => Inscription::where('statut', StatutInscription::Validee)->count(),
+            ],
+            'contentStats' => [
+                'filieres' => Filiere::count(),
+                'enseignants' => Teacher::count(),
+                'actualites_publiees' => NewsArticle::where('status', NewsStatus::Publie)->count(),
+                'albums_galerie' => GalleryAlbum::count(),
+                'temoignages' => Testimonial::count(),
+                'partenaires' => Partenaire::count(),
             ],
             'preinscriptionsParMois' => $this->preinscriptionsParMois(),
             'etudiantsParNiveau' => $this->etudiantsParNiveau(),

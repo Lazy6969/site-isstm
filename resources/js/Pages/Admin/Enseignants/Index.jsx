@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, CheckCircle2 } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
@@ -8,7 +8,6 @@ import { Label } from '../../../Components/ui/label';
 import { Select } from '../../../Components/ui/select';
 import { Textarea } from '../../../Components/ui/textarea';
 import { Badge } from '../../../Components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
 
@@ -26,10 +25,10 @@ const emptyForm = {
     photo: null,
 };
 
-const categoryLabels = { permanent: 'Permanent', vacataire: 'Vacataire' };
+const categorieVariants = { permanent: 'success', vacataire: 'outline' };
+const categorieLabels = { permanent: 'Enseignant permanent', vacataire: 'Enseignant vacataire' };
 
 export default function Index({ teachers }) {
-    const { flash } = usePage().props;
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -95,18 +94,11 @@ export default function Index({ teachers }) {
                 </Button>
             </div>
 
-            {flash?.status && (
-                <p className="mb-5 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-500">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
-
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Enseignant</TableHead>
+                            <TableHead>Nom</TableHead>
                             <TableHead>Catégorie</TableHead>
                             <TableHead>Spécialité</TableHead>
                             <TableHead>Email</TableHead>
@@ -124,21 +116,13 @@ export default function Index({ teachers }) {
                         )}
                         {teachers.map((teacher) => (
                             <TableRow key={teacher.id}>
-                                <TableCell className="font-medium">
-                                    <div className="flex items-center gap-3">
-                                        <Avatar className="h-9 w-9 flex-shrink-0">
-                                            <AvatarImage src={teacher.photo_path ? `/${teacher.photo_path}` : undefined} alt="" />
-                                            <AvatarFallback>{teacher.name?.[0]}</AvatarFallback>
-                                        </Avatar>
-                                        {teacher.name}
-                                    </div>
-                                </TableCell>
+                                <TableCell className="font-medium">{teacher.name}</TableCell>
                                 <TableCell>
-                                    <Badge>{categoryLabels[teacher.category] ?? teacher.category}</Badge>
+                                    <Badge variant={categorieVariants[teacher.category]}>{categorieLabels[teacher.category]}</Badge>
                                 </TableCell>
-                                <TableCell>{teacher.specialty_fr}</TableCell>
+                                <TableCell>{teacher.specialty_fr ?? '—'}</TableCell>
                                 <TableCell>{teacher.email ?? '—'}</TableCell>
-                                <TableCell>{teacher.display_order}</TableCell>
+                                <TableCell>{teacher.display_order ?? '—'}</TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-1">
                                         <button
@@ -164,18 +148,17 @@ export default function Index({ teachers }) {
             </div>
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>{editing ? "Modifier l'enseignant" : 'Nouvel enseignant'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="name">Nom</Label>
-                            <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} className="mt-1.5" />
-                            {form.errors.name && <p className="mt-1 text-sm text-red-500">{form.errors.name}</p>}
-                        </div>
-
                         <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <Label htmlFor="name">Nom</Label>
+                                <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} className="mt-1.5" />
+                                {form.errors.name && <p className="mt-1 text-sm text-red-500">{form.errors.name}</p>}
+                            </div>
                             <div>
                                 <Label htmlFor="category">Catégorie</Label>
                                 <Select
@@ -184,20 +167,79 @@ export default function Index({ teachers }) {
                                     onChange={(e) => form.setData('category', e.target.value)}
                                     className="mt-1.5"
                                 >
-                                    <option value="permanent">Permanent</option>
-                                    <option value="vacataire">Vacataire</option>
+                                    <option value="permanent">Enseignant permanent</option>
+                                    <option value="vacataire">Enseignant vacataire</option>
                                 </Select>
+                                {form.errors.category && <p className="mt-1 text-sm text-red-500">{form.errors.category}</p>}
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <div>
-                                <Label htmlFor="display_order">Ordre d'affichage</Label>
+                                <Label htmlFor="specialty_fr">Spécialité (FR)</Label>
                                 <Input
-                                    id="display_order"
-                                    type="number"
-                                    min="0"
-                                    value={form.data.display_order}
-                                    onChange={(e) => form.setData('display_order', e.target.value)}
+                                    id="specialty_fr"
+                                    value={form.data.specialty_fr}
+                                    onChange={(e) => form.setData('specialty_fr', e.target.value)}
                                     className="mt-1.5"
                                 />
+                                {form.errors.specialty_fr && <p className="mt-1 text-sm text-red-500">{form.errors.specialty_fr}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="specialty_en">Spécialité (EN)</Label>
+                                <Input
+                                    id="specialty_en"
+                                    value={form.data.specialty_en}
+                                    onChange={(e) => form.setData('specialty_en', e.target.value)}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.specialty_en && <p className="mt-1 text-sm text-red-500">{form.errors.specialty_en}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="specialty_mg">Spécialité (MG)</Label>
+                                <Input
+                                    id="specialty_mg"
+                                    value={form.data.specialty_mg}
+                                    onChange={(e) => form.setData('specialty_mg', e.target.value)}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.specialty_mg && <p className="mt-1 text-sm text-red-500">{form.errors.specialty_mg}</p>}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div>
+                                <Label htmlFor="description_fr">Description (FR)</Label>
+                                <Textarea
+                                    id="description_fr"
+                                    value={form.data.description_fr}
+                                    onChange={(e) => form.setData('description_fr', e.target.value)}
+                                    rows={3}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.description_fr && <p className="mt-1 text-sm text-red-500">{form.errors.description_fr}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="description_en">Description (EN)</Label>
+                                <Textarea
+                                    id="description_en"
+                                    value={form.data.description_en}
+                                    onChange={(e) => form.setData('description_en', e.target.value)}
+                                    rows={3}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.description_en && <p className="mt-1 text-sm text-red-500">{form.errors.description_en}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="description_mg">Description (MG)</Label>
+                                <Textarea
+                                    id="description_mg"
+                                    value={form.data.description_mg}
+                                    onChange={(e) => form.setData('description_mg', e.target.value)}
+                                    rows={3}
+                                    className="mt-1.5"
+                                />
+                                {form.errors.description_mg && <p className="mt-1 text-sm text-red-500">{form.errors.description_mg}</p>}
                             </div>
                         </div>
 
@@ -213,89 +255,36 @@ export default function Index({ teachers }) {
                             {form.errors.email && <p className="mt-1 text-sm text-red-500">{form.errors.email}</p>}
                         </div>
 
-                        <div className="space-y-3 rounded-lg border border-admin-border p-3">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-admin-muted">Spécialité</p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="specialty_fr">Français</Label>
+                                <Label htmlFor="photo">Photo (optionnel)</Label>
+                                {(preview || (editing && editing.photo_path)) && (
+                                    <img
+                                        src={preview ?? `/${editing.photo_path}`}
+                                        alt=""
+                                        className="mt-1.5 h-32 w-full rounded-lg border border-admin-border object-cover"
+                                    />
+                                )}
+                                <input
+                                    id="photo"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={onPhotoChange}
+                                    className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
+                                />
+                                {form.errors.photo && <p className="mt-1 text-sm text-red-500">{form.errors.photo}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="display_order">Ordre d'affichage</Label>
                                 <Input
-                                    id="specialty_fr"
-                                    value={form.data.specialty_fr}
-                                    onChange={(e) => form.setData('specialty_fr', e.target.value)}
+                                    id="display_order"
+                                    type="number"
+                                    value={form.data.display_order}
+                                    onChange={(e) => form.setData('display_order', e.target.value)}
                                     className="mt-1.5"
                                 />
-                                {form.errors.specialty_fr && <p className="mt-1 text-sm text-red-500">{form.errors.specialty_fr}</p>}
+                                {form.errors.display_order && <p className="mt-1 text-sm text-red-500">{form.errors.display_order}</p>}
                             </div>
-                            <div>
-                                <Label htmlFor="specialty_en">Anglais (optionnel)</Label>
-                                <Input
-                                    id="specialty_en"
-                                    value={form.data.specialty_en}
-                                    onChange={(e) => form.setData('specialty_en', e.target.value)}
-                                    className="mt-1.5"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="specialty_mg">Malagasy (optionnel)</Label>
-                                <Input
-                                    id="specialty_mg"
-                                    value={form.data.specialty_mg}
-                                    onChange={(e) => form.setData('specialty_mg', e.target.value)}
-                                    className="mt-1.5"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-3 rounded-lg border border-admin-border p-3">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-admin-muted">Description (optionnel)</p>
-                            <div>
-                                <Label htmlFor="description_fr">Français</Label>
-                                <Textarea
-                                    id="description_fr"
-                                    value={form.data.description_fr}
-                                    onChange={(e) => form.setData('description_fr', e.target.value)}
-                                    rows={3}
-                                    className="mt-1.5"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="description_en">Anglais</Label>
-                                <Textarea
-                                    id="description_en"
-                                    value={form.data.description_en}
-                                    onChange={(e) => form.setData('description_en', e.target.value)}
-                                    rows={3}
-                                    className="mt-1.5"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="description_mg">Malagasy</Label>
-                                <Textarea
-                                    id="description_mg"
-                                    value={form.data.description_mg}
-                                    onChange={(e) => form.setData('description_mg', e.target.value)}
-                                    rows={3}
-                                    className="mt-1.5"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <Label htmlFor="photo">Photo (optionnel)</Label>
-                            {(preview || (editing && editing.photo_path)) && (
-                                <img
-                                    src={preview ?? `/${editing.photo_path}`}
-                                    alt=""
-                                    className="mt-1.5 h-24 w-24 rounded-full border border-admin-border object-cover"
-                                />
-                            )}
-                            <input
-                                id="photo"
-                                type="file"
-                                accept="image/*"
-                                onChange={onPhotoChange}
-                                className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
-                            />
-                            {form.errors.photo && <p className="mt-1 text-sm text-red-500">{form.errors.photo}</p>}
                         </div>
 
                         <DialogFooter>

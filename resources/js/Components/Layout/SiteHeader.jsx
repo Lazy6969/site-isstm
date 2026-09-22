@@ -109,7 +109,7 @@ export default function SiteHeader() {
                     <DarkModeToggle />
                     <LanguageSwitcher />
 
-                    {user ? (
+                    {user && (
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
@@ -128,9 +128,15 @@ export default function SiteHeader() {
                                     <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
-                                    <DropdownMenuItem asChild>
-                                        <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
-                                    </DropdownMenuItem>
+                                    {user.role === 'admin' ? (
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/console/dashboard">{t('nav.parametres_site', 'Paramètres du site')}</Link>
+                                        </DropdownMenuItem>
+                                    ) : (
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
+                                        </DropdownMenuItem>
+                                    )}
                                     <DropdownMenuItem asChild>
                                         <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
                                     </DropdownMenuItem>
@@ -142,13 +148,6 @@ export default function SiteHeader() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
-                    ) : (
-                        <Link
-                            href="/login"
-                            className="rounded-full border border-white/60 px-4 py-1.5 text-sm font-medium transition hover:bg-white hover:text-isstm-navy"
-                        >
-                            {t('nav.se_connecter', 'Se connecter')}
-                        </Link>
                     )}
                 </div>
 
@@ -159,7 +158,7 @@ export default function SiteHeader() {
             </div>
             </header>
 
-            <MobileTabBar showLogin />
+            <MobileTabBar />
         </>
     );
 }

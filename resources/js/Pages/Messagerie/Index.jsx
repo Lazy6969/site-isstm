@@ -120,7 +120,7 @@ export default function Index({ others: initialOthers, messages: initialMessages
                             {t('messagerie.soustitre', 'Conversation unique entre tous les comptes de la messagerie.')}
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         {others.map((o) => (
                             <div key={o.id} className="flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-800 px-2.5 py-1 text-xs text-slate-600 dark:text-slate-300 shadow-sm" title={o.name}>
                                 <span className={`h-2 w-2 rounded-full ${o.online ? 'bg-emerald-500' : 'bg-slate-300'}`} />
@@ -131,13 +131,13 @@ export default function Index({ others: initialOthers, messages: initialMessages
                 </div>
 
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <form onSubmit={runSearch} className="flex gap-2">
+                    <form onSubmit={runSearch} className="flex flex-wrap gap-2">
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder={t('messagerie.placeholder_recherche', 'Rechercher dans les messages…')}
-                            className="w-64 rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
+                            className="w-full rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none sm:w-64"
                         />
                         <button className="flex items-center gap-1.5 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-white">
                             <Search className="h-3.5 w-3.5" aria-hidden="true" />

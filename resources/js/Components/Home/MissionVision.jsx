@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
@@ -10,6 +11,8 @@ const BLOB_PATHS = {
 
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
+    const [current, setCurrent] = useState(0);
+    const timerRef = useRef(null);
 
     const blocks = [
         {
@@ -18,7 +21,7 @@ export default function MissionVision({ content }) {
             contentKey: 'mission_contenu',
             image: content.mission_image_path ?? 'images/mission.jpg',
             imageKey: 'mission_image_path',
-            align: 'left',
+            reverse: false,
         },
         {
             title: t('accueil.vision_titre', 'Notre Vision'),
@@ -26,98 +29,115 @@ export default function MissionVision({ content }) {
             contentKey: 'vision_contenu',
             image: content.vision_image_path ?? 'images/vision.jpg',
             imageKey: 'vision_image_path',
-            align: 'right',
+            reverse: true,
         },
     ];
 
+    function restartAuto() {
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => setCurrent((c) => (c + 1) % blocks.length), 6000);
+    }
+
+    useEffect(() => {
+        restartAuto();
+        return () => clearInterval(timerRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    function goTo(index) {
+        setCurrent(index);
+        restartAuto();
+    }
+
     return (
         <section className="bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
-            <div className="mx-auto max-w-6xl space-y-12 px-6">
-                {blocks.map((block, index) => {
-                    const reverse = index % 2 === 1;
+            <div className="mx-auto max-w-6xl px-6">
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-100 shadow-xl dark:bg-slate-800">
+                    <div className="relative md:min-h-[420px]">
+                        {blocks.map((block, index) => {
+                            const active = index === current;
 
-                    return (
-                        <div
-                            key={block.title}
-                            className="relative overflow-hidden rounded-[2.5rem] bg-slate-100 shadow-xl dark:bg-slate-800"
+                            return (
+                                <div
+                                    key={block.title}
+                                    className={`grid grid-cols-1 transition-opacity duration-700 md:min-h-[420px] md:grid-cols-2 ${
+                                        active ? 'relative opacity-100' : 'pointer-events-none absolute inset-0 opacity-0'
+                                    }`}
+                                >
+                                    <div
+                                        className={`relative z-20 bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
+                                            block.reverse ? 'md:order-2' : ''
+                                        }`}
+                                    >
+                                        <span className="mb-5 flex gap-1.5" aria-hidden="true">
+                                            <span className="h-2 w-2 rounded-full bg-isstm-gold" />
+                                            <span className="h-2 w-2 rounded-full bg-white/40" />
+                                            <span className="h-2 w-2 rounded-full bg-white/40" />
+                                        </span>
+
+                                        <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">{block.title}</h3>
+
+                                        <EditableText
+                                            as="p"
+                                            contentKey={block.contentKey}
+                                            className="mt-5 max-w-md leading-relaxed text-white/80"
+                                        >
+                                            {block.text}
+                                        </EditableText>
+
+                                        <Link
+                                            href="/historique"
+                                            className="mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
+                                        >
+                                            {t('filieres.en_savoir_plus', 'En savoir plus')}
+                                        </Link>
+
+                                        <div className="mt-8 flex gap-2">
+                                            {blocks.map((b, i) => (
+                                                <button
+                                                    key={b.title}
+                                                    type="button"
+                                                    onClick={() => goTo(i)}
+                                                    aria-label={b.title}
+                                                    className={`h-2 rounded-full transition-all ${
+                                                        i === current ? 'w-8 bg-isstm-gold' : 'w-2 bg-white/30'
+                                                    }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className={`relative h-64 md:h-auto ${block.reverse ? 'md:order-1' : ''}`}>
+                                        <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
+                                        {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        <svg
+                            className={`pointer-events-none absolute inset-y-0 left-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-[transform,opacity] duration-700 ease-in-out md:block ${
+                                current === 0 ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0'
+                            }`}
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="none"
+                            aria-hidden="true"
                         >
-                            <div className="relative grid grid-cols-1 md:min-h-[420px] md:grid-cols-2">
-                                <div
-                                    className={`relative z-20 bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
-                                        reverse ? 'md:order-2' : ''
-                                    }`}
-                                >
-                                    <span
-                                        className="mb-5 flex gap-1.5"
-                                        aria-hidden="true"
-                                    >
-                                        <span className="h-2 w-2 rounded-full bg-isstm-gold" />
-                                        <span className="h-2 w-2 rounded-full bg-white/40" />
-                                        <span className="h-2 w-2 rounded-full bg-white/40" />
-                                    </span>
+                            <path d={BLOB_PATHS.left} fill="currentColor" />
+                        </svg>
 
-                                    <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">
-                                        {block.title}
-                                    </h3>
-
-                                    <EditableText
-                                        as="p"
-                                        contentKey={block.contentKey}
-                                        className="mt-5 max-w-md leading-relaxed text-white/80"
-                                    >
-                                        {block.text}
-                                    </EditableText>
-
-                                    <Link
-                                        href="/historique"
-                                        className="mt-8 inline-flex items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
-                                    >
-                                        {t(
-                                            'filieres.en_savoir_plus',
-                                            'En savoir plus',
-                                        )}
-                                    </Link>
-                                </div>
-
-                                <div
-                                    className={`relative h-64 md:h-auto ${
-                                        reverse ? 'md:order-1' : ''
-                                    }`}
-                                >
-                                    <img
-                                        src={`/${block.image}`}
-                                        alt=""
-                                        className="absolute inset-0 h-full w-full object-cover"
-                                        loading="lazy"
-                                    />
-
-                                    <EditableImage
-                                        contentKey={block.imageKey}
-                                        value={block.image}
-                                    />
-                                </div>
-                            </div>
-
-                            <svg
-                                className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[70%] text-isstm-navy md:block ${
-                                    reverse ? 'right-0' : 'left-0'
-                                }`}
-                                viewBox="0 0 100 100"
-                                preserveAspectRatio="none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d={
-                                        reverse
-                                            ? BLOB_PATHS.right
-                                            : BLOB_PATHS.left
-                                    }
-                                    fill="currentColor"
-                                />
-                            </svg>
-                        </div>
-                    );
-                })}
+                        <svg
+                            className={`pointer-events-none absolute inset-y-0 right-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-[transform,opacity] duration-700 ease-in-out md:block ${
+                                current === 1 ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+                            }`}
+                            viewBox="0 0 100 100"
+                            preserveAspectRatio="none"
+                            aria-hidden="true"
+                        >
+                            <path d={BLOB_PATHS.right} fill="currentColor" />
+                        </svg>
+                    </div>
+                </div>
             </div>
         </section>
     );

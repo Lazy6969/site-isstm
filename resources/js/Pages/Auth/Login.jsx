@@ -1,11 +1,10 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle2, LogIn } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { LogIn } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Login() {
-    const { flash } = usePage().props;
     const { t } = useTranslations();
     const { data, setData, post, processing, errors } = useForm({
         email: '',
@@ -21,13 +20,6 @@ export default function Login() {
     return (
         <AuthLayout title={t('auth.connexion_titre', 'Connexion')} subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}>
             <Head title="Connexion" />
-
-            {flash?.status && (
-                <p className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {flash.status}
-                </p>
-            )}
 
             <form onSubmit={submit} className="space-y-4">
                 <TextField

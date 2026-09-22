@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { FileText, Images, Paperclip, Search, Send } from 'lucide-react';
+import { ArrowLeft, FileText, Images, Paperclip, Search, Send } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
@@ -55,7 +55,11 @@ export default function Index({ conversations, friends, activeConversation, mess
             <Head title="Messages" />
 
             <div className="flex h-[70vh] overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
-                <aside className="w-72 flex-shrink-0 border-r border-slate-100 dark:border-slate-700">
+                <aside
+                    className={`w-full flex-shrink-0 border-r border-slate-100 dark:border-slate-700 sm:block sm:w-72 ${
+                        activeConversation ? 'hidden' : 'block'
+                    }`}
+                >
                     <div className="border-b border-slate-100 dark:border-slate-700 p-3">
                         <label className="flex items-center gap-2 rounded-full border border-slate-300 px-3.5 py-1.5">
                             <Search className="h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
@@ -96,26 +100,33 @@ export default function Index({ conversations, friends, activeConversation, mess
                     </div>
                 </aside>
 
-                <section className="flex flex-1 flex-col">
+                <section className={`flex-1 flex-col sm:flex ${activeConversation ? 'flex' : 'hidden'}`}>
                     {!activeConversation && (
-                        <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+                        <div className="hidden flex-1 items-center justify-center text-sm text-slate-400 dark:text-slate-500 sm:flex">
                             {t('messages.selectionner_conversation', 'Sélectionnez une conversation à gauche.')}
                         </div>
                     )}
 
                     {activeConversation && (
                         <>
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 p-3">
-                                <Link href={`/profil/${activeConversation.user.id}`} className="flex items-center gap-2.5">
-                                    <Avatar className="h-9 w-9">
-                                        <AvatarImage src={activeConversation.user.avatar_path ? `/storage/${activeConversation.user.avatar_path}` : undefined} alt="" />
-                                        <AvatarFallback>{activeConversation.user.name?.[0]}</AvatarFallback>
-                                    </Avatar>
-                                    <span className="font-semibold text-slate-800">{activeConversation.user.name}</span>
-                                </Link>
-                                <button onClick={() => setShowMedia((v) => !v)} className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-700 p-3">
+                                <div className="flex min-w-0 items-center gap-2">
+                                    <Link href="/messages" className="flex-shrink-0 text-slate-400 hover:text-slate-600 dark:text-slate-500 sm:hidden">
+                                        <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+                                    </Link>
+                                    <Link href={`/profil/${activeConversation.user.id}`} className="flex min-w-0 items-center gap-2.5">
+                                        <Avatar className="h-9 w-9 flex-shrink-0">
+                                            <AvatarImage src={activeConversation.user.avatar_path ? `/storage/${activeConversation.user.avatar_path}` : undefined} alt="" />
+                                            <AvatarFallback>{activeConversation.user.name?.[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <span className="truncate font-semibold text-slate-800">{activeConversation.user.name}</span>
+                                    </Link>
+                                </div>
+                                <button onClick={() => setShowMedia((v) => !v)} className="flex flex-shrink-0 items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
                                     <Images className="h-3.5 w-3.5" aria-hidden="true" />
-                                    {showMedia ? t('messages.masquer_medias', 'Masquer les médias') : t('messages.medias_echanges', 'Médias échangés')}
+                                    <span className="hidden sm:inline">
+                                        {showMedia ? t('messages.masquer_medias', 'Masquer les médias') : t('messages.medias_echanges', 'Médias échangés')}
+                                    </span>
                                 </button>
                             </div>
 
