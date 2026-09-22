@@ -16,6 +16,7 @@ import {
     FileEdit,
     FileText,
     Network,
+    GalleryHorizontal,
 } from 'lucide-react';
 
 const navGroups = [
@@ -39,6 +40,7 @@ const navGroups = [
         label: 'Contenu',
         items: [
             { href: '/console/contenu', label: 'Contenu du site', icon: FileEdit },
+            { href: '/console/accueil', label: "Images de l'accueil", icon: GalleryHorizontal },
             { href: '/console/actualites', label: 'Actualités', icon: Newspaper },
             { href: '/console/galerie', label: 'Galerie', icon: Images },
             { href: '/console/filieres', label: 'Filières', icon: BookOpen },

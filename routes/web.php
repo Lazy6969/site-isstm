@@ -140,4 +140,5 @@ require __DIR__.'/organigramme.php';
 require __DIR__.'/evenements.php';
 require __DIR__.'/campus.php';
 require __DIR__.'/documents.php';
+require __DIR__.'/hero-slides.php';
 require __DIR__.'/auth.php';

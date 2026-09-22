@@ -3,9 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
+import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
 import QuickEditToggle from './Components/QuickEdit/QuickEditToggle';
 import FlashToastBridge from './Components/Layout/FlashToastBridge';
 import Toaster from './Components/Layout/Toaster';
+import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
+import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 
 createInertiaApp({
     resolve: (name) => {
@@ -20,10 +23,16 @@ createInertiaApp({
         page.default.layout = (children) => (
             <ToastProvider>
                 <QuickEditProvider>
-                    <QuickEditToggle />
-                    <FlashToastBridge />
-                    <Toaster />
-                    {existingLayout ? existingLayout(children) : children}
+                    <LogoutConfirmProvider>
+                        <div className="fixed top-1/2 left-5 z-[60] flex -translate-y-1/2 flex-col items-center gap-3">
+                            <QuickEditToggle />
+                            <FloatingAccountButton />
+                        </div>
+                        <FlashToastBridge />
+                        <Toaster />
+                        <LogoutConfirmDialog />
+                        {existingLayout ? existingLayout(children) : children}
+                    </LogoutConfirmProvider>
                 </QuickEditProvider>
             </ToastProvider>
         );

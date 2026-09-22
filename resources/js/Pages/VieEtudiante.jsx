@@ -1,38 +1,95 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
+import EditableText from '../Components/QuickEdit/EditableText';
+import EditableImage from '../Components/QuickEdit/EditableImage';
 import { useTranslations } from '../lib/useTranslations';
 
-function PortalCard({ slides, logo, title, description, href }) {
+function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, description, href }) {
     const { t } = useTranslations();
+    const [current, setCurrent] = useState(0);
+    const timerRef = useRef(null);
+
+    useEffect(() => {
+        timerRef.current = setInterval(() => setCurrent((c) => (c + 1) % slides.length), 4000);
+        return () => clearInterval(timerRef.current);
+    }, [slides.length]);
 
     return (
-        <section className="relative overflow-hidden rounded-3xl">
-            <div className="grid grid-cols-3 gap-1">
-                {slides.map((slide) => (
-                    <div key={slide} className="h-24 bg-cover bg-center sm:h-56" style={{ backgroundImage: `url('/${slide}')` }} />
-                ))}
-            </div>
+        <section className="relative h-72 overflow-hidden rounded-3xl shadow-lg sm:h-[420px]">
+            {slides.map((slide, index) => (
+                <div
+                    key={slide.key}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+                        index === current ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    style={{ backgroundImage: `url('/${slide.value}')` }}
+                >
+                    {index === current && <EditableImage contentKey={slide.key} value={slide.value} className="absolute top-3 right-3 z-20" />}
+                </div>
+            ))}
+
             <div className="absolute inset-0 bg-isstm-navy-dark/75" />
+
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
-                <img src={logo} alt="" className="mb-3 h-14 w-14 rounded-full object-cover ring-2 ring-white/70" />
-                <h3 className="text-xl font-bold">{title}</h3>
-                <p className="mt-2 max-w-md text-sm text-white/85">{description}</p>
+                <div className="relative mb-4">
+                    <img src={`/${logo}`} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-white/70" />
+                    <EditableImage contentKey={logoKey} value={logo} className="absolute -top-1.5 -right-1.5 z-10 h-6 w-6" />
+                </div>
+
+                <EditableText as="h3" contentKey={titleKey} className="text-2xl font-bold">
+                    {title}
+                </EditableText>
+
+                <EditableText as="p" contentKey={descKey} className="mt-3 max-w-md text-sm text-white/85 sm:text-base">
+                    {description}
+                </EditableText>
+
                 <Link
                     href={href}
-                    className="mt-4 flex items-center gap-1.5 rounded-full bg-isstm-gold px-6 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
+                    className="mt-5 flex items-center gap-1.5 rounded-full bg-isstm-gold px-6 py-2.5 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                 >
                     {t('vie_etudiante.decouvrir', 'Découvrir')}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
+
+                <div className="absolute bottom-5 flex gap-1.5">
+                    {slides.map((slide, index) => (
+                        <button
+                            key={slide.key}
+                            type="button"
+                            onClick={() => setCurrent(index)}
+                            aria-label={`Slide ${index + 1}`}
+                            className={`h-1.5 rounded-full transition-all ${index === current ? 'w-7 bg-isstm-gold' : 'w-1.5 bg-white/50'}`}
+                        />
+                    ))}
+                </div>
             </div>
         </section>
     );
 }
 
-export default function VieEtudiante() {
+export default function VieEtudiante({ content = {} }) {
     const { t } = useTranslations();
+
+    const campusSlides = [
+        { key: 'vie_etudiante_campus_slide1_image_path', value: content.vie_etudiante_campus_slide1_image_path ?? 'images/portal_campus_1.jpg' },
+        { key: 'vie_etudiante_campus_slide2_image_path', value: content.vie_etudiante_campus_slide2_image_path ?? 'images/portal_campus_2.jpg' },
+        { key: 'vie_etudiante_campus_slide3_image_path', value: content.vie_etudiante_campus_slide3_image_path ?? 'images/portal_campus_3.jpg' },
+    ];
+
+    const assocSlides = [
+        { key: 'vie_etudiante_assoc_slide1_image_path', value: content.vie_etudiante_assoc_slide1_image_path ?? 'images/portal_assoc_4.jpg' },
+        { key: 'vie_etudiante_assoc_slide2_image_path', value: content.vie_etudiante_assoc_slide2_image_path ?? 'images/portal_assoc_5.jpg' },
+        { key: 'vie_etudiante_assoc_slide3_image_path', value: content.vie_etudiante_assoc_slide3_image_path ?? 'images/portal_assoc_6.jpg' },
+    ];
+
+    const intro1Image = content.vie_etudiante_intro1_image_path ?? 'images/campus/etudiant1.png';
+    const intro2Image = content.vie_etudiante_intro2_image_path ?? 'images/campus/etudiant2.png';
+    const campusLogo = content.vie_etudiante_campus_logo_image_path ?? 'images/umg.jpg';
+    const assocLogo = content.vie_etudiante_assoc_logo_image_path ?? 'images/aei.jpeg';
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -48,44 +105,52 @@ export default function VieEtudiante() {
 
             <main className="mx-auto max-w-5xl space-y-16 px-6 py-12">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
-                    <img src="/images/campus/etudiant1.png" alt="" className="w-full max-w-xs sm:w-64" />
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-                        {t(
-                            'vie_etudiante.intro_1',
-                            "La vie à l'ISSTM est une aventure enrichissante qui va bien au-delà des cours. C'est un écosystème vibrant où les amitiés se forgent, les passions se révèlent et les futurs leaders prennent leur envol. Explorez les multiples facettes de notre communauté et découvrez un environnement conçu pour votre épanouissement.",
-                        )}
-                    </p>
+                    <div className="relative w-full max-w-xs flex-shrink-0 sm:w-64">
+                        <img src={`/${intro1Image}`} alt="" className="w-full rounded-2xl" />
+                        <EditableImage contentKey="vie_etudiante_intro1_image_path" value={intro1Image} />
+                    </div>
+                    <EditableText
+                        as="p"
+                        contentKey="vie_etudiante_intro1_texte"
+                        className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                    >
+                        {content.vie_etudiante_intro1_texte}
+                    </EditableText>
                 </div>
 
                 <PortalCard
-                    slides={['images/portal_campus_1.jpg', 'images/portal_campus_2.jpg', 'images/portal_campus_3.jpg']}
-                    logo="/images/umg.jpg"
-                    title={t('campus.titre', 'La Vie au Campus')}
-                    description={t(
-                        'vie_etudiante.campus_description',
-                        'L\'université est un melting-pot culturel. Explorez les 30 associations régionales, appelées "blocs", qui représentent la diversité et la solidarité des étudiants de tout Madagascar.',
-                    )}
+                    slides={campusSlides}
+                    logoKey="vie_etudiante_campus_logo_image_path"
+                    logo={campusLogo}
+                    titleKey="vie_etudiante_campus_titre"
+                    title={content.vie_etudiante_campus_titre}
+                    descKey="vie_etudiante_campus_texte"
+                    description={content.vie_etudiante_campus_texte}
                     href="/campus"
                 />
 
                 <div className="flex flex-col items-center gap-8 sm:flex-row-reverse">
-                    <img src="/images/campus/etudiant2.png" alt="" className="w-full max-w-xs sm:w-64" />
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-                        {t(
-                            'vie_etudiante.intro_2',
-                            "L'engagement dans les clubs et associations est une pierre angulaire de l'expérience ISSTM. C'est ici que les compétences de leadership s'épanouissent, que les projets collaboratifs prennent vie et que des liens durables se tissent.",
-                        )}
-                    </p>
+                    <div className="relative w-full max-w-xs flex-shrink-0 sm:w-64">
+                        <img src={`/${intro2Image}`} alt="" className="w-full rounded-2xl" />
+                        <EditableImage contentKey="vie_etudiante_intro2_image_path" value={intro2Image} />
+                    </div>
+                    <EditableText
+                        as="p"
+                        contentKey="vie_etudiante_intro2_texte"
+                        className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                    >
+                        {content.vie_etudiante_intro2_texte}
+                    </EditableText>
                 </div>
 
                 <PortalCard
-                    slides={['images/portal_assoc_4.jpg', 'images/portal_assoc_5.jpg', 'images/portal_assoc_6.jpg']}
-                    logo="/images/aei.jpeg"
-                    title={t('associations.titre', 'Clubs et Associations')}
-                    description={t(
-                        'vie_etudiante.associations_description',
-                        'Au-delà des études, la vie étudiante est riche en activités. Découvrez les clubs sportifs, culturels et académiques pour vous épanouir et développer de nouvelles compétences.',
-                    )}
+                    slides={assocSlides}
+                    logoKey="vie_etudiante_assoc_logo_image_path"
+                    logo={assocLogo}
+                    titleKey="vie_etudiante_assoc_titre"
+                    title={content.vie_etudiante_assoc_titre}
+                    descKey="vie_etudiante_assoc_texte"
+                    description={content.vie_etudiante_assoc_texte}
                     href="/associations"
                 />
             </main>

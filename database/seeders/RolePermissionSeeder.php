@@ -42,6 +42,7 @@ class RolePermissionSeeder extends Seeder
         'campus.view', 'campus.create', 'campus.edit', 'campus.delete',
         'documents.view', 'documents.create', 'documents.edit', 'documents.delete',
         'organigramme.view', 'organigramme.edit',
+        'hero.view', 'hero.create', 'hero.edit', 'hero.delete',
     ];
 
     /**

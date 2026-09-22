@@ -1,4 +1,4 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Menu, LogOut, Image, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
@@ -6,17 +6,22 @@ import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from 
 import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
 import { useTranslations } from '../../lib/useTranslations';
+import { useCloseOnDesktop } from '../../lib/useCloseOnDesktop';
+import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 
 export default function MobileMenuButton() {
     const { auth } = usePage().props;
     const { t } = useTranslations();
+    const { requestLogout } = useLogoutConfirm();
     const user = auth?.user;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const [open, setOpen] = useState(false);
+    useCloseOnDesktop(setOpen);
 
     function logout(e) {
         e.preventDefault();
-        router.post('/logout');
+        setOpen(false);
+        requestLogout();
     }
 
     const links = [

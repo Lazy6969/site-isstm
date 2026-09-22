@@ -293,13 +293,54 @@ class HomeContentSeeder extends Seeder
                 "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
                 "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
             ],
+
+            // Vie étudiante
+            'vie_etudiante_intro1_texte' => [
+                "La vie à l'ISSTM est une aventure enrichissante qui va bien au-delà des cours. C'est un écosystème vibrant où les amitiés se forgent, les passions se révèlent et les futurs leaders prennent leur envol. Explorez les multiples facettes de notre communauté et découvrez un environnement conçu pour votre épanouissement.",
+                "Life at ISSTM is an enriching adventure that goes well beyond the classroom. It's a vibrant ecosystem where friendships are forged, passions are revealed and future leaders take flight. Explore the many facets of our community and discover an environment designed for your growth.",
+                "Ny fiainana ao amin'ny ISSTM dia fitsangatsanganana mampandroso izay mihoatra lavitra ny fianarana ao an-dakilasy. Tontolo iray mavitrika izay ahafahan'ny fisakaizana miorina, ny fitiavana miseho ary ny mpitarika ho avy manomboka manidina. Fantaro ny lafiny maro amin'ny vondrom-piarahamonintsika ary hitany tontolo natao ho an'ny fivoaranao.",
+            ],
+            'vie_etudiante_intro2_texte' => [
+                "L'engagement dans les clubs et associations est une pierre angulaire de l'expérience ISSTM. C'est ici que les compétences de leadership s'épanouissent, que les projets collaboratifs prennent vie et que des liens durables se tissent.",
+                'Getting involved in clubs and associations is a cornerstone of the ISSTM experience. This is where leadership skills flourish, collaborative projects come to life and lasting bonds are formed.',
+                "Ny fandraisana anjara amin'ny klioba sy fikambanana dia vato fehizoro amin'ny traikefa ao amin'ny ISSTM. Eto no ahafahan'ny fahaizana mitarika mivelatra, ny tetikasa iraisana miaina ary ny fifandraisana maharitra mifamatotra.",
+            ],
+            'vie_etudiante_campus_titre' => ['La Vie au Campus', 'Campus Life', 'Ny Fiainana eny amin\'ny Campus'],
+            'vie_etudiante_campus_texte' => [
+                "L'université est un melting-pot culturel. Explorez les 30 associations régionales, appelées \"blocs\", qui représentent la diversité et la solidarité des étudiants de tout Madagascar.",
+                'The university is a cultural melting pot. Explore the 30 regional associations, known as "blocs", representing the diversity and solidarity of students from across Madagascar.',
+                'Ivon-toeram\'ny kolontsaina samihafa ny oniversite. Fantaro ireo fikambanana isam-paritra 30, antsoina hoe "bloc", izay maneho ny fahasamihafana sy ny firaisankinan\'ny mpianatra manerana an\'i Madagasikara.',
+            ],
+            'vie_etudiante_assoc_titre' => ['Clubs et Associations', 'Clubs and Associations', 'Klioba sy Fikambanana'],
+            'vie_etudiante_assoc_texte' => [
+                'Au-delà des études, la vie étudiante est riche en activités. Découvrez les clubs sportifs, culturels et académiques pour vous épanouir et développer de nouvelles compétences.',
+                'Beyond academics, student life is rich in activities. Discover our sports, cultural and academic clubs to grow and develop new skills.',
+                "Ankoatry ny fianarana, be zavatra atao ny fiainan'ny mpianatra. Fantaro ireo klioba fanatanjahantena, kolontsaina ary akademika mba hivelaranao sy hampivoaranao fahaizana vaovao.",
+            ],
+            'vie_etudiante_intro1_image_path' => ['images/campus/etudiant1.png', 'images/campus/etudiant1.png', 'images/campus/etudiant1.png'],
+            'vie_etudiante_intro2_image_path' => ['images/campus/etudiant2.png', 'images/campus/etudiant2.png', 'images/campus/etudiant2.png'],
+            'vie_etudiante_campus_logo_image_path' => ['images/umg.jpg', 'images/umg.jpg', 'images/umg.jpg'],
+            'vie_etudiante_campus_slide1_image_path' => ['images/portal_campus_1.jpg', 'images/portal_campus_1.jpg', 'images/portal_campus_1.jpg'],
+            'vie_etudiante_campus_slide2_image_path' => ['images/portal_campus_2.jpg', 'images/portal_campus_2.jpg', 'images/portal_campus_2.jpg'],
+            'vie_etudiante_campus_slide3_image_path' => ['images/portal_campus_3.jpg', 'images/portal_campus_3.jpg', 'images/portal_campus_3.jpg'],
+            'vie_etudiante_assoc_logo_image_path' => ['images/aei.jpeg', 'images/aei.jpeg', 'images/aei.jpeg'],
+            'vie_etudiante_assoc_slide1_image_path' => ['images/portal_assoc_4.jpg', 'images/portal_assoc_4.jpg', 'images/portal_assoc_4.jpg'],
+            'vie_etudiante_assoc_slide2_image_path' => ['images/portal_assoc_5.jpg', 'images/portal_assoc_5.jpg', 'images/portal_assoc_5.jpg'],
+            'vie_etudiante_assoc_slide3_image_path' => ['images/portal_assoc_6.jpg', 'images/portal_assoc_6.jpg', 'images/portal_assoc_6.jpg'],
         ];
 
+        // Keys ending in _image_path hold an uploaded image, not translated
+        // prose — the quick-edit pencil only opens the upload dialog (vs. the
+        // text dialog) once this row's `type` is Image, so it must be set
+        // explicitly here rather than left at the text default.
         foreach ($entries as $key => [$fr, $en, $mg]) {
-            SiteContent::updateOrCreate(
-                ['content_key' => $key],
-                ['content_value_fr' => $fr, 'content_value_en' => $en, 'content_value_mg' => $mg],
-            );
+            $attributes = ['content_value_fr' => $fr, 'content_value_en' => $en, 'content_value_mg' => $mg];
+
+            if (str_ends_with($key, '_image_path')) {
+                $attributes['type'] = SiteContentType::Image;
+            }
+
+            SiteContent::updateOrCreate(['content_key' => $key], $attributes);
         }
     }
 

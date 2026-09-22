@@ -53,21 +53,22 @@ export default function MissionVision({ content }) {
         <section className="bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
             <div className="mx-auto max-w-6xl px-6">
                 <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-100 shadow-xl dark:bg-slate-800">
-                    <div className="relative md:min-h-[420px]">
+                    <div className="relative min-h-[600px] sm:min-h-[520px] md:min-h-[420px]">
                         {blocks.map((block, index) => {
                             const active = index === current;
 
                             return (
                                 <div
                                     key={block.title}
-                                    className={`grid grid-cols-1 transition-[opacity,transform] duration-700 ease-in-out md:min-h-[420px] md:grid-cols-2 ${
+                                    aria-hidden={!active}
+                                    className={`absolute inset-0 flex flex-col transition-[opacity,transform] duration-700 ease-in-out md:grid md:grid-cols-2 ${
                                         active
-                                            ? 'relative translate-x-0 opacity-100'
-                                            : `pointer-events-none absolute inset-0 opacity-0 ${block.reverse ? 'translate-x-10' : '-translate-x-10'}`
+                                            ? 'translate-x-0 opacity-100'
+                                            : `pointer-events-none opacity-0 ${block.reverse ? 'translate-x-10' : '-translate-x-10'}`
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
+                                        className={`relative z-20 flex flex-1 flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
@@ -89,7 +90,7 @@ export default function MissionVision({ content }) {
                                         </Link>
                                     </div>
 
-                                    <div className={`relative h-64 md:h-auto ${block.reverse ? 'md:order-1' : ''}`}>
+                                    <div className={`relative h-64 flex-shrink-0 md:h-auto ${block.reverse ? 'md:order-1' : ''}`}>
                                         <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
                                         {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
                                     </div>

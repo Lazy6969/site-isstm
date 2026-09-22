@@ -1,5 +1,5 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { ChevronDown, LogOut, MessageSquare } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import HeaderSearchButton from '../Layout/HeaderSearchButton';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
@@ -19,7 +19,6 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
 } from '../ui/navigation-menu';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 function NavDropdown({ label, items }) {
     return (
@@ -62,11 +61,6 @@ export default function Header() {
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
-
-    function logout(e) {
-        e.preventDefault();
-        router.post('/logout');
-    }
 
     return (
         <>
@@ -123,7 +117,7 @@ export default function Header() {
                 <div className="hidden items-center gap-3 md:flex">
                     <DarkModeToggle />
                     <LanguageSwitcher />
-                    {user && (
+                    {user && (user.is_messagerie || isCommunityMember) && (
                         <div className="flex items-center gap-3 text-sm">
                             {user.is_messagerie && (
                                 <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
@@ -131,36 +125,6 @@ export default function Header() {
                                 </Link>
                             )}
                             {isCommunityMember && <NotificationBell />}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/10 focus:outline-none">
-                                    <img
-                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
-                                        alt=""
-                                        className="h-7 w-7 rounded-full object-cover"
-                                    />
-                                    {user.name}
-                                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    {user.role === 'admin' ? (
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/console/dashboard">{t('nav.parametres_site', 'Paramètres du site')}</Link>
-                                        </DropdownMenuItem>
-                                    ) : (
-                                        <DropdownMenuItem asChild>
-                                            <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
-                                        </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={logout}>
-                                        <LogOut className="h-4 w-4" aria-hidden="true" />
-                                        {t('nav.deconnexion', 'Déconnexion')}
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
                         </div>
                     )}
                 </div>

@@ -1,4 +1,4 @@
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Home, GraduationCap, Newspaper, User, MoreHorizontal, Search, Image, MessageCircle, LogIn, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
@@ -6,18 +6,23 @@ import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from 
 import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
 import { useTranslations } from '../../lib/useTranslations';
+import { useCloseOnDesktop } from '../../lib/useCloseOnDesktop';
+import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 
 export default function MobileTabBar() {
     const { auth } = usePage().props;
     const { t } = useTranslations();
+    const { requestLogout } = useLogoutConfirm();
     const user = auth?.user;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const [moreOpen, setMoreOpen] = useState(false);
     const [etablissementOpen, setEtablissementOpen] = useState(false);
+    useCloseOnDesktop(setMoreOpen, setEtablissementOpen);
 
     function logout(e) {
         e.preventDefault();
-        router.post('/logout');
+        setMoreOpen(false);
+        requestLogout();
     }
 
     const etablissementLinks = getEtablissementLinks(t);
