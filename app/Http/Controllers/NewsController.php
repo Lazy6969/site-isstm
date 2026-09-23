@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\EvenementStatus;
-use App\Models\Evenement;
 use App\Models\NewsArticle;
 use App\NewsStatus;
 use Inertia\Inertia;
@@ -19,18 +17,8 @@ class NewsController extends Controller
             ->orderByDesc('published_at')
             ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'image_path', 'author', 'published_at']);
 
-        // A few months out is enough to populate the calendar widget without
-        // pulling in every event ever scheduled.
-        $evenements = Evenement::query()
-            ->where('date_debut', '>=', now()->startOfDay())
-            ->where('date_debut', '<=', now()->addMonths(3))
-            ->where('status', EvenementStatus::Publie)
-            ->orderBy('date_debut')
-            ->get(['id', 'titre', 'date_debut', 'lieu', 'categorie']);
-
         return Inertia::render('Actualites/Index', [
             'articles' => $articles,
-            'evenements' => $evenements,
         ]);
     }
 

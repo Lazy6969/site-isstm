@@ -9,6 +9,13 @@ export default function Hero({ slides }) {
     const { t } = useTranslations();
     const { content } = usePage().props;
     const [active, setActive] = useState(0);
+    // The very first slide mounts already "active" — without this, its zoom
+    // class would be present on the first paint, so the scale-100→scale-110
+    // transition would have nothing to animate from and the zoom would never
+    // play. Flipping this true one frame after mount gives it a real
+    // transition to run, just like every later slide already gets when it
+    // becomes active.
+    const [zoomReady, setZoomReady] = useState(false);
     const safeSlides = slides.length > 0 ? slides : [{ image_path: 'images/slide1.jpg', media_type: 'image' }];
     const timerRef = useRef(null);
     const videoRefs = useRef({});
@@ -16,6 +23,11 @@ export default function Hero({ slides }) {
     function goToNext() {
         setActive((current) => (current + 1) % safeSlides.length);
     }
+
+    useEffect(() => {
+        const frame = requestAnimationFrame(() => setZoomReady(true));
+        return () => cancelAnimationFrame(frame);
+    }, []);
 
     // Image slides advance on a fixed timer; video slides advance themselves
     // once playback reaches the end (see the <video>'s onEnded below), so no
@@ -66,7 +78,7 @@ export default function Hero({ slides }) {
                         alt=""
                         loading={index === 0 ? 'eager' : 'lazy'}
                         className={`absolute inset-0 h-full w-full object-cover ${
-                            index === active ? 'scale-110 opacity-100' : 'scale-100 opacity-0'
+                            index === active ? (zoomReady ? 'scale-110 opacity-100' : 'scale-100 opacity-100') : 'scale-100 opacity-0'
                         }`}
                         style={{
                             transitionProperty: 'opacity, transform',

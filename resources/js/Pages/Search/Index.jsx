@@ -19,6 +19,9 @@ export default function Index({ query, results }) {
         enseignants: t('nav.enseignants', 'Enseignants'),
         actualites: t('nav.actualites', 'Actualités'),
         campus: t('nav.campus', 'Campus'),
+        galerie: t('nav.galerie', 'Galerie'),
+        evenements: t('nav.evenements', 'Événements'),
+        documents: t('nav.documents', 'Documents'),
     };
 
     function submit(e) {

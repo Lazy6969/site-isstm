@@ -354,9 +354,9 @@ class HomeContentSeeder extends Seeder
             'accueil_hero_titre_ligne1' => ["L'excellence technique", 'Technical excellence', 'Fahaizana ara-teknika avo lenta'],
             'accueil_hero_titre_ligne2' => ['au service de votre avenir', 'for your future', "ho an'ny hoavinao"],
             'accueil_hero_soustitre' => [
-                "L'Institut Supérieur des Sciences, Techniques et Management forme les ingénieurs et techniciens de demain à Mahajanga, Madagascar.",
-                "The Higher Institute of Science, Technology and Management trains tomorrow's engineers and technicians in Mahajanga, Madagascar.",
-                'Ny Institut Supérieur des Sciences, Techniques et Management dia mamolavola ny injeniera sy teknisiana ho avy ao Mahajanga, Madagasikara.',
+                "L'Institut Supérieur des Sciences et Technologies de Mahajanga forme les ingénieurs et techniciens de demain.",
+                "The Higher Institute of Science and Technology of Mahajanga trains tomorrow's engineers and technicians.",
+                'Ny Institut Supérieur des Sciences et Technologies de Mahajanga dia mamolavola ny injeniera sy teknisiana ho avy.',
             ],
             'accueil_stat_etudiants_label' => ['Étudiants', 'Students', 'Mpianatra'],
             'accueil_stat_enseignants_label' => ['Enseignants', 'Teachers', 'Mpampianatra'],
