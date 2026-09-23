@@ -81,8 +81,8 @@ export default function Footer() {
 
                 <div>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link href="/" className="inline-flex items-center">
-                            <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-16 w-auto" />
+                        <Link href="/" className="inline-flex items-center rounded-md bg-white p-1.5">
+                            <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto object-contain" />
                         </Link>
                         <span className="h-10 w-px bg-white/15" aria-hidden="true" />
                         <a
@@ -92,7 +92,11 @@ export default function Footer() {
                             title={t('footer.universite_mahajanga', 'Université de Mahajanga')}
                             className="inline-flex items-center rounded-md bg-white p-1.5"
                         >
-                            <img src="/images/partenariat/universite-mahajanga-footer.svg" alt="Université de Mahajanga" className="h-11 w-auto" />
+                            <img
+                                src="/images/partenariat/universite-mahajanga-footer.svg"
+                                alt="Université de Mahajanga"
+                                className="h-11 w-auto object-contain"
+                            />
                         </a>
                         <a
                             href="https://mesupres.gov.mg/"
@@ -101,7 +105,7 @@ export default function Footer() {
                             title="MESUPRES"
                             className="inline-flex items-center rounded-md bg-white p-1.5"
                         >
-                            <img src="/images/partenariat/mesupres-footer.png" alt="MESUPRES" className="h-11 w-auto" />
+                            <img src="/images/partenariat/mesupres.png" alt="MESUPRES" className="h-11 w-auto object-contain" />
                         </a>
                     </div>
                     {content.devise && (

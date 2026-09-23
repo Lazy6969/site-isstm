@@ -1,5 +1,5 @@
-import { Link, router, usePage } from '@inertiajs/react';
-import { LogOut, ChevronDown, MessageSquare } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { MessageSquare } from 'lucide-react';
 import NotificationBell from './NotificationBell';
 import HeaderSearchButton from './HeaderSearchButton';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -18,7 +18,6 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
 } from '../ui/navigation-menu';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 function NavDropdown({ label, items }) {
     return (
@@ -52,23 +51,18 @@ export default function SiteHeader() {
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const hidden = useHideOnScroll();
 
-    function logout(e) {
-        e.preventDefault();
-        router.post('/logout');
-    }
-
     return (
         <>
             <header
                 className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
-            <div className="relative flex items-center justify-between px-4 py-3 sm:px-6">
+            <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
                 <Link href="/" className="flex min-w-0 items-center gap-3.5">
                     <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto flex-shrink-0" />
                     <BrandTitle />
                 </Link>
 
-                <NavigationMenu className="hidden md:absolute md:top-1/2 md:left-1/2 md:flex md:-translate-x-1/2 md:-translate-y-1/2">
+                <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
                     <NavigationMenuList>
                         <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
                         <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
@@ -101,59 +95,33 @@ export default function SiteHeader() {
                             </NavigationMenuLink>
                         </NavigationMenuItem>
                         {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        <NavigationMenuItem>
+                            <HeaderSearchButton variant="labelled" />
+                        </NavigationMenuItem>
                     </NavigationMenuList>
                 </NavigationMenu>
 
-                <div className="hidden items-center gap-3 md:flex">
-                    <HeaderSearchButton />
-                    <DarkModeToggle />
-                    <LanguageSwitcher />
+                <div className="flex items-center gap-2 justify-self-end sm:gap-3">
+                    <div className="hidden items-center gap-3 md:flex">
+                        <DarkModeToggle />
+                        <LanguageSwitcher />
 
-                    {user && (
-                        <div className="flex items-center gap-3 text-sm">
-                            {user.is_messagerie && (
-                                <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
-                                    <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
-                                </Link>
-                            )}
-                            {isCommunityMember && <NotificationBell />}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition hover:bg-white/10 focus:outline-none">
-                                    <img
-                                        src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
-                                        alt=""
-                                        className="h-7 w-7 rounded-full object-cover"
-                                    />
-                                    {user.name}
-                                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    {user.role === 'admin' ? (
-                                        <DropdownMenuItem asChild>
-                                            <Link href="/console/dashboard">{t('nav.parametres_site', 'Paramètres du site')}</Link>
-                                        </DropdownMenuItem>
-                                    ) : (
-                                        <DropdownMenuItem asChild>
-                                            <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
-                                        </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onSelect={logout}>
-                                        <LogOut className="h-4 w-4" aria-hidden="true" />
-                                        {t('nav.deconnexion', 'Déconnexion')}
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                    )}
-                </div>
+                        {user && (user.is_messagerie || isCommunityMember) && (
+                            <div className="flex items-center gap-3 text-sm">
+                                {user.is_messagerie && (
+                                    <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
+                                        <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
+                                    </Link>
+                                )}
+                                {isCommunityMember && <NotificationBell />}
+                            </div>
+                        )}
+                    </div>
 
-                <div className="flex items-center gap-2 md:hidden">
-                    <HeaderSearchButton />
-                    <MobileMenuButton />
+                    <div className="flex items-center gap-2 md:hidden">
+                        <HeaderSearchButton />
+                        <MobileMenuButton />
+                    </div>
                 </div>
             </div>
             </header>

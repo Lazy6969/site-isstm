@@ -1,35 +1,81 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
+
+const IMAGE_DURATION_MS = 5000;
 
 export default function Hero({ slides }) {
     const { t } = useTranslations();
     const { content } = usePage().props;
     const [active, setActive] = useState(0);
-    const safeSlides = slides.length > 0 ? slides : [{ image_path: 'images/slide1.jpg' }];
+    const safeSlides = slides.length > 0 ? slides : [{ image_path: 'images/slide1.jpg', media_type: 'image' }];
+    const timerRef = useRef(null);
+    const videoRefs = useRef({});
 
+    function goToNext() {
+        setActive((current) => (current + 1) % safeSlides.length);
+    }
+
+    // Image slides advance on a fixed timer; video slides advance themselves
+    // once playback reaches the end (see the <video>'s onEnded below), so no
+    // timer is started for them here — the video's own length drives the pace.
     useEffect(() => {
-        if (safeSlides.length < 2) return;
-        const timer = setInterval(() => {
-            setActive((current) => (current + 1) % safeSlides.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [safeSlides.length]);
+        clearTimeout(timerRef.current);
+        if (safeSlides.length < 2) {
+            return;
+        }
+
+        const currentSlide = safeSlides[active];
+        if (currentSlide.media_type === 'video') {
+            const videoEl = videoRefs.current[active];
+            if (videoEl) {
+                videoEl.currentTime = 0;
+                videoEl.play().catch(() => {});
+            }
+            return;
+        }
+
+        timerRef.current = setTimeout(goToNext, IMAGE_DURATION_MS);
+        return () => clearTimeout(timerRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [active, safeSlides.length]);
 
     return (
         <section id="accueil" className="relative flex h-[92vh] min-h-[560px] items-center justify-center overflow-hidden bg-isstm-navy-dark text-white">
-            {safeSlides.map((slide, index) => (
-                <img
-                    key={slide.image_path}
-                    src={`/${slide.image_path}`}
-                    alt=""
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-                        index === active ? 'opacity-100' : 'opacity-0'
-                    }`}
-                />
-            ))}
+            {safeSlides.map((slide, index) =>
+                slide.media_type === 'video' ? (
+                    <video
+                        key={slide.image_path}
+                        ref={(el) => {
+                            videoRefs.current[index] = el;
+                        }}
+                        src={`/${slide.image_path}`}
+                        muted
+                        playsInline
+                        preload={index === active ? 'auto' : 'metadata'}
+                        onEnded={() => index === active && goToNext()}
+                        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+                            index === active ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    />
+                ) : (
+                    <img
+                        key={slide.image_path}
+                        src={`/${slide.image_path}`}
+                        alt=""
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        className={`absolute inset-0 h-full w-full object-cover ${
+                            index === active ? 'scale-110 opacity-100' : 'scale-100 opacity-0'
+                        }`}
+                        style={{
+                            transitionProperty: 'opacity, transform',
+                            transitionDuration: `1000ms, ${IMAGE_DURATION_MS}ms`,
+                            transitionTimingFunction: 'ease, linear',
+                        }}
+                    />
+                ),
+            )}
             <div className="absolute inset-0 bg-gradient-to-b from-isstm-navy-dark/55 via-isstm-navy-dark/35 to-isstm-navy-dark/70" />
 
             <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">

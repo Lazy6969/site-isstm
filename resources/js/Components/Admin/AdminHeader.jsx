@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil } from 'lucide-react';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import { useQuickEdit } from '../../lib/useQuickEdit';
+import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -27,6 +28,7 @@ export default function AdminHeader({ onOpenSidebar }) {
     const { auth } = usePage().props;
     const user = auth?.user;
     const { canEdit, enabled, toggle } = useQuickEdit();
+    const { requestLogout } = useLogoutConfirm();
     const [query, setQuery] = useState('');
     const searchRef = useRef(null);
 
@@ -49,7 +51,7 @@ export default function AdminHeader({ onOpenSidebar }) {
 
     function logout(e) {
         e.preventDefault();
-        router.post('/logout');
+        requestLogout();
     }
 
     return (

@@ -1,68 +1,95 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
-import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import { useTranslations } from '../lib/useTranslations';
 
-function PortalCard({ slideItems, content, logoKey, logo, titleKey, title, descriptionKey, description, href }) {
+function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, description, href }) {
     const { t } = useTranslations();
+    const [current, setCurrent] = useState(0);
+    const timerRef = useRef(null);
+
+    useEffect(() => {
+        timerRef.current = setInterval(() => setCurrent((c) => (c + 1) % slides.length), 4000);
+        return () => clearInterval(timerRef.current);
+    }, [slides.length]);
 
     return (
-        <section className="relative overflow-hidden rounded-3xl">
-            <div className="grid grid-cols-3 gap-1">
-                {slideItems.map((item) => {
-                    const image = content[item.key] ?? item.image;
-                    return (
-                        <div key={item.key} className="relative h-24 bg-cover bg-center sm:h-56" style={{ backgroundImage: `url('/${image}')` }}>
-                            <EditableImage contentKey={item.key} value={image} />
-                        </div>
-                    );
-                })}
-            </div>
-            <div className="absolute inset-0 bg-isstm-navy-dark/75" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
-                <div className="relative">
-                    <img src={`/${logo}`} alt="" className="mb-3 h-14 w-14 rounded-full object-cover ring-2 ring-white/70" />
-                    <EditableImage contentKey={logoKey} value={logo} className="absolute -right-1 -top-1 z-10" />
+        <section className="relative h-72 overflow-hidden rounded-3xl shadow-lg sm:h-[420px]">
+            {slides.map((slide, index) => (
+                <div
+                    key={slide.key}
+                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+                        index === current ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    style={{ backgroundImage: `url('/${slide.value}')` }}
+                >
+                    {index === current && <EditableImage contentKey={slide.key} value={slide.value} className="absolute top-3 right-3 z-20" />}
                 </div>
-                <h3 className="text-xl font-bold">
-                    <EditableText as="span" contentKey={titleKey}>
-                        {title}
-                    </EditableText>
-                </h3>
-                <p className="mt-2 max-w-md text-sm text-white/85">
-                    <EditableText as="span" contentKey={descriptionKey}>
-                        {description}
-                    </EditableText>
-                </p>
+            ))}
+
+            <div className="absolute inset-0 bg-isstm-navy-dark/75" />
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
+                <div className="relative mb-4">
+                    <img src={`/${logo}`} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-white/70" />
+                    <EditableImage contentKey={logoKey} value={logo} className="absolute -top-1.5 -right-1.5 z-10 h-6 w-6" />
+                </div>
+
+                <EditableText as="h3" contentKey={titleKey} className="text-2xl font-bold">
+                    {title}
+                </EditableText>
+
+                <EditableText as="p" contentKey={descKey} className="mt-3 max-w-md text-sm text-white/85 sm:text-base">
+                    {description}
+                </EditableText>
+
                 <Link
                     href={href}
-                    className="mt-4 flex items-center gap-1.5 rounded-full bg-isstm-gold px-6 py-2 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
+                    className="mt-5 flex items-center gap-1.5 rounded-full bg-isstm-gold px-6 py-2.5 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                 >
                     {t('vie_etudiante.decouvrir', 'Découvrir')}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
+
+                <div className="absolute bottom-5 flex gap-1.5">
+                    {slides.map((slide, index) => (
+                        <button
+                            key={slide.key}
+                            type="button"
+                            onClick={() => setCurrent(index)}
+                            aria-label={`Slide ${index + 1}`}
+                            className={`h-1.5 rounded-full transition-all ${index === current ? 'w-7 bg-isstm-gold' : 'w-1.5 bg-white/50'}`}
+                        />
+                    ))}
+                </div>
             </div>
         </section>
     );
 }
 
-const campusSlides = [
-    { key: 'vie_etudiante_campus_slide_1', image: 'images/portal_campus_1.jpg' },
-    { key: 'vie_etudiante_campus_slide_2', image: 'images/portal_campus_2.jpg' },
-    { key: 'vie_etudiante_campus_slide_3', image: 'images/portal_campus_3.jpg' },
-];
+export default function VieEtudiante({ content = {} }) {
+    const { t } = useTranslations();
 
-const associationsSlides = [
-    { key: 'vie_etudiante_associations_slide_1', image: 'images/portal_assoc_4.jpg' },
-    { key: 'vie_etudiante_associations_slide_2', image: 'images/portal_assoc_5.jpg' },
-    { key: 'vie_etudiante_associations_slide_3', image: 'images/portal_assoc_6.jpg' },
-];
+    const campusSlides = [
+        { key: 'vie_etudiante_campus_slide1_image_path', value: content.vie_etudiante_campus_slide1_image_path ?? 'images/portal_campus_1.jpg' },
+        { key: 'vie_etudiante_campus_slide2_image_path', value: content.vie_etudiante_campus_slide2_image_path ?? 'images/portal_campus_2.jpg' },
+        { key: 'vie_etudiante_campus_slide3_image_path', value: content.vie_etudiante_campus_slide3_image_path ?? 'images/portal_campus_3.jpg' },
+    ];
 
-export default function VieEtudiante() {
-    const { content } = usePage().props;
+    const assocSlides = [
+        { key: 'vie_etudiante_assoc_slide1_image_path', value: content.vie_etudiante_assoc_slide1_image_path ?? 'images/portal_assoc_4.jpg' },
+        { key: 'vie_etudiante_assoc_slide2_image_path', value: content.vie_etudiante_assoc_slide2_image_path ?? 'images/portal_assoc_5.jpg' },
+        { key: 'vie_etudiante_assoc_slide3_image_path', value: content.vie_etudiante_assoc_slide3_image_path ?? 'images/portal_assoc_6.jpg' },
+    ];
+
+    const intro1Image = content.vie_etudiante_intro1_image_path ?? 'images/campus/etudiant1.png';
+    const intro2Image = content.vie_etudiante_intro2_image_path ?? 'images/campus/etudiant2.png';
+    const campusLogo = content.vie_etudiante_campus_logo_image_path ?? 'images/umg.jpg';
+    const assocLogo = content.vie_etudiante_assoc_logo_image_path ?? 'images/aei.jpeg';
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -86,50 +113,60 @@ export default function VieEtudiante() {
 
             <main className="mx-auto max-w-5xl space-y-16 px-6 py-12">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
-                    <div className="relative w-full max-w-xs sm:w-64">
-                        <img src={`/${content.vie_etudiante_image_1 ?? 'images/campus/etudiant1.png'}`} alt="" className="w-full" />
-                        <EditableImage contentKey="vie_etudiante_image_1" value={content.vie_etudiante_image_1 ?? 'images/campus/etudiant1.png'} />
+                    <div className="relative w-full max-w-xs flex-shrink-0 overflow-hidden rounded-2xl sm:w-64">
+                        <img
+                            src={`/${intro1Image}`}
+                            alt=""
+                            className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                        />
+                        <EditableImage contentKey="vie_etudiante_intro1_image_path" value={intro1Image} />
                     </div>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-                        <EditableText as="span" contentKey="vie_etudiante_intro_1">
-                            {content.vie_etudiante_intro_1}
-                        </EditableText>
-                    </p>
+                    <EditableText
+                        as="p"
+                        contentKey="vie_etudiante_intro1_texte"
+                        className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                    >
+                        {content.vie_etudiante_intro1_texte}
+                    </EditableText>
                 </div>
 
                 <PortalCard
-                    slideItems={campusSlides}
-                    content={content}
-                    logoKey="vie_etudiante_campus_logo"
-                    logo={content.vie_etudiante_campus_logo ?? 'images/umg.jpg'}
+                    slides={campusSlides}
+                    logoKey="vie_etudiante_campus_logo_image_path"
+                    logo={campusLogo}
                     titleKey="vie_etudiante_campus_titre"
                     title={content.vie_etudiante_campus_titre}
-                    descriptionKey="vie_etudiante_campus_description"
-                    description={content.vie_etudiante_campus_description}
+                    descKey="vie_etudiante_campus_texte"
+                    description={content.vie_etudiante_campus_texte}
                     href="/campus"
                 />
 
                 <div className="flex flex-col items-center gap-8 sm:flex-row-reverse">
-                    <div className="relative w-full max-w-xs sm:w-64">
-                        <img src={`/${content.vie_etudiante_image_2 ?? 'images/campus/etudiant2.png'}`} alt="" className="w-full" />
-                        <EditableImage contentKey="vie_etudiante_image_2" value={content.vie_etudiante_image_2 ?? 'images/campus/etudiant2.png'} />
+                    <div className="relative w-full max-w-xs flex-shrink-0 overflow-hidden rounded-2xl sm:w-64">
+                        <img
+                            src={`/${intro2Image}`}
+                            alt=""
+                            className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                        />
+                        <EditableImage contentKey="vie_etudiante_intro2_image_path" value={intro2Image} />
                     </div>
-                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
-                        <EditableText as="span" contentKey="vie_etudiante_intro_2">
-                            {content.vie_etudiante_intro_2}
-                        </EditableText>
-                    </p>
+                    <EditableText
+                        as="p"
+                        contentKey="vie_etudiante_intro2_texte"
+                        className="text-base leading-relaxed text-slate-700 dark:text-slate-200"
+                    >
+                        {content.vie_etudiante_intro2_texte}
+                    </EditableText>
                 </div>
 
                 <PortalCard
-                    slideItems={associationsSlides}
-                    content={content}
-                    logoKey="vie_etudiante_associations_logo"
-                    logo={content.vie_etudiante_associations_logo ?? 'images/aei.jpeg'}
-                    titleKey="vie_etudiante_associations_titre"
-                    title={content.vie_etudiante_associations_titre}
-                    descriptionKey="vie_etudiante_associations_description"
-                    description={content.vie_etudiante_associations_description}
+                    slides={assocSlides}
+                    logoKey="vie_etudiante_assoc_logo_image_path"
+                    logo={assocLogo}
+                    titleKey="vie_etudiante_assoc_titre"
+                    title={content.vie_etudiante_assoc_titre}
+                    descKey="vie_etudiante_assoc_texte"
+                    description={content.vie_etudiante_assoc_texte}
                     href="/associations"
                 />
             </main>

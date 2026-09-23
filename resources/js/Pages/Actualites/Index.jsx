@@ -3,7 +3,6 @@ import { CalendarDays, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
-import Partenaires from '../../Components/Home/Partenaires';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -12,7 +11,7 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export default function Index({ articles, partenaires }) {
+export default function Index({ articles }) {
     const { t } = useTranslations();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
@@ -104,11 +103,13 @@ export default function Index({ articles, partenaires }) {
                                     href={`/actualites/${article.slug}`}
                                     className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
                                 >
-                                    <div
-                                        className="h-36 bg-cover bg-center"
-                                        style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
-                                    />
-                                    <div className="p-4">
+                                    <div className="h-36 overflow-hidden">
+                                        <div
+                                            className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                            style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
+                                        />
+                                    </div>
+                                    <div className="p-4 transition-transform duration-300 group-hover:scale-[1.03]">
                                         {article.category && (
                                             <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
                                                 {article.category.name_fr}
@@ -125,10 +126,12 @@ export default function Index({ articles, partenaires }) {
                                     href={`/actualites/${article.slug}`}
                                     className="group flex items-center gap-3 overflow-hidden rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700"
                                 >
-                                    <div
-                                        className="h-16 w-24 flex-shrink-0 rounded-lg bg-cover bg-center"
-                                        style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
-                                    />
+                                    <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded-lg">
+                                        <div
+                                            className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                            style={article.image_path ? { backgroundImage: `url('/${article.image_path}')` } : undefined}
+                                        />
+                                    </div>
                                     <div className="min-w-0 flex-1">
                                         {article.category && (
                                             <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
@@ -145,8 +148,6 @@ export default function Index({ articles, partenaires }) {
                     </div>
                 )}
             </main>
-
-            <Partenaires partenaires={partenaires} />
 
             <Footer />
         </div>

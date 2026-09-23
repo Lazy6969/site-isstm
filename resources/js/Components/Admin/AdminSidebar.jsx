@@ -20,6 +20,8 @@ import {
     History,
     Palette,
     BarChart3,
+    Network,
+    GalleryHorizontal,
 } from 'lucide-react';
 
 const navGroups = [
@@ -46,12 +48,14 @@ const navGroups = [
         label: 'Contenu',
         items: [
             { href: '/console/contenu', label: 'Contenu du site', icon: FileEdit, permission: 'quick-edit.access' },
+            { href: '/console/accueil', label: "Images de l'accueil", icon: GalleryHorizontal, permission: 'hero.view' },
             { href: '/console/actualites', label: 'Actualités', icon: Newspaper, permission: 'news.view' },
             { href: '/console/galerie', label: 'Galerie', icon: Images, permission: 'gallery.view' },
             { href: '/console/filieres', label: 'Filières', icon: BookOpen, permission: 'filieres.view' },
             { href: '/console/enseignants', label: 'Enseignants', icon: Presentation, permission: 'enseignants.view' },
             { href: '/console/temoignages', label: 'Témoignages', icon: Quote, permission: 'temoignages.view' },
             { href: '/console/partenaires', label: 'Partenaires', icon: HeartHandshake, permission: 'partenaires.view' },
+            { href: '/console/organigramme', label: 'Organigramme', icon: Network, permission: 'organigramme.view' },
             { href: '/console/evenements', label: 'Événements', icon: CalendarDays, permission: 'evenements.view' },
             { href: '/console/campus', label: 'Campus', icon: Building2, permission: 'campus.view' },
             { href: '/console/documents', label: 'Documents', icon: FileText, permission: 'documents.view' },

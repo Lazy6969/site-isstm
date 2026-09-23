@@ -46,6 +46,8 @@ class RolePermissionSeeder extends Seeder
         'activity-log.view',
         'settings.manage',
         'statistics.view',
+        'organigramme.view', 'organigramme.edit',
+        'hero.view', 'hero.create', 'hero.edit', 'hero.delete',
     ];
 
     /**

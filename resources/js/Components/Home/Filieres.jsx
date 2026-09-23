@@ -34,11 +34,13 @@ export default function Filieres({ filieres }) {
                     {filieres.map((filiere) => (
                         <Link key={filiere.slug} href={`/filieres/${filiere.slug}`}>
                             <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
-                                <div
-                                    className="h-28 bg-cover bg-center"
-                                    style={{ backgroundImage: `url('/${filiere.image_path}')` }}
-                                />
-                                <CardContent className="p-3.5">
+                                <div className="h-28 overflow-hidden">
+                                    <div
+                                        className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                        style={{ backgroundImage: `url('/${filiere.image_path}')` }}
+                                    />
+                                </div>
+                                <CardContent className="p-3.5 transition-transform duration-300 group-hover:scale-[1.03]">
                                     {filiere.mention && (
                                         <Badge className="px-2 py-0 text-[0.65rem]">{filiere.mention}</Badge>
                                     )}

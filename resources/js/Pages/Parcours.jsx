@@ -1,16 +1,28 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Download, FileText, Lock } from 'lucide-react';
+import { ArrowUp, Download, FileText, Lock } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import OrgNode from '../Components/Parcours/OrgNode';
-import { administrativePole, cursusLadder, direction, pedagogicalPole } from '../Components/Parcours/orgChartData';
+import {
+    administrativePole,
+    categories,
+    cursusLadder,
+    directionGrid,
+    pedagogicalPole,
+} from '../Components/Parcours/orgChartData';
 import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 
-const directionItems = direction.map((item, index) => ({ ...item, key: `parcours_direction_${index + 1}` }));
+const CURSUS_GRADIENTS = {
+    bacc: 'from-[#6fa8dc] to-[#4a86c5]',
+    l1l2: 'from-[#f0954a] to-[#d9722a]',
+    l3: 'from-[#2e5f9e] to-[#1c3f73]',
+    m1: 'from-[#e8b93a] to-[#cf9a1a]',
+    m2: 'from-[#8bc457] to-[#6b9e3c]',
+};
 
-export default function Parcours() {
+export default function Parcours({ orgPeople = {} }) {
     const { auth, content } = usePage().props;
     const { t } = useTranslations();
     const isLoggedIn = Boolean(auth?.user);
@@ -56,59 +68,27 @@ export default function Parcours() {
                 </p>
 
                 <section>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
-                        <EditableText as="span" contentKey="parcours_gouvernance_titre">
-                            {content.parcours_gouvernance_titre}
-                        </EditableText>
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                        {t('parcours.gouvernance', 'Gouvernance')}
                     </h2>
-                    <div className="space-y-3">
-                        <div className="rounded-xl border border-isstm-navy/20 bg-isstm-navy/5 px-4 py-3">
-                            <span className="block text-sm font-semibold text-isstm-navy dark:text-white">
-                                <EditableText as="span" contentKey="parcours_conseil_titre">
-                                    {content.parcours_conseil_titre}
-                                </EditableText>
-                            </span>
-                            <span className="block text-xs text-slate-500 dark:text-slate-400">
-                                <EditableText as="span" contentKey="parcours_organe_collegial">
-                                    {content.parcours_organe_collegial}
-                                </EditableText>
+                    <div className="mx-auto max-w-md space-y-3">
+                        <OrgNode node={{ key: 'conseil_etablissement' }} people={orgPeople} t={t} />
+                        <div className="flex justify-center">
+                            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">
+                                &#8595;
                             </span>
                         </div>
-                        <div className="rounded-xl bg-isstm-navy px-4 py-3 text-white">
-                            <span className="block text-sm font-semibold">
-                                <EditableText as="span" contentKey="parcours_directeur_label">
-                                    {content.parcours_directeur_label}
-                                </EditableText>
-                            </span>
-                            <span className="block text-xs text-white/70">
-                                <EditableText as="span" contentKey="parcours_directeur_nom">
-                                    {content.parcours_directeur_nom}
-                                </EditableText>
-                            </span>
-                        </div>
+                        <OrgNode node={{ key: 'directeur' }} people={orgPeople} t={t} emphasize />
                     </div>
                 </section>
 
                 <section>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
-                        <EditableText as="span" contentKey="parcours_direction_titre">
-                            {content.parcours_direction_titre}
-                        </EditableText>
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                        {t('parcours.direction_titre', 'Direction & Services Rattachés')}
                     </h2>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                        {directionItems.map((item) => (
-                            <div key={item.key} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
-                                <span className="block text-sm font-semibold text-isstm-navy dark:text-white">
-                                    <EditableText as="span" contentKey={`${item.key}_titre`}>
-                                        {content[`${item.key}_titre`] ?? item.title}
-                                    </EditableText>
-                                </span>
-                                <span className="block text-xs text-slate-500 dark:text-slate-400">
-                                    <EditableText as="span" contentKey={`${item.key}_nom`}>
-                                        {content[`${item.key}_nom`] ?? item.name}
-                                    </EditableText>
-                                </span>
-                            </div>
+                    <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {directionGrid.map((key) => (
+                            <OrgNode key={key} node={{ key }} people={orgPeople} t={t} />
                         ))}
                     </div>
                 </section>
@@ -125,8 +105,22 @@ export default function Parcours() {
                         </EditableText>
                     </p>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <OrgNode node={pedagogicalPole} />
-                        <OrgNode node={administrativePole} />
+                        <OrgNode node={pedagogicalPole} people={orgPeople} t={t} />
+                        <OrgNode node={administrativePole} people={orgPeople} t={t} />
+                    </div>
+
+                    <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                            {t('parcours.legende_titre', 'Légende')}
+                        </h3>
+                        <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                            {Object.values(categories).map((category) => (
+                                <div key={category.label} className="flex items-center gap-2">
+                                    <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${category.swatch}`} aria-hidden="true" />
+                                    <span className="text-xs text-slate-600 dark:text-slate-300">{category.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
 
@@ -136,31 +130,34 @@ export default function Parcours() {
                             {content.parcours_cursus_intro}
                         </EditableText>
                     </p>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
-                        <EditableText as="span" contentKey="parcours_cursus_titre">
-                            {content.parcours_cursus_titre}
-                        </EditableText>
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                        {t('parcours.cursus_titre', 'Schéma du Cursus')}
                     </h2>
-                    <ol className="space-y-3">
-                        {[...cursusLadder].reverse().map((step) => (
-                            <Card key={step.key} className="p-4">
-                                <span className="font-semibold text-isstm-navy dark:text-white">
-                                    <EditableText as="span" contentKey={`parcours_cursus_${step.key}_niveau`}>
-                                        {content[`parcours_cursus_${step.key}_niveau`] ?? step.level}
-                                    </EditableText>
-                                </span>
-                                <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-sm text-slate-500 dark:text-slate-400">
-                                    {step.items.map((item, index) => (
-                                        <li key={item}>
-                                            <EditableText as="span" contentKey={`parcours_cursus_${step.key}_item${index + 1}`}>
-                                                {content[`parcours_cursus_${step.key}_item${index + 1}`] ?? item}
-                                            </EditableText>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </Card>
+                    <div className="mx-auto flex max-w-[600px] flex-col items-center">
+                        {[...cursusLadder].reverse().map((step, index, arr) => (
+                            <div key={step.key} className="w-full">
+                                <div
+                                    className={`w-full rounded-2xl bg-gradient-to-br px-6 py-5 text-center text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:px-8 ${CURSUS_GRADIENTS[step.key]}`}
+                                >
+                                    <span className="block text-lg font-extrabold tracking-wide drop-shadow-sm sm:text-xl">{step.level}</span>
+                                    <ul className="mt-1.5 list-none space-y-0.5 text-sm opacity-95">
+                                        {step.items.map((item) => (
+                                            <li key={item}>{item}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                {index < arr.length - 1 && (
+                                    <div className="flex justify-center py-2">
+                                        <ArrowUp
+                                            className="h-6 w-6 animate-bounce text-isstm-gold"
+                                            style={{ animationDelay: `${index * 0.15}s` }}
+                                            aria-hidden="true"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         ))}
-                    </ol>
+                    </div>
                 </section>
 
                 <Card className="p-7">
