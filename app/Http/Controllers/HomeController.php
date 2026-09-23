@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\SectionVisibilityController;
 use App\Models\Filiere;
 use App\Models\HeroSlide;
 use App\Models\NewsArticle;
@@ -18,6 +19,7 @@ class HomeController extends Controller
         $locale = app()->getLocale();
 
         return Inertia::render('Home', [
+            'hiddenSections' => SectionVisibilityController::hidden(),
             'heroSlides' => HeroSlide::orderBy('display_order')->get(['image_path', 'media_type']),
             'testimonials' => Testimonial::orderBy('display_order')
                 ->get(['author_name', 'program', 'image_path', 'quote_fr', 'quote_en', 'quote_mg'])
