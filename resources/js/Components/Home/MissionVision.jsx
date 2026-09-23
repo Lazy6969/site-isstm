@@ -5,8 +5,8 @@ import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 
 const BLOB_PATHS = {
-    left: 'M0,0 H68 C80,15 60,30 75,45 C85,60 65,75 78,90 C82,95 75,100 70,100 H0 Z',
-    right: 'M100,0 H32 C20,15 40,30 25,45 C15,60 35,75 22,90 C18,95 25,100 30,100 H100 Z',
+    left: 'M0,0 H55 C75,8 45,17 65,25 C85,33 40,42 60,50 C80,58 45,67 65,75 C85,83 45,92 55,100 H0 Z',
+    right: 'M100,0 H45 C25,8 55,17 35,25 C15,33 60,42 40,50 C20,58 55,67 35,75 C15,83 55,92 45,100 H100 Z',
 };
 
 export default function MissionVision({ content }) {
@@ -88,18 +88,6 @@ export default function MissionVision({ content }) {
                                         >
                                             {t('filieres.en_savoir_plus', 'En savoir plus')}
                                         </Link>
-
-                                        <svg
-                                            className="pointer-events-none absolute inset-x-0 bottom-0 h-8 w-full translate-y-1/2 text-isstm-navy md:hidden"
-                                            viewBox="0 0 100 20"
-                                            preserveAspectRatio="none"
-                                            aria-hidden="true"
-                                        >
-                                            <path
-                                                d="M0,0 L0,9 C15,18 30,2 50,10 C70,18 85,2 100,9 L100,0 Z"
-                                                fill="currentColor"
-                                            />
-                                        </svg>
                                     </div>
 
                                     <div className={`relative min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}>

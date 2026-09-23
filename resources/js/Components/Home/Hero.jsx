@@ -63,9 +63,14 @@ export default function Hero({ slides }) {
                         src={`/${slide.image_path}`}
                         alt=""
                         loading={index === 0 ? 'eager' : 'lazy'}
-                        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-                            index === active ? 'opacity-100' : 'opacity-0'
+                        className={`absolute inset-0 h-full w-full object-cover ${
+                            index === active ? 'scale-110 opacity-100' : 'scale-100 opacity-0'
                         }`}
+                        style={{
+                            transitionProperty: 'opacity, transform',
+                            transitionDuration: `1000ms, ${IMAGE_DURATION_MS}ms`,
+                            transitionTimingFunction: 'ease, linear',
+                        }}
                     />
                 ),
             )}

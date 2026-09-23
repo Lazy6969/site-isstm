@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Download, FileText, Lock } from 'lucide-react';
+import { ArrowUp, Download, FileText, Lock } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import OrgNode from '../Components/Parcours/OrgNode';
@@ -12,6 +12,14 @@ import {
 } from '../Components/Parcours/orgChartData';
 import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
+
+const CURSUS_GRADIENTS = {
+    bacc: 'from-[#6fa8dc] to-[#4a86c5]',
+    l1l2: 'from-[#f0954a] to-[#d9722a]',
+    l3: 'from-[#2e5f9e] to-[#1c3f73]',
+    m1: 'from-[#e8b93a] to-[#cf9a1a]',
+    m2: 'from-[#8bc457] to-[#6b9e3c]',
+};
 
 export default function Parcours({ orgPeople = {} }) {
     const { auth } = usePage().props;
@@ -107,21 +115,34 @@ export default function Parcours({ orgPeople = {} }) {
                             "Du baccalauréat scientifique jusqu'au Master, chaque étape de votre parcours à l'ISSTM est pensée pour vous mener, pas à pas, vers l'excellence.",
                         )}
                     </p>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
                         {t('parcours.cursus_titre', 'Schéma du Cursus')}
                     </h2>
-                    <ol className="space-y-3">
-                        {[...cursusLadder].reverse().map((step) => (
-                            <Card key={step.key} className="p-4">
-                                <span className="font-semibold text-isstm-navy dark:text-white">{step.level}</span>
-                                <ul className="mt-1.5 list-inside list-disc space-y-0.5 text-sm text-slate-500 dark:text-slate-400">
-                                    {step.items.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </Card>
+                    <div className="mx-auto flex max-w-[600px] flex-col items-center">
+                        {[...cursusLadder].reverse().map((step, index, arr) => (
+                            <div key={step.key} className="w-full">
+                                <div
+                                    className={`w-full rounded-2xl bg-gradient-to-br px-6 py-5 text-center text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:px-8 ${CURSUS_GRADIENTS[step.key]}`}
+                                >
+                                    <span className="block text-lg font-extrabold tracking-wide drop-shadow-sm sm:text-xl">{step.level}</span>
+                                    <ul className="mt-1.5 list-none space-y-0.5 text-sm opacity-95">
+                                        {step.items.map((item) => (
+                                            <li key={item}>{item}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                {index < arr.length - 1 && (
+                                    <div className="flex justify-center py-2">
+                                        <ArrowUp
+                                            className="h-6 w-6 animate-bounce text-isstm-gold"
+                                            style={{ animationDelay: `${index * 0.15}s` }}
+                                            aria-hidden="true"
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         ))}
-                    </ol>
+                    </div>
                 </section>
 
                 <Card className="p-7">

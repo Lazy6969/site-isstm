@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Filiere;
 use App\Models\HeroSlide;
+use App\Models\NewsArticle;
 use App\Models\Partenaire;
 use App\Models\Testimonial;
+use App\NewsStatus;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,6 +38,20 @@ class HomeController extends Controller
                     'image_path' => $item->image_path,
                 ]),
             'partenaires' => Partenaire::orderBy('display_order')->get(['nom', 'logo_path', 'site_url']),
+            'actualites' => NewsArticle::query()
+                ->with('category:id,name_fr')
+                ->where('status', NewsStatus::Publie)
+                ->orderByDesc('published_at')
+                ->take(3)
+                ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'image_path', 'published_at'])
+                ->map(fn (NewsArticle $item) => [
+                    'slug' => $item->slug,
+                    'title' => $item->title,
+                    'excerpt' => $item->excerpt,
+                    'image_path' => $item->image_path,
+                    'published_at' => $item->published_at,
+                    'category' => $item->category?->name_fr,
+                ]),
         ]);
     }
 }

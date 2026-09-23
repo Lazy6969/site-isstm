@@ -77,8 +77,8 @@ export default function Footer() {
 
                 <div>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link href="/" className="inline-flex items-center">
-                            <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-16 w-auto" />
+                        <Link href="/" className="inline-flex items-center rounded-md bg-white p-1.5">
+                            <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto" />
                         </Link>
                         <span className="h-10 w-px bg-white/15" aria-hidden="true" />
                         <a
