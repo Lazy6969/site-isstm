@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Http\Controllers\Admin\ContactFieldVisibilityController;
 use App\Models\SiteContent;
+use App\PreinscriptionStatus;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -60,6 +61,12 @@ class HandleInertiaRequests extends Middleware
             // Global (not per-controller) since ContactCards/ContactMaps render
             // identically from both the homepage and /contact.
             'hiddenContactFields' => fn () => ContactFieldVisibilityController::hidden(),
+            // Drives the "Mon dossier" link in FloatingAccountButton — a candidate
+            // account (role User) with a préinscription still awaiting a decision.
+            'hasPendingPreinscription' => fn () => $request->user()
+                ?->preinscriptions()
+                ->where('status', PreinscriptionStatus::Soumis)
+                ->exists() ?? false,
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Filiere;
 use App\Models\Preinscription;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -36,6 +37,9 @@ class PreinscriptionFactory extends Factory
             'filiere_id' => Filiere::factory(),
             'niveau' => 'L1',
             'photo_path' => 'preinscriptions/photo.jpg',
+            'releve_bacc_path' => 'preinscriptions/releve.jpg',
+            'cin_document_path' => 'preinscriptions/cin.jpg',
+            'user_id' => User::factory(),
         ];
     }
 }

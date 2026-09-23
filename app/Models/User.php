@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\FriendRequestStatus;
 use App\PreinscriptionStatus;
 use App\Role;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
@@ -34,7 +34,7 @@ use Spatie\Permission\Traits\HasRoles;
     'avatar_path',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
@@ -76,6 +76,11 @@ class User extends Authenticatable
     public function etudiant(): HasOne
     {
         return $this->hasOne(Etudiant::class);
+    }
+
+    public function preinscriptions(): HasMany
+    {
+        return $this->hasMany(Preinscription::class);
     }
 
     public function sentFriendRequests(): HasMany
@@ -139,7 +144,7 @@ class User extends Authenticatable
     {
         return Preinscription::query()
             ->where('user_id', $this->id)
-            ->where('status', PreinscriptionStatus::Approuve)
+            ->where('status', PreinscriptionStatus::Accepte)
             ->latest('created_at')
             ->first();
     }

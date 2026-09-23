@@ -26,7 +26,7 @@ it('shows aggregate stats to an admin', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $classe = Classe::factory()->create();
     $etudiants = Etudiant::factory()->count(2)->create(['classe_id' => $classe->id]);
-    Preinscription::factory()->create(['status' => PreinscriptionStatus::EnAttente]);
+    Preinscription::factory()->create(['status' => PreinscriptionStatus::Soumis]);
     Inscription::factory()->create([
         'etudiant_id' => $etudiants->first()->id,
         'classe_id' => $classe->id,

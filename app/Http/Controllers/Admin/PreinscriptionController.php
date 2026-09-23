@@ -4,14 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\Etudiant;
 use App\Models\Preinscription;
-use App\Models\User;
+use App\Notifications\PreinscriptionAccepted;
+use App\Notifications\PreinscriptionRefused;
 use App\PreinscriptionStatus;
 use App\Role;
+use App\StatutEtudiant;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,37 +22,76 @@ class PreinscriptionController extends Controller
     {
         return Inertia::render('Admin/Preinscriptions/Index', [
             'preinscriptions' => Preinscription::with('filiere:id,nom_fr')
-                ->where('status', PreinscriptionStatus::EnAttente)
+                ->where('status', PreinscriptionStatus::Soumis)
                 ->orderBy('created_at')
                 ->get(),
         ]);
     }
 
+    public function show(Preinscription $preinscription): Response
+    {
+        if ($preinscription->status === PreinscriptionStatus::Soumis && $preinscription->reviewed_at === null) {
+            $preinscription->update(['reviewed_at' => now()]);
+        }
+
+        return Inertia::render('Admin/Preinscriptions/Show', [
+            'preinscription' => $preinscription->load('filiere:id,nom_fr'),
+        ]);
+    }
+
     public function approve(Preinscription $preinscription): RedirectResponse
     {
-        abort_if($preinscription->status === PreinscriptionStatus::Approuve, 409, 'Cette préinscription a déjà été approuvée.');
+        abort_if($preinscription->status !== PreinscriptionStatus::Soumis, 409, 'Cette préinscription a déjà été traitée.');
 
-        $user = User::create([
-            'name' => trim("{$preinscription->nom} {$preinscription->prenoms}"),
-            'email' => $preinscription->email,
-            'password' => Hash::make(Str::random(32)),
-            'role' => Role::Etudiant,
-            'avatar_path' => $preinscription->photo_path,
+        $user = $preinscription->user;
+        $user->role = Role::Etudiant;
+        $user->save();
+        $user->syncRoles([Role::Etudiant->spatieRole()]);
+
+        $matricule = Etudiant::generateMatricule();
+
+        Etudiant::create([
+            'user_id' => $user->id,
+            'preinscription_id' => $preinscription->id,
+            'matricule' => $matricule,
+            'statut' => StatutEtudiant::Actif,
         ]);
-        $user->assignRole(Role::Etudiant->spatieRole());
 
-        $preinscription->status = PreinscriptionStatus::Approuve;
-        $preinscription->user_id = $user->id;
+        $preinscription->status = PreinscriptionStatus::Accepte;
         $preinscription->save();
 
-        Password::sendResetLink(['email' => $user->email]);
+        $user->notify(new PreinscriptionAccepted($matricule));
 
         ActivityLog::record(
             'preinscription_approved',
-            "Préinscription approuvée pour {$user->name}",
+            "Préinscription acceptée pour {$user->name} (matricule {$matricule})",
             $preinscription,
         );
 
-        return back()->with('status', "Compte étudiant créé pour {$user->name}. Un e-mail pour définir son mot de passe vient d'être envoyé.");
+        return back()->with('status', "Compte étudiant activé pour {$user->name} (matricule {$matricule}). Un e-mail de confirmation vient d'être envoyé.");
+    }
+
+    public function refuse(Request $request, Preinscription $preinscription): RedirectResponse
+    {
+        abort_if($preinscription->status !== PreinscriptionStatus::Soumis, 409, 'Cette préinscription a déjà été traitée.');
+
+        $validated = $request->validate([
+            'motif_refus' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $preinscription->update([
+            'status' => PreinscriptionStatus::Refuse,
+            'motif_refus' => $validated['motif_refus'] ?? null,
+        ]);
+
+        $preinscription->user->notify(new PreinscriptionRefused($validated['motif_refus'] ?? null));
+
+        ActivityLog::record(
+            'preinscription_refused',
+            "Préinscription refusée pour {$preinscription->user->name}",
+            $preinscription,
+        );
+
+        return back()->with('status', "Dossier de {$preinscription->user->name} refusé.");
     }
 }

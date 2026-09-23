@@ -41,6 +41,12 @@ class Preinscription extends Model
         'filiere_id',
         'niveau',
         'photo_path',
+        'releve_bacc_path',
+        'cin_document_path',
+        'user_id',
+        'status',
+        'reviewed_at',
+        'motif_refus',
     ];
 
     protected function casts(): array
@@ -48,6 +54,7 @@ class Preinscription extends Model
         return [
             'date_naissance' => 'date',
             'status' => PreinscriptionStatus::class,
+            'reviewed_at' => 'datetime',
         ];
     }
 

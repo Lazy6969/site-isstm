@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class StorePreinscriptionRequest extends FormRequest
 {
@@ -38,7 +39,8 @@ class StorePreinscriptionRequest extends FormRequest
             'code_redoublement' => ['required', Rule::in(['N', 'R'])],
             'adresse' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:30'],
-            'email' => ['required', 'email', 'max:150'],
+            'email' => ['required', 'email', 'max:150', Rule::unique('users', 'email')],
+            'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()],
             'nom_pere' => ['nullable', 'string', 'max:150'],
             'profession_pere' => ['nullable', 'string', 'max:150'],
             'nom_mere' => ['nullable', 'string', 'max:150'],
@@ -50,6 +52,8 @@ class StorePreinscriptionRequest extends FormRequest
             'filiere_id' => ['required', 'exists:filieres,id'],
             'niveau' => ['required', 'string', 'max:10'],
             'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'releve_bacc' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:6144'],
+            'cin_document' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:6144'],
         ];
     }
 }

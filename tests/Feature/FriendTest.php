@@ -79,13 +79,13 @@ it('prioritises suggestions from the same filiere', function () {
     $otherFiliere = Filiere::factory()->create();
 
     $user = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $user->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Approuve]);
+    Preinscription::factory()->create(['user_id' => $user->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $sameFiliere = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $sameFiliere->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Approuve]);
+    Preinscription::factory()->create(['user_id' => $sameFiliere->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $otherStudent = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $otherStudent->id, 'filiere_id' => $otherFiliere->id, 'status' => PreinscriptionStatus::Approuve]);
+    Preinscription::factory()->create(['user_id' => $otherStudent->id, 'filiere_id' => $otherFiliere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $this->actingAs($user)->get('/amis')->assertInertia(fn ($page) => $page
         ->component('Amis/Index')

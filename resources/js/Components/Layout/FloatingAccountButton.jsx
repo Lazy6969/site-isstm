@@ -19,6 +19,7 @@ export default function FloatingAccountButton() {
     // Permission-based, not the legacy `role` column — covers every role with
     // console access (super-admin, scolarite, ...), not just literal "admin".
     const hasConsoleAccess = (props.auth?.permissions ?? []).includes('dashboard.view');
+    const hasPendingPreinscription = props.hasPendingPreinscription;
 
     if (!user || url.startsWith('/console')) {
         return null;
@@ -54,6 +55,11 @@ export default function FloatingAccountButton() {
                 <DropdownMenuItem asChild>
                     <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
                 </DropdownMenuItem>
+                {hasPendingPreinscription && (
+                    <DropdownMenuItem asChild>
+                        <Link href="/mon-dossier">{t('profil.mon_dossier', 'Mon dossier de préinscription')}</Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={logout}>
                     <LogOut className="h-4 w-4" aria-hidden="true" />

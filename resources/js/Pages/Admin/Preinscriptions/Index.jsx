@@ -1,9 +1,9 @@
-import { router } from '@inertiajs/react';
-import { UserCheck } from 'lucide-react';
-import { useState } from 'react';
+import { Link } from '@inertiajs/react';
+import { Eye } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../Components/ui/avatar';
-import { Button } from '../../../Components/ui/button';
+import { buttonVariants } from '../../../Components/ui/button';
+import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
 
 function formatDate(value) {
@@ -16,31 +16,6 @@ function formatDate(value) {
 
 export default function Index({ preinscriptions }) {
     const { t } = useTranslations();
-    const [processingId, setProcessingId] = useState(null);
-
-    function approve(id) {
-        const confirmed = window.confirm(
-            t(
-                'preinscriptions_admin.confirmer_approbation',
-                'Créer le compte étudiant pour cette préinscription ?',
-            ),
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        setProcessingId(id);
-
-        router.post(
-            `/console/preinscriptions/${id}/approve`,
-            {},
-            {
-                preserveScroll: true,
-                onFinish: () => setProcessingId(null),
-            },
-        );
-    }
 
     return (
         <AdminLayout
@@ -103,26 +78,13 @@ export default function Index({ preinscriptions }) {
                                 </p>
                             </div>
 
-                            <Button
-                                onClick={() => approve(p.id)}
-                                disabled={processingId === p.id}
-                                className="flex-shrink-0 bg-admin-text text-admin-bg hover:bg-admin-text/90 disabled:animate-pulse disabled:opacity-60"
+                            <Link
+                                href={`/console/preinscriptions/${p.id}`}
+                                className={cn(buttonVariants(), 'flex-shrink-0 bg-admin-text text-admin-bg hover:bg-admin-text/90')}
                             >
-                                <UserCheck
-                                    className="h-4 w-4"
-                                    aria-hidden="true"
-                                />
-
-                                {processingId === p.id
-                                    ? t(
-                                          'preinscriptions_admin.approbation_en_cours',
-                                          'Approbation…',
-                                      )
-                                    : t(
-                                          'preinscriptions_admin.approuver',
-                                          'Approuver',
-                                      )}
-                            </Button>
+                                <Eye className="h-4 w-4" aria-hidden="true" />
+                                {t('preinscriptions_admin.examiner', 'Examiner le dossier')}
+                            </Link>
                         </div>
                     ))}
                 </div>

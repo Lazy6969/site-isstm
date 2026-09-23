@@ -161,7 +161,7 @@ class FriendController extends Controller
         if ($filiereId !== null) {
             $sameFiliereUserIds = Preinscription::query()
                 ->where('filiere_id', $filiereId)
-                ->where('status', PreinscriptionStatus::Approuve)
+                ->where('status', PreinscriptionStatus::Accepte)
                 ->whereNotNull('user_id')
                 ->pluck('user_id');
 

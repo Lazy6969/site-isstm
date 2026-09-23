@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle2, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -37,10 +37,14 @@ const emptyForm = {
     filiere_id: '',
     niveau: '',
     photo: null,
+    releve_bacc: null,
+    cin_document: null,
+    password: '',
+    password_confirmation: '',
 };
 
 export default function Create({ filieres }) {
-    const { flash, content } = usePage().props;
+    const { content } = usePage().props;
     const { t } = useTranslations();
     const [step, setStep] = useState('form');
     const [photoPreview, setPhotoPreview] = useState(null);
@@ -77,6 +81,10 @@ export default function Create({ filieres }) {
         setPhotoPreview(file ? URL.createObjectURL(file) : null);
     }
 
+    function onFileChange(field) {
+        return (e) => setData(field, e.target.files[0] ?? null);
+    }
+
     function reviewForm(e) {
         e.preventDefault();
         setStep('review');
@@ -88,23 +96,6 @@ export default function Create({ filieres }) {
             forceFormData: true,
             onError: () => setStep('form'),
         });
-    }
-
-    if (flash?.status) {
-        return (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-                <Head title="Préinscription envoyée" />
-                <SiteHeader />
-                <main className="mx-auto flex max-w-lg flex-col items-center px-6 py-24 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-                        <CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />
-                    </div>
-                    <h1 className="mt-6 text-2xl font-bold text-isstm-navy dark:text-white">{t('preinscription.envoyee_titre', 'Préinscription envoyée')}</h1>
-                    <p className="mt-3 text-slate-600 dark:text-slate-300">{flash.status}</p>
-                </main>
-                <Footer />
-            </div>
-        );
     }
 
     return (
@@ -211,6 +202,36 @@ export default function Create({ filieres }) {
                         </Card>
 
                         <Card className="p-6">
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_compte', 'Votre compte candidat')}</h2>
+                            <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                                {t(
+                                    'preinscription.section_compte_aide',
+                                    'Ce mot de passe vous permettra de suivre votre dossier en ligne après vérification de votre e-mail.',
+                                )}
+                            </p>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <TextField
+                                    id="password"
+                                    type="password"
+                                    label={t('preinscription.champ_mot_de_passe', 'Mot de passe')}
+                                    value={data.password}
+                                    onChange={set('password')}
+                                    error={errors.password}
+                                    required
+                                />
+                                <TextField
+                                    id="password_confirmation"
+                                    type="password"
+                                    label={t('preinscription.champ_mot_de_passe_confirmation', 'Confirmer le mot de passe')}
+                                    value={data.password_confirmation}
+                                    onChange={set('password_confirmation')}
+                                    error={errors.password_confirmation}
+                                    required
+                                />
+                            </div>
+                        </Card>
+
+                        <Card className="p-6">
                             <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_filiation', 'Filiation (facultatif)')}</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <TextField id="nom_pere" label={t('preinscription.champ_nom_pere', 'Nom du père')} value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
@@ -230,6 +251,40 @@ export default function Create({ filieres }) {
                                 <div>
                                     <input id="photo" type="file" accept="image/*" onChange={onPhotoChange} className="text-sm text-slate-500 dark:text-slate-400" />
                                     {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}
+                                </div>
+                            </div>
+                        </Card>
+
+                        <Card className="p-6">
+                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_pieces', 'Pièces à joindre')}</h2>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label htmlFor="releve_bacc" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        {t('preinscription.champ_releve_bacc', 'Relevé de notes du bac')}
+                                    </label>
+                                    <input
+                                        id="releve_bacc"
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        onChange={onFileChange('releve_bacc')}
+                                        className="text-sm text-slate-500 dark:text-slate-400"
+                                    />
+                                    {data.releve_bacc && <p className="mt-1 text-xs text-slate-400">{data.releve_bacc.name}</p>}
+                                    {errors.releve_bacc && <p className="mt-1 text-sm text-red-600">{errors.releve_bacc}</p>}
+                                </div>
+                                <div>
+                                    <label htmlFor="cin_document" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        {t('preinscription.champ_cin_document', "Copie de la CIN")}
+                                    </label>
+                                    <input
+                                        id="cin_document"
+                                        type="file"
+                                        accept="image/*,.pdf"
+                                        onChange={onFileChange('cin_document')}
+                                        className="text-sm text-slate-500 dark:text-slate-400"
+                                    />
+                                    {data.cin_document && <p className="mt-1 text-xs text-slate-400">{data.cin_document.name}</p>}
+                                    {errors.cin_document && <p className="mt-1 text-sm text-red-600">{errors.cin_document}</p>}
                                 </div>
                             </div>
                         </Card>
@@ -261,6 +316,11 @@ export default function Create({ filieres }) {
                             {photoPreview && (
                                 <img src={photoPreview} alt="" className="mt-5 h-20 w-20 rounded-full object-cover ring-2 ring-isstm-navy/10" />
                             )}
+                            <ul className="mt-5 space-y-1 text-sm text-slate-500 dark:text-slate-400">
+                                <li>{t('preinscription.recap_releve', 'Relevé du bac')} : {data.releve_bacc?.name ?? '—'}</li>
+                                <li>{t('preinscription.recap_cin', 'CIN')} : {data.cin_document?.name ?? '—'}</li>
+                                <li>{t('preinscription.recap_mot_de_passe', 'Mot de passe')} : {data.password ? '••••••••' : '—'}</li>
+                            </ul>
                         </Card>
 
                         <div className="flex gap-3">

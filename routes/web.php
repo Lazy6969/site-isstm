@@ -77,6 +77,7 @@ Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
 Route::get('inscription', [InscriptionController::class, 'index'])->name('inscription');
 Route::get('preinscription', [PreinscriptionController::class, 'create'])->name('preinscription.create');
 Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
+Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth', 'verified'])->name('preinscription.dossier');
 
 Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');

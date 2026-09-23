@@ -30,7 +30,7 @@ class DashboardController extends Controller
             'stats' => [
                 'etudiants' => Etudiant::count(),
                 'classes' => Classe::count(),
-                'preinscriptions_en_attente' => Preinscription::where('status', PreinscriptionStatus::EnAttente)->count(),
+                'preinscriptions_en_attente' => Preinscription::where('status', PreinscriptionStatus::Soumis)->count(),
                 'inscriptions_validees' => Inscription::where('statut', StatutInscription::Validee)->count(),
             ],
             'contentStats' => [

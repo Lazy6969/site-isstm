@@ -48,4 +48,17 @@ class Etudiant extends Model
     {
         return $this->hasMany(Inscription::class);
     }
+
+    /**
+     * ISSTM-{année}-{séquence sur 5 chiffres}, ex: ISSTM-2026-00042. La séquence
+     * repart de 1 chaque année. Léger risque de collision sous approbations
+     * concurrentes, accepté vu le volume (validation manuelle, un clic à la fois).
+     */
+    public static function generateMatricule(): string
+    {
+        $year = now()->year;
+        $count = static::query()->where('matricule', 'like', "ISSTM-{$year}-%")->count() + 1;
+
+        return sprintf('ISSTM-%d-%05d', $year, $count);
+    }
 }
