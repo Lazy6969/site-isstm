@@ -11,9 +11,10 @@ const densityOptions = [
     { value: 'comfortable', label: 'Confortable' },
 ];
 
-export default function Appearance({ settings, palettes, fonts }) {
+export default function Appearance({ settings, palettes, chromes, fonts }) {
     const form = useForm({
         palette: settings.palette,
+        chrome: settings.chrome,
         font: settings.font,
         density: settings.density,
     });
@@ -52,6 +53,38 @@ export default function Appearance({ settings, palettes, fonts }) {
                                         {selected && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
                                     </span>
                                     <span className="text-admin-text">{palette.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </section>
+
+                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+                    <h2 className="mb-1 text-sm font-semibold text-admin-text">Couleur de la sidebar et du menu</h2>
+                    <p className="mb-4 text-sm text-admin-text-secondary">
+                        Fond de la barre latérale et du menu horizontal en haut, indépendant de la couleur d'accent.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                        {chromes.map((chrome) => {
+                            const selected = form.data.chrome === chrome.value;
+                            return (
+                                <button
+                                    key={chrome.value}
+                                    type="button"
+                                    onClick={() => form.setData('chrome', chrome.value)}
+                                    className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
+                                        selected
+                                            ? 'border-admin-accent bg-admin-hover'
+                                            : 'border-admin-border hover:bg-admin-hover'
+                                    }`}
+                                >
+                                    <span
+                                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
+                                        style={{ backgroundColor: chrome.swatch }}
+                                    >
+                                        {selected && <Check className="h-3.5 w-3.5 text-admin-text" aria-hidden="true" />}
+                                    </span>
+                                    <span className="text-admin-text">{chrome.label}</span>
                                 </button>
                             );
                         })}

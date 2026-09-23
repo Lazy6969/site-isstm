@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
@@ -97,6 +97,21 @@ export default function AdminHeader({ onOpenSidebar }) {
             </div>
 
             <div className="ml-auto flex items-center gap-1.5">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <a
+                            href="/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-admin-text-secondary transition-colors duration-200 hover:bg-admin-hover hover:text-admin-text"
+                        >
+                            <Globe className="h-[18px] w-[18px] flex-shrink-0" aria-hidden="true" />
+                            <span className="hidden sm:inline">Voir le site</span>
+                        </a>
+                    </TooltipTrigger>
+                    <TooltipContent>Ouvrir le site public dans un nouvel onglet</TooltipContent>
+                </Tooltip>
+
                 <DarkModeToggle className="text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text" />
 
                 {canEdit && (

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\AppearanceChromeColor;
 use App\AppearanceFont;
 use App\AppearancePalette;
 use App\Http\Controllers\Controller;
@@ -20,10 +21,12 @@ class AppearanceSettingsController extends Controller
         return Inertia::render('Admin/Settings/Appearance', [
             'settings' => [
                 'palette' => Setting::get('appearance.palette', AppearancePalette::Default->value),
+                'chrome' => Setting::get('appearance.chrome', AppearanceChromeColor::Default->value),
                 'font' => Setting::get('appearance.font', AppearanceFont::InstrumentSans->value),
                 'density' => Setting::get('appearance.density', 'normal'),
             ],
             'palettes' => AppearancePalette::options(),
+            'chromes' => AppearanceChromeColor::options(),
             'fonts' => AppearanceFont::options(),
         ]);
     }
@@ -32,11 +35,13 @@ class AppearanceSettingsController extends Controller
     {
         $validated = $request->validate([
             'palette' => ['required', Rule::enum(AppearancePalette::class)],
+            'chrome' => ['required', Rule::enum(AppearanceChromeColor::class)],
             'font' => ['required', Rule::enum(AppearanceFont::class)],
             'density' => ['required', Rule::in(['compact', 'normal', 'comfortable'])],
         ]);
 
         Setting::set('appearance.palette', $validated['palette']);
+        Setting::set('appearance.chrome', $validated['chrome']);
         Setting::set('appearance.font', $validated['font']);
         Setting::set('appearance.density', $validated['density']);
 

@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarDays, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
+import EventsCalendar from '../../Components/Actualites/EventsCalendar';
 import { useTranslations } from '../../lib/useTranslations';
 
 function formatDate(value) {
@@ -11,7 +12,7 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-export default function Index({ articles }) {
+export default function Index({ articles, evenements = [] }) {
     const { t } = useTranslations();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
@@ -44,19 +45,9 @@ export default function Index({ articles }) {
                 </div>
             </div>
 
-            <div className="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
-                <div className="mx-auto max-w-6xl px-6 py-4">
-                    <Link
-                        href="/evenements"
-                        className="inline-flex items-center gap-2 rounded-full bg-isstm-navy/5 px-4 py-2 text-sm font-medium text-isstm-navy transition hover:bg-isstm-navy/10 dark:text-white"
-                    >
-                        <CalendarDays className="h-4 w-4" aria-hidden="true" />
-                        Voir les événements à venir
-                    </Link>
-                </div>
-            </div>
-
             <main className="mx-auto max-w-6xl px-6 py-12">
+                <EventsCalendar evenements={evenements} />
+
                 <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="relative flex-1 sm:max-w-sm">
                         <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />

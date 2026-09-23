@@ -1,8 +1,10 @@
 @php
     $appearancePalette = \App\AppearancePalette::tryFrom(\App\Models\Setting::get('appearance.palette', 'default')) ?? \App\AppearancePalette::Default;
+    $appearanceChrome = \App\AppearanceChromeColor::tryFrom(\App\Models\Setting::get('appearance.chrome', 'default')) ?? \App\AppearanceChromeColor::Default;
     $appearanceFont = \App\AppearanceFont::tryFrom(\App\Models\Setting::get('appearance.font', 'instrument-sans')) ?? \App\AppearanceFont::InstrumentSans;
     $appearanceDensity = \App\Models\Setting::get('appearance.density', 'normal');
     [$accentLight, $accentForegroundLight, $accentDark, $accentForegroundDark] = $appearancePalette->colors();
+    [$chromeLight, $chromeDark] = $appearanceChrome->colors();
     $googleFontsFamily = $appearanceFont->googleFontsFamily();
 @endphp
 <!DOCTYPE html>
@@ -34,11 +36,13 @@
         :root {
             --color-admin-accent: {!! $accentLight !!};
             --color-admin-accent-foreground: {!! $accentForegroundLight !!};
+            --color-admin-chrome: {!! $chromeLight !!};
             --font-admin-sans: {!! $appearanceFont->fontFamily() !!};
         }
         .dark {
             --color-admin-accent: {!! $accentDark !!};
             --color-admin-accent-foreground: {!! $accentForegroundDark !!};
+            --color-admin-chrome: {!! $chromeDark !!};
         }
     </style>
     @inertiaHead
