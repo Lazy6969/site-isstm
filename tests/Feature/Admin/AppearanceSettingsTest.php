@@ -19,9 +19,13 @@ it('lets the super admin view appearance settings with sensible defaults', funct
         ->where('settings.chrome', 'default')
         ->where('settings.font', 'instrument-sans')
         ->where('settings.density', 'normal')
+        ->where('settings.sitePrimary', 'navy')
+        ->where('settings.siteAccent', 'gold')
         ->has('palettes', 7)
         ->has('chromes', 12)
         ->has('fonts', 8)
+        ->has('sitePrimaries', 6)
+        ->has('siteAccents', 6)
     );
 });
 
@@ -33,12 +37,16 @@ it('lets the super admin update appearance settings', function () {
         'chrome' => 'blue',
         'font' => 'inter',
         'density' => 'compact',
+        'sitePrimary' => 'emerald',
+        'siteAccent' => 'cyan',
     ])->assertRedirect();
 
     expect(Setting::get('appearance.palette'))->toBe('emerald');
     expect(Setting::get('appearance.chrome'))->toBe('blue');
     expect(Setting::get('appearance.font'))->toBe('inter');
     expect(Setting::get('appearance.density'))->toBe('compact');
+    expect(Setting::get('appearance.site_primary'))->toBe('emerald');
+    expect(Setting::get('appearance.site_accent'))->toBe('cyan');
 });
 
 it('lets the super admin pick the black chrome color', function () {
@@ -49,12 +57,14 @@ it('lets the super admin pick the black chrome color', function () {
         'chrome' => 'black',
         'font' => 'instrument-sans',
         'density' => 'normal',
+        'sitePrimary' => 'navy',
+        'siteAccent' => 'gold',
     ])->assertRedirect();
 
     expect(Setting::get('appearance.chrome'))->toBe('black');
 });
 
-it('rejects an invalid palette, chrome color, font, or density', function () {
+it('rejects an invalid palette, chrome color, font, density, site primary, or site accent', function () {
     $admin = User::factory()->role(Role::Admin)->create();
 
     $this->actingAs($admin)->put('/console/settings/appearance', [
@@ -62,7 +72,9 @@ it('rejects an invalid palette, chrome color, font, or density', function () {
         'chrome' => 'neon',
         'font' => 'comic-sans',
         'density' => 'ultra-compact',
-    ])->assertSessionHasErrors(['palette', 'chrome', 'font', 'density']);
+        'sitePrimary' => 'neon',
+        'siteAccent' => 'neon',
+    ])->assertSessionHasErrors(['palette', 'chrome', 'font', 'density', 'sitePrimary', 'siteAccent']);
 });
 
 it('forbids a non-super-admin from updating appearance settings', function () {
@@ -73,5 +85,7 @@ it('forbids a non-super-admin from updating appearance settings', function () {
         'chrome' => 'blue',
         'font' => 'inter',
         'density' => 'normal',
+        'sitePrimary' => 'navy',
+        'siteAccent' => 'gold',
     ])->assertForbidden();
 });

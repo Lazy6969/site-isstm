@@ -3,8 +3,11 @@
     $appearanceChrome = \App\AppearanceChromeColor::tryFrom(\App\Models\Setting::get('appearance.chrome', 'default')) ?? \App\AppearanceChromeColor::Default;
     $appearanceFont = \App\AppearanceFont::tryFrom(\App\Models\Setting::get('appearance.font', 'instrument-sans')) ?? \App\AppearanceFont::InstrumentSans;
     $appearanceDensity = \App\Models\Setting::get('appearance.density', 'normal');
+    $sitePrimary = \App\SitePrimaryColor::tryFrom(\App\Models\Setting::get('appearance.site_primary', 'navy')) ?? \App\SitePrimaryColor::Navy;
+    $siteAccent = \App\SiteAccentColor::tryFrom(\App\Models\Setting::get('appearance.site_accent', 'gold')) ?? \App\SiteAccentColor::Gold;
     [$accentLight, $accentForegroundLight, $accentDark, $accentForegroundDark] = $appearancePalette->colors();
     [$chromeLight, $chromeDark] = $appearanceChrome->colors();
+    [$sitePrimaryColor, $sitePrimaryDark] = $sitePrimary->colors();
     $googleFontsFamily = $appearanceFont->googleFontsFamily();
 @endphp
 <!DOCTYPE html>
@@ -38,6 +41,9 @@
             --color-admin-accent-foreground: {!! $accentForegroundLight !!};
             --color-admin-chrome: {!! $chromeLight !!};
             --font-admin-sans: {!! $appearanceFont->fontFamily() !!};
+            --color-isstm-navy: {!! $sitePrimaryColor !!};
+            --color-isstm-navy-dark: {!! $sitePrimaryDark !!};
+            --color-isstm-gold: {!! $siteAccent->color() !!};
             @if ($appearanceChrome->isDarkInLightMode())
                 --color-admin-chrome-text: #f8fafc;
                 --color-admin-chrome-text-secondary: #cbd5e1;
