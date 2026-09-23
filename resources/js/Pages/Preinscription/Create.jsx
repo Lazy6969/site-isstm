@@ -159,13 +159,13 @@ export default function Create({ filieres }) {
             }
         }
 
-        if (Object.keys(missing).length > 0) {
-            for (const field of fields) clearErrors(field);
-            for (const [field, message] of Object.entries(missing)) setError(field, message);
-            return;
-        }
+        for (const field of fields) clearErrors(field);
+        for (const [field, message] of Object.entries(missing)) setError(field, message);
 
-        clearErrors(...fields);
+        // Client-side checks are a hint, not a gate: the server is the source of
+        // truth for validation (it re-checks everything on submit and routes back
+        // to the first step with an error). Never trap a candidate on a step they
+        // can't get past because of a client-only edge case.
         goTo(STEPS[currentIndex + 1].key);
     }
 
