@@ -5,6 +5,9 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import QuickAddButton from '../../Components/QuickEdit/QuickAddButton';
+import QuickAddGalleryDialog from '../../Components/QuickEdit/QuickAddGalleryDialog';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
@@ -16,7 +19,10 @@ function formatDate(value) {
 
 export default function Index({ albums }) {
     const { t } = useTranslations();
-    const { content } = usePage().props;
+    const { content, auth } = usePage().props;
+    const { active } = useQuickEdit();
+    const canQuickAdd = active && (auth?.permissions ?? []).includes('gallery.create');
+    const [quickAddOpen, setQuickAddOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [view, setView] = useState('grid');
 
@@ -123,6 +129,13 @@ export default function Index({ albums }) {
             </main>
 
             <Footer />
+
+            {canQuickAdd && (
+                <>
+                    <QuickAddButton label="Album" onClick={() => setQuickAddOpen(true)} />
+                    <QuickAddGalleryDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+                </>
+            )}
         </div>
     );
 }

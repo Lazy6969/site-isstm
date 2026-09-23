@@ -1,8 +1,12 @@
 import { Head, usePage } from '@inertiajs/react';
 import { Download, FileText } from 'lucide-react';
+import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import QuickAddButton from '../../Components/QuickEdit/QuickAddButton';
+import QuickAddDocumentDialog from '../../Components/QuickEdit/QuickAddDocumentDialog';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
@@ -10,6 +14,9 @@ import { useTranslations } from '../../lib/useTranslations';
 export default function Index({ documents }) {
     const { auth, content } = usePage().props;
     const { t } = useTranslations();
+    const { active } = useQuickEdit();
+    const canQuickAdd = active && (auth?.permissions ?? []).includes('documents.create');
+    const [quickAddOpen, setQuickAddOpen] = useState(false);
 
     const categoryLabels = {
         public: t('documents.public', 'Public'),
@@ -75,6 +82,13 @@ export default function Index({ documents }) {
             </main>
 
             <Footer />
+
+            {canQuickAdd && (
+                <>
+                    <QuickAddButton label="Document" onClick={() => setQuickAddOpen(true)} />
+                    <QuickAddDocumentDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+                </>
+            )}
         </div>
     );
 }

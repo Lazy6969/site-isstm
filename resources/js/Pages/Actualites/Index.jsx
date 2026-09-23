@@ -6,6 +6,9 @@ import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import QuickAddButton from '../../Components/QuickEdit/QuickAddButton';
+import QuickAddNewsDialog from '../../Components/QuickEdit/QuickAddNewsDialog';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useTranslations } from '../../lib/useTranslations';
 import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
@@ -16,7 +19,10 @@ function formatDate(value) {
 
 export default function Index({ articles }) {
     const { t } = useTranslations();
-    const { content } = usePage().props;
+    const { content, auth } = usePage().props;
+    const { active } = useQuickEdit();
+    const canQuickAdd = active && (auth?.permissions ?? []).includes('news.create');
+    const [quickAddOpen, setQuickAddOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
     const [view, setView] = useState('grid');
@@ -170,6 +176,13 @@ export default function Index({ articles }) {
             </main>
 
             <Footer />
+
+            {canQuickAdd && (
+                <>
+                    <QuickAddButton label="Actualité" onClick={() => setQuickAddOpen(true)} />
+                    <QuickAddNewsDialog open={quickAddOpen} onClose={() => setQuickAddOpen(false)} />
+                </>
+            )}
         </div>
     );
 }
