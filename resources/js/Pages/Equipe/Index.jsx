@@ -6,7 +6,9 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableIcon from '../../Components/QuickEdit/EditableIcon';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
+import EditableCardStyle from '../../Components/QuickEdit/EditableCardStyle';
 import { imageStyleToCss } from '../../lib/imageStyle';
+import { cardContainerStyle } from '../../lib/cardStyle';
 
 const team = [
     { key: 'equipe_membre_1', featured: true, hasHighlight: true, iconDefault: 'Crown' },
@@ -46,7 +48,12 @@ export default function Index() {
                     </EditableText>
                 </p>
 
-                <div className="mt-10 space-y-6">
+                <div className="relative mt-10">
+                    <div className="absolute -top-10 right-0">
+                        <EditableCardStyle contentKey="equipe_carte" />
+                    </div>
+
+                    <div className="space-y-6">
                     {team.map((member) => {
                         const photo = content[`${member.key}_photo`];
 
@@ -56,6 +63,7 @@ export default function Index() {
                                 className={`flex flex-col items-center gap-6 rounded-2xl bg-white p-6 shadow-sm ring-1 sm:flex-row sm:items-start sm:p-8 dark:bg-slate-800 ${
                                     member.featured ? 'ring-2 ring-isstm-gold' : 'ring-slate-100 dark:ring-slate-700'
                                 }`}
+                                style={cardContainerStyle(contentStyles?.equipe_carte)}
                             >
                                 <div className="relative flex-shrink-0">
                                     <img
@@ -133,6 +141,7 @@ export default function Index() {
                             </div>
                         );
                     })}
+                    </div>
                 </div>
 
                 <div className="mt-10 flex flex-col items-center gap-2 text-center text-slate-500 dark:text-slate-400">

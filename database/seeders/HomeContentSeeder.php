@@ -419,6 +419,12 @@ class HomeContentSeeder extends Seeder
             'accueil_filieres_bouton' => ['Toutes les filières', 'All Programs', 'Sampana rehetra'],
             'accueil_actualites_bouton' => ['Toutes les actualités', 'All News', 'Vaovao rehetra'],
 
+            // Style des cartes (valeur non affichée — seule la colonne `style` compte, voir lib/cardStyle.js)
+            'accueil_filieres_carte' => ['Style des cartes filières', 'Programs card style', 'Endrika kaoty sampana'],
+            'accueil_actualites_carte' => ['Style des cartes actualités', 'News card style', 'Endrika kaoty vaovao'],
+            'bourse_carte' => ['Style des cartes bourse', 'Scholarship card style', 'Endrika kaoty vatsim-pianarana'],
+            'equipe_carte' => ['Style des cartes équipe', 'Team card style', 'Endrika kaoty ekipa'],
+
             // Mentions légales — titre/sous-titre et titres de section (étaient hardcodés)
             'mentions_legales_titre' => ['Mentions légales', 'Legal Notice', 'Fanamarihana ara-dalàna'],
             'mentions_legales_soustitre' => [

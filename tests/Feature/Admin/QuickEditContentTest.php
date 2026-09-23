@@ -206,6 +206,26 @@ it('saves a whitelisted button container style alongside the label (buttons are 
     ]);
 });
 
+it('saves a card style on a *_carte content key (reuses the button container style fields)', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'accueil_filieres_carte']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'accueil_filieres_carte',
+            'value' => 'Style des cartes',
+            'style' => ['bg_color' => '#F8FAFC', 'border_color' => '#D4A017', 'border_width' => 2, 'shadow' => 'lg'],
+        ])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBe([
+        'bg_color' => '#F8FAFC',
+        'border_color' => '#D4A017',
+        'border_width' => 2,
+        'shadow' => 'lg',
+    ]);
+});
+
 it('rejects a button style with a value outside the whitelisted options', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     SiteContent::factory()->create(['content_key' => 'accueil_hero_bouton']);

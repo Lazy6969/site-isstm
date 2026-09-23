@@ -7,7 +7,9 @@ import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
 import EditableButton from '../Components/QuickEdit/EditableButton';
+import EditableCardStyle from '../Components/QuickEdit/EditableCardStyle';
 import { imageStyleToCss } from '../lib/imageStyle';
+import { cardContainerStyle } from '../lib/cardStyle';
 
 export default function Bourse({ content = {} }) {
     const { t } = useTranslations();
@@ -67,11 +69,15 @@ export default function Bourse({ content = {} }) {
             </div>
 
             <main className="mx-auto max-w-4xl px-6 py-12">
+                <div className="flex justify-end">
+                    <EditableCardStyle contentKey="bourse_carte" />
+                </div>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {links.map((link) => (
                         <Card
                             key={link.key}
                             className="flex flex-col items-center p-7 text-center"
+                            style={cardContainerStyle(contentStyles?.bourse_carte)}
                         >
                             <div className="relative">
                                 <img

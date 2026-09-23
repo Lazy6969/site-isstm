@@ -1,8 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Newspaper } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableButton from '../QuickEdit/EditableButton';
+import EditableCardStyle from '../QuickEdit/EditableCardStyle';
+import { cardContainerStyle } from '../../lib/cardStyle';
 
 function formatDate(value) {
     if (!value) return null;
@@ -11,6 +13,7 @@ function formatDate(value) {
 
 export default function Actualites({ articles }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
 
     if (articles.length === 0) return null;
 
@@ -27,12 +30,16 @@ export default function Actualites({ articles }) {
                             {t('accueil.actualites_soustitre', "Ce qui se passe en ce moment à l'ISSTM.")}
                         </p>
                     </div>
+                    <EditableCardStyle contentKey="accueil_actualites_carte" />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {articles.map((article) => (
                         <Link key={article.slug} href={`/actualites/${article.slug}`}>
-                            <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
+                            <Card
+                                className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg"
+                                style={cardContainerStyle(contentStyles?.accueil_actualites_carte)}
+                            >
                                 <div className="h-36 overflow-hidden">
                                     <div
                                         className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"

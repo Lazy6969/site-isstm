@@ -5,10 +5,12 @@ import { Badge } from '../ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableButton from '../QuickEdit/EditableButton';
+import EditableCardStyle from '../QuickEdit/EditableCardStyle';
+import { cardContainerStyle } from '../../lib/cardStyle';
 
 export default function Filieres({ filieres }) {
     const { t } = useTranslations();
-    const { content } = usePage().props;
+    const { content, contentStyles } = usePage().props;
 
     if (filieres.length === 0) return null;
 
@@ -29,12 +31,16 @@ export default function Filieres({ filieres }) {
                             </EditableText>
                         </p>
                     </div>
+                    <EditableCardStyle contentKey="accueil_filieres_carte" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                     {filieres.map((filiere) => (
                         <Link key={filiere.slug} href={`/filieres/${filiere.slug}`}>
-                            <Card className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
+                            <Card
+                                className="group h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg"
+                                style={cardContainerStyle(contentStyles?.accueil_filieres_carte)}
+                            >
                                 <div className="h-28 overflow-hidden">
                                     <div
                                         className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
