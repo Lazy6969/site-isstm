@@ -35,8 +35,12 @@ class QuickEditController extends Controller
      * Update one content value: free text for the active locale, a whitelisted
      * SiteIcon name, or a replacement image — icon/image are shared across
      * locales (see SiteContent::updateForCurrentLocale()).
-     * Text is plain only — no HTML is accepted — the rich-text editor and its
-     * sanitization are a later phase.
+     * Text is plain only — no HTML is accepted, formatting is applied via the
+     * whitelisted `style` JSON column instead (bold/italic/color/font/...),
+     * rendered client-side as inline CSS, never interpreted as markup.
+     * Style, like icon/image, isn't locale-specific — it's set directly on the
+     * model here so the single save() inside updateForCurrentLocale() below
+     * persists both the value and the style together.
      */
     public function update(UpdateQuickEditContentRequest $request): RedirectResponse
     {
@@ -49,6 +53,10 @@ class QuickEditController extends Controller
             SiteContentType::Text => strip_tags($request->validated('value')),
             SiteContentType::Icon => $request->validated('value'),
         };
+
+        if ($content->type === SiteContentType::Text) {
+            $content->style = $request->validated('style');
+        }
 
         $locale = $request->validated('locale');
         $content->updateForCurrentLocale($value, $locale);

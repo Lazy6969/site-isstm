@@ -150,6 +150,56 @@ it('strips HTML tags from the submitted value', function () {
     expect($content->refresh()->content_value_fr)->toBe('alert(1)Texte propre');
 });
 
+it('saves a whitelisted formatting style alongside the text value', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['bold' => true, 'align' => 'center', 'color' => '#D4A017', 'font_size' => 24],
+        ])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBe([
+        'bold' => true,
+        'align' => 'center',
+        'font_size' => 24,
+        'color' => '#D4A017',
+    ]);
+});
+
+it('rejects a style with a value outside the whitelisted options', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['align' => 'diagonal'],
+        ])
+        ->assertSessionHasErrors('style.align');
+});
+
+it('ignores a submitted style for an icon content key', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'stat_students_icon',
+        'type' => SiteContentType::Icon,
+        'content_value_fr' => 'GraduationCap',
+        'content_value_en' => 'GraduationCap',
+        'content_value_mg' => 'GraduationCap',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'stat_students_icon', 'value' => 'Star'])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBeNull();
+});
+
 it('lets a super admin pick a whitelisted icon and syncs it across every locale', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $content = SiteContent::factory()->create([

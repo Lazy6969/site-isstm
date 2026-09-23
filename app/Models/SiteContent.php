@@ -18,12 +18,14 @@ class SiteContent extends Model
         'content_value_fr',
         'content_value_en',
         'content_value_mg',
+        'style',
     ];
 
     protected function casts(): array
     {
         return [
             'type' => SiteContentType::class,
+            'style' => 'array',
         ];
     }
 

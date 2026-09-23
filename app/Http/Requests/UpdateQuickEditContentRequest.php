@@ -48,7 +48,21 @@ class UpdateQuickEditContentRequest extends FormRequest
             ...match ($content?->type) {
                 SiteContentType::Icon => ['value' => ['required', Rule::enum(SiteIcon::class)]],
                 SiteContentType::Image => ['file' => ['required', 'image', 'max:4096']],
-                default => ['value' => ['required', 'string', 'max:10000']],
+                default => [
+                    'value' => ['required', 'string', 'max:10000'],
+                    'style' => ['nullable', 'array'],
+                    'style.bold' => ['nullable', 'boolean'],
+                    'style.italic' => ['nullable', 'boolean'],
+                    'style.underline' => ['nullable', 'boolean'],
+                    'style.strikethrough' => ['nullable', 'boolean'],
+                    'style.align' => ['nullable', Rule::in(['left', 'center', 'right', 'justify'])],
+                    'style.font_size' => ['nullable', 'integer', 'min:10', 'max:96'],
+                    'style.color' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+                    'style.font' => ['nullable', Rule::in(['sans', 'script', 'lora', 'admin-accent'])],
+                    'style.line_height' => ['nullable', 'numeric', 'min:1', 'max:3'],
+                    'style.letter_spacing' => ['nullable', 'numeric', 'min:-0.05', 'max:0.5'],
+                    'style.text_transform' => ['nullable', Rule::in(['none', 'uppercase', 'lowercase', 'capitalize'])],
+                ],
             },
         ];
     }

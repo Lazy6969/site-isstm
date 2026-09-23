@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useQuickEdit } from '../../lib/useQuickEdit';
+import { textStyleToCss } from '../../lib/textStyle';
 import EditTextDialog from './EditTextDialog';
 
 /**
@@ -11,15 +13,22 @@ import EditTextDialog from './EditTextDialog';
  */
 export default function EditableText({ contentKey, as: Tag = 'span', className, children }) {
     const { canEdit, active } = useQuickEdit();
+    const { contentStyles } = usePage().props;
     const [open, setOpen] = useState(false);
+    const style = contentStyles?.[contentKey];
+    const inlineStyle = textStyleToCss(style);
 
     if (!canEdit || !active) {
-        return <Tag className={className}>{children}</Tag>;
+        return (
+            <Tag className={className} style={inlineStyle}>
+                {children}
+            </Tag>
+        );
     }
 
     return (
         <>
-            <Tag className={className}>
+            <Tag className={className} style={inlineStyle}>
                 {children}
                 <button
                     type="button"
@@ -35,6 +44,7 @@ export default function EditableText({ contentKey, as: Tag = 'span', className, 
                 onClose={() => setOpen(false)}
                 contentKey={contentKey}
                 initialValue={typeof children === 'string' ? children : ''}
+                initialStyle={style}
             />
         </>
     );

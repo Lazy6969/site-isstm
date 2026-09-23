@@ -4,6 +4,7 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 
 const IMAGE_DURATION_MS = 5000;
+const IMAGE_ZOOM_DURATION_MS = 9000;
 
 export default function Hero({ slides }) {
     const { t } = useTranslations();
@@ -82,7 +83,7 @@ export default function Hero({ slides }) {
                         }`}
                         style={{
                             transitionProperty: 'opacity, transform',
-                            transitionDuration: `1000ms, ${IMAGE_DURATION_MS}ms`,
+                            transitionDuration: `1000ms, ${IMAGE_ZOOM_DURATION_MS}ms`,
                             transitionTimingFunction: 'ease, linear',
                         }}
                     />

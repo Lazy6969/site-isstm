@@ -50,6 +50,12 @@ class HandleInertiaRequests extends Middleware
             'translations' => fn () => app('translator')->getLoader()->load(app()->getLocale(), '*', '*'),
             'content' => fn () => SiteContent::all()->keyBy('content_key')
                 ->map(fn (SiteContent $item) => $item->localizedValue()),
+            // Kept separate from `content` (a plain string per key) rather than
+            // nesting {value, style} there, so the ~300 existing `{content.xxx}`
+            // usages across the app don't all need to change shape.
+            'contentStyles' => fn () => SiteContent::all()->keyBy('content_key')
+                ->map(fn (SiteContent $item) => $item->style)
+                ->reject(fn (?array $style) => empty($style)),
         ];
     }
 }
