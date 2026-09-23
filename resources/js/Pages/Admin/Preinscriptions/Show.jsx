@@ -13,12 +13,13 @@ function formatDate(value) {
 }
 
 const FIELDS = [
+    ['civilite', 'Civilité'],
     ['nom', 'Nom'],
     ['prenoms', 'Prénoms'],
     ['sexe', 'Sexe'],
     ['date_naissance', 'Date de naissance'],
     ['lieu_naissance', 'Lieu de naissance'],
-    ['cin', 'CIN'],
+    ['cin', 'CIN (numéro)'],
     ['nationalite', 'Nationalité'],
     ['annee_bacc', 'Année du bac'],
     ['serie_bacc', 'Série du bac'],
@@ -28,12 +29,20 @@ const FIELDS = [
     ['email', 'E-mail'],
     ['pays', 'Pays'],
     ['niveau', 'Niveau'],
+    ['nom_pere', 'Nom du père'],
+    ['nom_mere', 'Nom de la mère'],
+    ['contact_parents', 'Téléphone des parents'],
+    ['repondant_nom', 'Nom du répondant'],
+    ['repondant_lien', 'Lien avec le candidat'],
+    ['repondant_telephone', 'Téléphone du répondant'],
 ];
 
 const DOCUMENTS = [
-    ['photo_path', 'Photo'],
-    ['releve_bacc_path', 'Relevé du bac'],
-    ['cin_document_path', 'CIN'],
+    ['photo_path', "Photo d'identité"],
+    ['cin_recto_path', 'CIN recto'],
+    ['cin_verso_path', 'CIN verso'],
+    ['diplome_attestation_path', 'Diplôme ou attestation'],
+    ['releve_bacc_path', 'Relevé de notes'],
 ];
 
 export default function Show({ preinscription }) {

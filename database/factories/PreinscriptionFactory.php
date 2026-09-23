@@ -22,6 +22,7 @@ class PreinscriptionFactory extends Factory
         return [
             'nom' => strtoupper(fake()->lastName()),
             'prenoms' => fake()->firstName(),
+            'civilite' => fake()->randomElement(['M', 'Mme', 'Mlle']),
             'sexe' => fake()->randomElement(['M', 'F']),
             'date_naissance' => fake()->date(),
             'lieu_naissance' => fake()->city(),
@@ -33,12 +34,15 @@ class PreinscriptionFactory extends Factory
             'adresse' => fake()->address(),
             'telephone' => fake()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
+            'contact_parents' => fake()->phoneNumber(),
             'pays' => 'Madagascar',
             'filiere_id' => Filiere::factory(),
             'niveau' => 'L1',
             'photo_path' => 'preinscriptions/photo.jpg',
+            'cin_recto_path' => 'preinscriptions/cin-recto.jpg',
+            'cin_verso_path' => 'preinscriptions/cin-verso.jpg',
+            'diplome_attestation_path' => 'preinscriptions/diplome.jpg',
             'releve_bacc_path' => 'preinscriptions/releve.jpg',
-            'cin_document_path' => 'preinscriptions/cin.jpg',
             'user_id' => User::factory(),
         ];
     }

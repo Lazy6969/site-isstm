@@ -15,6 +15,7 @@ function validPreinscriptionPayload(array $overrides = []): array
     return array_merge([
         'nom' => 'RAKOTO',
         'prenoms' => 'Jean',
+        'civilite' => 'M',
         'sexe' => 'M',
         'date_naissance' => '2005-01-01',
         'lieu_naissance' => 'Mahajanga',
@@ -28,11 +29,14 @@ function validPreinscriptionPayload(array $overrides = []): array
         'email' => 'jean.rakoto@example.com',
         'password' => 'Password1',
         'password_confirmation' => 'Password1',
+        'contact_parents' => '0340000000',
         'pays' => 'Madagascar',
         'niveau' => 'L1',
         'photo' => UploadedFile::fake()->image('photo.jpg'),
         'releve_bacc' => UploadedFile::fake()->image('releve.jpg'),
-        'cin_document' => UploadedFile::fake()->image('cin.jpg'),
+        'cin_recto' => UploadedFile::fake()->image('cin-recto.jpg'),
+        'cin_verso' => UploadedFile::fake()->image('cin-verso.jpg'),
+        'diplome_attestation' => UploadedFile::fake()->image('diplome.jpg'),
     ], $overrides);
 }
 
@@ -72,7 +76,9 @@ it('creates a candidate account and préinscription, logs the candidate in, and 
     expect($preinscription->status)->toBe(PreinscriptionStatus::Soumis);
     Storage::disk('public')->assertExists($preinscription->photo_path);
     Storage::disk('public')->assertExists($preinscription->releve_bacc_path);
-    Storage::disk('public')->assertExists($preinscription->cin_document_path);
+    Storage::disk('public')->assertExists($preinscription->cin_recto_path);
+    Storage::disk('public')->assertExists($preinscription->cin_verso_path);
+    Storage::disk('public')->assertExists($preinscription->diplome_attestation_path);
 
     Notification::assertSentTo($user, VerifyEmail::class);
 });
@@ -89,7 +95,20 @@ it('rejects a submission with an e-mail already used by an account', function ()
 it('rejects a submission missing required fields', function () {
     $response = $this->post('/preinscription', []);
 
-    $response->assertSessionHasErrors(['nom', 'prenoms', 'sexe', 'photo', 'releve_bacc', 'cin_document', 'password']);
+    $response->assertSessionHasErrors([
+        'nom', 'prenoms', 'civilite', 'sexe', 'photo', 'releve_bacc', 'cin_recto', 'cin_verso', 'diplome_attestation', 'password', 'contact_parents',
+    ]);
+});
+
+it('requires at least one contactable phone number for the family, either the parents or the répondant', function () {
+    $filiere = Filiere::factory()->create();
+
+    $response = $this->post('/preinscription', validPreinscriptionPayload([
+        'filiere_id' => $filiere->id,
+        'contact_parents' => null,
+    ]));
+
+    $response->assertSessionHasErrors(['contact_parents']);
 });
 
 it('requires the other-series field when serie_bacc is AUTRE', function () {

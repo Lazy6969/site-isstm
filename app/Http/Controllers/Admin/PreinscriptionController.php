@@ -46,6 +46,9 @@ class PreinscriptionController extends Controller
 
         $user = $preinscription->user;
         $user->role = Role::Etudiant;
+        if ($user->avatar_path === null) {
+            $user->avatar_path = $preinscription->photo_path;
+        }
         $user->save();
         $user->syncRoles([Role::Etudiant->spatieRole()]);
 

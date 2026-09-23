@@ -1,72 +1,121 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, ClipboardCheck } from 'lucide-react';
+import { ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
 import SelectField from '../../Components/Form/SelectField';
 import { Card } from '../../Components/ui/card';
-import EditableText from '../../Components/QuickEdit/EditableText';
+import CandidateSidebar from '../../Components/Preinscription/CandidateSidebar';
 import { countries, mentionsBacc, nationalites, seriesBacc } from '../../Components/Preinscription/countries';
 import { useTranslations } from '../../lib/useTranslations';
 
 const emptyForm = {
-    nom: '',
-    prenoms: '',
+    civilite: '',
     sexe: '',
+    prenoms: '',
+    nom: '',
     date_naissance: '',
     lieu_naissance: '',
-    cin: '',
     nationalite: '',
+    pays: '',
+    cin: '',
+    email: '',
+    telephone: '',
+    adresse: '',
+    password: '',
+    password_confirmation: '',
+    nom_pere: '',
+    nom_mere: '',
+    contact_parents: '',
+    repondant_nom: '',
+    repondant_lien: '',
+    repondant_telephone: '',
     annee_bacc: '',
     serie_bacc: '',
     serie_bacc_autre: '',
     mention_bacc: '',
     code_redoublement: '',
-    adresse: '',
-    telephone: '',
-    email: '',
-    nom_pere: '',
-    profession_pere: '',
-    nom_mere: '',
-    profession_mere: '',
-    adresse_parents: '',
-    contact_parents: '',
-    contact_parents_2: '',
-    pays: '',
     filiere_id: '',
     niveau: '',
     photo: null,
+    cin_recto: null,
+    cin_verso: null,
+    diplome_attestation: null,
     releve_bacc: null,
-    cin_document: null,
-    password: '',
-    password_confirmation: '',
 };
+
+const STEPS = [
+    { key: 'identite', label: 'Identité', icon: IdCard },
+    { key: 'famille', label: 'Famille', icon: Users },
+    { key: 'formation', label: 'Formation', icon: GraduationCap },
+    { key: 'validation', label: 'Validation', icon: ClipboardCheck },
+];
+
+const STEP_FIELDS = {
+    identite: ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse', 'password', 'password_confirmation'],
+    famille: ['contact_parents', 'repondant_telephone'],
+    formation: ['annee_bacc', 'serie_bacc', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau'],
+    validation: ['photo', 'cin_recto', 'cin_verso', 'diplome_attestation', 'releve_bacc'],
+};
+
+function RadioGroup({ name, options, value, onChange, error }) {
+    return (
+        <div>
+            <div className="grid grid-cols-3 gap-2">
+                {options.map((opt) => (
+                    <label
+                        key={opt.value}
+                        className={`flex cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm transition ${
+                            value === opt.value
+                                ? 'border-isstm-navy bg-isstm-navy/5 font-semibold text-isstm-navy dark:border-isstm-gold dark:bg-isstm-gold/10 dark:text-isstm-gold'
+                                : 'border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
+                        }`}
+                    >
+                        <input
+                            type="radio"
+                            name={name}
+                            value={opt.value}
+                            checked={value === opt.value}
+                            onChange={() => onChange(opt.value)}
+                            className="sr-only"
+                        />
+                        {opt.label}
+                    </label>
+                ))}
+            </div>
+            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+    );
+}
+
+function FileInput({ id, label, file, onChange, error }) {
+    return (
+        <div>
+            <label htmlFor={id} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {label} <span className="text-red-500">*</span>
+            </label>
+            <label
+                htmlFor={id}
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700/60"
+            >
+                <span className="rounded-md bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white">Choisir un fichier</span>
+                <span className="min-w-0 flex-1 truncate text-right text-xs text-slate-500 dark:text-slate-400">
+                    {file ? file.name : 'Aucun fichier n’a été sélectionné'}
+                </span>
+                <input id={id} type="file" accept="image/*,.pdf" onChange={onChange} className="sr-only" />
+            </label>
+            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+    );
+}
 
 export default function Create({ filieres }) {
     const { content } = usePage().props;
     const { t } = useTranslations();
-    const [step, setStep] = useState('form');
-    const [photoPreview, setPhotoPreview] = useState(null);
-    const { data, setData, post, processing, errors } = useForm(emptyForm);
-
-    const fieldLabels = {
-        nom: t('preinscription.champ_nom', 'Nom'),
-        prenoms: t('preinscription.champ_prenoms', 'Prénoms'),
-        sexe: t('preinscription.champ_sexe', 'Sexe'),
-        date_naissance: t('preinscription.champ_date_naissance', 'Date de naissance'),
-        lieu_naissance: t('preinscription.champ_lieu_naissance', 'Lieu de naissance'),
-        nationalite: t('preinscription.champ_nationalite', 'Nationalité'),
-        annee_bacc: t('preinscription.champ_annee_bacc', 'Année du bac'),
-        serie_bacc: t('preinscription.champ_serie_bacc', 'Série du bac'),
-        mention_bacc: t('preinscription.champ_mention', 'Mention'),
-        adresse: t('preinscription.champ_adresse', 'Adresse'),
-        telephone: t('preinscription.champ_telephone', 'Téléphone'),
-        email: t('preinscription.champ_email', 'E-mail'),
-        pays: t('preinscription.champ_pays', 'Pays'),
-        filiere: t('preinscription.champ_filiere', 'Filière'),
-        niveau: t('preinscription.champ_niveau', 'Niveau'),
-    };
+    const [step, setStep] = useState('identite');
+    const [consent, setConsent] = useState(false);
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm(emptyForm);
 
     const selectedFiliere = useMemo(() => filieres.find((f) => String(f.id) === String(data.filiere_id)), [filieres, data.filiere_id]);
     const niveaux = useMemo(() => (selectedFiliere?.niveaux ? selectedFiliere.niveaux.split(',') : []), [selectedFiliere]);
@@ -75,274 +124,384 @@ export default function Create({ filieres }) {
         return (e) => setData(field, e.target.value);
     }
 
-    function onPhotoChange(e) {
-        const file = e.target.files[0] ?? null;
-        setData('photo', file);
-        setPhotoPreview(file ? URL.createObjectURL(file) : null);
-    }
-
     function onFileChange(field) {
         return (e) => setData(field, e.target.files[0] ?? null);
     }
 
-    function reviewForm(e) {
-        e.preventDefault();
-        setStep('review');
+    function goTo(target) {
+        setStep(target);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function submit() {
+    function next() {
+        const currentIndex = STEPS.findIndex((s) => s.key === step);
+        const fields = STEP_FIELDS[step];
+        const missing = {};
+
+        if (step === 'identite') {
+            for (const field of ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse', 'password']) {
+                if (!data[field]) missing[field] = 'Ce champ est requis.';
+            }
+            if (data.password && data.password !== data.password_confirmation) {
+                missing.password_confirmation = 'La confirmation ne correspond pas au mot de passe.';
+            }
+        } else if (step === 'famille') {
+            if (!data.contact_parents && !data.repondant_telephone) {
+                missing.contact_parents = 'Indiquez au moins un numéro joignable (parents ou répondant).';
+            }
+        } else if (step === 'formation') {
+            for (const field of ['annee_bacc', 'serie_bacc', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau']) {
+                if (!data[field]) missing[field] = 'Ce champ est requis.';
+            }
+            if (data.serie_bacc === 'AUTRE' && !data.serie_bacc_autre) {
+                missing.serie_bacc_autre = 'Précisez la série.';
+            }
+        }
+
+        if (Object.keys(missing).length > 0) {
+            for (const field of fields) clearErrors(field);
+            for (const [field, message] of Object.entries(missing)) setError(field, message);
+            return;
+        }
+
+        clearErrors(...fields);
+        goTo(STEPS[currentIndex + 1].key);
+    }
+
+    function submit(e) {
+        e.preventDefault();
+
+        if (!consent) {
+            return;
+        }
+
         post('/preinscription', {
             forceFormData: true,
-            onError: () => setStep('form'),
+            onError: (serverErrors) => {
+                const firstStepWithError = STEPS.find((s) => STEP_FIELDS[s.key].some((field) => field in serverErrors));
+                if (firstStepWithError) goTo(firstStepWithError.key);
+            },
         });
     }
+
+    const currentStepIndex = STEPS.findIndex((s) => s.key === step);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
             <Head title="Préinscription" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-3xl px-6">
+            <div className="bg-isstm-navy py-8 text-white sm:py-10">
+                <div className="mx-auto max-w-5xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
-                        <EditableText as="span" contentKey="preinscription_titre">
-                            {content.preinscription_titre ?? t('preinscription.titre', 'Préinscription en ligne')}
-                        </EditableText>
+                        {t('preinscription.titre', 'Formulaire d’inscription')}
                     </h1>
                     <p className="mt-2 text-white/80">
-                        <EditableText as="span" contentKey="preinscription_soustitre">
-                            {content.preinscription_soustitre ??
-                                t('preinscription.soustitre', "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.")}
-                        </EditableText>
+                        {t('preinscription.soustitre_form', 'Les champs avec un astérisque sont obligatoires. Vos données sont enregistrées uniquement après l’envoi final.')}
                     </p>
                 </div>
             </div>
 
-            <main className="mx-auto max-w-3xl px-6 py-12">
-                {step === 'form' ? (
-                    <form onSubmit={reviewForm} encType="multipart/form-data" className="space-y-8">
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_identite', 'Identité')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <TextField id="nom" label={fieldLabels.nom} value={data.nom} onChange={set('nom')} error={errors.nom} required />
-                                <TextField id="prenoms" label={fieldLabels.prenoms} value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required />
-                                <SelectField id="sexe" label={fieldLabels.sexe} value={data.sexe} onChange={set('sexe')} error={errors.sexe} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    <option value="M">{t('preinscription.masculin', 'Masculin')}</option>
-                                    <option value="F">{t('preinscription.feminin', 'Féminin')}</option>
-                                </SelectField>
-                                <TextField id="date_naissance" label={fieldLabels.date_naissance} type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} required />
-                                <TextField id="lieu_naissance" label={fieldLabels.lieu_naissance} value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} required />
-                                <TextField id="cin" label={t('preinscription.champ_cin', 'CIN (si majeur)')} value={data.cin} onChange={set('cin')} error={errors.cin} />
-                                <SelectField id="nationalite" label={fieldLabels.nationalite} value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    {nationalites.map((n) => <option key={n} value={n}>{n}</option>)}
-                                </SelectField>
-                                <SelectField id="pays" label={t('preinscription.champ_pays_residence', 'Pays de résidence')} value={data.pays} onChange={set('pays')} error={errors.pays} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                                </SelectField>
-                            </div>
-                        </Card>
+            <main className="mx-auto max-w-5xl px-6 py-10">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+                    <CandidateSidebar content={content} />
 
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_bac', 'Parcours bac')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <TextField id="annee_bacc" label={t('preinscription.champ_annee_obtention', "Année d'obtention du bac")} value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
-                                <SelectField id="serie_bacc" label={fieldLabels.serie_bacc} value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    {seriesBacc.map((s) => <option key={s} value={s}>{s}</option>)}
-                                </SelectField>
-                                {data.serie_bacc === 'AUTRE' && (
-                                    <TextField id="serie_bacc_autre" label={t('preinscription.champ_serie_autre', 'Précisez la série')} value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} required />
-                                )}
-                                <SelectField id="mention_bacc" label={fieldLabels.mention_bacc} value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    {mentionsBacc.map((m) => <option key={m} value={m}>{m}</option>)}
-                                </SelectField>
-                                <SelectField id="code_redoublement" label={t('preinscription.champ_situation', 'Situation')} value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement} required>
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    <option value="N">{t('preinscription.nouveau_bachelier', 'Nouveau bachelier')}</option>
-                                    <option value="R">{t('preinscription.redoublant', 'Redoublant(e)')}</option>
-                                </SelectField>
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_filiere', 'Filière souhaitée')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <SelectField
-                                    id="filiere_id"
-                                    label={fieldLabels.filiere}
-                                    value={data.filiere_id}
-                                    onChange={(e) => { setData('filiere_id', e.target.value); setData('niveau', ''); }}
-                                    error={errors.filiere_id}
-                                    required
-                                >
-                                    <option value="" disabled>{t('preinscription.choisir', 'Choisir…')}</option>
-                                    {filieres.map((f) => <option key={f.id} value={f.id}>{f.nom}</option>)}
-                                </SelectField>
-                                <SelectField id="niveau" label={fieldLabels.niveau} value={data.niveau} onChange={set('niveau')} error={errors.niveau} required disabled={niveaux.length === 0}>
-                                    <option value="" disabled>
-                                        {niveaux.length ? t('preinscription.choisir', 'Choisir…') : t('preinscription.choisir_filiere_dabord', "Choisissez d'abord une filière")}
-                                    </option>
-                                    {niveaux.map((n) => <option key={n} value={n}>{n}</option>)}
-                                </SelectField>
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_contact', 'Contact')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <TextField id="adresse" label={fieldLabels.adresse} value={data.adresse} onChange={set('adresse')} error={errors.adresse} required />
-                                <TextField id="telephone" label={fieldLabels.telephone} value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
-                                <TextField id="email" label={fieldLabels.email} type="email" value={data.email} onChange={set('email')} error={errors.email} required className="sm:col-span-2" />
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_compte', 'Votre compte candidat')}</h2>
-                            <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                                {t(
-                                    'preinscription.section_compte_aide',
-                                    'Ce mot de passe vous permettra de suivre votre dossier en ligne après vérification de votre e-mail.',
-                                )}
-                            </p>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <TextField
-                                    id="password"
-                                    type="password"
-                                    label={t('preinscription.champ_mot_de_passe', 'Mot de passe')}
-                                    value={data.password}
-                                    onChange={set('password')}
-                                    error={errors.password}
-                                    required
-                                />
-                                <TextField
-                                    id="password_confirmation"
-                                    type="password"
-                                    label={t('preinscription.champ_mot_de_passe_confirmation', 'Confirmer le mot de passe')}
-                                    value={data.password_confirmation}
-                                    onChange={set('password_confirmation')}
-                                    error={errors.password_confirmation}
-                                    required
-                                />
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_filiation', 'Filiation (facultatif)')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <TextField id="nom_pere" label={t('preinscription.champ_nom_pere', 'Nom du père')} value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
-                                <TextField id="profession_pere" label={t('preinscription.champ_profession_pere', 'Profession du père')} value={data.profession_pere} onChange={set('profession_pere')} error={errors.profession_pere} />
-                                <TextField id="nom_mere" label={t('preinscription.champ_nom_mere', 'Nom de la mère')} value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
-                                <TextField id="profession_mere" label={t('preinscription.champ_profession_mere', 'Profession de la mère')} value={data.profession_mere} onChange={set('profession_mere')} error={errors.profession_mere} />
-                                <TextField id="adresse_parents" label={t('preinscription.champ_adresse_parents', 'Adresse des parents')} value={data.adresse_parents} onChange={set('adresse_parents')} error={errors.adresse_parents} className="sm:col-span-2" />
-                                <TextField id="contact_parents" label={t('preinscription.champ_contact_parents', 'Contact des parents')} value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} />
-                                <TextField id="contact_parents_2" label={t('preinscription.champ_second_contact', 'Second contact')} value={data.contact_parents_2} onChange={set('contact_parents_2')} error={errors.contact_parents_2} />
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_photo', "Photo d'identité")}</h2>
-                            <div className="flex items-center gap-5">
-                                {photoPreview && <img src={photoPreview} alt="" className="h-20 w-20 rounded-full object-cover ring-2 ring-isstm-navy/10" />}
-                                <div>
-                                    <input id="photo" type="file" accept="image/*" onChange={onPhotoChange} className="text-sm text-slate-500 dark:text-slate-400" />
-                                    {errors.photo && <p className="mt-1 text-sm text-red-600">{errors.photo}</p>}
-                                </div>
-                            </div>
-                        </Card>
-
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.section_pieces', 'Pièces à joindre')}</h2>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label htmlFor="releve_bacc" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        {t('preinscription.champ_releve_bacc', 'Relevé de notes du bac')}
-                                    </label>
-                                    <input
-                                        id="releve_bacc"
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        onChange={onFileChange('releve_bacc')}
-                                        className="text-sm text-slate-500 dark:text-slate-400"
-                                    />
-                                    {data.releve_bacc && <p className="mt-1 text-xs text-slate-400">{data.releve_bacc.name}</p>}
-                                    {errors.releve_bacc && <p className="mt-1 text-sm text-red-600">{errors.releve_bacc}</p>}
-                                </div>
-                                <div>
-                                    <label htmlFor="cin_document" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                        {t('preinscription.champ_cin_document', "Copie de la CIN")}
-                                    </label>
-                                    <input
-                                        id="cin_document"
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        onChange={onFileChange('cin_document')}
-                                        className="text-sm text-slate-500 dark:text-slate-400"
-                                    />
-                                    {data.cin_document && <p className="mt-1 text-xs text-slate-400">{data.cin_document.name}</p>}
-                                    {errors.cin_document && <p className="mt-1 text-sm text-red-600">{errors.cin_document}</p>}
-                                </div>
-                            </div>
-                        </Card>
-
-                        <button
-                            type="submit"
-                            className="flex w-full items-center justify-center gap-2 rounded-full bg-isstm-navy py-3 text-sm font-semibold text-white transition hover:brightness-110"
-                        >
-                            <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
-                            {t('preinscription.verifier_cta', 'Vérifier ma préinscription')}
-                        </button>
-                    </form>
-                ) : (
-                    <div className="space-y-6">
-                        <Card className="p-6">
-                            <h2 className="mb-4 font-semibold text-isstm-navy dark:text-white">{t('preinscription.recapitulatif', 'Récapitulatif')}</h2>
-                            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                                {Object.entries(fieldLabels).map(([key, label]) => {
-                                    const value = key === 'filiere' ? selectedFiliere?.nom : data[key];
-                                    if (!value) return null;
-                                    return (
-                                        <div key={key}>
-                                            <dt className="text-slate-400 dark:text-slate-500">{label}</dt>
-                                            <dd className="font-medium text-slate-700 dark:text-slate-200">{value}</dd>
+                    <div>
+                        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                            {STEPS.map((s, index) => {
+                                const Icon = s.icon;
+                                const done = index < currentStepIndex;
+                                const active = index === currentStepIndex;
+                                return (
+                                    <div key={s.key} className="flex flex-1 flex-col items-center gap-1.5 text-center">
+                                        <div
+                                            className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
+                                                done
+                                                    ? 'bg-emerald-500 text-white'
+                                                    : active
+                                                      ? 'bg-isstm-navy text-white'
+                                                      : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500'
+                                            }`}
+                                        >
+                                            {done ? <Check className="h-4 w-4" aria-hidden="true" /> : <Icon className="h-4 w-4" aria-hidden="true" />}
                                         </div>
-                                    );
-                                })}
-                            </dl>
-                            {photoPreview && (
-                                <img src={photoPreview} alt="" className="mt-5 h-20 w-20 rounded-full object-cover ring-2 ring-isstm-navy/10" />
-                            )}
-                            <ul className="mt-5 space-y-1 text-sm text-slate-500 dark:text-slate-400">
-                                <li>{t('preinscription.recap_releve', 'Relevé du bac')} : {data.releve_bacc?.name ?? '—'}</li>
-                                <li>{t('preinscription.recap_cin', 'CIN')} : {data.cin_document?.name ?? '—'}</li>
-                                <li>{t('preinscription.recap_mot_de_passe', 'Mot de passe')} : {data.password ? '••••••••' : '—'}</li>
-                            </ul>
-                        </Card>
-
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setStep('form')}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-slate-300 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100"
-                            >
-                                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                                {t('preinscription.modifier', 'Modifier')}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={submit}
-                                disabled={processing}
-                                className="flex-1 rounded-full bg-isstm-navy py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
-                            >
-                                {t('preinscription.confirmer_cta', 'Confirmer et envoyer')}
-                            </button>
+                                        <span
+                                            className={`text-xs font-medium ${
+                                                active ? 'text-isstm-navy dark:text-white' : 'text-slate-400 dark:text-slate-500'
+                                            }`}
+                                        >
+                                            {s.label}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
+
+                        <form onSubmit={submit} encType="multipart/form-data">
+                            {step === 'identite' && (
+                                <Card className="p-6">
+                                    <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
+                                        <IdCard className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                                        État civil et coordonnées
+                                    </h2>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div>
+                                            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                Civilité <span className="text-red-500">*</span>
+                                            </label>
+                                            <RadioGroup
+                                                name="civilite"
+                                                value={data.civilite}
+                                                onChange={(v) => setData('civilite', v)}
+                                                error={errors.civilite}
+                                                options={[
+                                                    { value: 'M', label: 'M.' },
+                                                    { value: 'Mme', label: 'Mme' },
+                                                    { value: 'Mlle', label: 'Mlle' },
+                                                ]}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                Genre <span className="text-red-500">*</span>
+                                            </label>
+                                            <RadioGroup
+                                                name="sexe"
+                                                value={data.sexe}
+                                                onChange={(v) => setData('sexe', v)}
+                                                error={errors.sexe}
+                                                options={[
+                                                    { value: 'M', label: 'Masculin' },
+                                                    { value: 'F', label: 'Féminin' },
+                                                ]}
+                                            />
+                                        </div>
+
+                                        <TextField id="prenoms" label="Prénom(s)" value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required />
+                                        <TextField id="nom" label="Nom" value={data.nom} onChange={set('nom')} error={errors.nom} required />
+                                        <TextField id="date_naissance" label="Date de naissance" type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} required />
+                                        <TextField id="lieu_naissance" label="Lieu de naissance" value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} required />
+
+                                        <SelectField id="nationalite" label="Nationalité" value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite} required>
+                                            <option value="" disabled>Choisir…</option>
+                                            {nationalites.map((n) => <option key={n} value={n}>{n}</option>)}
+                                        </SelectField>
+                                        <SelectField id="pays" label="Pays de résidence" value={data.pays} onChange={set('pays')} error={errors.pays} required>
+                                            <option value="" disabled>Choisir…</option>
+                                            {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+                                        </SelectField>
+
+                                        <TextField id="cin" label="CIN ou passeport (facultatif)" value={data.cin} onChange={set('cin')} error={errors.cin} />
+                                        <TextField id="telephone" label="Téléphone du candidat" value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
+
+                                        <TextField id="email" label="Adresse e-mail" type="email" value={data.email} onChange={set('email')} error={errors.email} required className="sm:col-span-2" />
+
+                                        <div className="sm:col-span-2">
+                                            <label htmlFor="adresse" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                Adresse complète <span className="text-red-500">*</span>
+                                            </label>
+                                            <textarea
+                                                id="adresse"
+                                                value={data.adresse}
+                                                onChange={set('adresse')}
+                                                rows={3}
+                                                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition focus:border-isstm-navy focus:outline-none focus:ring-2 focus:ring-isstm-navy/20 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                                            />
+                                            {errors.adresse && <p className="mt-1 text-sm text-red-600">{errors.adresse}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-700">
+                                        <h3 className="mb-1 font-semibold text-isstm-navy dark:text-white">Votre compte candidat</h3>
+                                        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                                            Ce mot de passe vous permettra de suivre votre dossier en ligne après vérification de votre e-mail.
+                                        </p>
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <TextField id="password" type="password" label="Mot de passe" value={data.password} onChange={set('password')} error={errors.password} required />
+                                            <TextField id="password_confirmation" type="password" label="Confirmer le mot de passe" value={data.password_confirmation} onChange={set('password_confirmation')} error={errors.password_confirmation} required />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 flex justify-end">
+                                        <button type="button" onClick={next} className="rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+                                            Continuer →
+                                        </button>
+                                    </div>
+                                </Card>
+                            )}
+
+                            {step === 'famille' && (
+                                <Card className="p-6">
+                                    <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
+                                        <Users className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                                        Parents et répondant
+                                    </h2>
+
+                                    <p className="mb-4 rounded-lg bg-isstm-navy/5 px-3 py-2 text-sm text-isstm-navy dark:bg-white/5 dark:text-white">
+                                        Indiquez au minimum un numéro joignable : téléphone des parents ou téléphone du répondant.
+                                    </p>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <TextField id="nom_pere" label="Nom complet du père" value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
+                                        <TextField id="nom_mere" label="Nom complet de la mère" value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
+                                        <TextField id="contact_parents" label="Téléphone des parents" value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} className="sm:col-span-2" />
+                                    </div>
+
+                                    <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-700">
+                                        <p className="mb-4 text-sm font-medium text-slate-600 dark:text-slate-300">
+                                            Tuteur ou répondant <span className="text-slate-400">(si différent des parents)</span>
+                                        </p>
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <TextField id="repondant_nom" label="Nom complet" value={data.repondant_nom} onChange={set('repondant_nom')} error={errors.repondant_nom} />
+                                            <TextField id="repondant_lien" label="Lien avec le candidat" placeholder="Ex. oncle, tante, répondant légal" value={data.repondant_lien} onChange={set('repondant_lien')} error={errors.repondant_lien} />
+                                            <TextField id="repondant_telephone" label="Téléphone du répondant" value={data.repondant_telephone} onChange={set('repondant_telephone')} error={errors.repondant_telephone} className="sm:col-span-2" />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 flex justify-between">
+                                        <button type="button" onClick={() => goTo('identite')} className="flex items-center gap-1.5 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300">
+                                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                                            Étape précédente
+                                        </button>
+                                        <button type="button" onClick={next} className="rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+                                            Continuer →
+                                        </button>
+                                    </div>
+                                </Card>
+                            )}
+
+                            {step === 'formation' && (
+                                <Card className="p-6">
+                                    <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
+                                        <GraduationCap className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                                        Parcours bac et filière souhaitée
+                                    </h2>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <TextField id="annee_bacc" label="Année d'obtention du bac" value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
+                                        <SelectField id="serie_bacc" label="Série du bac" value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
+                                            <option value="" disabled>Choisir…</option>
+                                            {seriesBacc.map((s) => <option key={s} value={s}>{s}</option>)}
+                                        </SelectField>
+                                        {data.serie_bacc === 'AUTRE' && (
+                                            <TextField id="serie_bacc_autre" label="Précisez la série" value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} required />
+                                        )}
+                                        <SelectField id="mention_bacc" label="Mention" value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc} required>
+                                            <option value="" disabled>Choisir…</option>
+                                            {mentionsBacc.map((m) => <option key={m} value={m}>{m}</option>)}
+                                        </SelectField>
+                                        <SelectField id="code_redoublement" label="Situation" value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement} required>
+                                            <option value="" disabled>Choisir…</option>
+                                            <option value="N">Nouveau bachelier</option>
+                                            <option value="R">Redoublant(e)</option>
+                                        </SelectField>
+                                        <SelectField
+                                            id="filiere_id"
+                                            label="Filière souhaitée"
+                                            value={data.filiere_id}
+                                            onChange={(e) => { setData('filiere_id', e.target.value); setData('niveau', ''); }}
+                                            error={errors.filiere_id}
+                                            required
+                                        >
+                                            <option value="" disabled>Choisir…</option>
+                                            {filieres.map((f) => <option key={f.id} value={f.id}>{f.nom}</option>)}
+                                        </SelectField>
+                                        <SelectField id="niveau" label="Niveau" value={data.niveau} onChange={set('niveau')} error={errors.niveau} required disabled={niveaux.length === 0}>
+                                            <option value="" disabled>
+                                                {niveaux.length ? 'Choisir…' : "Choisissez d'abord une filière"}
+                                            </option>
+                                            {niveaux.map((n) => <option key={n} value={n}>{n}</option>)}
+                                        </SelectField>
+                                    </div>
+
+                                    <div className="mt-6 flex justify-between">
+                                        <button type="button" onClick={() => goTo('famille')} className="flex items-center gap-1.5 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300">
+                                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                                            Étape précédente
+                                        </button>
+                                        <button type="button" onClick={next} className="rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
+                                            Continuer →
+                                        </button>
+                                    </div>
+                                </Card>
+                            )}
+
+                            {step === 'validation' && (
+                                <Card className="p-6">
+                                    <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
+                                        <ClipboardCheck className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                                        Pièces et confirmation
+                                    </h2>
+
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <FileInput id="photo" label="Photo d'identité" file={data.photo} onChange={onFileChange('photo')} error={errors.photo} />
+                                        <FileInput id="cin_recto" label="CIN recto" file={data.cin_recto} onChange={onFileChange('cin_recto')} error={errors.cin_recto} />
+                                        <FileInput id="cin_verso" label="CIN verso" file={data.cin_verso} onChange={onFileChange('cin_verso')} error={errors.cin_verso} />
+                                        <FileInput id="diplome_attestation" label="Diplôme ou attestation" file={data.diplome_attestation} onChange={onFileChange('diplome_attestation')} error={errors.diplome_attestation} />
+                                        <FileInput id="releve_bacc" label="Relevé de notes" file={data.releve_bacc} onChange={onFileChange('releve_bacc')} error={errors.releve_bacc} />
+                                    </div>
+                                    <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP ou PDF (5 Mo maximum par fichier).</p>
+
+                                    <div className="mt-6 rounded-xl bg-slate-50 p-5 dark:bg-slate-800/60">
+                                        <h3 className="mb-3 font-semibold text-isstm-navy dark:text-white">Résumé du dossier</h3>
+                                        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                            <div>
+                                                <p className="text-slate-400">Candidat</p>
+                                                <p className="font-medium text-slate-700 dark:text-slate-200">{data.civilite} {data.prenoms} {data.nom}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-slate-400">Contact</p>
+                                                <p className="font-medium text-slate-700 dark:text-slate-200">{data.email}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-slate-400">Orientation</p>
+                                                <p className="font-medium text-slate-700 dark:text-slate-200">
+                                                    {data.niveau} · {selectedFiliere?.nom ?? '—'}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-slate-400">Dernier diplôme</p>
+                                                <p className="font-medium text-slate-700 dark:text-slate-200">
+                                                    {data.annee_bacc || '—'} ({data.serie_bacc === 'AUTRE' ? data.serie_bacc_autre : data.serie_bacc || '—'})
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <label className="mt-6 flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                        <input
+                                            type="checkbox"
+                                            checked={consent}
+                                            onChange={(e) => setConsent(e.target.checked)}
+                                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
+                                        />
+                                        J&apos;accepte le traitement de mes données pour l&apos;étude de mon dossier et j&apos;ai lu la{' '}
+                                        <a href="/confidentialite" target="_blank" rel="noreferrer" className="font-medium text-isstm-navy underline dark:text-isstm-gold">
+                                            politique de confidentialité
+                                        </a>
+                                        . <span className="text-red-500">*</span>
+                                    </label>
+
+                                    <div className="mt-6 flex justify-between">
+                                        <button type="button" onClick={() => goTo('formation')} className="flex items-center gap-1.5 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300">
+                                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                                            Étape précédente
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={processing || !consent}
+                                            className="flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            <Send className="h-4 w-4" aria-hidden="true" />
+                                            Envoyer mon inscription
+                                        </button>
+                                    </div>
+                                </Card>
+                            )}
+                        </form>
                     </div>
-                )}
+                </div>
             </main>
 
             <Footer />

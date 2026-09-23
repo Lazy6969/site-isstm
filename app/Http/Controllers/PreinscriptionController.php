@@ -35,10 +35,15 @@ class PreinscriptionController extends Controller
             ]);
 
             Preinscription::create([
-                ...$request->safe()->except(['photo', 'releve_bacc', 'cin_document', 'password', 'password_confirmation']),
+                ...$request->safe()->except([
+                    'photo', 'releve_bacc', 'cin_recto', 'cin_verso', 'diplome_attestation',
+                    'password', 'password_confirmation',
+                ]),
                 'photo_path' => $request->file('photo')->store('preinscriptions', 'public'),
                 'releve_bacc_path' => $request->file('releve_bacc')->store('preinscriptions', 'public'),
-                'cin_document_path' => $request->file('cin_document')->store('preinscriptions', 'public'),
+                'cin_recto_path' => $request->file('cin_recto')->store('preinscriptions', 'public'),
+                'cin_verso_path' => $request->file('cin_verso')->store('preinscriptions', 'public'),
+                'diplome_attestation_path' => $request->file('diplome_attestation')->store('preinscriptions', 'public'),
                 'user_id' => $user->id,
             ]);
 
