@@ -25,4 +25,16 @@ enum SiteContentType: string
     {
         return $this !== self::Text;
     }
+
+    /**
+     * The quick-edit permission gating both editing and restoring this type.
+     */
+    public function permission(): string
+    {
+        return match ($this) {
+            self::Text => 'quick-edit.text',
+            self::Icon => 'quick-edit.icon',
+            self::Image => 'quick-edit.image',
+        };
+    }
 }

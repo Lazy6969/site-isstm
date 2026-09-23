@@ -1,13 +1,16 @@
 import ContactCards from '../Contact/ContactCards';
 import ContactMaps from '../Contact/ContactMaps';
+import EditableText from '../QuickEdit/EditableText';
 
 export default function Contact({ content }) {
     return (
         <section id="contact" className="bg-slate-50 py-12 sm:py-20 dark:bg-slate-900">
             <div className="mx-auto max-w-6xl px-6">
-                <h2 className="text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">Contactez-nous</h2>
+                <h2 className="text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
+                    <EditableText contentKey="accueil_contact_titre">{content.accueil_contact_titre}</EditableText>
+                </h2>
                 <p className="mx-auto mt-2 max-w-xl text-center text-slate-500 dark:text-slate-400">
-                    Une question ? Notre équipe vous répond avec plaisir.
+                    <EditableText contentKey="accueil_contact_soustitre">{content.accueil_contact_soustitre}</EditableText>
                 </p>
 
                 <div className="mt-10">

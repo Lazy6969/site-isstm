@@ -4,12 +4,12 @@ import SiteHeader from './SiteHeader';
 import Footer from '../Home/Footer';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function LegalPage({ title, subtitle, updated, sections }) {
+export default function LegalPage({ headTitle, title, subtitle, updated, sections }) {
     const { t } = useTranslations();
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title={title} />
+            <Head title={headTitle} />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
@@ -28,7 +28,7 @@ export default function LegalPage({ title, subtitle, updated, sections }) {
                 )}
 
                 {sections.map((section) => (
-                    <section key={section.title}>
+                    <section key={section.key}>
                         <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{section.title}</h2>
                         <p className="mt-2 leading-relaxed text-slate-600 dark:text-slate-300">{section.text}</p>
                     </section>

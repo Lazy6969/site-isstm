@@ -1,9 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Quote } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
-import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../../Components/QuickEdit/EditableText';
 
 function Fact({ label, value }) {
     if (!value) return null;
@@ -17,7 +17,7 @@ function Fact({ label, value }) {
 }
 
 export default function Show({ bloc }) {
-    const { t } = useTranslations();
+    const { content } = usePage().props;
     const images = bloc.images ?? [];
 
     return (
@@ -29,7 +29,9 @@ export default function Show({ bloc }) {
                 <div className="mx-auto max-w-4xl px-6">
                     <Link href="/campus" className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                        {t('campus.tous_les_blocs', 'Tous les blocs')}
+                        <EditableText as="span" contentKey="campus_show_retour">
+                            {content.campus_show_retour}
+                        </EditableText>
                     </Link>
                     <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{bloc.nom}</h1>
                     {bloc.signification && <p className="mt-2 max-w-2xl text-white/80">{bloc.signification}</p>}
@@ -53,23 +55,59 @@ export default function Show({ bloc }) {
 
                 <Card className="p-7">
                     <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <Fact label={t('campus.fondation', 'Fondation')} value={bloc.fondation} />
-                        <Fact label={t('campus.fondateurs', 'Fondateurs')} value={bloc.fondateurs} />
-                        <Fact label={t('campus.danses', 'Danses')} value={bloc.danse} />
-                        <Fact label={t('campus.distinction', 'Ce qui les distingue')} value={bloc.mampiavaka} />
+                        <Fact
+                            label={
+                                <EditableText as="span" contentKey="campus_show_fondation_label">
+                                    {content.campus_show_fondation_label}
+                                </EditableText>
+                            }
+                            value={bloc.fondation}
+                        />
+                        <Fact
+                            label={
+                                <EditableText as="span" contentKey="campus_show_fondateurs_label">
+                                    {content.campus_show_fondateurs_label}
+                                </EditableText>
+                            }
+                            value={bloc.fondateurs}
+                        />
+                        <Fact
+                            label={
+                                <EditableText as="span" contentKey="campus_show_danses_label">
+                                    {content.campus_show_danses_label}
+                                </EditableText>
+                            }
+                            value={bloc.danse}
+                        />
+                        <Fact
+                            label={
+                                <EditableText as="span" contentKey="campus_show_distinction_label">
+                                    {content.campus_show_distinction_label}
+                                </EditableText>
+                            }
+                            value={bloc.mampiavaka}
+                        />
                     </dl>
                 </Card>
 
                 <section className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
                     {bloc.objectifs && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('campus.objectifs', 'Objectifs')}</h2>
+                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
+                                <EditableText as="span" contentKey="campus_show_objectifs_label">
+                                    {content.campus_show_objectifs_label}
+                                </EditableText>
+                            </h2>
                             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{bloc.objectifs}</p>
                         </div>
                     )}
                     {bloc.activites && (
                         <div>
-                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">{t('campus.activites', 'Activités')}</h2>
+                            <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
+                                <EditableText as="span" contentKey="campus_show_activites_label">
+                                    {content.campus_show_activites_label}
+                                </EditableText>
+                            </h2>
                             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-600 dark:text-slate-300">{bloc.activites}</p>
                         </div>
                     )}

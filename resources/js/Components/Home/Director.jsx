@@ -58,19 +58,17 @@ export default function Director({ content }) {
                         />
 
                         <p className="mt-3 text-center text-xs font-semibold tracking-wide text-isstm-gold uppercase">
-                            {t(
-                                'accueil.directeur_fonction',
-                                "Directeur de l'ISSTM",
-                            )}
+                            <EditableText as="span" contentKey="directeur_fonction">
+                                {content.directeur_fonction}
+                            </EditableText>
                         </p>
                     </div>
 
                     <div className="w-full min-w-0">
                         <h2 className="text-xl font-bold text-isstm-navy sm:text-2xl dark:text-white">
-                            {t(
-                                'accueil.mot_directeur_titre',
-                                'Le mot du Directeur',
-                            )}
+                            <EditableText as="span" contentKey="accueil_mot_directeur_titre">
+                                {content.accueil_mot_directeur_titre}
+                            </EditableText>
                         </h2>
 
                         <blockquote className="mt-3 flex gap-2.5 text-sm leading-relaxed text-slate-600 italic dark:text-slate-300">
@@ -97,10 +95,9 @@ export default function Director({ content }) {
                             </EditableText>
 
                             <span className="ml-1.5 font-normal text-slate-500 dark:text-slate-400">
-                                {t(
-                                    'accueil.directeur_fonction',
-                                    "Directeur de l'ISSTM",
-                                )}
+                                <EditableText as="span" contentKey="directeur_fonction">
+                                    {content.directeur_fonction}
+                                </EditableText>
                             </span>
                         </p>
 

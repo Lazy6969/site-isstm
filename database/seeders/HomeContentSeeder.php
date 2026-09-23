@@ -19,6 +19,7 @@ class HomeContentSeeder extends Seeder
     {
         $this->seedSiteContent();
         $this->seedIcons();
+        $this->seedImages();
         $this->seedHeroSlides();
         $this->seedTestimonials();
         $this->seedFilieres();
@@ -38,6 +39,10 @@ class HomeContentSeeder extends Seeder
             'stat_students_icon' => SiteIcon::GraduationCap,
             'stat_teachers_icon' => SiteIcon::Users,
             'stat_majors_icon' => SiteIcon::Compass,
+            'equipe_membre_1_icon' => SiteIcon::Crown,
+            'equipe_membre_2_icon' => SiteIcon::Server,
+            'equipe_membre_3_icon' => SiteIcon::Sparkles,
+            'equipe_membre_4_icon' => SiteIcon::Wrench,
         ];
 
         foreach ($icons as $key => $icon) {
@@ -48,6 +53,55 @@ class HomeContentSeeder extends Seeder
                     'content_value_fr' => $icon->value,
                     'content_value_en' => $icon->value,
                     'content_value_mg' => $icon->value,
+                ],
+            );
+        }
+    }
+
+    /**
+     * Quick-edit image paths — shared across locales like icons. Needs its
+     * own loop (not the generic $entries one in seedSiteContent()) so `type`
+     * is explicitly set to Image; the generic loop never touches `type`, so
+     * anything seeded through it silently defaults to the `text` column
+     * default, which breaks the image upload path in QuickEditController.
+     */
+    private function seedImages(): void
+    {
+        $images = [
+            'directeur_image_path' => 'images/directeur.jpg',
+            'mission_image_path' => 'images/mission.jpg',
+            'vision_image_path' => 'images/vision.jpg',
+            'logo_image_path' => 'images/logo-isstm.jpg',
+            'bourse_lien1_logo' => 'images/partenariat/mesupres.png',
+            'bourse_lien2_logo' => 'images/partenariat/tresor-public.png',
+            'associations_logo' => 'images/aei.jpeg',
+            'associations_galerie_1' => 'images/portal_assoc_4.jpg',
+            'associations_galerie_2' => 'images/portal_assoc_5.jpg',
+            'associations_galerie_3' => 'images/portal_assoc_6.jpg',
+            'vie_etudiante_image_1' => 'images/campus/etudiant1.png',
+            'vie_etudiante_image_2' => 'images/campus/etudiant2.png',
+            'vie_etudiante_campus_logo' => 'images/umg.jpg',
+            'vie_etudiante_associations_logo' => 'images/aei.jpeg',
+            'vie_etudiante_campus_slide_1' => 'images/portal_campus_1.jpg',
+            'vie_etudiante_campus_slide_2' => 'images/portal_campus_2.jpg',
+            'vie_etudiante_campus_slide_3' => 'images/portal_campus_3.jpg',
+            'vie_etudiante_associations_slide_1' => 'images/portal_assoc_4.jpg',
+            'vie_etudiante_associations_slide_2' => 'images/portal_assoc_5.jpg',
+            'vie_etudiante_associations_slide_3' => 'images/portal_assoc_6.jpg',
+            'equipe_membre_1_photo' => 'images/etudiant/mirindra.jpeg',
+            'equipe_membre_2_photo' => 'images/etudiant/safidy.jpg',
+            'equipe_membre_3_photo' => 'images/etudiant/jameelah.jpg',
+            'equipe_membre_4_photo' => 'images/etudiant/tanael.jpg',
+        ];
+
+        foreach ($images as $key => $path) {
+            SiteContent::updateOrCreate(
+                ['content_key' => $key],
+                [
+                    'type' => SiteContentType::Image,
+                    'content_value_fr' => $path,
+                    'content_value_en' => $path,
+                    'content_value_mg' => $path,
                 ],
             );
         }
@@ -72,10 +126,6 @@ class HomeContentSeeder extends Seeder
                 'To become a center of excellence and a national and regional benchmark in technical and technological higher education, recognized for the quality of its graduates and its impact on society.',
                 "Ho lasa ivon-toerana sangany sy ohatra nasionaly sy isam-paritra eo amin'ny fampianarana ambony teknika sy teknolojia, ekena noho ny kalitaon'ireo nahazo diplaoma sy ny fiantraikany eo amin'ny fiaraha-monina.",
             ],
-            'directeur_image_path' => ['images/directeur.jpg', 'images/directeur.jpg', 'images/directeur.jpg'],
-            'mission_image_path' => ['images/mission.jpg', 'images/mission.jpg', 'images/mission.jpg'],
-            'vision_image_path' => ['images/vision.jpg', 'images/vision.jpg', 'images/vision.jpg'],
-            'logo_image_path' => ['images/logo-isstm.jpg', 'images/logo-isstm.jpg', 'images/logo-isstm.jpg'],
             'stat_students' => ['2500', '2500', '2500'],
             'stat_teachers' => ['73', '73', '73'],
             'stat_majors' => ['18', '18', '18'],
@@ -292,6 +342,435 @@ class HomeContentSeeder extends Seeder
                 "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
                 "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
                 "Chaque mention désigne un représentant ; l'ex-Président en fait partie.",
+            ],
+
+            // Accueil — sections converties du quick-edit "titres" (étaient des t() statiques)
+            'accueil_contact_titre' => ['Contactez-nous', 'Contact Us', 'Mifandraisa aminay'],
+            'accueil_contact_soustitre' => [
+                'Une question ? Notre équipe vous répond avec plaisir.',
+                'A question? Our team is happy to answer.',
+                'Manana fanontaniana ve ? Faly ny ekipanay hamaly anao.',
+            ],
+            'accueil_hero_titre_ligne1' => ["L'excellence technique", 'Technical excellence', 'Fahaizana ara-teknika avo lenta'],
+            'accueil_hero_titre_ligne2' => ['au service de votre avenir', 'for your future', "ho an'ny hoavinao"],
+            'accueil_hero_soustitre' => [
+                "L'Institut Supérieur des Sciences, Techniques et Management forme les ingénieurs et techniciens de demain à Mahajanga, Madagascar.",
+                "The Higher Institute of Science, Technology and Management trains tomorrow's engineers and technicians in Mahajanga, Madagascar.",
+                'Ny Institut Supérieur des Sciences, Techniques et Management dia mamolavola ny injeniera sy teknisiana ho avy ao Mahajanga, Madagasikara.',
+            ],
+            'accueil_stat_etudiants_label' => ['Étudiants', 'Students', 'Mpianatra'],
+            'accueil_stat_enseignants_label' => ['Enseignants', 'Teachers', 'Mpampianatra'],
+            'accueil_stat_filieres_label' => ['Filières', 'Programs', 'Sampana'],
+            'mission_titre' => ['Notre Mission', 'Our Mission', 'Ny Iraka'],
+            'vision_titre' => ['Notre Vision', 'Our Vision', 'Ny Fahitana'],
+            'accueil_mot_directeur_titre' => ['Le mot du Directeur', 'Word from the Director', "Ny tenin'ny Talen'ny"],
+            'directeur_fonction' => ["Directeur de l'ISSTM", 'Director of ISSTM', "Talen'ny ISSTM"],
+            'accueil_temoignages_titre' => ["Paroles d'étudiants", 'Student Voices', "Tenin'ny mpianatra"],
+            'accueil_partenaires_titre' => ['Nos Partenaires', 'Our Partners', 'Ireo Mpiara-miombon\'antoka'],
+            'accueil_partenaires_soustitre' => [
+                "L'ISSTM collabore avec des institutions académiques et professionnelles de renom.",
+                'ISSTM collaborates with renowned academic and professional institutions.',
+                "Miara-miasa amin'ny andrim-panjakana malaza momba ny fampianarana sy ny asa ny ISSTM.",
+            ],
+            'accueil_filieres_titre' => ['Nos filières', 'Our Programs', 'Ny sampana ataonay'],
+            'accueil_filieres_soustitre' => [
+                "Des formations d'ingénieurs et de techniciens reconnues.",
+                'Recognized engineering and technician training programs.',
+                'Fiofanana injeniera sy teknisiana ekena.',
+            ],
+
+            // Pied de page (toutes les pages)
+            'footer_liens_rapides_titre' => ['Liens rapides', 'Quick Links', 'Rohy haingana'],
+            'footer_contact_titre' => ['Contactez-nous', 'Contact Us', 'Mifandraisa aminay'],
+            'footer_localisation_titre' => ['Nos localisations', 'Our Locations', 'Ny toerana misy anay'],
+            'footer_copyright_texte' => [
+                'Institut Supérieur des Sciences et Technologies de Mahajanga.',
+                'Higher Institute of Science and Technology of Mahajanga.',
+                'Institut Supérieur des Sciences et Technologies de Mahajanga.',
+            ],
+            'footer_concue_par_texte' => [
+                "Conçue par les étudiants de l'ISSTM",
+                'Designed by ISSTM students',
+                "Noforonin'ny mpianatry ny ISSTM",
+            ],
+
+            // Bourse — titre/sous-titre et libellés des boutons (étaient des t() statiques)
+            'bourse_titre' => ["Demande de Bourse d'Études", 'Scholarship Application', 'Fangatahana Vatsim-pianarana'],
+            'bourse_soustitre' => [
+                "Nous soutenons l'excellence et l'égalité des chances.",
+                'We support excellence and equal opportunity.',
+                'Manohana ny fahalebiazana sy ny fitoviana ny fahafahana izahay.',
+            ],
+            'bourse_lien1_bouton' => [
+                'Accéder à la plateforme MESupReS',
+                'Access the MESupReS platform',
+                "Hiditra amin'ny sehatra MESupReS",
+            ],
+            'bourse_lien2_bouton' => [
+                'Accéder à la plateforme Trésor Public',
+                'Access the Public Treasury platform',
+                "Hiditra amin'ny sehatra Trésor Public",
+            ],
+
+            // Mentions légales — titre/sous-titre et titres de section (étaient hardcodés)
+            'mentions_legales_titre' => ['Mentions légales', 'Legal Notice', 'Fanamarihana ara-dalàna'],
+            'mentions_legales_soustitre' => [
+                "Informations légales relatives à l'éditeur et à l'hébergement de ce site.",
+                'Legal information about the publisher and hosting of this site.',
+                "Fampahalalana ara-dalàna momba ny mpamoaka sy ny fampitrofana an'ity tranonkala ity.",
+            ],
+            'mentions_legales_s1_titre' => ['1. Éditeur du site', '1. Site Publisher', '1. Ny Mpamoaka ny tranonkala'],
+            'mentions_legales_s2_titre' => ['2. Contact', '2. Contact', '2. Fifandraisana'],
+            'mentions_legales_s3_titre' => ['3. Hébergement', '3. Hosting', '3. Fampitrofana'],
+            'mentions_legales_s4_titre' => ['4. Propriété intellectuelle', '4. Intellectual Property', '4. Fananana ara-tsaina'],
+            'mentions_legales_s5_titre' => ['5. Responsabilité', '5. Liability', '5. Andraikitra'],
+
+            // Confidentialité — titre/sous-titre et titres de section (étaient hardcodés)
+            'confidentialite_titre' => ['Politique de confidentialité', 'Privacy Policy', 'Politikan\'ny fiafenan-tsiambaratelo'],
+            'confidentialite_soustitre' => [
+                "Comment l'ISSTM Mahajanga collecte, utilise et protège vos données personnelles.",
+                'How ISSTM Mahajanga collects, uses and protects your personal data.',
+                "Ny fomba fanangonan'ny ISSTM Mahajanga, fampiasana ary fiarovana ny angona manokana anao.",
+            ],
+            'confidentialite_s1_titre' => ['1. Données collectées', '1. Data Collected', '1. Angona angonina'],
+            'confidentialite_s2_titre' => ['2. Utilisation des données', '2. Use of Data', '2. Fampiasana ny angona'],
+            'confidentialite_s3_titre' => ['3. Cookies et session', '3. Cookies and Session', '3. Cookies sy session'],
+            'confidentialite_s4_titre' => ['4. Sécurité et conservation', '4. Security and Retention', '4. Fiarovana sy fitahirizana'],
+            'confidentialite_s5_titre' => ['5. Vos droits', '5. Your Rights', '5. Ny zonao'],
+
+            // Associations — titre/sous-titre, cartouches et libellés (étaient hardcodés ou t())
+            'associations_titre' => ['Clubs et Associations', 'Clubs and Associations', 'Klioba sy Fikambanana'],
+            'associations_soustitre' => [
+                "Découvrez les statuts et le fonctionnement de l'Association des Étudiants de l'ISSTM (A.E.I).",
+                "Discover the bylaws and operations of the ISSTM Students' Association (A.E.I).",
+                "Fantaro ny fitsipika sy ny fiasan'ny Fikambanan'ny Mpianatry ny ISSTM (A.E.I).",
+            ],
+            'associations_identite_titre' => [
+                "Carte d'Identité de l'Association",
+                'Association Identity Card',
+                'Karatra maha-izy ny Fikambanana',
+            ],
+            'associations_identite_regime_label' => ['Régime juridique', 'Legal Status', 'Sata ara-dalàna'],
+            'associations_identite_siege_label' => ['Siège social', 'Registered Office', 'Foibe'],
+            'associations_identite_duree_label' => ['Durée', 'Duration', 'Faharetana'],
+            'associations_identite_but_label' => ['But', 'Purpose', 'Tanjona'],
+            'associations_membres_honneur_label' => ["Membres d'honneur", 'Honorary Members', 'Mpikambana manan-kaja'],
+            'associations_membres_honneur_valeur' => [
+                "Directeur et Directeur Adjoint de l'ISSTM",
+                'Director and Deputy Director of ISSTM',
+                "Talen'ny sy Talen'ny Lefitry ny ISSTM",
+            ],
+            'associations_bureau_titre' => ['Composition du Bureau Exécutif', 'Executive Board Composition', 'Firafitry ny Birao Mpanatanteraka'],
+            'associations_bureau_article' => ['Article 13 des statuts', 'Article 13 of the bylaws', "Andininy faha-13 amin'ny fitsipika"],
+            'associations_bureau_role1_role' => ['Président', 'President', 'Filoha'],
+            'associations_bureau_role1_count' => ['1', '1', '1'],
+            'associations_bureau_role2_role' => ['Vice-Président', 'Vice-President', 'Filoha Lefitra'],
+            'associations_bureau_role2_count' => ['1', '1', '1'],
+            'associations_bureau_role3_role' => ['Secrétaire Général', 'Secretary General', 'Sekretera Jeneraly'],
+            'associations_bureau_role3_count' => ['1', '1', '1'],
+            'associations_bureau_role4_role' => ['Trésorier', 'Treasurer', 'Mpitahiry vola'],
+            'associations_bureau_role4_count' => ['1', '1', '1'],
+            'associations_bureau_role5_role' => ['Commissaire aux Comptes', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_bureau_role5_count' => ['5', '5', '5'],
+            'associations_bureau_role6_role' => ['Conseillers', 'Advisors', 'Mpanolo-tsaina'],
+            'associations_bureau_role6_count' => ['4', '4', '4'],
+            'associations_fondateur_titre' => ['Bureau fondateur', 'Founding Board', 'Birao mpanorina'],
+            'associations_fondateur_date' => [
+                'Élu lors du procès-verbal du 10 mai 2022',
+                'Elected per the minutes of May 10, 2022',
+                "Voafidy araka ny fitanan-tsoratra tamin'ny 10 Mey 2022",
+            ],
+            'associations_fondateur_1_role' => ['Président', 'President', 'Filoha'],
+            'associations_fondateur_1_nom' => ['NOMENJANAHARY Narcisse Isidore', 'NOMENJANAHARY Narcisse Isidore', 'NOMENJANAHARY Narcisse Isidore'],
+            'associations_fondateur_2_role' => ['Vice-président', 'Vice-President', 'Filoha Lefitra'],
+            'associations_fondateur_2_nom' => ['RAKOTOARIVELO Vannyaud Bruno', 'RAKOTOARIVELO Vannyaud Bruno', 'RAKOTOARIVELO Vannyaud Bruno'],
+            'associations_fondateur_3_role' => ['Secrétaire Générale', 'Secretary General', 'Sekretera Jeneraly'],
+            'associations_fondateur_3_nom' => [
+                'HARENANTENAINA Florentinoh Jobela Adelin',
+                'HARENANTENAINA Florentinoh Jobela Adelin',
+                'HARENANTENAINA Florentinoh Jobela Adelin',
+            ],
+            'associations_fondateur_4_role' => ['Trésorier', 'Treasurer', 'Mpitahiry vola'],
+            'associations_fondateur_4_nom' => ['RATSIMALAIMANANA Mamy Nirina', 'RATSIMALAIMANANA Mamy Nirina', 'RATSIMALAIMANANA Mamy Nirina'],
+            'associations_fondateur_5_role' => ['Commissaire au compte', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_fondateur_5_nom' => ['RANDRIANARIMALALA Jean Leonard', 'RANDRIANARIMALALA Jean Leonard', 'RANDRIANARIMALALA Jean Leonard'],
+            'associations_fondateur_6_role' => ['Commissaire au compte', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_fondateur_6_nom' => [
+                'RABARIVELOMANANA Maxwell Ny Aina',
+                'RABARIVELOMANANA Maxwell Ny Aina',
+                'RABARIVELOMANANA Maxwell Ny Aina',
+            ],
+            'associations_fondateur_7_role' => ['Commissaire au compte', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_fondateur_7_nom' => ['RAZAFINDRAFITA Zagarino', 'RAZAFINDRAFITA Zagarino', 'RAZAFINDRAFITA Zagarino'],
+            'associations_fondateur_8_role' => ['Commissaire au compte', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_fondateur_8_nom' => ['RANDRIANAIVOSOLO Aina Daniel', 'RANDRIANAIVOSOLO Aina Daniel', 'RANDRIANAIVOSOLO Aina Daniel'],
+            'associations_fondateur_9_role' => ['Commissaire au compte', 'Accounts Auditor', 'Mpanara-maso kaonty'],
+            'associations_fondateur_9_nom' => ['ADIALHAM Tonganjara', 'ADIALHAM Tonganjara', 'ADIALHAM Tonganjara'],
+            'associations_fondateur_10_role' => ['Conseiller', 'Advisor', 'Mpanolo-tsaina'],
+            'associations_fondateur_10_nom' => [
+                'RABOTOVAO Harimboahangitiana Kanto',
+                'RABOTOVAO Harimboahangitiana Kanto',
+                'RABOTOVAO Harimboahangitiana Kanto',
+            ],
+            'associations_fondateur_11_role' => ['Conseiller', 'Advisor', 'Mpanolo-tsaina'],
+            'associations_fondateur_11_nom' => ['RANDRIAMANTENA Judicaël', 'RANDRIAMANTENA Judicaël', 'RANDRIAMANTENA Judicaël'],
+            'associations_fondateur_12_role' => ['Conseiller', 'Advisor', 'Mpanolo-tsaina'],
+            'associations_fondateur_12_nom' => ['FIDERANA Nardah Mamelphina', 'FIDERANA Nardah Mamelphina', 'FIDERANA Nardah Mamelphina'],
+            'associations_fondateur_13_role' => ['Conseiller', 'Advisor', 'Mpanolo-tsaina'],
+            'associations_fondateur_13_nom' => ['FREDERIC Moise', 'FREDERIC Moise', 'FREDERIC Moise'],
+
+            // Filières — libellés de la page de détail (communs à toutes les filières)
+            'filieres_show_retour' => ['Toutes les filières', 'All Programs', 'Sampana rehetra'],
+            'filieres_show_debouches_titre' => ['Débouchés professionnels', 'Career Opportunities', 'Asa azo atao'],
+            'filieres_show_histoire_titre' => ["Un peu d'histoire", 'A bit of history', 'Tantara fohy'],
+            'filieres_show_avantages_titre' => ['Pourquoi choisir cette filière ?', 'Why choose this program?', 'Nahoana no misafidy ity sampana ity?'],
+
+            // Campus — libellés de la page de détail (communs à tous les blocs)
+            'campus_show_retour' => ['Tous les blocs', 'All blocs', 'Ireo bloc rehetra'],
+            'campus_show_fondation_label' => ['Fondation', 'Founded', 'Fananganana'],
+            'campus_show_fondateurs_label' => ['Fondateurs', 'Founders', 'Mpanorina'],
+            'campus_show_danses_label' => ['Danses', 'Dances', 'Dihy'],
+            'campus_show_distinction_label' => ['Ce qui les distingue', 'What sets them apart', 'Izay mampiavaka azy'],
+            'campus_show_objectifs_label' => ['Objectifs', 'Objectives', 'Tanjona'],
+            'campus_show_activites_label' => ['Activités', 'Activities', 'Hetsika'],
+
+            // Vie étudiante — titre/sous-titre, intros et cartouches portails (étaient t() statiques)
+            'vie_etudiante_titre' => ['Vie Étudiante', 'Student Life', 'Fiainam-pianatra'],
+            'vie_etudiante_soustitre' => [
+                "L'expérience ISSTM au-delà des salles de classe.",
+                'The ISSTM experience beyond the classroom.',
+                "Ny traikefa ao amin'ny ISSTM ankoatra ny efitrano fianarana.",
+            ],
+            'vie_etudiante_intro_1' => [
+                "La vie à l'ISSTM est une aventure enrichissante qui va bien au-delà des cours. C'est un écosystème vibrant où les amitiés se forgent, les passions se révèlent et les futurs leaders prennent leur envol. Explorez les multiples facettes de notre communauté et découvrez un environnement conçu pour votre épanouissement.",
+                "Life at ISSTM is an enriching adventure that goes well beyond coursework. It's a vibrant ecosystem where friendships are forged, passions are revealed and future leaders take flight. Explore the many facets of our community and discover an environment designed for your growth.",
+                "Fiainana feno traikefa mampiroborobo ny ao amin'ny ISSTM, mihoatra lavitra ny fianarana. Tontolo iray feno hery misy fisakaizana miforona, fitiavana miseho ary mpitarika ho avy manomboka. Fantaro ireo lafiny maro ao amin'ny fiaraha-monintsika ary tsapao ny tontolo natao ho fivoaranao.",
+            ],
+            'vie_etudiante_intro_2' => [
+                "L'engagement dans les clubs et associations est une pierre angulaire de l'expérience ISSTM. C'est ici que les compétences de leadership s'épanouissent, que les projets collaboratifs prennent vie et que des liens durables se tissent.",
+                'Getting involved in clubs and associations is a cornerstone of the ISSTM experience. This is where leadership skills flourish, collaborative projects come to life and lasting bonds are formed.',
+                "Ny fandraisana anjara amin'ny klioba sy fikambanana no fototry ny traikefa ao amin'ny ISSTM. Eto no ivelaran'ny fahaiza-mitarika, itsanganan'ny tetikasa iaraha-manao ary iforonan'ny fifandraisana maharitra.",
+            ],
+            'vie_etudiante_campus_titre' => ['La Vie au Campus', 'Campus Life', 'Ny fiainana eny Campus'],
+            'vie_etudiante_campus_description' => [
+                'L\'université est un melting-pot culturel. Explorez les 30 associations régionales, appelées "blocs", qui représentent la diversité et la solidarité des étudiants de tout Madagascar.',
+                'The university is a cultural melting pot. Explore the 30 regional associations, called "blocs", which represent the diversity and solidarity of students from all over Madagascar.',
+                'Toerana fifangaroan-kolontsaina ny oniversite. Fantaro ireo fikambanana isam-paritra 30, antsoina hoe "blocs", izay maneho ny fahasamihafana sy ny firaisankinan\'ny mpianatra avy manerana an\'i Madagasikara.',
+            ],
+            'vie_etudiante_associations_titre' => ['Clubs et Associations', 'Clubs and Associations', 'Klioba sy Fikambanana'],
+            'vie_etudiante_associations_description' => [
+                'Au-delà des études, la vie étudiante est riche en activités. Découvrez les clubs sportifs, culturels et académiques pour vous épanouir et développer de nouvelles compétences.',
+                'Beyond studies, student life is rich with activities. Discover sports, cultural and academic clubs to grow and develop new skills.',
+                'Ankoatra ny fianarana, be hetsika ny fiainam-pianatra. Fantaro ireo klioba fanatanjahantena, kolontsaina ary akademika mba hivelarana sy hampivelatra fahaizana vaovao.',
+            ],
+
+            // Parcours — titre/sous-titre, sections et cartouches (étaient t() statiques)
+            'parcours_titre' => ['Organigramme & Parcours', 'Organization Chart & Curriculum', "Sarintanin'ny fitantanana & Fianarana"],
+            'parcours_soustitre' => [
+                "Structure organisationnelle et académique de l'ISSTM.",
+                "ISSTM's organizational and academic structure.",
+                "Firafitry ny fitantanana sy ny fianarana ao amin'ny ISSTM.",
+            ],
+            'parcours_intro' => [
+                "Derrière chaque diplôme délivré par l'ISSTM se cache une organisation rigoureuse, portée par des femmes et des hommes engagés à chaque échelon, de la gouvernance aux équipes de terrain.",
+                'Behind every diploma awarded by ISSTM lies a rigorous organization, driven by committed people at every level, from governance to field teams.',
+                "Ao ambadiky ny diplaoma tsirairay omen'ny ISSTM dia misy fandaminana matotra, tantanan'ireo olona manolo-tena amin'ny ambaratonga rehetra, manomboka amin'ny fitantanana ka hatramin'ny ekipa eny an-toerana.",
+            ],
+            'parcours_gouvernance_titre' => ['Gouvernance', 'Governance', 'Fitantanana ambony'],
+            'parcours_conseil_titre' => ["Conseil d'Établissement", 'Institution Council', 'Filan-kevitry ny Sekoly'],
+            'parcours_organe_collegial' => ['Organe collégial', 'Collegial body', 'Rafi-piaraha-mandray fanapahan-kevitra'],
+            'parcours_directeur_label' => ['Directeur', 'Director', "Talen'ny"],
+            'parcours_directeur_nom' => ['Dr. Hary Tiana R.', 'Dr. Hary Tiana R.', 'Dr. Hary Tiana R.'],
+            'parcours_direction_titre' => ['Direction & Services Rattachés', 'Management & Affiliated Services', 'Fitantanana & Sampan-draharaha mifandray'],
+            'parcours_direction_1_titre' => ['PRMP', 'PRMP', 'PRMP'],
+            'parcours_direction_1_nom' => ['Mme. Gestion F.', 'Mme. Gestion F.', 'Mme. Gestion F.'],
+            'parcours_direction_2_titre' => ['Conseil Scientifique', 'Scientific Council', 'Filan-kevitra Siantifika'],
+            'parcours_direction_2_nom' => ['M. Lovas R.', 'M. Lovas R.', 'M. Lovas R.'],
+            'parcours_direction_3_titre' => ['Collège des Enseignants', 'Teaching Staff Council', "Kolejin'ny Mpampianatra"],
+            'parcours_direction_3_nom' => ['Mme. Nathalie V.', 'Mme. Nathalie V.', 'Mme. Nathalie V.'],
+            'parcours_direction_4_titre' => ['Secrétariat de direction', 'Executive Secretariat', 'Sekretariatry ny fitantanana'],
+            'parcours_direction_4_nom' => ['Mme. Secrétaire P.', 'Mme. Secrétaire P.', 'Mme. Secrétaire P.'],
+            'parcours_direction_5_titre' => [
+                "Responsable d'Assurance qualité",
+                'Quality Assurance Officer',
+                "Tompon'andraikitry ny kalitao",
+            ],
+            'parcours_direction_5_nom' => ['M. Maxwell A.', 'M. Maxwell A.', 'M. Maxwell A.'],
+            'parcours_direction_6_titre' => [
+                'Responsable de la communication',
+                'Communications Officer',
+                "Tompon'andraikitry ny fifandraisana",
+            ],
+            'parcours_direction_6_nom' => ['M. Judickael M.', 'M. Judickael M.', 'M. Judickael M.'],
+            'parcours_poles_titre' => ['Pôle Pédagogique & Pôle Administratif', 'Academic & Administrative Divisions', 'Sampana Pedagojika & Sampana Fitantanana'],
+            'parcours_poles_hint' => [
+                'Cliquez sur un pôle pour découvrir son équipe.',
+                'Click on a division to discover its team.',
+                'Tsindrio ny sampana iray mba hahafantarana ny ekipany.',
+            ],
+            'parcours_cursus_intro' => [
+                "Du baccalauréat scientifique jusqu'au Master, chaque étape de votre parcours à l'ISSTM est pensée pour vous mener, pas à pas, vers l'excellence.",
+                "From the scientific baccalaureate to the Master's, every stage of your journey at ISSTM is designed to guide you, step by step, toward excellence.",
+                "Manomboka amin'ny bakalorea siantifika ka hatramin'ny Master, ny dingana tsirairay amin'ny dianao ao amin'ny ISSTM dia natao mba hitarika anao, tsikelikely, ho amin'ny fahalebiazana.",
+            ],
+            'parcours_cursus_titre' => ['Schéma du Cursus', 'Curriculum Overview', "Sarintanin'ny fianarana"],
+            'parcours_cursus_bacc_niveau' => [
+                'BACC Scientifique (Série C, D, A2 et Technique)',
+                'Scientific BACC (Series C, D, A2 and Technical)',
+                'BACC Siantifika (Andiany C, D, A2 ary Teknika)',
+            ],
+            'parcours_cursus_bacc_item1' => ['Sélection des dossiers', 'Application selection', 'Fisafidianana antontan-taratasy'],
+            'parcours_cursus_l1l2_niveau' => ['L1 et L2', 'L1 and L2', 'L1 sy L2'],
+            'parcours_cursus_l1l2_item1' => [
+                'Base des études supérieures + matières de base',
+                'Foundations of higher education + core subjects',
+                'Fototry ny fianarana ambony + taranja fototra',
+            ],
+            'parcours_cursus_l1l2_item2' => ["Examen (Test d'évaluation)", 'Examination (Assessment test)', 'Fanadinana (Fitsapana fanombanana)'],
+            'parcours_cursus_l3_niveau' => ['L3', 'L3', 'L3'],
+            'parcours_cursus_l3_item1' => [
+                "Stage de fin d'étude de 3 mois minimum en entreprise, société ou hôpital",
+                'Minimum 3-month internship in a company, organization or hospital',
+                "Fianarana asa 3 volana farafahakeliny any amin'ny orinasa, sosaiety na hopitaly",
+            ],
+            'parcours_cursus_l3_item2' => [
+                "Soutenance de mémoire de fin d'étude de formation",
+                'Final dissertation defense',
+                'Fiarovana lahatsoratra famaranana',
+            ],
+            'parcours_cursus_m1_niveau' => ['M1', 'M1', 'M1'],
+            'parcours_cursus_m1_item1' => ['Formation en tronc commun en S7 et S8', 'Common core training in S7 and S8', "Fiofanana iombonana amin'ny S7 sy S8"],
+            'parcours_cursus_m1_item2' => [
+                'Formation par spécialité de chaque parcours',
+                'Specialized training per track',
+                'Fiofanana araka ny manokana isaky ny lalana',
+            ],
+            'parcours_cursus_m2_niveau' => ['M2', 'M2', 'M2'],
+            'parcours_cursus_m2_item1' => [
+                "Soutenance de mémoire de fin d'études de formation",
+                'Final dissertation defense',
+                'Fiarovana lahatsoratra famaranana ny fianarana',
+            ],
+            'parcours_documents_titre' => ['Télécharger les Documents', 'Download Documents', 'Alaivo ny antontan-taratasy'],
+            'parcours_documents_soustitre' => [
+                "Retrouvez l'organigramme et le cursus complet de l'ISSTM dans le format qui vous convient.",
+                "Find ISSTM's organization chart and full curriculum in the format that suits you.",
+                "Jereo ny sarintanin'ny fitantanana sy ny fianarana feno ao amin'ny ISSTM amin'ny endrika mety aminao.",
+            ],
+            'parcours_doc_organigramme_titre' => ['Organigramme Complet', 'Full Organization Chart', "Sarintanin'ny fitantanana feno"],
+            'parcours_doc_organigramme_desc' => [
+                "La structure organisationnelle complète de l'institut.",
+                'The full organizational structure of the institute.',
+                "Ny firafitry ny fitantanana feno an'ny institiota.",
+            ],
+            'parcours_doc_cursus_titre' => ['Cursus Académique', 'Academic Curriculum', 'Fianarana akademika'],
+            'parcours_doc_cursus_desc' => [
+                'Le détail des filières, mentions et parcours proposés.',
+                'Details of the programs, fields and tracks offered.',
+                "Antsipirian'ny sampana, sokajy ary lalana atolotra.",
+            ],
+
+            // Équipe — titre/sous-titre, intro, conclusion et fiches des 4 membres (étaient t()/hardcodés)
+            'equipe_titre' => ['Notre Équipe', 'Our Team', 'Ny Ekipantsika'],
+            'equipe_soustitre' => [
+                'Les étudiants qui ont conçu et développé ce site.',
+                'The students who designed and developed this site.',
+                'Ireo mpianatra namolavola sy nanamboatra ity tranonkala ity.',
+            ],
+            'equipe_intro' => [
+                "Derrière chaque page, chaque animation et chaque ligne de code de ce site se cache le travail d'une petite équipe d'étudiants en Génie Informatique, en Licence 3 à l'ISSTM. Ce projet est le fruit de leur travail collectif, mené avec passion dans le cadre de leur formation.",
+                'Behind each page, each animation and each line of code on this site hides the work of a small team of Computer Engineering students, in License 3 at ISSTM. This project is the fruit of their collective work, carried out with passion as part of their training.',
+                "Ao ambadiky ny pejy tsirairay, ny sary mihetsika tsirairay ary ny andalan-tsoratra tsirairay amin'ity tranonkala ity dia miafina ny asan'ny ekipa kelin'ny mpianatra Injeniera Informatika, ao amin'ny Licence 3 ao amin'ny ISSTM. Ity tetikasa ity dia vokatry ny fiaraha-miasan'izy ireo, notanterahina tamim-pitiavana tao anatin'ny fiofanany.",
+            ],
+            'equipe_merci' => [
+                "Merci d'avoir visité notre site, conçu avec passion par notre équipe.",
+                'Thank you for visiting our site, designed with passion by our team.',
+                "Misaotra anao nitsidika ny tranonkalanay, novolavolain'ny ekipanay tamim-pitiavana.",
+            ],
+
+            'equipe_membre_1_nom' => ['RAMANANA Mirindra Michel', 'RAMANANA Mirindra Michel', 'RAMANANA Mirindra Michel'],
+            'equipe_membre_1_role' => ['Leader & Développeur Frontend', 'Frontend Leader & Developer', 'Mpitarika & Mpamorona Frontend'],
+            'equipe_membre_1_mention' => [
+                'Étudiant en Génie Informatique — ISSTM',
+                'Student in Computer Engineering — ISSTM',
+                'Mpianatra amin\'ny Injeniera Informatika — ISSTM',
+            ],
+            'equipe_membre_1_bio' => [
+                "Leader et développeur Frontend, Mirindra a mis sa passion pour l'expérience utilisateur au service de ce site : conception des interfaces, animations et attention portée à chaque détail visuel, du header jusqu'à la dernière page. Toujours curieux et à l'aise avec de nouveaux outils, il s'est aussi chargé de l'organisation et de la planification du travail d'équipe, pour avancer ensemble vers une expérience fluide, moderne et cohérente.",
+                'Leader and Frontend developer, Mirindra has put his passion for user experience at the service of this site: interface design, animations and attention to every visual detail, from the header to the last page. Always curious and comfortable with new tools, he was also responsible for organizing and planning teamwork, to move forward together towards a fluid, modern and coherent experience.',
+                "Mpitarika sy mpamorona Frontend, Mirindra dia nametraka ny fitiavany ny traikefan'ny mpampiasa amin'ny serivisy amin'ity tranokala ity : famolavolana interface tsara, sary mihetsika ary fifantohana amin'ny antsipiriany rehetra hita maso, manomboka amin'ny lohapejy ka hatramin'ny pejy farany. Te hahafanta-javatra foana sy mahazo aina amin'ny fitaovana vaovao, izy ihany koa no tompon'andraikitra amin'ny fandaminana sy ny fanomanana ny fiaraha-miasan'ny ekipa, mba hiara-mandroso mankany amin'ny traikefa mafana sy maoderina ary mirindra.",
+            ],
+            'equipe_membre_1_highlight' => [
+                "Un développeur passionné, minutieux et engagé, du premier croquis jusqu'à la mise en ligne du site.",
+                'A passionate, meticulous and committed developer, from the first sketch to putting the site online.',
+                "Mpamorona mafana fo, mazoto ary manolo-tena, manomboka amin'ny sketch voalohany ka hatramin'ny fametrahana ny tranokala an-tserasera.",
+            ],
+            'equipe_membre_1_tel' => ['0380746987', '0380746987', '0380746987'],
+            'equipe_membre_1_facebook' => [
+                'https://web.facebook.com/lauthner.ramanana',
+                'https://web.facebook.com/lauthner.ramanana',
+                'https://web.facebook.com/lauthner.ramanana',
+            ],
+
+            'equipe_membre_2_nom' => ['RANDRIAMAHAFALY Safidy Thierry', 'RANDRIAMAHAFALY Safidy Thierry', 'RANDRIAMAHAFALY Safidy Thierry'],
+            'equipe_membre_2_role' => ['Développeur Backend', 'Backend Developer', 'Mpamorona Backend'],
+            'equipe_membre_2_mention' => [
+                'Étudiant en Génie Informatique — ISSTM',
+                'Student in Computer Engineering — ISSTM',
+                'Mpianatra amin\'ny Injeniera Informatika — ISSTM',
+            ],
+            'equipe_membre_2_bio' => [
+                "Architecte de l'ombre, Safidy a bâti les fondations solides sur lesquelles repose tout le site : bases de données, logique métier et sécurité des échanges. Rigoureux et méthodique, il a conçu un backend robuste capable d'accompagner la croissance de l'ISSTM sans jamais faillir. Son travail, invisible pour le visiteur, est pourtant le socle sur lequel tout le reste a pu être construit.",
+                "A behind-the-scenes architect, Safidy built the solid foundations on which the whole site rests: databases, business logic and the security of every exchange. Rigorous and methodical, he designed a robust backend able to support ISSTM's growth without ever failing. His work, invisible to visitors, is nonetheless the base on which everything else could be built.",
+                "Mpanamboatra alokaloka, i Safidy no nanorina ny fototra matanjaka iorenan'ny tranonkala manontolo: angon-drakitra, lojika ara-draharaha ary fiarovana ny fifanakalozana. Hentitra sy mirindra, namolavola backend matanjaka afaka manohana ny fitomboan'ny ISSTM izy, tsy misy tsininy. Ny asany, tsy hitan'ny mpitsidika, no fototra niorenan'ny zava-drehetra hafa.",
+            ],
+            'equipe_membre_2_tel' => ['0380545618', '0380545618', '0380545618'],
+            'equipe_membre_2_facebook' => [
+                'https://web.facebook.com/safilaureat.randriamahafaly',
+                'https://web.facebook.com/safilaureat.randriamahafaly',
+                'https://web.facebook.com/safilaureat.randriamahafaly',
+            ],
+
+            'equipe_membre_3_nom' => [
+                'RAZAFINDRABARY Heather Doleen Jameelah',
+                'RAZAFINDRABARY Heather Doleen Jameelah',
+                'RAZAFINDRABARY Heather Doleen Jameelah',
+            ],
+            'equipe_membre_3_role' => ['Assistante Frontend', 'Frontend Assistant', 'Mpanampy Frontend'],
+            'equipe_membre_3_mention' => [
+                'Étudiante en Génie Informatique — ISSTM',
+                'Student in Computer Engineering — ISSTM',
+                'Mpianatravavy amin\'ny Injeniera Informatika — ISSTM',
+            ],
+            'equipe_membre_3_bio' => [
+                "Œil attentif aux détails, Jameelah a épaulé le développement de l'interface avec créativité et précision. Entre ajustements visuels, tests d'ergonomie et petites touches qui font toute la différence, elle a contribué à peaufiner l'expérience offerte à chaque visiteur du site. Son sens du détail a permis de transformer de bonnes idées en une interface réellement agréable à utiliser.",
+                'With a keen eye for detail, Jameelah supported the development of the interface with creativity and precision. Between visual adjustments, usability tests and the small touches that make all the difference, she helped refine the experience offered to every visitor of the site. Her attention to detail turned good ideas into an interface that is genuinely pleasant to use.',
+                "Manana maso maranitra amin'ny antsipiriany, i Jameelah no nanohana ny fampivelarana ny sehatra fifandraisana tamin'ny fahaiza-mamorona sy ny fahamarinana. Eo anelanelan'ny fanitsiana hita maso, ny fitsapana fampiasana ary ireo fikasihana kely mampiavaka, dia nandray anjara tamin'ny fanatsarana ny traikefa omena ny mpitsidika tsirairay. Ny fahamalinany tamin'ny antsipiriany no nahafahana nanova hevitra tsara ho sehatra tena mahafinaritra ampiasaina.",
+            ],
+            'equipe_membre_3_tel' => ['0385229010', '0385229010', '0385229010'],
+            'equipe_membre_3_facebook' => [
+                'https://web.facebook.com/profile.php?id=100073469688031',
+                'https://web.facebook.com/profile.php?id=100073469688031',
+                'https://web.facebook.com/profile.php?id=100073469688031',
+            ],
+
+            'equipe_membre_4_nom' => ['JAOSOA Tanael Faustin', 'JAOSOA Tanael Faustin', 'JAOSOA Tanael Faustin'],
+            'equipe_membre_4_role' => ['Assistant Backend', 'Backend Assistant', 'Mpanampy Backend'],
+            'equipe_membre_4_mention' => [
+                'Étudiant en Génie Informatique — ISSTM',
+                'Student in Computer Engineering — ISSTM',
+                'Mpianatra amin\'ny Injeniera Informatika — ISSTM',
+            ],
+            'equipe_membre_4_bio' => [
+                "Complice de l'ombre côté serveur, Tanael a prêté main forte à la construction de la logique backend et à la fiabilité des données. Curieux et impliqué, il a participé aux tests, aux corrections et à l'optimisation des performances du site. Son soutien a été précieux pour livrer un backend à la fois stable et évolutif.",
+                'A quiet accomplice on the server side, Tanael lent a hand in building the backend logic and ensuring data reliability. Curious and involved, he took part in testing, fixes and performance optimization of the site. His support was invaluable in delivering a backend that is both stable and scalable.',
+                "Namana miafina eo amin'ny lafiny mpizara, i Tanael no nanome tanana tamin'ny fananganana ny lojika backend sy ny fahatokisan'ny angon-drakitra. Liana sy nandray anjara, nandray anjara tamin'ny fitsapana, ny fanitsiana ary ny fanatsarana ny fahombiazan'ny tranonkala izy. Sarobidy ny fanohanany tamin'ny fanaterana backend matanjaka sady mety hitombo.",
+            ],
+            'equipe_membre_4_tel' => ['0344306616', '0344306616', '0344306616'],
+            'equipe_membre_4_facebook' => [
+                'https://web.facebook.com/tanael.rolland.90',
+                'https://web.facebook.com/tanael.rolland.90',
+                'https://web.facebook.com/tanael.rolland.90',
             ],
         ];
 

@@ -34,4 +34,8 @@ enum SiteIcon: string
     case Clock = 'Clock';
     case CheckCircle = 'CheckCircle';
     case Info = 'Info';
+    case Crown = 'Crown';
+    case Server = 'Server';
+    case Sparkles = 'Sparkles';
+    case Wrench = 'Wrench';
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Admin\Concerns\ManagesUploadedImages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNewsArticleRequest;
+use App\Models\ActivityLog;
 use App\Models\NewsArticle;
 use App\Models\NewsCategory;
 use App\NewsStatus;
@@ -22,9 +23,9 @@ class NewsArticleController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Actualites/Index', [
-            'articles' => NewsArticle::with('category:id,name_fr')
+            'articles' => NewsArticle::with(['category:id,name_fr', 'validator:id,name'])
                 ->orderByDesc('created_at')
-                ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'content', 'image_path', 'author', 'status', 'is_featured', 'published_at', 'created_at']),
+                ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'content', 'image_path', 'author', 'status', 'rejection_reason', 'validated_by', 'validated_at', 'is_featured', 'published_at', 'created_at']),
             'categories' => NewsCategory::orderBy('name_fr')->get(['id', 'name_fr']),
         ]);
     }
@@ -36,9 +37,7 @@ class NewsArticleController extends Controller
         $validated['status'] = NewsStatus::from($validated['status']);
         $validated['is_featured'] = $request->boolean('is_featured');
 
-        if ($validated['status'] === NewsStatus::Publie) {
-            $validated['published_at'] = now();
-        }
+        $this->applyValidationWorkflow($request, $validated);
 
         if ($request->hasFile('image')) {
             $validated['image_path'] = $this->storeUploadedImage($request, 'image', 'news');
@@ -47,7 +46,7 @@ class NewsArticleController extends Controller
 
         NewsArticle::create($validated);
 
-        return back()->with('status', 'Article créé.');
+        return back()->with('status', $validated['status'] === NewsStatus::EnAttente ? 'Article soumis pour validation.' : 'Article créé.');
     }
 
     public function update(Request $request, NewsArticle $article): RedirectResponse
@@ -66,9 +65,7 @@ class NewsArticleController extends Controller
         $validated['status'] = NewsStatus::from($validated['status']);
         $validated['is_featured'] = $request->boolean('is_featured');
 
-        if ($validated['status'] === NewsStatus::Publie && $article->published_at === null) {
-            $validated['published_at'] = now();
-        }
+        $this->applyValidationWorkflow($request, $validated, $article);
 
         if ($request->hasFile('image')) {
             $this->deleteUploadedImage($article->image_path, 'news');
@@ -78,7 +75,44 @@ class NewsArticleController extends Controller
 
         $article->update($validated);
 
-        return back()->with('status', 'Article mis à jour.');
+        return back()->with('status', $validated['status'] === NewsStatus::EnAttente ? 'Article soumis pour validation.' : 'Article mis à jour.');
+    }
+
+    public function approve(Request $request, NewsArticle $article): RedirectResponse
+    {
+        abort_unless($article->status === NewsStatus::EnAttente, 409, "Cet article n'est pas en attente de validation.");
+
+        $article->update([
+            'status' => NewsStatus::Publie,
+            'rejection_reason' => null,
+            'validated_by' => $request->user()->id,
+            'validated_at' => now(),
+            'published_at' => $article->published_at ?? now(),
+        ]);
+
+        ActivityLog::record('news_validated', "Article « {$article->title} » validé et publié", $article);
+
+        return back()->with('status', 'Article validé et publié.');
+    }
+
+    public function reject(Request $request, NewsArticle $article): RedirectResponse
+    {
+        abort_unless($article->status === NewsStatus::EnAttente, 409, "Cet article n'est pas en attente de validation.");
+
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $article->update([
+            'status' => NewsStatus::Rejete,
+            'rejection_reason' => $validated['rejection_reason'],
+            'validated_by' => $request->user()->id,
+            'validated_at' => now(),
+        ]);
+
+        ActivityLog::record('news_rejected', "Article « {$article->title} » rejeté", $article, ['reason' => $validated['rejection_reason']]);
+
+        return back()->with('status', 'Article rejeté.');
     }
 
     public function destroy(NewsArticle $article): RedirectResponse
@@ -87,6 +121,34 @@ class NewsArticleController extends Controller
         $article->delete();
 
         return back()->with('status', 'Article supprimé.');
+    }
+
+    /**
+     * A creator/editor without `news.publish` cannot take an article straight to
+     * Publié/Archivé/Rejeté — anything but Brouillon gets downgraded to En attente
+     * for a publisher to review. Mutates $validated in place.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function applyValidationWorkflow(Request $request, array &$validated, ?NewsArticle $article = null): void
+    {
+        if ($request->user()->can('news.publish')) {
+            if ($validated['status'] === NewsStatus::Publie && $article?->published_at === null) {
+                $validated['published_at'] = now();
+            }
+            if ($validated['status'] === NewsStatus::Publie) {
+                $validated['validated_by'] = $request->user()->id;
+                $validated['validated_at'] = now();
+                $validated['rejection_reason'] = null;
+            }
+
+            return;
+        }
+
+        if ($validated['status'] !== NewsStatus::Brouillon) {
+            $validated['status'] = NewsStatus::EnAttente;
+            $validated['rejection_reason'] = null;
+        }
     }
 
     private function uniqueSlug(string $title): string

@@ -4,7 +4,9 @@ use App\Models\SiteContent;
 use App\Models\User;
 use App\Role;
 use App\SiteContentType;
+use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role as SpatieRole;
 
@@ -42,12 +44,14 @@ it('rejects an unknown content key', function () {
         ->assertSessionHasErrors('key');
 });
 
-it('lets a super admin update a content value for the active locale', function () {
+it('falls back to copying the french text when no Azure Translator key is configured', function () {
+    config(['services.azure_translator.key' => null]);
     $admin = User::factory()->role(Role::Admin)->create();
     $content = SiteContent::factory()->create([
         'content_key' => 'mission_contenu',
         'content_value_fr' => 'Ancien texte',
         'content_value_en' => 'Old text',
+        'content_value_mg' => 'Lahatsoratra taloha',
     ]);
 
     $this->actingAs($admin)
@@ -56,7 +60,63 @@ it('lets a super admin update a content value for the active locale', function (
 
     $content->refresh();
     expect($content->content_value_fr)->toBe('Nouveau texte');
-    expect($content->content_value_en)->toBe('Old text');
+    expect($content->content_value_en)->toBe('Nouveau texte');
+    expect($content->content_value_mg)->toBe('Nouveau texte');
+});
+
+it('translates the french value into english and malagasy via Azure Translator when editing the active (french) locale', function () {
+    config(['services.azure_translator.key' => 'fake-key', 'services.azure_translator.region' => 'westeurope']);
+    Http::fake([
+        'api.cognitive.microsofttranslator.com/*' => Http::response([
+            ['translations' => [
+                ['text' => 'New text', 'to' => 'en'],
+                ['text' => 'Lahatsoratra vaovao', 'to' => 'mg'],
+            ]],
+        ], 200),
+    ]);
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'mission_contenu',
+        'content_value_fr' => 'Ancien texte',
+        'content_value_en' => 'Old text',
+        'content_value_mg' => 'Lahatsoratra taloha',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'mission_contenu', 'value' => 'Nouveau texte'])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('Nouveau texte');
+    expect($content->content_value_en)->toBe('New text');
+    expect($content->content_value_mg)->toBe('Lahatsoratra vaovao');
+
+    Http::assertSent(function (HttpRequest $request) {
+        return $request->hasHeader('Ocp-Apim-Subscription-Key', 'fake-key')
+            && str_contains($request->url(), 'from=fr')
+            && str_contains($request->url(), 'to=en')
+            && str_contains($request->url(), 'to=mg');
+    });
+});
+
+it('falls back to copying the french text when the Azure Translator request fails', function () {
+    config(['services.azure_translator.key' => 'fake-key', 'services.azure_translator.region' => 'westeurope']);
+    Http::fake(['api.cognitive.microsofttranslator.com/*' => Http::response(['error' => 'boom'], 500)]);
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'mission_contenu',
+        'content_value_en' => 'Old text',
+        'content_value_mg' => 'Lahatsoratra taloha',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'mission_contenu', 'value' => 'Nouveau texte'])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('Nouveau texte');
+    expect($content->content_value_en)->toBe('Nouveau texte');
+    expect($content->content_value_mg)->toBe('Nouveau texte');
 });
 
 it('lets a super admin target an explicit locale regardless of the active site locale', function () {

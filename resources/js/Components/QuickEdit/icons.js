@@ -23,6 +23,10 @@ import {
     Clock,
     CheckCircle,
     Info,
+    Crown,
+    Server,
+    Sparkles,
+    Wrench,
 } from 'lucide-react';
 
 /**
@@ -55,6 +59,10 @@ export const ICONS = {
     Clock,
     CheckCircle,
     Info,
+    Crown,
+    Server,
+    Sparkles,
+    Wrench,
 };
 
 export function getIcon(name) {

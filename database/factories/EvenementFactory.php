@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\EvenementStatus;
 use App\Models\Evenement;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,6 +24,7 @@ class EvenementFactory extends Factory
             'date_debut' => fake()->dateTimeBetween('+1 day', '+2 months'),
             'lieu' => fake()->city(),
             'categorie' => fake()->randomElement(['general', 'examen', 'ceremonie', 'atelier', 'vacances', 'inscription']),
+            'status' => EvenementStatus::Publie,
         ];
     }
 }

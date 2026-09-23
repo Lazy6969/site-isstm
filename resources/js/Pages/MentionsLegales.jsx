@@ -35,10 +35,24 @@ export default function MentionsLegales() {
 
     return (
         <LegalPage
-            title="Mentions légales"
-            subtitle="Informations légales relatives à l'éditeur et à l'hébergement de ce site."
+            headTitle="Mentions légales"
+            title={
+                <EditableText as="span" contentKey="mentions_legales_titre">
+                    {content.mentions_legales_titre}
+                </EditableText>
+            }
+            subtitle={
+                <EditableText as="span" contentKey="mentions_legales_soustitre">
+                    {content.mentions_legales_soustitre}
+                </EditableText>
+            }
             sections={sections.map((section) => ({
-                title: section.title,
+                key: section.key,
+                title: (
+                    <EditableText as="span" contentKey={`${section.key}_titre`}>
+                        {content[`${section.key}_titre`] ?? section.title}
+                    </EditableText>
+                ),
                 text: (
                     <EditableText as="span" contentKey={`${section.key}_texte`}>
                         {content[`${section.key}_texte`] ?? section.text}

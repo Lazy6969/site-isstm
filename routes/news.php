@@ -8,4 +8,7 @@ Route::middleware(['auth'])->prefix('console/actualites')->name('admin.news.')->
     Route::post('/', [NewsArticleController::class, 'store'])->middleware('can:news.create')->name('store');
     Route::put('{article}', [NewsArticleController::class, 'update'])->middleware('can:news.edit')->name('update');
     Route::delete('{article}', [NewsArticleController::class, 'destroy'])->middleware('can:news.delete')->name('destroy');
+
+    Route::post('{article}/approve', [NewsArticleController::class, 'approve'])->middleware('can:news.publish')->name('approve');
+    Route::post('{article}/reject', [NewsArticleController::class, 'reject'])->middleware('can:news.publish')->name('reject');
 });

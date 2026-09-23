@@ -36,11 +36,25 @@ export default function Confidentialite() {
 
     return (
         <LegalPage
-            title="Politique de confidentialité"
-            subtitle="Comment l'ISSTM Mahajanga collecte, utilise et protège vos données personnelles."
+            headTitle="Politique de confidentialité"
+            title={
+                <EditableText as="span" contentKey="confidentialite_titre">
+                    {content.confidentialite_titre}
+                </EditableText>
+            }
+            subtitle={
+                <EditableText as="span" contentKey="confidentialite_soustitre">
+                    {content.confidentialite_soustitre}
+                </EditableText>
+            }
             updated={updated}
             sections={sections.map((section) => ({
-                title: section.title,
+                key: section.key,
+                title: (
+                    <EditableText as="span" contentKey={`${section.key}_titre`}>
+                        {content[`${section.key}_titre`] ?? section.title}
+                    </EditableText>
+                ),
                 text: (
                     <EditableText as="span" contentKey={`${section.key}_texte`}>
                         {content[`${section.key}_texte`] ?? section.text}

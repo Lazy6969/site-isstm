@@ -24,6 +24,9 @@ class GalleryAlbum extends Model
         'location',
         'author',
         'status',
+        'rejection_reason',
+        'validated_by',
+        'validated_at',
         'published_at',
     ];
 
@@ -33,12 +36,18 @@ class GalleryAlbum extends Model
             'status' => GalleryStatus::class,
             'event_date' => 'date',
             'published_at' => 'datetime',
+            'validated_at' => 'datetime',
         ];
     }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(GalleryCategory::class, 'gallery_category_id');
+    }
+
+    public function validator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 
     public function photos(): HasMany

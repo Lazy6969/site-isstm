@@ -1,9 +1,11 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../QuickEdit/EditableText';
 
 export default function Hero({ slides }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [active, setActive] = useState(0);
     const safeSlides = slides.length > 0 ? slides : [{ image_path: 'images/slide1.jpg' }];
 
@@ -35,18 +37,21 @@ export default function Hero({ slides }) {
                     <span className="align-top text-[1.15em] leading-none text-isstm-gold" aria-hidden="true">
                         &ldquo;
                     </span>
-                    {t('accueil.hero_titre_ligne1', "L'excellence technique")}
+                    <EditableText as="span" contentKey="accueil_hero_titre_ligne1">
+                        {content.accueil_hero_titre_ligne1}
+                    </EditableText>
                     <br />
-                    {t('accueil.hero_titre_ligne2', 'au service de votre avenir')}
+                    <EditableText as="span" contentKey="accueil_hero_titre_ligne2">
+                        {content.accueil_hero_titre_ligne2}
+                    </EditableText>
                     <span className="align-bottom text-[1.15em] leading-none text-isstm-gold" aria-hidden="true">
                         &rdquo;
                     </span>
                 </h1>
                 <p className="mx-auto mt-6 max-w-xl text-lg text-white/85">
-                    {t(
-                        'accueil.hero_soustitre',
-                        "L'Institut Supérieur des Sciences, Techniques et Management forme les ingénieurs et techniciens de demain à Mahajanga, Madagascar.",
-                    )}
+                    <EditableText as="span" contentKey="accueil_hero_soustitre">
+                        {content.accueil_hero_soustitre}
+                    </EditableText>
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                     <Link

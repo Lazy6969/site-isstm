@@ -1,11 +1,13 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, GraduationCap } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../QuickEdit/EditableText';
 
 export default function Filieres({ filieres }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
 
     if (filieres.length === 0) return null;
 
@@ -16,10 +18,14 @@ export default function Filieres({ filieres }) {
                     <div>
                         <h2 className="flex items-center gap-2 text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
                             <GraduationCap className="h-7 w-7 text-isstm-gold" aria-hidden="true" />
-                            {t('accueil.filieres_titre', 'Nos filières')}
+                            <EditableText as="span" contentKey="accueil_filieres_titre">
+                                {content.accueil_filieres_titre}
+                            </EditableText>
                         </h2>
                         <p className="mt-2 text-slate-500 dark:text-slate-400">
-                            {t('accueil.filieres_soustitre', "Des formations d'ingénieurs et de techniciens reconnues.")}
+                            <EditableText as="span" contentKey="accueil_filieres_soustitre">
+                                {content.accueil_filieres_soustitre}
+                            </EditableText>
                         </p>
                     </div>
                 </div>

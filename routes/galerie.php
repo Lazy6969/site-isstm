@@ -12,4 +12,7 @@ Route::middleware(['auth'])->prefix('console/galerie')->name('admin.galerie.')->
 
     Route::post('{album}/photos', [GalleryPhotoController::class, 'store'])->middleware('can:gallery.edit')->name('photos.store');
     Route::delete('photos/{photo}', [GalleryPhotoController::class, 'destroy'])->middleware('can:gallery.edit')->name('photos.destroy');
+
+    Route::post('{album}/approve', [GalleryAlbumController::class, 'approve'])->middleware('can:gallery.publish')->name('approve');
+    Route::post('{album}/reject', [GalleryAlbumController::class, 'reject'])->middleware('can:gallery.publish')->name('reject');
 });

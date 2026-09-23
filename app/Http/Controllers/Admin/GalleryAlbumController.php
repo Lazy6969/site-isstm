@@ -6,6 +6,7 @@ use App\GalleryStatus;
 use App\Http\Controllers\Admin\Concerns\ManagesUploadedImages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreGalleryAlbumRequest;
+use App\Models\ActivityLog;
 use App\Models\GalleryAlbum;
 use App\Models\GalleryCategory;
 use Illuminate\Http\RedirectResponse;
@@ -24,10 +25,11 @@ class GalleryAlbumController extends Controller
         return Inertia::render('Admin/Galerie/Index', [
             'albums' => GalleryAlbum::with([
                 'category:id,name_fr',
+                'validator:id,name',
                 'photos:id,gallery_album_id,image_path,title,alt_text,display_order',
             ])
                 ->orderByDesc('created_at')
-                ->get(['id', 'gallery_category_id', 'title', 'slug', 'description', 'cover_image', 'event_date', 'location', 'author', 'status', 'created_at']),
+                ->get(['id', 'gallery_category_id', 'title', 'slug', 'description', 'cover_image', 'event_date', 'location', 'author', 'status', 'rejection_reason', 'validated_by', 'validated_at', 'created_at']),
             'categories' => GalleryCategory::orderBy('name_fr')->get(['id', 'name_fr']),
         ]);
     }
@@ -38,9 +40,7 @@ class GalleryAlbumController extends Controller
         $validated['slug'] = $this->uniqueSlug($validated['title']);
         $validated['status'] = GalleryStatus::from($validated['status']);
 
-        if ($validated['status'] === GalleryStatus::Publie) {
-            $validated['published_at'] = now();
-        }
+        $this->applyValidationWorkflow($request, $validated);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $this->storeUploadedImage($request, 'cover_image', 'galerie');
@@ -48,7 +48,7 @@ class GalleryAlbumController extends Controller
 
         GalleryAlbum::create($validated);
 
-        return back()->with('status', 'Album créé.');
+        return back()->with('status', $validated['status'] === GalleryStatus::EnAttente ? 'Album soumis pour validation.' : 'Album créé.');
     }
 
     public function update(Request $request, GalleryAlbum $album): RedirectResponse
@@ -66,9 +66,7 @@ class GalleryAlbumController extends Controller
 
         $validated['status'] = GalleryStatus::from($validated['status']);
 
-        if ($validated['status'] === GalleryStatus::Publie && $album->published_at === null) {
-            $validated['published_at'] = now();
-        }
+        $this->applyValidationWorkflow($request, $validated, $album);
 
         if ($request->hasFile('cover_image')) {
             $this->deleteUploadedImage($album->cover_image, 'galerie');
@@ -77,7 +75,44 @@ class GalleryAlbumController extends Controller
 
         $album->update($validated);
 
-        return back()->with('status', 'Album mis à jour.');
+        return back()->with('status', $validated['status'] === GalleryStatus::EnAttente ? 'Album soumis pour validation.' : 'Album mis à jour.');
+    }
+
+    public function approve(Request $request, GalleryAlbum $album): RedirectResponse
+    {
+        abort_unless($album->status === GalleryStatus::EnAttente, 409, "Cet album n'est pas en attente de validation.");
+
+        $album->update([
+            'status' => GalleryStatus::Publie,
+            'rejection_reason' => null,
+            'validated_by' => $request->user()->id,
+            'validated_at' => now(),
+            'published_at' => $album->published_at ?? now(),
+        ]);
+
+        ActivityLog::record('gallery_validated', "Album « {$album->title} » validé et publié", $album);
+
+        return back()->with('status', 'Album validé et publié.');
+    }
+
+    public function reject(Request $request, GalleryAlbum $album): RedirectResponse
+    {
+        abort_unless($album->status === GalleryStatus::EnAttente, 409, "Cet album n'est pas en attente de validation.");
+
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $album->update([
+            'status' => GalleryStatus::Rejete,
+            'rejection_reason' => $validated['rejection_reason'],
+            'validated_by' => $request->user()->id,
+            'validated_at' => now(),
+        ]);
+
+        ActivityLog::record('gallery_rejected', "Album « {$album->title} » rejeté", $album, ['reason' => $validated['rejection_reason']]);
+
+        return back()->with('status', 'Album rejeté.');
     }
 
     public function destroy(GalleryAlbum $album): RedirectResponse
@@ -92,6 +127,34 @@ class GalleryAlbumController extends Controller
         $album->delete();
 
         return back()->with('status', 'Album supprimé.');
+    }
+
+    /**
+     * A creator/editor without `gallery.publish` cannot take an album straight to
+     * Publié/Archivé/Rejeté — anything but Brouillon gets downgraded to En attente
+     * for a publisher to review. Mutates $validated in place.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function applyValidationWorkflow(Request $request, array &$validated, ?GalleryAlbum $album = null): void
+    {
+        if ($request->user()->can('gallery.publish')) {
+            if ($validated['status'] === GalleryStatus::Publie && $album?->published_at === null) {
+                $validated['published_at'] = now();
+            }
+            if ($validated['status'] === GalleryStatus::Publie) {
+                $validated['validated_by'] = $request->user()->id;
+                $validated['validated_at'] = now();
+                $validated['rejection_reason'] = null;
+            }
+
+            return;
+        }
+
+        if ($validated['status'] !== GalleryStatus::Brouillon) {
+            $validated['status'] = GalleryStatus::EnAttente;
+            $validated['rejection_reason'] = null;
+        }
     }
 
     private function uniqueSlug(string $title): string

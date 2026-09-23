@@ -8,4 +8,7 @@ Route::middleware(['auth'])->prefix('console/evenements')->name('admin.evenement
     Route::post('/', [EvenementController::class, 'store'])->middleware('can:evenements.create')->name('store');
     Route::put('{evenement}', [EvenementController::class, 'update'])->middleware('can:evenements.edit')->name('update');
     Route::delete('{evenement}', [EvenementController::class, 'destroy'])->middleware('can:evenements.delete')->name('destroy');
+
+    Route::post('{evenement}/approve', [EvenementController::class, 'approve'])->middleware('can:evenements.publish')->name('approve');
+    Route::post('{evenement}/reject', [EvenementController::class, 'reject'])->middleware('can:evenements.publish')->name('reject');
 });

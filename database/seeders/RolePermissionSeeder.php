@@ -32,15 +32,20 @@ class RolePermissionSeeder extends Seeder
         'inscriptions.view', 'inscriptions.create', 'inscriptions.edit', 'inscriptions.delete',
         'classes.view', 'classes.create', 'classes.edit', 'classes.delete',
         'quick-edit.access', 'quick-edit.text', 'quick-edit.icon', 'quick-edit.image',
-        'news.view', 'news.create', 'news.edit', 'news.delete',
-        'gallery.view', 'gallery.create', 'gallery.edit', 'gallery.delete',
+        'news.view', 'news.create', 'news.edit', 'news.delete', 'news.publish',
+        'gallery.view', 'gallery.create', 'gallery.edit', 'gallery.delete', 'gallery.publish',
         'filieres.view', 'filieres.create', 'filieres.edit', 'filieres.delete',
         'enseignants.view', 'enseignants.create', 'enseignants.edit', 'enseignants.delete',
         'temoignages.view', 'temoignages.create', 'temoignages.edit', 'temoignages.delete',
         'partenaires.view', 'partenaires.create', 'partenaires.edit', 'partenaires.delete',
-        'evenements.view', 'evenements.create', 'evenements.edit', 'evenements.delete',
+        'evenements.view', 'evenements.create', 'evenements.edit', 'evenements.delete', 'evenements.publish',
         'campus.view', 'campus.create', 'campus.edit', 'campus.delete',
         'documents.view', 'documents.create', 'documents.edit', 'documents.delete',
+        'users.view', 'users.edit',
+        'roles.view', 'roles.edit',
+        'activity-log.view',
+        'settings.manage',
+        'statistics.view',
     ];
 
     /**
@@ -59,6 +64,8 @@ class RolePermissionSeeder extends Seeder
         SpatieRole::findByName('super-admin')->syncPermissions(self::PERMISSIONS);
 
         SpatieRole::findByName('scolarite')->syncPermissions([
+            'dashboard.view',
+            'preinscriptions.manage',
             'etudiants.view', 'etudiants.create', 'etudiants.edit', 'etudiants.delete',
             'inscriptions.view', 'inscriptions.create', 'inscriptions.edit', 'inscriptions.delete',
             'classes.view', 'classes.create', 'classes.edit', 'classes.delete',

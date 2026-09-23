@@ -51,6 +51,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Role::class,
             'is_messagerie' => 'boolean',
+            'is_active' => 'boolean',
             'birth_date' => 'date',
             'last_activity' => 'datetime',
         ];

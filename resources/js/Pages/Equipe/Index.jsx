@@ -1,112 +1,69 @@
-import { Head } from '@inertiajs/react';
-import { Crown, Heart, Link2, Phone, Quote, Server, Sparkles, Wrench } from 'lucide-react';
+import { Head, usePage } from '@inertiajs/react';
+import { Heart, Link2, Phone, Quote } from 'lucide-react';
 import Footer from '../../Components/Home/Footer';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../../Components/QuickEdit/EditableText';
+import EditableIcon from '../../Components/QuickEdit/EditableIcon';
+import EditableImage from '../../Components/QuickEdit/EditableImage';
+
+const team = [
+    { key: 'equipe_membre_1', featured: true, hasHighlight: true, iconDefault: 'Crown' },
+    { key: 'equipe_membre_2', featured: false, hasHighlight: false, iconDefault: 'Server' },
+    { key: 'equipe_membre_3', featured: false, hasHighlight: false, iconDefault: 'Sparkles' },
+    { key: 'equipe_membre_4', featured: false, hasHighlight: false, iconDefault: 'Wrench' },
+];
 
 export default function Index() {
     const { t } = useTranslations();
-
-    const team = [
-        {
-            nom: 'RAMANANA Mirindra Michel',
-            photo: 'images/etudiant/mirindra.jpeg',
-            icon: Crown,
-            featured: true,
-            role: t('equipe.role_mirindra', 'Leader & Développeur Frontend'),
-            mention: t('equipe.mention_m', 'Étudiant en Génie Informatique — ISSTM'),
-            bio: t(
-                'equipe.bio_mirindra',
-                "Leader et développeur Frontend, Mirindra a mis sa passion pour l'expérience utilisateur au service de ce site : conception des interfaces, animations et attention portée à chaque détail visuel, du header jusqu'à la dernière page. Toujours curieux et à l'aise avec de nouveaux outils, il s'est aussi chargé de l'organisation et de la planification du travail d'équipe, pour avancer ensemble vers une expérience fluide, moderne et cohérente.",
-            ),
-            highlight: t(
-                'equipe.highlight_mirindra',
-                "Un développeur passionné, minutieux et engagé, du premier croquis jusqu'à la mise en ligne du site.",
-            ),
-            tel: '0380746987',
-            facebook: 'https://web.facebook.com/lauthner.ramanana',
-        },
-        {
-            nom: 'RANDRIAMAHAFALY Safidy Thierry',
-            photo: 'images/etudiant/safidy.jpg',
-            icon: Server,
-            role: t('equipe.role_safidy', 'Développeur Backend'),
-            mention: t('equipe.mention_m', 'Étudiant en Génie Informatique — ISSTM'),
-            bio: t(
-                'equipe.bio_safidy',
-                "Architecte de l'ombre, Safidy a bâti les fondations solides sur lesquelles repose tout le site : bases de données, logique métier et sécurité des échanges. Rigoureux et méthodique, il a conçu un backend robuste capable d'accompagner la croissance de l'ISSTM sans jamais faillir. Son travail, invisible pour le visiteur, est pourtant le socle sur lequel tout le reste a pu être construit.",
-            ),
-            tel: '0380545618',
-            facebook: 'https://web.facebook.com/safilaureat.randriamahafaly',
-        },
-        {
-            nom: 'RAZAFINDRABARY Heather Doleen Jameelah',
-            photo: 'images/etudiant/jameelah.jpg',
-            icon: Sparkles,
-            role: t('equipe.role_jameelah', 'Assistante Frontend'),
-            mention: t('equipe.mention_f', 'Étudiante en Génie Informatique — ISSTM'),
-            bio: t(
-                'equipe.bio_jameelah',
-                "Œil attentif aux détails, Jameelah a épaulé le développement de l'interface avec créativité et précision. Entre ajustements visuels, tests d'ergonomie et petites touches qui font toute la différence, elle a contribué à peaufiner l'expérience offerte à chaque visiteur du site. Son sens du détail a permis de transformer de bonnes idées en une interface réellement agréable à utiliser.",
-            ),
-            tel: '0385229010',
-            facebook: 'https://web.facebook.com/profile.php?id=100073469688031',
-        },
-        {
-            nom: 'JAOSOA Tanael Faustin',
-            photo: 'images/etudiant/tanael.jpg',
-            icon: Wrench,
-            role: t('equipe.role_tanael', 'Assistant Backend'),
-            mention: t('equipe.mention_m', 'Étudiant en Génie Informatique — ISSTM'),
-            bio: t(
-                'equipe.bio_tanael',
-                "Complice de l'ombre côté serveur, Tanael a prêté main forte à la construction de la logique backend et à la fiabilité des données. Curieux et impliqué, il a participé aux tests, aux corrections et à l'optimisation des performances du site. Son soutien a été précieux pour livrer un backend à la fois stable et évolutif.",
-            ),
-            tel: '0344306616',
-            facebook: 'https://web.facebook.com/tanael.rolland.90',
-        },
-    ];
+    const { content } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title={t('equipe.titre', 'Notre Équipe')} />
+            <Head title="Notre Équipe" />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('equipe.titre', 'Notre Équipe')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="equipe_titre">
+                            {content.equipe_titre}
+                        </EditableText>
+                    </h1>
                     <p className="mt-2 max-w-2xl text-white/80">
-                        {t('equipe.soustitre', 'Les étudiants qui ont conçu et développé ce site.')}
+                        <EditableText as="span" contentKey="equipe_soustitre">
+                            {content.equipe_soustitre}
+                        </EditableText>
                     </p>
                 </div>
             </div>
 
             <main className="mx-auto max-w-4xl px-6 py-12">
                 <p className="text-center leading-relaxed text-slate-600 dark:text-slate-300">
-                    {t(
-                        'equipe.intro',
-                        "Derrière chaque page, chaque animation et chaque ligne de code de ce site se cache le travail d'une petite équipe d'étudiants en Génie Informatique, en Licence 3 à l'ISSTM. Ce projet est le fruit de leur travail collectif, mené avec passion dans le cadre de leur formation.",
-                    )}
+                    <EditableText as="span" contentKey="equipe_intro">
+                        {content.equipe_intro}
+                    </EditableText>
                 </p>
 
                 <div className="mt-10 space-y-6">
                     {team.map((member) => {
-                        const RoleIcon = member.icon;
+                        const photo = content[`${member.key}_photo`];
 
                         return (
                             <div
-                                key={member.nom}
+                                key={member.key}
                                 className={`flex flex-col items-center gap-6 rounded-2xl bg-white p-6 shadow-sm ring-1 sm:flex-row sm:items-start sm:p-8 dark:bg-slate-800 ${
                                     member.featured ? 'ring-2 ring-isstm-gold' : 'ring-slate-100 dark:ring-slate-700'
                                 }`}
                             >
                                 <div className="relative flex-shrink-0">
                                     <img
-                                        src={`/${member.photo}`}
-                                        alt={member.nom}
+                                        src={`/${photo}`}
+                                        alt={content[`${member.key}_nom`] ?? ''}
                                         className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/30"
                                         loading="lazy"
                                     />
+                                    <EditableImage contentKey={`${member.key}_photo`} value={photo} />
                                     {member.featured && (
                                         <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-isstm-gold px-2.5 py-0.5 text-[0.65rem] font-semibold whitespace-nowrap text-isstm-navy-dark shadow">
                                             {t('equipe.badge_leader', "À l'honneur")}
@@ -115,30 +72,52 @@ export default function Index() {
                                 </div>
 
                                 <div className="text-center sm:text-left">
-                                    <h3 className="text-lg font-bold text-isstm-navy dark:text-white">{member.nom}</h3>
+                                    <h3 className="text-lg font-bold text-isstm-navy dark:text-white">
+                                        <EditableText as="span" contentKey={`${member.key}_nom`}>
+                                            {content[`${member.key}_nom`]}
+                                        </EditableText>
+                                    </h3>
                                     <span className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-isstm-gold">
-                                        <RoleIcon className="h-4 w-4" aria-hidden="true" />
-                                        {member.role}
+                                        <EditableIcon
+                                            contentKey={`${member.key}_icon`}
+                                            value={content[`${member.key}_icon`] ?? member.iconDefault}
+                                            className="h-4 w-4"
+                                        />
+                                        <EditableText as="span" contentKey={`${member.key}_role`}>
+                                            {content[`${member.key}_role`]}
+                                        </EditableText>
                                     </span>
-                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{member.mention}</p>
-                                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{member.bio}</p>
-                                    {member.highlight && (
+                                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                        <EditableText as="span" contentKey={`${member.key}_mention`}>
+                                            {content[`${member.key}_mention`]}
+                                        </EditableText>
+                                    </p>
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                                        <EditableText as="span" contentKey={`${member.key}_bio`}>
+                                            {content[`${member.key}_bio`]}
+                                        </EditableText>
+                                    </p>
+                                    {member.hasHighlight && (
                                         <p className="mt-3 flex items-start gap-2 text-sm text-slate-500 italic dark:text-slate-400">
                                             <Quote className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                                            {member.highlight}
+                                            <EditableText as="span" contentKey={`${member.key}_highlight`}>
+                                                {content[`${member.key}_highlight`]}
+                                            </EditableText>
                                         </p>
                                     )}
                                     <div className="mt-4 flex flex-wrap justify-center gap-2 sm:justify-start">
                                         <a
-                                            href={`tel:${member.tel}`}
+                                            href={`tel:${content[`${member.key}_tel`]}`}
                                             title={t('equipe.telephone', 'Téléphone')}
                                             className="flex items-center gap-1.5 rounded-full bg-isstm-navy/5 px-3 py-1.5 text-xs font-medium text-isstm-navy hover:bg-isstm-navy/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                                         >
                                             <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-                                            {member.tel}
+                                            <EditableText as="span" contentKey={`${member.key}_tel`}>
+                                                {content[`${member.key}_tel`]}
+                                            </EditableText>
                                         </a>
                                         <a
-                                            href={member.facebook}
+                                            href={content[`${member.key}_facebook`]}
                                             target="_blank"
                                             rel="noopener"
                                             title={t('equipe.facebook', 'Facebook')}
@@ -156,7 +135,11 @@ export default function Index() {
 
                 <div className="mt-10 flex flex-col items-center gap-2 text-center text-slate-500 dark:text-slate-400">
                     <Heart className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                    <p>{t('equipe.merci', 'Merci d\'avoir visité notre site, conçu avec passion par notre équipe.')}</p>
+                    <p>
+                        <EditableText as="span" contentKey="equipe_merci">
+                            {content.equipe_merci}
+                        </EditableText>
+                    </p>
                 </div>
             </main>
 

@@ -22,6 +22,9 @@ class NewsArticle extends Model
         'image_path',
         'author',
         'status',
+        'rejection_reason',
+        'validated_by',
+        'validated_at',
         'is_featured',
         'views',
         'published_at',
@@ -33,11 +36,17 @@ class NewsArticle extends Model
             'status' => NewsStatus::class,
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
+            'validated_at' => 'datetime',
         ];
     }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(NewsCategory::class, 'news_category_id');
+    }
+
+    public function validator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'validated_by');
     }
 }

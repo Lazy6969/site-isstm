@@ -65,7 +65,11 @@ export default function Footer() {
         <footer className="bg-isstm-navy-dark text-white/70">
             <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">{t('footer.liens_rapides', 'Liens rapides')}</h4>
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <EditableText as="span" contentKey="footer_liens_rapides_titre">
+                            {content.footer_liens_rapides_titre}
+                        </EditableText>
+                    </h4>
                     <nav className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         {quickLinks.map((item) => (
                             <Link key={item.href} href={item.href} className="hover:text-white">
@@ -114,7 +118,11 @@ export default function Footer() {
                 </div>
 
                 <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">{t('footer.contact', 'Contactez-nous')}</h4>
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-white">
+                        <EditableText as="span" contentKey="footer_contact_titre">
+                            {content.footer_contact_titre}
+                        </EditableText>
+                    </h4>
                     <div className="mt-4 space-y-2.5 text-sm">
                         {content.contact_email && (
                             <a href={`mailto:${content.contact_email}`} className="flex items-center gap-2.5 hover:text-white">
@@ -150,7 +158,11 @@ export default function Footer() {
                         )}
                     </div>
 
-                    <h5 className="mt-6 text-xs font-semibold uppercase tracking-wide text-white/50">{t('footer.localisation', 'Nos localisations')}</h5>
+                    <h5 className="mt-6 text-xs font-semibold uppercase tracking-wide text-white/50">
+                        <EditableText as="span" contentKey="footer_localisation_titre">
+                            {content.footer_localisation_titre}
+                        </EditableText>
+                    </h5>
                     <div className="mt-2 space-y-1.5 text-sm">
                         {locations.map((location) => (
                             <EditableText as="p" key={location.key} contentKey={location.titleKey} className="text-white/60">
@@ -165,12 +177,17 @@ export default function Footer() {
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-xs sm:flex-row">
                     <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:justify-start">
                         <span>
-                            &copy; {new Date().getFullYear()} ISSTM — {t('footer.institut_complet', 'Institut Supérieur des Sciences et Technologies de Mahajanga.')}
+                            &copy; {new Date().getFullYear()} ISSTM —{' '}
+                            <EditableText as="span" contentKey="footer_copyright_texte">
+                                {content.footer_copyright_texte}
+                            </EditableText>
                         </span>
                         <span aria-hidden="true">·</span>
                         <Link href="/equipe" className="inline-flex items-center gap-1.5 hover:text-white">
                             <Code className="h-3.5 w-3.5" aria-hidden="true" />
-                            {t('footer.concue_par', "Conçue par les étudiants de l'ISSTM")}
+                            <EditableText as="span" contentKey="footer_concue_par_texte">
+                                {content.footer_concue_par_texte}
+                            </EditableText>
                         </Link>
                     </p>
                     <nav className="flex gap-4">

@@ -26,13 +26,7 @@ class UpdateQuickEditContentRequest extends FormRequest
             return true;
         }
 
-        $permission = match ($content->type) {
-            SiteContentType::Icon => 'quick-edit.icon',
-            SiteContentType::Image => 'quick-edit.image',
-            SiteContentType::Text => 'quick-edit.text',
-        };
-
-        return $this->user()?->can($permission) ?? false;
+        return $this->user()?->can($content->type->permission()) ?? false;
     }
 
     /**

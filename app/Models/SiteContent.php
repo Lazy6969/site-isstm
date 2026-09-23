@@ -48,6 +48,10 @@ class SiteContent extends Model
      * public page (which never sends $locale) keeps editing whatever locale
      * the visitor is currently browsing in; the admin content list passes an
      * explicit $locale to edit any of the three regardless of site language.
+     *
+     * When French is the locale being set, the caller (QuickEditController)
+     * is responsible for machine-translating into English/Malagasy afterward
+     * — that's an external API call, deliberately kept out of the model.
      */
     public function updateForCurrentLocale(string $value, ?string $locale = null): void
     {

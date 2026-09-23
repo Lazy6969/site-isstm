@@ -45,3 +45,15 @@ it('redirects an authenticated user away from the login page', function () {
 
     $this->actingAs($user)->get('/login')->assertRedirect(route('home'));
 });
+
+it('refuses login for a deactivated account', function () {
+    $user = User::factory()->create(['is_active' => false]);
+
+    $response = $this->from('/login')->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+    $response->assertSessionHasErrors('email');
+});

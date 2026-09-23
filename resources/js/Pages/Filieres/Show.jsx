@@ -1,10 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Briefcase, Landmark, Sparkles } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Badge } from '../../Components/ui/badge';
 import { Separator } from '../../Components/ui/separator';
-import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../../Components/QuickEdit/EditableText';
 
 function Section({ icon: Icon, title, text }) {
     if (!text) return null;
@@ -22,7 +22,7 @@ function Section({ icon: Icon, title, text }) {
 }
 
 export default function Show({ filiere }) {
-    const { t } = useTranslations();
+    const { content } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -37,7 +37,9 @@ export default function Show({ filiere }) {
                 <div className="relative mx-auto flex h-full max-w-4xl flex-col justify-end px-6 pb-8 text-white">
                     <Link href="/filieres" className="mb-3 flex items-center gap-1.5 text-sm text-white/80 hover:underline">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                        {t('filieres.toutes_les_filieres', 'Toutes les filières')}
+                        <EditableText as="span" contentKey="filieres_show_retour">
+                            {content.filieres_show_retour}
+                        </EditableText>
                     </Link>
                     <div className="flex flex-wrap items-center gap-2">
                         {filiere.mention && <Badge variant="gold">{filiere.mention}</Badge>}
@@ -51,9 +53,33 @@ export default function Show({ filiere }) {
 
             <main className="mx-auto max-w-4xl space-y-6 px-6 py-12">
                 <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">{filiere.description}</p>
-                <Section icon={Briefcase} title={t('filieres.debouches', 'Débouchés professionnels')} text={filiere.debouches} />
-                <Section icon={Landmark} title={t('filieres.histoire', "Un peu d'histoire")} text={filiere.historique} />
-                <Section icon={Sparkles} title={t('filieres.avantages', 'Pourquoi choisir cette filière ?')} text={filiere.avantages} />
+                <Section
+                    icon={Briefcase}
+                    title={
+                        <EditableText as="span" contentKey="filieres_show_debouches_titre">
+                            {content.filieres_show_debouches_titre}
+                        </EditableText>
+                    }
+                    text={filiere.debouches}
+                />
+                <Section
+                    icon={Landmark}
+                    title={
+                        <EditableText as="span" contentKey="filieres_show_histoire_titre">
+                            {content.filieres_show_histoire_titre}
+                        </EditableText>
+                    }
+                    text={filiere.historique}
+                />
+                <Section
+                    icon={Sparkles}
+                    title={
+                        <EditableText as="span" contentKey="filieres_show_avantages_titre">
+                            {content.filieres_show_avantages_titre}
+                        </EditableText>
+                    }
+                    text={filiere.avantages}
+                />
             </main>
 
             <Footer />

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\EvenementStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -30,6 +31,7 @@ class StoreEvenementRequest extends FormRequest
             'date_fin' => ['nullable', 'date', 'after_or_equal:date_debut'],
             'lieu' => ['nullable', 'string', 'max:255'],
             'categorie' => ['required', Rule::in(['general', 'examen', 'ceremonie', 'atelier', 'vacances', 'inscription'])],
+            'status' => ['nullable', Rule::enum(EvenementStatus::class)],
             'image' => ['nullable', 'image', 'max:4096'],
         ];
     }

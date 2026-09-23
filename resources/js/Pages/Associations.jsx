@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -6,25 +6,30 @@ import { Card } from '../Components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
+import EditableImage from '../Components/QuickEdit/EditableImage';
 
 const identityCard = [
     {
         key: 'associations_identite_regime',
+        labelKey: 'associations_identite_regime_label',
         label: 'Régime juridique',
         value: 'Association à but non lucratif — Ordonnance n°60-133 du 03/10/1960',
     },
     {
         key: 'associations_identite_siege',
+        labelKey: 'associations_identite_siege_label',
         label: 'Siège social',
         value: 'ISSTM, Majunga Be, Commune Urbaine Mahajanga-I',
     },
     {
         key: 'associations_identite_duree',
+        labelKey: 'associations_identite_duree_label',
         label: 'Durée',
         value: 'Illimitée',
     },
     {
         key: 'associations_identite_but',
+        labelKey: 'associations_identite_but_label',
         label: 'But',
         value: "Rassembler et unir tous les étudiants de l'ISSTM",
     },
@@ -76,44 +81,50 @@ const bureauRoles = [
 ];
 
 const bureauFondateur = [
-    { role: 'Président', nom: 'NOMENJANAHARY Narcisse Isidore' },
-    { role: 'Vice-président', nom: 'RAKOTOARIVELO Vannyaud Bruno' },
+    { key: 'associations_fondateur_1', role: 'Président', nom: 'NOMENJANAHARY Narcisse Isidore' },
+    { key: 'associations_fondateur_2', role: 'Vice-président', nom: 'RAKOTOARIVELO Vannyaud Bruno' },
     {
+        key: 'associations_fondateur_3',
         role: 'Secrétaire Générale',
         nom: 'HARENANTENAINA Florentinoh Jobela Adelin',
     },
-    { role: 'Trésorier', nom: 'RATSIMALAIMANANA Mamy Nirina' },
+    { key: 'associations_fondateur_4', role: 'Trésorier', nom: 'RATSIMALAIMANANA Mamy Nirina' },
     {
+        key: 'associations_fondateur_5',
         role: 'Commissaire au compte',
         nom: 'RANDRIANARIMALALA Jean Leonard',
     },
     {
+        key: 'associations_fondateur_6',
         role: 'Commissaire au compte',
         nom: 'RABARIVELOMANANA Maxwell Ny Aina',
     },
-    { role: 'Commissaire au compte', nom: 'RAZAFINDRAFITA Zagarino' },
+    { key: 'associations_fondateur_7', role: 'Commissaire au compte', nom: 'RAZAFINDRAFITA Zagarino' },
     {
+        key: 'associations_fondateur_8',
         role: 'Commissaire au compte',
         nom: 'RANDRIANAIVOSOLO Aina Daniel',
     },
-    { role: 'Commissaire au compte', nom: 'ADIALHAM Tonganjara' },
+    { key: 'associations_fondateur_9', role: 'Commissaire au compte', nom: 'ADIALHAM Tonganjara' },
     {
+        key: 'associations_fondateur_10',
         role: 'Conseiller',
         nom: 'RABOTOVAO Harimboahangitiana Kanto',
     },
-    { role: 'Conseiller', nom: 'RANDRIAMANTENA Judicaël' },
-    { role: 'Conseiller', nom: 'FIDERANA Nardah Mamelphina' },
-    { role: 'Conseiller', nom: 'FREDERIC Moise' },
+    { key: 'associations_fondateur_11', role: 'Conseiller', nom: 'RANDRIAMANTENA Judicaël' },
+    { key: 'associations_fondateur_12', role: 'Conseiller', nom: 'FIDERANA Nardah Mamelphina' },
+    { key: 'associations_fondateur_13', role: 'Conseiller', nom: 'FREDERIC Moise' },
 ];
 
 const gallery = [
-    'images/portal_assoc_4.jpg',
-    'images/portal_assoc_5.jpg',
-    'images/portal_assoc_6.jpg',
+    { key: 'associations_galerie_1', image: 'images/portal_assoc_4.jpg' },
+    { key: 'associations_galerie_2', image: 'images/portal_assoc_5.jpg' },
+    { key: 'associations_galerie_3', image: 'images/portal_assoc_6.jpg' },
 ];
 
-export default function Associations({ content = {} }) {
+export default function Associations() {
     const { t } = useTranslations();
+    const { content } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -135,42 +146,49 @@ export default function Associations({ content = {} }) {
                     </Link>
 
                     <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
-                        {t('associations.titre', 'Clubs et Associations')}
+                        <EditableText as="span" contentKey="associations_titre">
+                            {content.associations_titre}
+                        </EditableText>
                     </h1>
 
                     <p className="mt-2 text-white/80">
-                        {t(
-                            'associations.soustitre',
-                            "Découvrez les statuts et le fonctionnement de l'Association des Étudiants de l'ISSTM (A.E.I).",
-                        )}
+                        <EditableText as="span" contentKey="associations_soustitre">
+                            {content.associations_soustitre}
+                        </EditableText>
                     </p>
                 </div>
             </div>
 
             <main className="mx-auto max-w-4xl space-y-12 px-6 py-12">
-                <div className="flex justify-center">
+                <div className="relative flex justify-center">
                     <Avatar className="h-20 w-20 ring-4 ring-isstm-gold/30">
                         <AvatarImage
-                            src="/images/aei.jpeg"
+                            src={`/${content.associations_logo ?? 'images/aei.jpeg'}`}
                             alt="Logo AEI"
                         />
                         <AvatarFallback>AEI</AvatarFallback>
                     </Avatar>
+                    <EditableImage
+                        contentKey="associations_logo"
+                        value={content.associations_logo ?? 'images/aei.jpeg'}
+                        className="absolute right-[calc(50%-2.5rem)] top-0 z-10"
+                    />
                 </div>
 
                 <Card className="p-7">
                     <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
-                        {t(
-                            'associations.identite_titre',
-                            "Carte d'Identité de l'Association",
-                        )}
+                        <EditableText as="span" contentKey="associations_identite_titre">
+                            {content.associations_identite_titre}
+                        </EditableText>
                     </h2>
 
                     <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
                         {identityCard.map((item) => (
                             <div key={item.key}>
                                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                                    {item.label}
+                                    <EditableText as="span" contentKey={item.labelKey}>
+                                        {content[item.labelKey] ?? item.label}
+                                    </EditableText>
                                 </dt>
 
                                 <EditableText
@@ -186,31 +204,30 @@ export default function Associations({ content = {} }) {
 
                     <div className="mt-5 border-t border-slate-100 pt-5 dark:border-slate-700">
                         <dt className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                            {t(
-                                'associations.membres_honneur',
-                                "Membres d'honneur",
-                            )}
+                            <EditableText as="span" contentKey="associations_membres_honneur_label">
+                                {content.associations_membres_honneur_label}
+                            </EditableText>
                         </dt>
 
                         <dd className="mt-1 text-sm text-slate-700 dark:text-slate-200">
-                            Directeur et Directeur Adjoint de l'ISSTM
+                            <EditableText as="span" contentKey="associations_membres_honneur_valeur">
+                                {content.associations_membres_honneur_valeur}
+                            </EditableText>
                         </dd>
                     </div>
                 </Card>
 
                 <section>
                     <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
-                        {t(
-                            'associations.bureau_titre',
-                            'Composition du Bureau Exécutif',
-                        )}
+                        <EditableText as="span" contentKey="associations_bureau_titre">
+                            {content.associations_bureau_titre}
+                        </EditableText>
                     </h2>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {t(
-                            'associations.bureau_article',
-                            'Article 13 des statuts',
-                        )}
+                        <EditableText as="span" contentKey="associations_bureau_article">
+                            {content.associations_bureau_article}
+                        </EditableText>
                     </p>
 
                     <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -218,11 +235,16 @@ export default function Associations({ content = {} }) {
                             <Card key={item.key} className="p-5">
                                 <div className="flex items-baseline justify-between">
                                     <h3 className="font-semibold text-isstm-navy dark:text-white">
-                                        {item.role}
+                                        <EditableText as="span" contentKey={`${item.key}_role`}>
+                                            {content[`${item.key}_role`] ?? item.role}
+                                        </EditableText>
                                     </h3>
 
                                     <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-                                        × {item.count}
+                                        ×{' '}
+                                        <EditableText as="span" contentKey={`${item.key}_count`}>
+                                            {content[`${item.key}_count`] ?? String(item.count)}
+                                        </EditableText>
                                     </span>
                                 </div>
 
@@ -241,32 +263,34 @@ export default function Associations({ content = {} }) {
 
                 <section>
                     <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
-                        {t(
-                            'associations.fondateur_titre',
-                            'Bureau fondateur',
-                        )}
+                        <EditableText as="span" contentKey="associations_fondateur_titre">
+                            {content.associations_fondateur_titre}
+                        </EditableText>
                     </h2>
 
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {t(
-                            'associations.fondateur_date',
-                            'Élu lors du procès-verbal du 10 mai 2022',
-                        )}
+                        <EditableText as="span" contentKey="associations_fondateur_date">
+                            {content.associations_fondateur_date}
+                        </EditableText>
                     </p>
 
                     <Card className="mt-5 overflow-hidden">
                         <ul className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {bureauFondateur.map((membre, index) => (
+                            {bureauFondateur.map((membre) => (
                                 <li
-                                    key={index}
+                                    key={membre.key}
                                     className="flex items-center justify-between px-5 py-3 text-sm"
                                 >
                                     <span className="text-slate-500 dark:text-slate-400">
-                                        {membre.role}
+                                        <EditableText as="span" contentKey={`${membre.key}_role`}>
+                                            {content[`${membre.key}_role`] ?? membre.role}
+                                        </EditableText>
                                     </span>
 
                                     <span className="font-medium text-slate-700 dark:text-slate-200">
-                                        {membre.nom}
+                                        <EditableText as="span" contentKey={`${membre.key}_nom`}>
+                                            {content[`${membre.key}_nom`] ?? membre.nom}
+                                        </EditableText>
                                     </span>
                                 </li>
                             ))}
@@ -275,15 +299,20 @@ export default function Associations({ content = {} }) {
                 </section>
 
                 <section className="grid grid-cols-3 gap-2">
-                    {gallery.map((image) => (
-                        <div
-                            key={image}
-                            className="h-32 rounded-xl bg-cover bg-center sm:h-44"
-                            style={{
-                                backgroundImage: `url('/${image}')`,
-                            }}
-                        />
-                    ))}
+                    {gallery.map((item) => {
+                        const image = content[item.key] ?? item.image;
+                        return (
+                            <div key={item.key} className="relative">
+                                <div
+                                    className="h-32 rounded-xl bg-cover bg-center sm:h-44"
+                                    style={{
+                                        backgroundImage: `url('/${image}')`,
+                                    }}
+                                />
+                                <EditableImage contentKey={item.key} value={image} />
+                            </div>
+                        );
+                    })}
                 </section>
             </main>
 

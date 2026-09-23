@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Preinscription;
 use App\Models\User;
 use App\PreinscriptionStatus;
@@ -44,6 +45,12 @@ class PreinscriptionController extends Controller
         $preinscription->save();
 
         Password::sendResetLink(['email' => $user->email]);
+
+        ActivityLog::record(
+            'preinscription_approved',
+            "Préinscription approuvée pour {$user->name}",
+            $preinscription,
+        );
 
         return back()->with('status', "Compte étudiant créé pour {$user->name}. Un e-mail pour définir son mot de passe vient d'être envoyé.");
     }

@@ -34,12 +34,15 @@ export default function ActivityList({ items }) {
     }
 
     return (
-        <ul className="space-y-4">
+        <ul className="space-y-1">
             {items.map((item, index) => {
                 const Icon = icons[item.type];
                 return (
-                    <li key={index} className="flex items-start gap-3">
-                        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-admin-hover text-admin-text-secondary">
+                    <li
+                        key={index}
+                        className="group flex items-start gap-3 rounded-xl p-2 transition-colors duration-200 hover:bg-admin-hover"
+                    >
+                        <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-admin-accent/10 text-admin-accent transition-colors duration-200 group-hover:bg-admin-accent group-hover:text-admin-accent-foreground">
                             <Icon className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <div className="min-w-0">

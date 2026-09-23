@@ -24,7 +24,7 @@ export function TableHead({ className, ...props }) {
     return (
         <th
             className={cn(
-                'h-11 whitespace-nowrap px-4 text-left text-xs font-medium uppercase tracking-wide text-admin-muted',
+                'h-[var(--admin-density-head-h)] whitespace-nowrap px-4 text-left text-xs font-medium uppercase tracking-wide text-admin-muted',
                 className,
             )}
             {...props}
@@ -33,5 +33,7 @@ export function TableHead({ className, ...props }) {
 }
 
 export function TableCell({ className, ...props }) {
-    return <td className={cn('whitespace-nowrap px-4 py-3 text-admin-text', className)} {...props} />;
+    return (
+        <td className={cn('whitespace-nowrap px-4 py-[var(--admin-density-row-py)] text-admin-text', className)} {...props} />
+    );
 }

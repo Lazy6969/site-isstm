@@ -16,7 +16,8 @@ export default function MissionVision({ content }) {
 
     const blocks = [
         {
-            title: t('accueil.mission_titre', 'Notre Mission'),
+            title: content.mission_titre,
+            titleKey: 'mission_titre',
             text: content.mission_contenu,
             contentKey: 'mission_contenu',
             image: content.mission_image_path ?? 'images/mission.jpg',
@@ -24,7 +25,8 @@ export default function MissionVision({ content }) {
             reverse: false,
         },
         {
-            title: t('accueil.vision_titre', 'Notre Vision'),
+            title: content.vision_titre,
+            titleKey: 'vision_titre',
             text: content.vision_contenu,
             contentKey: 'vision_contenu',
             image: content.vision_image_path ?? 'images/vision.jpg',
@@ -59,7 +61,7 @@ export default function MissionVision({ content }) {
 
                             return (
                                 <div
-                                    key={block.title}
+                                    key={block.titleKey}
                                     className={`grid grid-cols-1 transition-opacity duration-700 md:min-h-[420px] md:grid-cols-2 ${
                                         active ? 'relative opacity-100' : 'pointer-events-none absolute inset-0 opacity-0'
                                     }`}
@@ -75,7 +77,11 @@ export default function MissionVision({ content }) {
                                             <span className="h-2 w-2 rounded-full bg-white/40" />
                                         </span>
 
-                                        <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">{block.title}</h3>
+                                        <h3 className="text-3xl leading-tight font-extrabold text-white sm:text-4xl">
+                                            <EditableText as="span" contentKey={block.titleKey}>
+                                                {block.title}
+                                            </EditableText>
+                                        </h3>
 
                                         <EditableText
                                             as="p"
@@ -95,7 +101,7 @@ export default function MissionVision({ content }) {
                                         <div className="mt-8 flex gap-2">
                                             {blocks.map((b, i) => (
                                                 <button
-                                                    key={b.title}
+                                                    key={b.titleKey}
                                                     type="button"
                                                     onClick={() => goTo(i)}
                                                     aria-label={b.title}

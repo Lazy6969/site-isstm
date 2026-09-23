@@ -1,11 +1,14 @@
 import { Quote } from 'lucide-react';
+import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableText from '../QuickEdit/EditableText';
 
 const BG_TINTS = ['#fbf3e3', '#e6ecf2', '#e3f9ec', '#f1e6f7'];
 
 export default function Testimonials({ testimonials }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [current, setCurrent] = useState(0);
     const timerRef = useRef(null);
     const total = testimonials.length;
@@ -34,7 +37,9 @@ export default function Testimonials({ testimonials }) {
         <section id="temoignages" className="bg-slate-50 py-12 sm:py-20 dark:bg-slate-900">
             <div className="mx-auto max-w-4xl px-6">
                 <h2 className="mb-12 text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
-                    {t('accueil.temoignages_titre', "Paroles d'étudiants")}
+                    <EditableText as="span" contentKey="accueil_temoignages_titre">
+                        {content.accueil_temoignages_titre}
+                    </EditableText>
                 </h2>
 
                 <div
