@@ -29,14 +29,15 @@ export default function Show({ album }) {
             <main className="mx-auto max-w-5xl px-6 py-12">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {photos.map((photo, index) => (
-                        <button
-                            key={photo.id}
-                            type="button"
-                            onClick={() => setActive(index)}
-                            className="h-40 rounded-xl bg-cover bg-center transition hover:opacity-90 sm:h-48"
-                            style={{ backgroundImage: `url('/${photo.image_path}')` }}
-                            aria-label={photo.title ?? t('galerie.voir_photo', 'Voir la photo')}
-                        />
+                        <div key={photo.id} className="h-40 overflow-hidden rounded-xl sm:h-48">
+                            <button
+                                type="button"
+                                onClick={() => setActive(index)}
+                                className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 hover:scale-110"
+                                style={{ backgroundImage: `url('/${photo.image_path}')` }}
+                                aria-label={photo.title ?? t('galerie.voir_photo', 'Voir la photo')}
+                            />
+                        </div>
                     ))}
                 </div>
             </main>

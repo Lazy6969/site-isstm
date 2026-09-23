@@ -105,8 +105,12 @@ export default function VieEtudiante({ content = {} }) {
 
             <main className="mx-auto max-w-5xl space-y-16 px-6 py-12">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
-                    <div className="relative w-full max-w-xs flex-shrink-0 sm:w-64">
-                        <img src={`/${intro1Image}`} alt="" className="w-full rounded-2xl" />
+                    <div className="relative w-full max-w-xs flex-shrink-0 overflow-hidden rounded-2xl sm:w-64">
+                        <img
+                            src={`/${intro1Image}`}
+                            alt=""
+                            className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                        />
                         <EditableImage contentKey="vie_etudiante_intro1_image_path" value={intro1Image} />
                     </div>
                     <EditableText
@@ -130,8 +134,12 @@ export default function VieEtudiante({ content = {} }) {
                 />
 
                 <div className="flex flex-col items-center gap-8 sm:flex-row-reverse">
-                    <div className="relative w-full max-w-xs flex-shrink-0 sm:w-64">
-                        <img src={`/${intro2Image}`} alt="" className="w-full rounded-2xl" />
+                    <div className="relative w-full max-w-xs flex-shrink-0 overflow-hidden rounded-2xl sm:w-64">
+                        <img
+                            src={`/${intro2Image}`}
+                            alt=""
+                            className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                        />
                         <EditableImage contentKey="vie_etudiante_intro2_image_path" value={intro2Image} />
                     </div>
                     <EditableText

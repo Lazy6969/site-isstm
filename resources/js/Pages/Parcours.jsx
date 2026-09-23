@@ -58,10 +58,10 @@ export default function Parcours({ orgPeople = {} }) {
                 </p>
 
                 <section>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
                         {t('parcours.gouvernance', 'Gouvernance')}
                     </h2>
-                    <div className="mx-auto max-w-sm space-y-3">
+                    <div className="mx-auto max-w-md space-y-3">
                         <OrgNode node={{ key: 'conseil_etablissement' }} people={orgPeople} t={t} />
                         <div className="flex justify-center">
                             <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">
@@ -73,10 +73,10 @@ export default function Parcours({ orgPeople = {} }) {
                 </section>
 
                 <section>
-                    <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-isstm-gold">
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-isstm-gold">
                         {t('parcours.direction_titre', 'Direction & Services Rattachés')}
                     </h2>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {directionGrid.map((key) => (
                             <OrgNode key={key} node={{ key }} people={orgPeople} t={t} />
                         ))}

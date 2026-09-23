@@ -68,7 +68,7 @@ export default function MissionVision({ content }) {
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
+                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 md:bg-transparent ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
@@ -90,7 +90,20 @@ export default function MissionVision({ content }) {
                                         </Link>
                                     </div>
 
-                                    <div className={`relative min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}>
+                                    <svg
+                                        className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[70%] text-isstm-navy md:block ${
+                                            block.reverse ? 'right-0' : 'left-0'
+                                        }`}
+                                        viewBox="0 0 100 100"
+                                        preserveAspectRatio="none"
+                                        aria-hidden="true"
+                                    >
+                                        <path d={block.reverse ? BLOB_PATHS.right : BLOB_PATHS.left} fill="currentColor" />
+                                    </svg>
+
+                                    <div
+                                        className={`relative z-0 min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}
+                                    >
                                         <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
                                         {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
                                     </div>
@@ -111,28 +124,6 @@ export default function MissionVision({ content }) {
                                 />
                             ))}
                         </div>
-
-                        <svg
-                            className={`pointer-events-none absolute inset-y-0 left-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-transform duration-700 ease-in-out md:block ${
-                                current === 0 ? 'translate-x-0' : '-translate-x-full'
-                            }`}
-                            viewBox="0 0 100 100"
-                            preserveAspectRatio="none"
-                            aria-hidden="true"
-                        >
-                            <path d={BLOB_PATHS.left} fill="currentColor" />
-                        </svg>
-
-                        <svg
-                            className={`pointer-events-none absolute inset-y-0 right-0 z-10 hidden h-full w-[70%] text-isstm-navy transition-transform duration-700 ease-in-out md:block ${
-                                current === 1 ? 'translate-x-0' : 'translate-x-full'
-                            }`}
-                            viewBox="0 0 100 100"
-                            preserveAspectRatio="none"
-                            aria-hidden="true"
-                        >
-                            <path d={BLOB_PATHS.right} fill="currentColor" />
-                        </svg>
                     </div>
                 </div>
             </div>
