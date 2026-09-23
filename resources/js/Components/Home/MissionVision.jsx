@@ -4,16 +4,6 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 
-// A smooth two-crest wave (tall crest, then a shorter one) that bulges from
-// the text panel into the image, plus a fainter "echo" copy offset further
-// out — the same layered-wave look as a classic wave logo mark.
-const WAVE_PATHS = {
-    left: 'M0,0 H45 C60,8 95,17 90,25 S30,40 38,48 S90,58 78,68 S40,92 48,100 H0 Z',
-    right: 'M100,0 H55 C40,8 5,17 10,25 S70,40 62,48 S10,58 22,68 S60,92 52,100 H100 Z',
-    leftShadow: 'M0,0 H53 C68,8 103,17 98,25 S38,40 46,48 S98,58 86,68 S48,92 56,100 H0 Z',
-    rightShadow: 'M100,0 H47 C32,8 -3,17 2,25 S62,40 54,48 S2,58 14,68 S52,92 44,100 H100 Z',
-};
-
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
     const [current, setCurrent] = useState(0);
@@ -75,7 +65,7 @@ export default function MissionVision({ content }) {
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 md:bg-transparent ${
+                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
@@ -100,28 +90,6 @@ export default function MissionVision({ content }) {
                                             {t('filieres.en_savoir_plus', 'En savoir plus')}
                                         </Link>
                                     </div>
-
-                                    <svg
-                                        className={`pointer-events-none absolute inset-y-0 z-[5] hidden h-full w-[88%] text-isstm-navy opacity-25 md:block ${
-                                            block.reverse ? 'right-0' : 'left-0'
-                                        }`}
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="none"
-                                        aria-hidden="true"
-                                    >
-                                        <path d={block.reverse ? WAVE_PATHS.rightShadow : WAVE_PATHS.leftShadow} fill="currentColor" />
-                                    </svg>
-
-                                    <svg
-                                        className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[88%] text-isstm-navy md:block ${
-                                            block.reverse ? 'right-0' : 'left-0'
-                                        }`}
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="none"
-                                        aria-hidden="true"
-                                    >
-                                        <path d={block.reverse ? WAVE_PATHS.right : WAVE_PATHS.left} fill="currentColor" />
-                                    </svg>
 
                                     <div
                                         className={`relative z-0 min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}
