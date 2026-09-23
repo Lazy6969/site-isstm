@@ -16,6 +16,12 @@
        overridden independently (see SiteMenuColor); defaults to following it. */
     --color-isstm-menu: var(--color-isstm-navy);
     --color-isstm-menu-text: #ffffff;
+    /* Footer background — same pattern (see SiteFooterColor). Every text/border/bg
+       opacity tier in Footer.jsx (e.g. text-isstm-footer-text/70) rides Tailwind's
+       automatic opacity-modifier support for custom theme colors, so a single text
+       token covers every shade the footer already used as text-white/NN. */
+    --color-isstm-footer: var(--color-isstm-navy-dark);
+    --color-isstm-footer-text: #ffffff;
     --font-script: 'Dancing Script', cursive;
     --font-lora: 'Lora', serif;
 

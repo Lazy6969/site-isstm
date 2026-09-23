@@ -6,10 +6,12 @@
     $sitePrimary = \App\SitePrimaryColor::tryFrom(\App\Models\Setting::get('appearance.site_primary', 'navy')) ?? \App\SitePrimaryColor::Navy;
     $siteAccent = \App\SiteAccentColor::tryFrom(\App\Models\Setting::get('appearance.site_accent', 'gold')) ?? \App\SiteAccentColor::Gold;
     $siteMenu = \App\SiteMenuColor::tryFrom(\App\Models\Setting::get('appearance.site_menu', 'default')) ?? \App\SiteMenuColor::Default;
+    $siteFooter = \App\SiteFooterColor::tryFrom(\App\Models\Setting::get('appearance.site_footer', 'default')) ?? \App\SiteFooterColor::Default;
     [$accentLight, $accentForegroundLight, $accentDark, $accentForegroundDark] = $appearancePalette->colors();
     [$chromeLight, $chromeDark] = $appearanceChrome->colors();
     [$sitePrimaryColor, $sitePrimaryDark] = $sitePrimary->colors();
     [$siteMenuColor, $siteMenuText] = $siteMenu->colors();
+    [$siteFooterColor, $siteFooterText] = $siteFooter->colors();
     $googleFontsFamily = $appearanceFont->googleFontsFamily();
 @endphp
 <!DOCTYPE html>
@@ -49,6 +51,10 @@
             @if ($siteMenu !== \App\SiteMenuColor::Default)
                 --color-isstm-menu: {!! $siteMenuColor !!};
                 --color-isstm-menu-text: {!! $siteMenuText !!};
+            @endif
+            @if ($siteFooter !== \App\SiteFooterColor::Default)
+                --color-isstm-footer: {!! $siteFooterColor !!};
+                --color-isstm-footer-text: {!! $siteFooterText !!};
             @endif
             @if ($appearanceChrome->isDarkInLightMode())
                 --color-admin-chrome-text: #f8fafc;

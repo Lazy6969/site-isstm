@@ -11,7 +11,44 @@ const densityOptions = [
     { value: 'comfortable', label: 'Confortable' },
 ];
 
-export default function Appearance({ settings, palettes, chromes, fonts, sitePrimaries, siteAccents, siteMenus }) {
+/**
+ * A swatch a null `swatch` renders as a diagonal-stripe "auto" pattern — used
+ * by the *_default entries of SiteMenuColor/SiteFooterColor, which don't have
+ * a fixed color (they inherit the primary color instead).
+ */
+function ColorSwatchGrid({ options, value, onChange, checkColorClass = 'text-white' }) {
+    return (
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {options.map((color) => {
+                const selected = value === color.value;
+                return (
+                    <button
+                        key={color.value}
+                        type="button"
+                        onClick={() => onChange(color.value)}
+                        className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
+                            selected ? 'border-admin-accent bg-admin-hover' : 'border-admin-border hover:bg-admin-hover'
+                        }`}
+                    >
+                        <span
+                            className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
+                            style={
+                                color.swatch
+                                    ? { backgroundColor: color.swatch }
+                                    : { background: 'repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 3px, #fff 3px, #fff 6px)' }
+                            }
+                        >
+                            {selected && <Check className={`h-3.5 w-3.5 ${checkColorClass} mix-blend-difference`} aria-hidden="true" />}
+                        </span>
+                        <span className="text-admin-text">{color.label}</span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+export default function Appearance({ settings, palettes, chromes, fonts, sitePrimaries, siteAccents, siteMenus, siteFooters }) {
     const form = useForm({
         palette: settings.palette,
         chrome: settings.chrome,
@@ -20,6 +57,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
         sitePrimary: settings.sitePrimary,
         siteAccent: settings.siteAccent,
         siteMenu: settings.siteMenu,
+        siteFooter: settings.siteFooter,
     });
 
     function submit(e) {
@@ -33,97 +71,42 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                 <section className="rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Couleurs du site public</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">
-                        Couleur principale et couleur d'accent du site (accueil, filières, actualités...) — indépendant de l'apparence
-                        de l'administration ci-dessous.
+                        Couleur principale, d'accent, du menu et du footer du site (accueil, filières, actualités...) — indépendant de
+                        l'apparence de l'administration ci-dessous.
                     </p>
                     <div className="space-y-4">
                         <div>
                             <p className="mb-2 text-xs font-medium text-admin-text-secondary">Couleur principale</p>
-                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                                {sitePrimaries.map((color) => {
-                                    const selected = form.data.sitePrimary === color.value;
-                                    return (
-                                        <button
-                                            key={color.value}
-                                            type="button"
-                                            onClick={() => form.setData('sitePrimary', color.value)}
-                                            className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
-                                                selected
-                                                    ? 'border-admin-accent bg-admin-hover'
-                                                    : 'border-admin-border hover:bg-admin-hover'
-                                            }`}
-                                        >
-                                            <span
-                                                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
-                                                style={{ backgroundColor: color.swatch }}
-                                            >
-                                                {selected && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
-                                            </span>
-                                            <span className="text-admin-text">{color.label}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                            <ColorSwatchGrid
+                                options={sitePrimaries}
+                                value={form.data.sitePrimary}
+                                onChange={(value) => form.setData('sitePrimary', value)}
+                            />
                         </div>
                         <div>
                             <p className="mb-2 text-xs font-medium text-admin-text-secondary">Couleur d'accent</p>
-                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                                {siteAccents.map((color) => {
-                                    const selected = form.data.siteAccent === color.value;
-                                    return (
-                                        <button
-                                            key={color.value}
-                                            type="button"
-                                            onClick={() => form.setData('siteAccent', color.value)}
-                                            className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
-                                                selected
-                                                    ? 'border-admin-accent bg-admin-hover'
-                                                    : 'border-admin-border hover:bg-admin-hover'
-                                            }`}
-                                        >
-                                            <span
-                                                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
-                                                style={{ backgroundColor: color.swatch }}
-                                            >
-                                                {selected && <Check className="h-3.5 w-3.5 text-black mix-blend-difference" aria-hidden="true" />}
-                                            </span>
-                                            <span className="text-admin-text">{color.label}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                            <ColorSwatchGrid
+                                options={siteAccents}
+                                value={form.data.siteAccent}
+                                onChange={(value) => form.setData('siteAccent', value)}
+                                checkColorClass="text-black"
+                            />
                         </div>
                         <div>
                             <p className="mb-2 text-xs font-medium text-admin-text-secondary">Couleur du menu (barre de navigation)</p>
-                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                                {siteMenus.map((color) => {
-                                    const selected = form.data.siteMenu === color.value;
-                                    return (
-                                        <button
-                                            key={color.value}
-                                            type="button"
-                                            onClick={() => form.setData('siteMenu', color.value)}
-                                            className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
-                                                selected
-                                                    ? 'border-admin-accent bg-admin-hover'
-                                                    : 'border-admin-border hover:bg-admin-hover'
-                                            }`}
-                                        >
-                                            <span
-                                                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
-                                                style={
-                                                    color.swatch
-                                                        ? { backgroundColor: color.swatch }
-                                                        : { background: 'repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 3px, #fff 3px, #fff 6px)' }
-                                                }
-                                            >
-                                                {selected && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
-                                            </span>
-                                            <span className="text-admin-text">{color.label}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                            <ColorSwatchGrid
+                                options={siteMenus}
+                                value={form.data.siteMenu}
+                                onChange={(value) => form.setData('siteMenu', value)}
+                            />
+                        </div>
+                        <div>
+                            <p className="mb-2 text-xs font-medium text-admin-text-secondary">Couleur du footer</p>
+                            <ColorSwatchGrid
+                                options={siteFooters}
+                                value={form.data.siteFooter}
+                                onChange={(value) => form.setData('siteFooter', value)}
+                            />
                         </div>
                     </div>
                 </section>
@@ -133,31 +116,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     <p className="mb-4 text-sm text-admin-text-secondary">
                         S'applique à l'ensemble de l'administration, pour tous les utilisateurs.
                     </p>
-                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                        {palettes.map((palette) => {
-                            const selected = form.data.palette === palette.value;
-                            return (
-                                <button
-                                    key={palette.value}
-                                    type="button"
-                                    onClick={() => form.setData('palette', palette.value)}
-                                    className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
-                                        selected
-                                            ? 'border-admin-accent bg-admin-hover'
-                                            : 'border-admin-border hover:bg-admin-hover'
-                                    }`}
-                                >
-                                    <span
-                                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
-                                        style={{ backgroundColor: palette.swatch }}
-                                    >
-                                        {selected && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
-                                    </span>
-                                    <span className="text-admin-text">{palette.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
+                    <ColorSwatchGrid options={palettes} value={form.data.palette} onChange={(value) => form.setData('palette', value)} />
                 </section>
 
                 <section className="rounded-xl border border-admin-border bg-admin-card p-5">
@@ -165,31 +124,12 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     <p className="mb-4 text-sm text-admin-text-secondary">
                         Fond de la barre latérale et du menu horizontal en haut, indépendant de la couleur d'accent.
                     </p>
-                    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                        {chromes.map((chrome) => {
-                            const selected = form.data.chrome === chrome.value;
-                            return (
-                                <button
-                                    key={chrome.value}
-                                    type="button"
-                                    onClick={() => form.setData('chrome', chrome.value)}
-                                    className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
-                                        selected
-                                            ? 'border-admin-accent bg-admin-hover'
-                                            : 'border-admin-border hover:bg-admin-hover'
-                                    }`}
-                                >
-                                    <span
-                                        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
-                                        style={{ backgroundColor: chrome.swatch }}
-                                    >
-                                        {selected && <Check className="h-3.5 w-3.5 text-admin-text" aria-hidden="true" />}
-                                    </span>
-                                    <span className="text-admin-text">{chrome.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
+                    <ColorSwatchGrid
+                        options={chromes}
+                        value={form.data.chrome}
+                        onChange={(value) => form.setData('chrome', value)}
+                        checkColorClass="text-admin-text"
+                    />
                 </section>
 
                 <section className="rounded-xl border border-admin-border bg-admin-card p-5">

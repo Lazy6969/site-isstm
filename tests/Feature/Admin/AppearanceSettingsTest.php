@@ -22,12 +22,14 @@ it('lets the super admin view appearance settings with sensible defaults', funct
         ->where('settings.sitePrimary', 'navy')
         ->where('settings.siteAccent', 'gold')
         ->where('settings.siteMenu', 'default')
+        ->where('settings.siteFooter', 'default')
         ->has('palettes', 7)
         ->has('chromes', 12)
         ->has('fonts', 8)
         ->has('sitePrimaries', 6)
         ->has('siteAccents', 6)
         ->has('siteMenus', 9)
+        ->has('siteFooters', 9)
     );
 });
 
@@ -42,6 +44,7 @@ it('lets the super admin update appearance settings', function () {
         'sitePrimary' => 'emerald',
         'siteAccent' => 'cyan',
         'siteMenu' => 'slate',
+        'siteFooter' => 'black',
     ])->assertRedirect();
 
     expect(Setting::get('appearance.palette'))->toBe('emerald');
@@ -51,6 +54,7 @@ it('lets the super admin update appearance settings', function () {
     expect(Setting::get('appearance.site_primary'))->toBe('emerald');
     expect(Setting::get('appearance.site_accent'))->toBe('cyan');
     expect(Setting::get('appearance.site_menu'))->toBe('slate');
+    expect(Setting::get('appearance.site_footer'))->toBe('black');
 });
 
 it('lets the super admin pick the black chrome color', function () {
@@ -64,12 +68,13 @@ it('lets the super admin pick the black chrome color', function () {
         'sitePrimary' => 'navy',
         'siteAccent' => 'gold',
         'siteMenu' => 'default',
+        'siteFooter' => 'default',
     ])->assertRedirect();
 
     expect(Setting::get('appearance.chrome'))->toBe('black');
 });
 
-it('rejects an invalid palette, chrome color, font, density, site primary, site accent, or site menu color', function () {
+it('rejects an invalid palette, chrome color, font, density, site primary, site accent, site menu, or site footer color', function () {
     $admin = User::factory()->role(Role::Admin)->create();
 
     $this->actingAs($admin)->put('/console/settings/appearance', [
@@ -80,7 +85,8 @@ it('rejects an invalid palette, chrome color, font, density, site primary, site 
         'sitePrimary' => 'neon',
         'siteAccent' => 'neon',
         'siteMenu' => 'neon',
-    ])->assertSessionHasErrors(['palette', 'chrome', 'font', 'density', 'sitePrimary', 'siteAccent', 'siteMenu']);
+        'siteFooter' => 'neon',
+    ])->assertSessionHasErrors(['palette', 'chrome', 'font', 'density', 'sitePrimary', 'siteAccent', 'siteMenu', 'siteFooter']);
 });
 
 it('forbids a non-super-admin from updating appearance settings', function () {
@@ -94,5 +100,6 @@ it('forbids a non-super-admin from updating appearance settings', function () {
         'sitePrimary' => 'navy',
         'siteAccent' => 'gold',
         'siteMenu' => 'default',
+        'siteFooter' => 'default',
     ])->assertForbidden();
 });

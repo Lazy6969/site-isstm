@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Setting;
 use App\SiteAccentColor;
+use App\SiteFooterColor;
 use App\SiteMenuColor;
 use App\SitePrimaryColor;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +31,7 @@ class AppearanceSettingsController extends Controller
                 'sitePrimary' => Setting::get('appearance.site_primary', SitePrimaryColor::Navy->value),
                 'siteAccent' => Setting::get('appearance.site_accent', SiteAccentColor::Gold->value),
                 'siteMenu' => Setting::get('appearance.site_menu', SiteMenuColor::Default->value),
+                'siteFooter' => Setting::get('appearance.site_footer', SiteFooterColor::Default->value),
             ],
             'palettes' => AppearancePalette::options(),
             'chromes' => AppearanceChromeColor::options(),
@@ -37,6 +39,7 @@ class AppearanceSettingsController extends Controller
             'sitePrimaries' => SitePrimaryColor::options(),
             'siteAccents' => SiteAccentColor::options(),
             'siteMenus' => SiteMenuColor::options(),
+            'siteFooters' => SiteFooterColor::options(),
         ]);
     }
 
@@ -50,6 +53,7 @@ class AppearanceSettingsController extends Controller
             'sitePrimary' => ['required', Rule::enum(SitePrimaryColor::class)],
             'siteAccent' => ['required', Rule::enum(SiteAccentColor::class)],
             'siteMenu' => ['required', Rule::enum(SiteMenuColor::class)],
+            'siteFooter' => ['required', Rule::enum(SiteFooterColor::class)],
         ]);
 
         Setting::set('appearance.palette', $validated['palette']);
@@ -59,6 +63,7 @@ class AppearanceSettingsController extends Controller
         Setting::set('appearance.site_primary', $validated['sitePrimary']);
         Setting::set('appearance.site_accent', $validated['siteAccent']);
         Setting::set('appearance.site_menu', $validated['siteMenu']);
+        Setting::set('appearance.site_footer', $validated['siteFooter']);
 
         ActivityLog::record('appearance_updated', "Apparence de l'administration modifiée", null, $validated);
 
