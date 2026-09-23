@@ -92,6 +92,10 @@ class HomeContentSeeder extends Seeder
             'equipe_membre_2_photo' => 'images/etudiant/safidy.jpg',
             'equipe_membre_3_photo' => 'images/etudiant/jameelah.jpg',
             'equipe_membre_4_photo' => 'images/etudiant/tanael.jpg',
+            'footer_logo_isstm' => 'images/logo-isstm.svg',
+            'footer_logo_umg' => 'images/partenariat/universite-mahajanga-footer.svg',
+            'footer_logo_mesupres' => 'images/partenariat/mesupres.png',
+            'formations_offre_image' => 'images/slide1.jpg',
         ];
 
         foreach ($images as $key => $path) {
@@ -473,6 +477,65 @@ class HomeContentSeeder extends Seeder
                 "L'histoire de l'ISSTM Mahajanga, de sa création à aujourd'hui.",
                 'The history of ISSTM Mahajanga, from its founding to today.',
                 "Ny tantaran'ny ISSTM Mahajanga, hatramin'ny nananganana azy ka hatramin'izao.",
+            ],
+
+            // Bannières de page (section bg-isstm-navy py-10 ... en haut de chaque page publique)
+            'filieres_titre' => ['Nos filières', 'Our Programs', 'Ny sampana ataonay'],
+            'filieres_soustitre' => [
+                "L'ISSTM forme des ingénieurs et techniciens dans un large éventail de disciplines scientifiques et techniques.",
+                'ISSTM trains engineers and technicians across a wide range of scientific and technical disciplines.',
+                "Ny ISSTM dia mamolavola injeniera sy teknisiana amin'ny sehatra siantifika sy teknika maro.",
+            ],
+            'recherche_titre' => ['Recherche', 'Search', 'Fikarohana'],
+            'evenements_titre' => ['Événements à venir', 'Upcoming Events', 'Hetsika ho avy'],
+            'evenements_soustitre' => [
+                "Le calendrier des prochains rendez-vous de l'ISSTM.",
+                "The calendar of ISSTM's upcoming events.",
+                "Ny fandaharam-potoan'ny hetsika ho avin'ny ISSTM.",
+            ],
+            'galerie_titre' => ['Galerie', 'Gallery', 'Sarin-tsary'],
+            'galerie_soustitre' => [
+                "Les temps forts de la vie à l'ISSTM, en images.",
+                'The highlights of life at ISSTM, in pictures.',
+                "Ny fotoana manan-danja teo amin'ny fiainana tao ISSTM, an-tsary.",
+            ],
+            'documents_titre' => ['Documents administratifs', 'Administrative Documents', 'Antontan-taratasy ara-pitantanana'],
+            'documents_soustitre' => [
+                'Formulaires et documents à télécharger.',
+                'Forms and documents to download.',
+                'Taratasy sy antontan-taratasy azo alaina.',
+            ],
+            'campus_titre' => ['La Vie au Campus', 'Campus Life', 'Ny fiainana eny Campus'],
+            'preinscription_titre' => ['Préinscription en ligne', 'Online Pre-registration', 'Fisoratana anarana mialoha an-tserasera'],
+            'preinscription_soustitre' => [
+                "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.",
+                'Fill out this form to submit your application to ISSTM.',
+                "Fenoy ity taratasy ity mba handraisana ny fangatahanao ao amin'ny ISSTM.",
+            ],
+            'contact_titre' => ['Contactez-nous', 'Contact us', 'Mifandraisa aminay'],
+            'contact_soustitre' => [
+                'Une question sur les formations, les inscriptions ou la vie étudiante ? Notre équipe vous répond avec plaisir.',
+                'A question about programs, admissions or student life? Our team is happy to help.',
+                "Manana fanontaniana momba ny fampianarana, ny fisoratana anarana na ny fiainan'ny mpianatra? Faly ny ekipanay hamaly anao.",
+            ],
+            'actualites_titre' => ['Actualités', 'News', 'Vaovao'],
+            'actualites_soustitre' => [
+                "Toute l'actualité de l'ISSTM.",
+                'All the latest ISSTM news.',
+                'Ny vaovao rehetra momba ny ISSTM.',
+            ],
+
+            // Page /formations (offre LMD, voir flyer institutionnel)
+            'formations_titre' => ["Formation d'Ingénieurs", 'Engineering Training', 'Fiofanana injeniera'],
+            'formations_soustitre' => [
+                'Licence Professionnelle | Master-Ingénieur | Master-Recherche',
+                'Professional Bachelor | Engineering Master | Research Master',
+                'Licence Pratika | Master-Injeniera | Master-Fikarohana',
+            ],
+            'formations_intro' => [
+                "L'ISSTM Mahajanga, université publique, propose des formations payantes, diplômantes et qualifiantes du LMD : Licence Professionnelle (03 ans) et Master-Ingénieur / Master-Recherche (02 ans), avec accès par sélection de dossiers.",
+                'ISSTM Mahajanga, a public university, offers paid, degree-granting and qualifying LMD programs: a 3-year Professional Bachelor and a 2-year Engineering/Research Master, with admission by application review.',
+                "Ny ISSTM Mahajanga, oniversite ampanjakana, dia manolotra fiofanana mandoa vola, mitondra diplaoma ary mahazo fahaiza-manao amin'ny rafitra LMD: Licence Pratika (3 taona) sy Master-Injeniera/Master-Fikarohana (2 taona), amin'ny alalan'ny fisafoana antontan-taratasy.",
             ],
 
             // Mentions légales — titre/sous-titre et titres de section (étaient hardcodés)

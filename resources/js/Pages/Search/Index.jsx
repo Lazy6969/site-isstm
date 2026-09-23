@@ -1,14 +1,16 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card } from '../../Components/ui/card';
 import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ query, results }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [term, setTerm] = useState(query ?? '');
     const [loading, setLoading] = useState(false);
     const sections = Object.entries(results ?? {}).filter(([, items]) => items.length > 0);
@@ -40,7 +42,11 @@ export default function Index({ query, results }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-3xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.recherche', 'Recherche')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="recherche_titre">
+                            {content.recherche_titre ?? t('nav.recherche', 'Recherche')}
+                        </EditableText>
+                    </h1>
                     <form onSubmit={submit} className="mt-5 flex gap-2">
                         <input
                             type="search"

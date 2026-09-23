@@ -1,12 +1,14 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ blocs }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -19,7 +21,11 @@ export default function Index({ blocs }) {
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('nav.vie_etudiante', 'Vie étudiante')}
                     </Link>
-                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{t('campus.titre', 'La Vie au Campus')}</h1>
+                    <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="campus_titre">
+                            {content.campus_titre ?? t('campus.titre', 'La Vie au Campus')}
+                        </EditableText>
+                    </h1>
                     <p className="mt-2 max-w-2xl text-white/80">
                         {t('campus.soustitre', "L'université est un melting-pot culturel :")} {blocs.length}{' '}
                         {t(

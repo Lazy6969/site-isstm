@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ContactFieldVisibilityController;
 use App\Http\Controllers\Admin\QuickEditController;
 use App\Http\Controllers\Admin\SectionVisibilityController;
 use App\Http\Controllers\Admin\SiteContentController;
@@ -17,6 +18,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('console/sections/toggle', [SectionVisibilityController::class, 'toggle'])
         ->middleware('can:quick-edit.layout')
         ->name('admin.sections.toggle');
+
+    Route::post('console/contact-fields/toggle', [ContactFieldVisibilityController::class, 'toggle'])
+        ->middleware('can:quick-edit.layout')
+        ->name('admin.contact-fields.toggle');
 
     Route::get('console/contenu/historique', [SiteContentRevisionController::class, 'index'])
         ->middleware('can:quick-edit.access')

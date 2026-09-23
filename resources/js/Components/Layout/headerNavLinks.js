@@ -1,8 +1,9 @@
-import { FileText, GraduationCap, Users, History, Network, HeartHandshake, Wallet, Rss, UserPlus, Mail, MessagesSquare } from 'lucide-react';
+import { FileText, GraduationCap, Users, History, Network, HeartHandshake, Wallet, Rss, UserPlus, Mail, MessagesSquare, BookOpenCheck } from 'lucide-react';
 
 export const getEtablissementLinks = (t) => [
     { href: '/historique', label: t('nav.historique', 'Historique'), icon: History },
     { href: '/filieres', label: t('nav.filieres', 'Filières'), icon: GraduationCap },
+    { href: '/formations', label: t('nav.formations', 'Formations'), icon: BookOpenCheck },
     { href: '/enseignants', label: t('nav.enseignants', 'Enseignants'), icon: Users },
     { href: '/parcours', label: t('nav.organigramme', 'Organigramme'), icon: Network },
 ];

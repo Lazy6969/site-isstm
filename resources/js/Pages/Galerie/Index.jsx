@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Camera, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
@@ -15,6 +16,7 @@ function formatDate(value) {
 
 export default function Index({ albums }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [search, setSearch] = useState('');
     const [view, setView] = useState('grid');
 
@@ -33,8 +35,16 @@ export default function Index({ albums }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.galerie', 'Galerie')}</h1>
-                    <p className="mt-2 text-white/80">{t('galerie.soustitre', "Les temps forts de la vie à l'ISSTM, en images.")}</p>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="galerie_titre">
+                            {content.galerie_titre ?? t('nav.galerie', 'Galerie')}
+                        </EditableText>
+                    </h1>
+                    <p className="mt-2 text-white/80">
+                        <EditableText as="span" contentKey="galerie_soustitre">
+                            {content.galerie_soustitre ?? t('galerie.soustitre', "Les temps forts de la vie à l'ISSTM, en images.")}
+                        </EditableText>
+                    </p>
                 </div>
             </div>
 

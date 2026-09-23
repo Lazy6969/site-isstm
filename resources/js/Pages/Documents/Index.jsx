@@ -2,12 +2,13 @@ import { Head, usePage } from '@inertiajs/react';
 import { Download, FileText } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ documents }) {
-    const { auth } = usePage().props;
+    const { auth, content } = usePage().props;
     const { t } = useTranslations();
 
     const categoryLabels = {
@@ -22,8 +23,16 @@ export default function Index({ documents }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('nav.documents', 'Documents administratifs')}</h1>
-                    <p className="mt-2 text-white/80">{t('documents.soustitre', 'Formulaires et documents à télécharger.')}</p>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="documents_titre">
+                            {content.documents_titre ?? t('nav.documents', 'Documents administratifs')}
+                        </EditableText>
+                    </h1>
+                    <p className="mt-2 text-white/80">
+                        <EditableText as="span" contentKey="documents_soustitre">
+                            {content.documents_soustitre ?? t('documents.soustitre', 'Formulaires et documents à télécharger.')}
+                        </EditableText>
+                    </p>
                 </div>
             </div>
 

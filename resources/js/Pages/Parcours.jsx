@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowUp, Download, FileText, Lock } from 'lucide-react';
+import { useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import OrgNode from '../Components/Parcours/OrgNode';
@@ -12,7 +13,9 @@ import {
 } from '../Components/Parcours/orgChartData';
 import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
+import { useQuickEdit } from '../lib/useQuickEdit';
 import EditableText from '../Components/QuickEdit/EditableText';
+import EditableOrgPersonDialog from '../Components/QuickEdit/EditableOrgPersonDialog';
 
 const CURSUS_GRADIENTS = {
     bacc: 'from-[#6fa8dc] to-[#4a86c5]',
@@ -25,7 +28,14 @@ const CURSUS_GRADIENTS = {
 export default function Parcours({ orgPeople = {} }) {
     const { auth, content } = usePage().props;
     const { t } = useTranslations();
+    const { active } = useQuickEdit();
     const isLoggedIn = Boolean(auth?.user);
+    const canEditOrg = active && (auth?.permissions ?? []).includes('organigramme.edit');
+    const [editingPerson, setEditingPerson] = useState(null);
+
+    function onEditPerson(person, title) {
+        setEditingPerson({ person, title });
+    }
 
     const documents = [
         {
@@ -72,13 +82,26 @@ export default function Parcours({ orgPeople = {} }) {
                         {t('parcours.gouvernance', 'Gouvernance')}
                     </h2>
                     <div className="mx-auto max-w-md space-y-3">
-                        <OrgNode node={{ key: 'conseil_etablissement' }} people={orgPeople} t={t} />
+                        <OrgNode
+                            node={{ key: 'conseil_etablissement' }}
+                            people={orgPeople}
+                            t={t}
+                            canEdit={canEditOrg}
+                            onEditPerson={onEditPerson}
+                        />
                         <div className="flex justify-center">
                             <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">
                                 &#8595;
                             </span>
                         </div>
-                        <OrgNode node={{ key: 'directeur' }} people={orgPeople} t={t} emphasize />
+                        <OrgNode
+                            node={{ key: 'directeur' }}
+                            people={orgPeople}
+                            t={t}
+                            emphasize
+                            canEdit={canEditOrg}
+                            onEditPerson={onEditPerson}
+                        />
                     </div>
                 </section>
 
@@ -88,7 +111,14 @@ export default function Parcours({ orgPeople = {} }) {
                     </h2>
                     <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {directionGrid.map((key) => (
-                            <OrgNode key={key} node={{ key }} people={orgPeople} t={t} />
+                            <OrgNode
+                                key={key}
+                                node={{ key }}
+                                people={orgPeople}
+                                t={t}
+                                canEdit={canEditOrg}
+                                onEditPerson={onEditPerson}
+                            />
                         ))}
                     </div>
                 </section>
@@ -105,8 +135,8 @@ export default function Parcours({ orgPeople = {} }) {
                         </EditableText>
                     </p>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <OrgNode node={pedagogicalPole} people={orgPeople} t={t} />
-                        <OrgNode node={administrativePole} people={orgPeople} t={t} />
+                        <OrgNode node={pedagogicalPole} people={orgPeople} t={t} canEdit={canEditOrg} onEditPerson={onEditPerson} />
+                        <OrgNode node={administrativePole} people={orgPeople} t={t} canEdit={canEditOrg} onEditPerson={onEditPerson} />
                     </div>
 
                     <div className="mt-6 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
@@ -206,6 +236,15 @@ export default function Parcours({ orgPeople = {} }) {
             </main>
 
             <Footer />
+
+            {editingPerson && (
+                <EditableOrgPersonDialog
+                    open={editingPerson !== null}
+                    onClose={() => setEditingPerson(null)}
+                    person={editingPerson.person}
+                    title={editingPerson.title}
+                />
+            )}
         </div>
     );
 }

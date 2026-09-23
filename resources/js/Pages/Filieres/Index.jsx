@@ -1,16 +1,18 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ filieres }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [search, setSearch] = useState('');
     const [mention, setMention] = useState('');
     const [view, setView] = useState('grid');
@@ -40,12 +42,19 @@ export default function Index({ filieres }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('filieres.titre', 'Nos filières')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="filieres_titre">
+                            {content.filieres_titre ?? t('filieres.titre', 'Nos filières')}
+                        </EditableText>
+                    </h1>
                     <p className="mt-2 max-w-2xl text-white/80">
-                        {t(
-                            'filieres.soustitre',
-                            "L'ISSTM forme des ingénieurs et techniciens dans un large éventail de disciplines scientifiques et techniques.",
-                        )}
+                        <EditableText as="span" contentKey="filieres_soustitre">
+                            {content.filieres_soustitre ??
+                                t(
+                                    'filieres.soustitre',
+                                    "L'ISSTM forme des ingénieurs et techniciens dans un large éventail de disciplines scientifiques et techniques.",
+                                )}
+                        </EditableText>
                     </p>
                 </div>
             </div>

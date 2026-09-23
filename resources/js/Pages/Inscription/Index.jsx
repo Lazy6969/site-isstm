@@ -109,7 +109,9 @@ export default function Index({ content }) {
                         </p>
 
                         <p className="text-xl font-bold text-isstm-navy dark:text-white">
-                            {dateLimite}
+                            <EditableText as="span" contentKey="inscription_date_limite" value={content.inscription_date_limite}>
+                                {dateLimite}
+                            </EditableText>
                         </p>
                     </Card>
                 )}

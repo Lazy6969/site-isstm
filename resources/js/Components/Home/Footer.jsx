@@ -3,6 +3,7 @@ import { Code, Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
 import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
+import EditableImage from '../QuickEdit/EditableImage';
 
 function NewsletterForm({ t }) {
     const { flash } = usePage().props;
@@ -83,32 +84,55 @@ export default function Footer() {
 
                 <div>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link href="/" className="inline-flex items-center rounded-md bg-white p-1.5">
-                            <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto object-contain" />
-                        </Link>
+                        <div className="relative">
+                            <Link href="/" className="inline-flex items-center rounded-md bg-white p-1.5">
+                                <img
+                                    src={`/${content.footer_logo_isstm ?? 'images/logo-isstm.svg'}`}
+                                    alt="ISSTM"
+                                    className="h-11 w-auto object-contain"
+                                />
+                            </Link>
+                            <EditableImage contentKey="footer_logo_isstm" value={content.footer_logo_isstm ?? 'images/logo-isstm.svg'} />
+                        </div>
                         <span className="h-10 w-px bg-isstm-footer-text/15" aria-hidden="true" />
-                        <a
-                            href="https://www.mahajanga-univ.mg/"
-                            target="_blank"
-                            rel="noopener"
-                            title={t('footer.universite_mahajanga', 'Université de Mahajanga')}
-                            className="inline-flex items-center rounded-md bg-white p-1.5"
-                        >
-                            <img
-                                src="/images/partenariat/universite-mahajanga-footer.svg"
-                                alt="Université de Mahajanga"
-                                className="h-11 w-auto object-contain"
+                        <div className="relative">
+                            <a
+                                href="https://www.mahajanga-univ.mg/"
+                                target="_blank"
+                                rel="noopener"
+                                title={t('footer.universite_mahajanga', 'Université de Mahajanga')}
+                                className="inline-flex items-center rounded-md bg-white p-1.5"
+                            >
+                                <img
+                                    src={`/${content.footer_logo_umg ?? 'images/partenariat/universite-mahajanga-footer.svg'}`}
+                                    alt="Université de Mahajanga"
+                                    className="h-11 w-auto object-contain"
+                                />
+                            </a>
+                            <EditableImage
+                                contentKey="footer_logo_umg"
+                                value={content.footer_logo_umg ?? 'images/partenariat/universite-mahajanga-footer.svg'}
                             />
-                        </a>
-                        <a
-                            href="https://mesupres.gov.mg/"
-                            target="_blank"
-                            rel="noopener"
-                            title="MESUPRES"
-                            className="inline-flex items-center rounded-md bg-white p-1.5"
-                        >
-                            <img src="/images/partenariat/mesupres.png" alt="MESUPRES" className="h-11 w-auto object-contain" />
-                        </a>
+                        </div>
+                        <div className="relative">
+                            <a
+                                href="https://mesupres.gov.mg/"
+                                target="_blank"
+                                rel="noopener"
+                                title="MESUPRES"
+                                className="inline-flex items-center rounded-md bg-white p-1.5"
+                            >
+                                <img
+                                    src={`/${content.footer_logo_mesupres ?? 'images/partenariat/mesupres.png'}`}
+                                    alt="MESUPRES"
+                                    className="h-11 w-auto object-contain"
+                                />
+                            </a>
+                            <EditableImage
+                                contentKey="footer_logo_mesupres"
+                                value={content.footer_logo_mesupres ?? 'images/partenariat/mesupres.png'}
+                            />
+                        </div>
                     </div>
                     {content.devise && (
                         <EditableText as="p" contentKey="devise" className="mt-3 text-sm font-medium text-isstm-gold">

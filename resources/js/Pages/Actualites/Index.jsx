@@ -1,10 +1,11 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { CalendarDays, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { useTranslations } from '../../lib/useTranslations';
 import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
@@ -15,6 +16,7 @@ function formatDate(value) {
 
 export default function Index({ articles }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
     const [view, setView] = useState('grid');
@@ -45,8 +47,16 @@ export default function Index({ articles }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">Actualités</h1>
-                    <p className="mt-2 text-white/80">Toute l'actualité de l'ISSTM.</p>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="actualites_titre">
+                            {content.actualites_titre ?? 'Actualités'}
+                        </EditableText>
+                    </h1>
+                    <p className="mt-2 text-white/80">
+                        <EditableText as="span" contentKey="actualites_soustitre">
+                            {content.actualites_soustitre ?? "Toute l'actualité de l'ISSTM."}
+                        </EditableText>
+                    </p>
                 </div>
             </div>
 

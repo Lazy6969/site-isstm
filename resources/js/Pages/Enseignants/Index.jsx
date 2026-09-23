@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
+import { Pencil } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -6,11 +7,17 @@ import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '../../Components/ui/tabs';
+import EditableTeacherDialog from '../../Components/QuickEdit/EditableTeacherDialog';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ teachers }) {
     const { t } = useTranslations();
+    const { auth } = usePage().props;
+    const { active } = useQuickEdit();
+    const canEditTeachers = active && (auth?.permissions ?? []).includes('enseignants.edit');
     const [filter, setFilter] = useState('all');
+    const [editing, setEditing] = useState(null);
 
     const categoryLabels = {
         permanent: t('enseignants.permanent', 'Permanent'),
@@ -50,7 +57,7 @@ export default function Index({ teachers }) {
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((teacher) => (
-                        <Card key={teacher.id} className="flex items-center gap-4 p-5">
+                        <Card key={teacher.id} className="relative flex items-center gap-4 p-5">
                             <Avatar className="h-16 w-16 flex-shrink-0 ring-2 ring-isstm-navy/10">
                                 <AvatarImage src={teacher.photo_path ? `/${teacher.photo_path}` : undefined} alt="" />
                                 <AvatarFallback>{teacher.name?.[0]}</AvatarFallback>
@@ -60,6 +67,16 @@ export default function Index({ teachers }) {
                                 <p className="text-sm text-slate-500 dark:text-slate-400">{teacher.specialty}</p>
                                 <Badge className="mt-1">{categoryLabels[teacher.category] ?? teacher.category}</Badge>
                             </div>
+                            {canEditTeachers && (
+                                <button
+                                    type="button"
+                                    onClick={() => setEditing(teacher)}
+                                    className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow ring-2 ring-white transition hover:scale-110"
+                                    aria-label={`Modifier ${teacher.name}`}
+                                >
+                                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                                </button>
+                            )}
                         </Card>
                     ))}
                 </div>
@@ -70,6 +87,8 @@ export default function Index({ teachers }) {
             </main>
 
             <Footer />
+
+            {editing && <EditableTeacherDialog open={editing !== null} onClose={() => setEditing(null)} teacher={editing} />}
         </div>
     );
 }

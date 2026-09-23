@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\Admin\ContactFieldVisibilityController;
 use App\Models\SiteContent;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,6 +57,9 @@ class HandleInertiaRequests extends Middleware
             'contentStyles' => fn () => SiteContent::all()->keyBy('content_key')
                 ->map(fn (SiteContent $item) => $item->style)
                 ->reject(fn (?array $style) => empty($style)),
+            // Global (not per-controller) since ContactCards/ContactMaps render
+            // identically from both the homepage and /contact.
+            'hiddenContactFields' => fn () => ContactFieldVisibilityController::hidden(),
         ];
     }
 }

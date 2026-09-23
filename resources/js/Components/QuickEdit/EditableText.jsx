@@ -10,8 +10,11 @@ import EditTextDialog from './EditTextDialog';
  * SiteContent.content_key) so a super admin can edit it in place while quick
  * edit mode is on. Renders exactly `children` for everyone else — visitors
  * never see a pencil, and the edit itself is re-checked server-side regardless.
+ * `value` optionally seeds the edit dialog with the raw stored value when
+ * `children` is a derived/formatted display (e.g. a parsed date) rather than
+ * the literal site_contents value — omit it and `children` is used for both.
  */
-export default function EditableText({ contentKey, as: Tag = 'span', className, children }) {
+export default function EditableText({ contentKey, as: Tag = 'span', className, children, value }) {
     const { canEdit, active } = useQuickEdit();
     const { contentStyles } = usePage().props;
     const [open, setOpen] = useState(false);
@@ -43,7 +46,7 @@ export default function EditableText({ contentKey, as: Tag = 'span', className, 
                 open={open}
                 onClose={() => setOpen(false)}
                 contentKey={contentKey}
-                initialValue={typeof children === 'string' ? children : ''}
+                initialValue={value ?? (typeof children === 'string' ? children : '')}
                 initialStyle={style}
             />
         </>

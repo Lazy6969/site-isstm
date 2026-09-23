@@ -3,6 +3,7 @@ import Footer from '../../Components/Home/Footer';
 import ContactCards from '../../Components/Contact/ContactCards';
 import ContactMaps from '../../Components/Contact/ContactMaps';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
+import EditableText from '../../Components/QuickEdit/EditableText';
 
 export default function Index({ content }) {
     return (
@@ -16,9 +17,16 @@ export default function Index({ content }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-6xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">Contactez-nous</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="contact_titre">
+                            {content.contact_titre ?? 'Contactez-nous'}
+                        </EditableText>
+                    </h1>
                     <p className="mt-2 max-w-2xl text-white/80">
-                        Une question sur les formations, les inscriptions ou la vie étudiante ? Notre équipe vous répond avec plaisir.
+                        <EditableText as="span" contentKey="contact_soustitre">
+                            {content.contact_soustitre ??
+                                'Une question sur les formations, les inscriptions ou la vie étudiante ? Notre équipe vous répond avec plaisir.'}
+                        </EditableText>
                     </p>
                 </div>
             </div>

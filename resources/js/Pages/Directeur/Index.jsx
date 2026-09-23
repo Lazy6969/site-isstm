@@ -14,12 +14,16 @@ export default function Index({ content }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title={t('accueil.mot_directeur_titre', 'Le mot du Directeur')} />
+            <Head title={content.accueil_mot_directeur_titre ?? t('accueil.mot_directeur_titre', 'Le mot du Directeur')} />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-4xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('accueil.mot_directeur_titre', 'Le mot du Directeur')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="accueil_mot_directeur_titre">
+                            {content.accueil_mot_directeur_titre ?? t('accueil.mot_directeur_titre', 'Le mot du Directeur')}
+                        </EditableText>
+                    </h1>
                 </div>
             </div>
 

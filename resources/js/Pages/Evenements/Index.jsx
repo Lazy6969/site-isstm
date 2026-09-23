@@ -1,10 +1,11 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Calendar, MapPin } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EventCalendar from '../../Components/Evenements/EventCalendar';
 import { CATEGORY_META } from '../../Components/Evenements/categoryMeta';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -18,6 +19,7 @@ function formatMonth(value) {
 
 export default function Index({ evenements, calendrier }) {
     const { t } = useTranslations();
+    const { content } = usePage().props;
     const [category, setCategory] = useState('tous');
 
     const upcoming = useMemo(
@@ -37,8 +39,16 @@ export default function Index({ evenements, calendrier }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-5xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('evenements.titre', 'Événements à venir')}</h1>
-                    <p className="mt-2 text-white/80">{t('evenements.soustitre', "Le calendrier des prochains rendez-vous de l'ISSTM.")}</p>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="evenements_titre">
+                            {content.evenements_titre ?? t('evenements.titre', 'Événements à venir')}
+                        </EditableText>
+                    </h1>
+                    <p className="mt-2 text-white/80">
+                        <EditableText as="span" contentKey="evenements_soustitre">
+                            {content.evenements_soustitre ?? t('evenements.soustitre', "Le calendrier des prochains rendez-vous de l'ISSTM.")}
+                        </EditableText>
+                    </p>
                 </div>
             </div>
 

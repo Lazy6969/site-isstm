@@ -6,6 +6,7 @@ import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
 import SelectField from '../../Components/Form/SelectField';
 import { Card } from '../../Components/ui/card';
+import EditableText from '../../Components/QuickEdit/EditableText';
 import { countries, mentionsBacc, nationalites, seriesBacc } from '../../Components/Preinscription/countries';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -39,7 +40,7 @@ const emptyForm = {
 };
 
 export default function Create({ filieres }) {
-    const { flash } = usePage().props;
+    const { flash, content } = usePage().props;
     const { t } = useTranslations();
     const [step, setStep] = useState('form');
     const [photoPreview, setPhotoPreview] = useState(null);
@@ -113,9 +114,16 @@ export default function Create({ filieres }) {
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
                 <div className="mx-auto max-w-3xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">{t('preinscription.titre', 'Préinscription en ligne')}</h1>
+                    <h1 className="text-2xl font-bold sm:text-3xl">
+                        <EditableText as="span" contentKey="preinscription_titre">
+                            {content.preinscription_titre ?? t('preinscription.titre', 'Préinscription en ligne')}
+                        </EditableText>
+                    </h1>
                     <p className="mt-2 text-white/80">
-                        {t('preinscription.soustitre', "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.")}
+                        <EditableText as="span" contentKey="preinscription_soustitre">
+                            {content.preinscription_soustitre ??
+                                t('preinscription.soustitre', "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.")}
+                        </EditableText>
                     </p>
                 </div>
             </div>
