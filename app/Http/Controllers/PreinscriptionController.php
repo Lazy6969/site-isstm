@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -26,29 +27,41 @@ class PreinscriptionController extends Controller
 
     public function store(StorePreinscriptionRequest $request): RedirectResponse
     {
-        $user = DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name' => trim("{$request->nom} {$request->prenoms}"),
-                'email' => $request->email,
-                'password' => $request->password,
-                'role' => Role::User,
-            ]);
+        Log::info('preinscription.store: request received', ['email' => $request->email]);
 
-            Preinscription::create([
-                ...$request->safe()->except([
-                    'photo', 'releve_bacc', 'cin_recto', 'cin_verso', 'diplome_attestation',
-                    'password', 'password_confirmation',
-                ]),
-                'photo_path' => $request->file('photo')->store('preinscriptions', 'public'),
-                'releve_bacc_path' => $request->file('releve_bacc')->store('preinscriptions', 'public'),
-                'cin_recto_path' => $request->file('cin_recto')->store('preinscriptions', 'public'),
-                'cin_verso_path' => $request->file('cin_verso')->store('preinscriptions', 'public'),
-                'diplome_attestation_path' => $request->file('diplome_attestation')->store('preinscriptions', 'public'),
-                'user_id' => $user->id,
-            ]);
+        try {
+            $user = DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => trim("{$request->nom} {$request->prenoms}"),
+                    'email' => $request->email,
+                    'password' => $request->password,
+                    'role' => Role::User,
+                ]);
 
-            return $user;
-        });
+                Preinscription::create([
+                    ...$request->safe()->except([
+                        'photo', 'releve_bacc', 'cin_recto', 'cin_verso', 'diplome_attestation',
+                        'password', 'password_confirmation',
+                    ]),
+                    'photo_path' => $request->file('photo')->store('preinscriptions', 'public'),
+                    'releve_bacc_path' => $request->file('releve_bacc')->store('preinscriptions', 'public'),
+                    'cin_recto_path' => $request->file('cin_recto')->store('preinscriptions', 'public'),
+                    'cin_verso_path' => $request->file('cin_verso')->store('preinscriptions', 'public'),
+                    'diplome_attestation_path' => $request->file('diplome_attestation')->store('preinscriptions', 'public'),
+                    'user_id' => $user->id,
+                ]);
+
+                return $user;
+            });
+        } catch (Throwable $e) {
+            report($e);
+            Log::error('preinscription.store: failed to save the dossier', ['email' => $request->email, 'message' => $e->getMessage()]);
+
+            return back()->withInput($request->except(['password', 'password_confirmation']))
+                ->with('error', "Une erreur est survenue et votre dossier n'a pas pu être enregistré. Réessayez, ou contactez la scolarité si le problème persiste.");
+        }
+
+        Log::info('preinscription.store: dossier saved', ['user_id' => $user->id, 'email' => $user->email]);
 
         try {
             $user->sendEmailVerificationNotification();
@@ -62,7 +75,7 @@ class PreinscriptionController extends Controller
         // the "check your inbox" page instead of /mon-dossier, which the `verified`
         // middleware would otherwise bounce them away from anyway.
         return redirect()->route('verification.notice')
-            ->with('status', 'Votre préinscription a bien été envoyée. Vérifiez votre boîte mail pour activer votre compte et suivre votre dossier.');
+            ->with('status', 'Votre dossier a bien été envoyé et enregistré. Vérifiez votre boîte mail pour activer votre compte et suivre votre dossier.');
     }
 
     public function dossier(Request $request): Response

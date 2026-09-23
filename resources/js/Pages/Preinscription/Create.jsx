@@ -1,5 +1,5 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -111,7 +111,7 @@ function FileInput({ id, label, file, onChange, error }) {
 }
 
 export default function Create({ filieres }) {
-    const { content } = usePage().props;
+    const { content, flash } = usePage().props;
     const { t } = useTranslations();
     const [step, setStep] = useState('identite');
     const [consent, setConsent] = useState(false);
@@ -206,6 +206,13 @@ export default function Create({ filieres }) {
             </div>
 
             <main className="mx-auto max-w-5xl px-6 py-10">
+                {flash?.error && (
+                    <p className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                        <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        {flash.error}
+                    </p>
+                )}
+
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
                     <CandidateSidebar content={content} />
 
