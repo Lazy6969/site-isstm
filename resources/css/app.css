@@ -46,6 +46,15 @@
     --color-admin-accent: #4f46e5;
     --color-admin-accent-foreground: #ffffff;
 
+    /* Text/hover for content sitting directly on --color-admin-chrome. Default
+       to the regular text tokens (most chrome colors are light pastels, so no
+       override needed); app.blade.php flips these to light values for chrome
+       colors dark enough to need it (e.g. Black) — see AppearanceChromeColor. */
+    --color-admin-chrome-text: var(--color-admin-text);
+    --color-admin-chrome-text-secondary: var(--color-admin-text-secondary);
+    --color-admin-chrome-muted: var(--color-admin-muted);
+    --color-admin-chrome-hover: var(--color-admin-hover);
+
     /* Categorical chart series — validated palette (see dataviz skill,
        references/palette.md), used verbatim and unreordered. */
     --color-admin-chart-1: #2a78d6;
@@ -84,6 +93,11 @@
     --color-admin-hover: #1a2032;
     --color-admin-accent: #6366f1;
     --color-admin-accent-foreground: #ffffff;
+
+    --color-admin-chrome-text: var(--color-admin-text);
+    --color-admin-chrome-text-secondary: var(--color-admin-text-secondary);
+    --color-admin-chrome-muted: var(--color-admin-muted);
+    --color-admin-chrome-hover: var(--color-admin-hover);
 
     --color-admin-chart-1: #3987e5;
     --color-admin-chart-2: #d95926;

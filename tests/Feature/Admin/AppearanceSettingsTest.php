@@ -20,7 +20,7 @@ it('lets the super admin view appearance settings with sensible defaults', funct
         ->where('settings.font', 'instrument-sans')
         ->where('settings.density', 'normal')
         ->has('palettes', 7)
-        ->has('chromes', 8)
+        ->has('chromes', 12)
         ->has('fonts', 8)
     );
 });
@@ -39,6 +39,19 @@ it('lets the super admin update appearance settings', function () {
     expect(Setting::get('appearance.chrome'))->toBe('blue');
     expect(Setting::get('appearance.font'))->toBe('inter');
     expect(Setting::get('appearance.density'))->toBe('compact');
+});
+
+it('lets the super admin pick the black chrome color', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'palette' => 'default',
+        'chrome' => 'black',
+        'font' => 'instrument-sans',
+        'density' => 'normal',
+    ])->assertRedirect();
+
+    expect(Setting::get('appearance.chrome'))->toBe('black');
 });
 
 it('rejects an invalid palette, chrome color, font, or density', function () {

@@ -44,7 +44,15 @@ const periodOptions = [
     { value: 6, label: '6 mois' },
 ];
 
-export default function Dashboard({ stats, contentStats, preinscriptionsParMois, etudiantsParNiveau, etudiantsParFiliere, activiteRecente }) {
+export default function Dashboard({
+    stats,
+    contentStats,
+    trends,
+    preinscriptionsParMois,
+    etudiantsParNiveau,
+    etudiantsParFiliere,
+    activiteRecente,
+}) {
     const [periode, setPeriode] = useState(6);
 
     const evolutionData = useMemo(() => preinscriptionsParMois.slice(-periode), [preinscriptionsParMois, periode]);
@@ -52,10 +60,28 @@ export default function Dashboard({ stats, contentStats, preinscriptionsParMois,
     return (
         <AdminLayout title="Tableau de bord">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard label="Étudiants" value={stats.etudiants} icon={GraduationCap} hint="Dossiers actifs" />
-                <StatCard label="Classes" value={stats.classes} icon={School} hint="Toutes années confondues" />
-                <StatCard label="Préinscriptions" value={stats.preinscriptions_en_attente} icon={UserPlus} hint="En attente de traitement" />
-                <StatCard label="Inscriptions validées" value={stats.inscriptions_validees} icon={ClipboardCheck} hint="Année en cours" />
+                <StatCard label="Étudiants" value={stats.etudiants} icon={GraduationCap} hint="Dossiers actifs" trend={trends.etudiants} />
+                <StatCard
+                    label="Classes"
+                    value={stats.classes}
+                    icon={School}
+                    hint="Toutes années confondues"
+                    trend={trends.classes}
+                />
+                <StatCard
+                    label="Préinscriptions"
+                    value={stats.preinscriptions_en_attente}
+                    icon={UserPlus}
+                    hint="En attente de traitement"
+                    trend={trends.preinscriptions_en_attente}
+                />
+                <StatCard
+                    label="Inscriptions validées"
+                    value={stats.inscriptions_validees}
+                    icon={ClipboardCheck}
+                    hint="Année en cours"
+                    trend={trends.inscriptions_validees}
+                />
             </div>
 
             <p className="mt-8 mb-3 flex items-center gap-1.5 text-xs font-bold tracking-wider text-admin-muted uppercase">
@@ -63,12 +89,17 @@ export default function Dashboard({ stats, contentStats, preinscriptionsParMois,
                 Contenu du site
             </p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
-                <StatCard label="Filières" value={contentStats.filieres} icon={BookOpen} />
-                <StatCard label="Enseignants" value={contentStats.enseignants} icon={Presentation} />
-                <StatCard label="Actualités publiées" value={contentStats.actualites_publiees} icon={Newspaper} />
-                <StatCard label="Albums galerie" value={contentStats.albums_galerie} icon={Images} />
-                <StatCard label="Témoignages" value={contentStats.temoignages} icon={Quote} />
-                <StatCard label="Partenaires" value={contentStats.partenaires} icon={HeartHandshake} />
+                <StatCard label="Filières" value={contentStats.filieres} icon={BookOpen} trend={trends.filieres} />
+                <StatCard label="Enseignants" value={contentStats.enseignants} icon={Presentation} trend={trends.enseignants} />
+                <StatCard
+                    label="Actualités publiées"
+                    value={contentStats.actualites_publiees}
+                    icon={Newspaper}
+                    trend={trends.actualites_publiees}
+                />
+                <StatCard label="Albums galerie" value={contentStats.albums_galerie} icon={Images} trend={trends.albums_galerie} />
+                <StatCard label="Témoignages" value={contentStats.temoignages} icon={Quote} trend={trends.temoignages} />
+                <StatCard label="Partenaires" value={contentStats.partenaires} icon={HeartHandshake} trend={trends.partenaires} />
             </div>
 
             <div className="mt-5">

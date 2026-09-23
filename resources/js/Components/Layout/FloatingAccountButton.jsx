@@ -16,6 +16,9 @@ export default function FloatingAccountButton() {
     const { t } = useTranslations();
     const { requestLogout } = useLogoutConfirm();
     const user = props.auth?.user;
+    // Permission-based, not the legacy `role` column — covers every role with
+    // console access (super-admin, scolarite, ...), not just literal "admin".
+    const hasConsoleAccess = (props.auth?.permissions ?? []).includes('dashboard.view');
 
     if (!user || url.startsWith('/console')) {
         return null;
@@ -39,9 +42,9 @@ export default function FloatingAccountButton() {
                 />
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                {user.role === 'admin' ? (
+                {hasConsoleAccess ? (
                     <DropdownMenuItem asChild>
-                        <Link href="/console/dashboard">{t('nav.parametres_site', 'Paramètres du site')}</Link>
+                        <Link href="/console/dashboard">{t('nav.tableau_de_bord', 'Tableau de bord admin')}</Link>
                     </DropdownMenuItem>
                 ) : (
                     <DropdownMenuItem asChild>

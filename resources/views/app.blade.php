@@ -38,6 +38,12 @@
             --color-admin-accent-foreground: {!! $accentForegroundLight !!};
             --color-admin-chrome: {!! $chromeLight !!};
             --font-admin-sans: {!! $appearanceFont->fontFamily() !!};
+            @if ($appearanceChrome->isDarkInLightMode())
+                --color-admin-chrome-text: #f8fafc;
+                --color-admin-chrome-text-secondary: #cbd5e1;
+                --color-admin-chrome-muted: #94a3b8;
+                --color-admin-chrome-hover: rgba(255, 255, 255, 0.08);
+            @endif
         }
         .dark {
             --color-admin-accent: {!! $accentDark !!};

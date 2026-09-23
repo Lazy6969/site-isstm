@@ -95,7 +95,7 @@ export default function AdminSidebar({ className = '', onNavigate }) {
                     <img src="/images/logo-isstm.svg" alt="" className="h-full w-full object-contain" />
                 </div>
                 <div>
-                    <span className="block text-sm font-semibold leading-tight text-admin-text">ISSTM</span>
+                    <span className="block text-sm font-semibold leading-tight text-admin-chrome-text">ISSTM</span>
                     <span className="block text-xs font-medium leading-tight text-admin-accent">Administration</span>
                 </div>
             </Link>
@@ -104,7 +104,7 @@ export default function AdminSidebar({ className = '', onNavigate }) {
                 {visibleGroups.map((group, index) => (
                     <div key={group.label ?? `group-${index}`}>
                         {group.label && (
-                            <p className="mb-2 flex items-center gap-1.5 px-3 text-[0.7rem] font-bold uppercase tracking-wider text-admin-muted">
+                            <p className="mb-2 flex items-center gap-1.5 px-3 text-[0.7rem] font-bold uppercase tracking-wider text-admin-chrome-muted">
                                 <span className="h-1 w-1 rounded-full bg-admin-accent" aria-hidden="true" />
                                 {group.label}
                             </p>
@@ -122,14 +122,14 @@ export default function AdminSidebar({ className = '', onNavigate }) {
                                             className={`group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 ${
                                                 active
                                                     ? 'bg-admin-accent/10 text-admin-accent'
-                                                    : 'text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text'
+                                                    : 'text-admin-chrome-text-secondary hover:bg-admin-chrome-hover hover:text-admin-chrome-text'
                                             }`}
                                         >
                                             <span
                                                 className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors ${
                                                     active
                                                         ? 'bg-admin-accent text-admin-accent-foreground'
-                                                        : 'bg-admin-hover text-admin-text-secondary group-hover:bg-admin-accent/15 group-hover:text-admin-accent'
+                                                        : 'bg-admin-chrome-hover text-admin-chrome-text-secondary group-hover:bg-admin-accent/15 group-hover:text-admin-accent'
                                                 }`}
                                             >
                                                 <Icon className="h-4 w-4" aria-hidden="true" />

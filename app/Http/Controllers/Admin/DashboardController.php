@@ -16,6 +16,7 @@ use App\Models\Testimonial;
 use App\NewsStatus;
 use App\PreinscriptionStatus;
 use App\StatutInscription;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -39,6 +40,20 @@ class DashboardController extends Controller
                 'albums_galerie' => GalleryAlbum::count(),
                 'temoignages' => Testimonial::count(),
                 'partenaires' => Partenaire::count(),
+            ],
+            // Last-6-months sparkline per stat card, keyed the same as `stats`/
+            // `contentStats` above — real creation-date counts, never invented.
+            'trends' => [
+                'etudiants' => $this->monthlyTrend(Etudiant::query(), 'created_at'),
+                'classes' => $this->monthlyTrend(Classe::query(), 'created_at'),
+                'preinscriptions_en_attente' => $this->monthlyTrend(Preinscription::query(), 'created_at'),
+                'inscriptions_validees' => $this->monthlyTrend(Inscription::where('statut', StatutInscription::Validee), 'created_at'),
+                'filieres' => $this->monthlyTrend(Filiere::query(), 'created_at'),
+                'enseignants' => $this->monthlyTrend(Teacher::query(), 'created_at'),
+                'actualites_publiees' => $this->monthlyTrend(NewsArticle::where('status', NewsStatus::Publie), 'published_at'),
+                'albums_galerie' => $this->monthlyTrend(GalleryAlbum::query(), 'created_at'),
+                'temoignages' => $this->monthlyTrend(Testimonial::query(), 'created_at'),
+                'partenaires' => $this->monthlyTrend(Partenaire::query(), 'created_at'),
             ],
             'preinscriptionsParMois' => $this->preinscriptionsParMois(),
             'etudiantsParNiveau' => $this->etudiantsParNiveau(),
@@ -69,6 +84,25 @@ class DashboardController extends Controller
                 'mois' => self::MOIS_ABREGES[(int) $mois->format('n')].' '.$mois->format('Y'),
                 'total' => $preinscriptions->filter(fn (Preinscription $p) => $p->created_at->isSameMonth($mois))->count(),
             ])
+            ->all();
+    }
+
+    /**
+     * Row counts per month for the last 6 months against $dateColumn, oldest
+     * first — just the numbers, for a StatCard sparkline (see preinscriptionsParMois()
+     * for the labeled version used by the larger area chart).
+     *
+     * @return array<int, int>
+     */
+    private function monthlyTrend(Builder $query, string $dateColumn): array
+    {
+        $depuis = now()->subMonths(5)->startOfMonth();
+
+        $rows = (clone $query)->where($dateColumn, '>=', $depuis)->get([$dateColumn]);
+
+        return collect(range(5, 0))
+            ->map(fn (int $i) => now()->subMonths($i))
+            ->map(fn (Carbon $mois) => $rows->filter(fn ($row) => $row->{$dateColumn}?->isSameMonth($mois))->count())
             ->all();
     }
 

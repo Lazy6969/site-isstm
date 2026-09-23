@@ -63,6 +63,28 @@ it('shows content stats to an admin', function () {
     );
 });
 
+it('aggregates a 6-month sparkline trend for every stat card', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Etudiant::factory()->count(2)->create(['created_at' => now()]);
+    Etudiant::factory()->create(['created_at' => now()->subMonths(2)]);
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->component('Admin/Dashboard')
+        ->has('trends.etudiants', 6)
+        ->where('trends.etudiants.5', 2)
+        ->where('trends.etudiants.3', 1)
+        ->has('trends.classes', 6)
+        ->has('trends.preinscriptions_en_attente', 6)
+        ->has('trends.inscriptions_validees', 6)
+        ->has('trends.filieres', 6)
+        ->has('trends.enseignants', 6)
+        ->has('trends.actualites_publiees', 6)
+        ->has('trends.albums_galerie', 6)
+        ->has('trends.temoignages', 6)
+        ->has('trends.partenaires', 6)
+    );
+});
+
 it('aggregates chart and activity data for an admin', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $filiere = Filiere::factory()->create(['nom_fr' => 'Informatique']);

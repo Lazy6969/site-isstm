@@ -60,7 +60,7 @@ export default function AdminHeader({ onOpenSidebar }) {
             <button
                 type="button"
                 onClick={onOpenSidebar}
-                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-admin-text-secondary transition-colors duration-200 hover:bg-admin-hover hover:text-admin-text lg:hidden"
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text lg:hidden"
                 aria-label="Ouvrir le menu"
             >
                 <Menu className="h-5 w-5" aria-hidden="true" />
@@ -101,9 +101,9 @@ export default function AdminHeader({ onOpenSidebar }) {
                     <TooltipTrigger asChild>
                         <a
                             href="/"
-                            target="_blank"
+                            target="isstm-site-preview"
                             rel="noopener noreferrer"
-                            className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-admin-text-secondary transition-colors duration-200 hover:bg-admin-hover hover:text-admin-text"
+                            className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text"
                         >
                             <Globe className="h-[18px] w-[18px] flex-shrink-0" aria-hidden="true" />
                             <span className="hidden sm:inline">Voir le site</span>
@@ -112,7 +112,7 @@ export default function AdminHeader({ onOpenSidebar }) {
                     <TooltipContent>Ouvrir le site public dans un nouvel onglet</TooltipContent>
                 </Tooltip>
 
-                <DarkModeToggle className="text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text" />
+                <DarkModeToggle className="text-admin-chrome-text-secondary hover:bg-admin-chrome-hover hover:text-admin-chrome-text" />
 
                 {canEdit && (
                     <Tooltip>
@@ -125,7 +125,7 @@ export default function AdminHeader({ onOpenSidebar }) {
                                 className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 ${
                                     enabled
                                         ? 'bg-amber-400 text-amber-950 shadow-md shadow-amber-400/30 hover:bg-amber-400/90'
-                                        : 'text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text'
+                                        : 'text-admin-chrome-text-secondary hover:bg-admin-chrome-hover hover:text-admin-chrome-text'
                                 }`}
                             >
                                 <Pencil className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -139,7 +139,7 @@ export default function AdminHeader({ onOpenSidebar }) {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <DropdownMenuTrigger
-                                className="flex h-9 w-9 items-center justify-center rounded-full text-admin-text-secondary transition-colors duration-200 hover:bg-admin-hover hover:text-admin-text focus:outline-none"
+                                className="flex h-9 w-9 items-center justify-center rounded-full text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text focus:outline-none"
                                 aria-label="Notifications"
                             >
                                 <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
@@ -156,13 +156,13 @@ export default function AdminHeader({ onOpenSidebar }) {
 
                 {user && (
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors duration-200 hover:bg-admin-hover focus:outline-none">
+                        <DropdownMenuTrigger className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors duration-200 hover:bg-admin-chrome-hover focus:outline-none">
                             <Avatar className="h-7 w-7 ring-2 ring-admin-accent/20">
                                 <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />
                                 <AvatarFallback className="bg-admin-accent/10 text-admin-accent">{user.name?.[0]}</AvatarFallback>
                             </Avatar>
-                            <span className="hidden text-sm font-medium text-admin-text sm:inline">{user.name}</span>
-                            <ChevronDown className="h-3.5 w-3.5 text-admin-muted" aria-hidden="true" />
+                            <span className="hidden text-sm font-medium text-admin-chrome-text sm:inline">{user.name}</span>
+                            <ChevronDown className="h-3.5 w-3.5 text-admin-chrome-muted" aria-hidden="true" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 bg-admin-card text-admin-text">
                             <div className="px-3 py-2">
