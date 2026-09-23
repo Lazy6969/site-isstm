@@ -1,4 +1,4 @@
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -8,6 +8,7 @@ import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
 import EditableButton from '../Components/QuickEdit/EditableButton';
 import EditableCardStyle from '../Components/QuickEdit/EditableCardStyle';
+import SeoHead from '../Components/QuickEdit/SeoHead';
 import { imageStyleToCss } from '../lib/imageStyle';
 import { cardContainerStyle } from '../lib/cardStyle';
 
@@ -48,7 +49,11 @@ export default function Bourse({ content = {} }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Bourse d'études" />
+            <SeoHead
+                seoKey="bourse"
+                defaultTitle="Bourse d'études"
+                defaultDescription="Bourses d'études de l'État malagasy et portefeuille Trésor Public : démarches et plateformes officielles pour les étudiants de l'ISSTM."
+            />
 
             <SiteHeader />
 

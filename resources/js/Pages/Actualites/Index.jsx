@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { CalendarDays, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
+import SeoHead from '../../Components/QuickEdit/SeoHead';
 import { useTranslations } from '../../lib/useTranslations';
 import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
@@ -35,7 +36,11 @@ export default function Index({ articles }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Actualités" />
+            <SeoHead
+                seoKey="actualites"
+                defaultTitle="Actualités"
+                defaultDescription="Toute l'actualité de l'ISSTM Mahajanga : vie universitaire, événements, conférences et annonces."
+            />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">

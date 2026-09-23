@@ -1,12 +1,16 @@
-import { Head } from '@inertiajs/react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import SeoHead from '../../Components/QuickEdit/SeoHead';
 
 export default function Index({ content = {} }) {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Historique" />
+            <SeoHead
+                seoKey="historique"
+                defaultTitle="Historique"
+                defaultDescription="L'histoire de l'ISSTM Mahajanga, de sa création à aujourd'hui."
+            />
 
             <SiteHeader />
 

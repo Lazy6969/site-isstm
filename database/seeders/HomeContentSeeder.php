@@ -425,6 +425,56 @@ class HomeContentSeeder extends Seeder
             'bourse_carte' => ['Style des cartes bourse', 'Scholarship card style', 'Endrika kaoty vatsim-pianarana'],
             'equipe_carte' => ['Style des cartes équipe', 'Team card style', 'Endrika kaoty ekipa'],
 
+            // SEO — titre/description meta par page (voir Components/QuickEdit/SeoHead.jsx)
+            'accueil_seo_titre' => ['Accueil', 'Home', 'Fandraisana'],
+            'accueil_seo_description' => [
+                "ISSTM Mahajanga — Institut Supérieur des Sciences et Technologies, formation d'ingénieurs et de techniciens à Madagascar.",
+                'ISSTM Mahajanga — Higher Institute of Science and Technology, training engineers and technicians in Madagascar.',
+                'ISSTM Mahajanga — Institiota Ambony momba ny Siansa sy ny Teknolojia, mamolavola injeniera sy teknisiana eto Madagasikara.',
+            ],
+            'filieres_seo_titre' => ['Filières', 'Programs', 'Sampana'],
+            'filieres_seo_description' => [
+                "Découvrez les filières d'ingénieurs et de techniciens de l'ISSTM Mahajanga : mentions, programmes et débouchés.",
+                'Discover the ISSTM Mahajanga engineering and technician programs: majors, curricula and career paths.',
+                "Fantaro ny sampana injeniera sy teknisiana ao amin'ny ISSTM Mahajanga: sampana, fandaharam-pianarana ary asa azo atao.",
+            ],
+            'actualites_seo_titre' => ['Actualités', 'News', 'Vaovao'],
+            'actualites_seo_description' => [
+                "Toute l'actualité de l'ISSTM Mahajanga : vie universitaire, événements, conférences et annonces.",
+                'All ISSTM Mahajanga news: university life, events, conferences and announcements.',
+                'Ny vaovao rehetra momba ny ISSTM Mahajanga: fiainana anaty oniversite, hetsika, fivoriambe ary filazana.',
+            ],
+            'contact_seo_titre' => ['Contact', 'Contact', 'Fifandraisana'],
+            'contact_seo_description' => [
+                "Contactez l'ISSTM Mahajanga : adresse, téléphone, email et localisation des campus.",
+                'Contact ISSTM Mahajanga: address, phone, email and campus locations.',
+                "Mifandraisa amin'ny ISSTM Mahajanga: adiresy, laharan-tariby, mailaka ary toerana misy ny campus.",
+            ],
+            'bourse_seo_titre' => ["Bourse d'études", 'Scholarships', 'Vatsim-pianarana'],
+            'bourse_seo_description' => [
+                "Bourses d'études de l'État malagasy et portefeuille Trésor Public : démarches et plateformes officielles pour les étudiants de l'ISSTM.",
+                'Malagasy State scholarships and Public Treasury wallet: official platforms and steps for ISSTM students.',
+                "Vatsim-pianaran'ny Fanjakana Malagasy sy ny kaonty Trésor Public: fizotrana sy sehatra ofisialy ho an'ny mpianatry ny ISSTM.",
+            ],
+            'vie_etudiante_seo_titre' => ['Vie étudiante', 'Student Life', "Fiainan'ny mpianatra"],
+            'vie_etudiante_seo_description' => [
+                'Campus, clubs et associations, bourses : découvrez la vie étudiante à l\'ISSTM Mahajanga.',
+                'Campus, clubs and associations, scholarships: discover student life at ISSTM Mahajanga.',
+                "Campus, klioba sy fikambanana, vatsim-pianarana: fantaro ny fiainan'ny mpianatra ao amin'ny ISSTM Mahajanga.",
+            ],
+            'associations_seo_titre' => ['Clubs et Associations', 'Clubs and Associations', 'Klioba sy Fikambanana'],
+            'associations_seo_description' => [
+                "Association des Étudiants de l'ISSTM (A.E.I) : statuts, bureau exécutif et clubs étudiants.",
+                "ISSTM Students' Association (A.E.I): bylaws, executive board and student clubs.",
+                "Fikambanan'ny Mpianatry ny ISSTM (A.E.I): fitsipika, birao mpanatanteraka ary klioban'ny mpianatra.",
+            ],
+            'historique_seo_titre' => ['Historique', 'History', 'Tantara'],
+            'historique_seo_description' => [
+                "L'histoire de l'ISSTM Mahajanga, de sa création à aujourd'hui.",
+                'The history of ISSTM Mahajanga, from its founding to today.',
+                "Ny tantaran'ny ISSTM Mahajanga, hatramin'ny nananganana azy ka hatramin'izao.",
+            ],
+
             // Mentions légales — titre/sous-titre et titres de section (étaient hardcodés)
             'mentions_legales_titre' => ['Mentions légales', 'Legal Notice', 'Fanamarihana ara-dalàna'],
             'mentions_legales_soustitre' => [

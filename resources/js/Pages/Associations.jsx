@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import SeoHead from '../Components/QuickEdit/SeoHead';
 import { imageStyleToBackgroundCss, imageStyleToCss } from '../lib/imageStyle';
 
 const identityCard = [
@@ -129,7 +130,11 @@ export default function Associations() {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Clubs et Associations" />
+            <SeoHead
+                seoKey="associations"
+                defaultTitle="Clubs et Associations"
+                defaultDescription="Association des Étudiants de l'ISSTM (A.E.I) : statuts, bureau exécutif et clubs étudiants."
+            />
 
             <SiteHeader />
 

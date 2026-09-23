@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import SeoHead from '../Components/QuickEdit/SeoHead';
 import Header from '../Components/Home/Header';
 import Hero from '../Components/Home/Hero';
 import Stats from '../Components/Home/Stats';
@@ -15,7 +15,11 @@ import SectionVisibility from '../Components/QuickEdit/SectionVisibility';
 export default function Home({ content, heroSlides, testimonials, filieres, partenaires, actualites, hiddenSections = [] }) {
     return (
         <>
-            <Head title="Accueil" />
+            <SeoHead
+                seoKey="accueil"
+                defaultTitle="Accueil"
+                defaultDescription="ISSTM Mahajanga — Institut Supérieur des Sciences et Technologies, formation d'ingénieurs et de techniciens à Madagascar."
+            />
 
             <Header />
             <Hero slides={heroSlides} />

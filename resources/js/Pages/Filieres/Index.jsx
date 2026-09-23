@@ -1,9 +1,10 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ArrowRight, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
+import SeoHead from '../../Components/QuickEdit/SeoHead';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
@@ -30,7 +31,11 @@ export default function Index({ filieres }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Filières" />
+            <SeoHead
+                seoKey="filieres"
+                defaultTitle="Filières"
+                defaultDescription="Découvrez les filières d'ingénieurs et de techniciens de l'ISSTM Mahajanga : mentions, programmes et débouchés."
+            />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">

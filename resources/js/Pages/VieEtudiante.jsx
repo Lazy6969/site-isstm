@@ -1,10 +1,11 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import SeoHead from '../Components/QuickEdit/SeoHead';
 import { useTranslations } from '../lib/useTranslations';
 import { imageStyleToBackgroundCss, imageStyleToCss } from '../lib/imageStyle';
 
@@ -104,7 +105,11 @@ export default function VieEtudiante({ content = {} }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Vie étudiante" />
+            <SeoHead
+                seoKey="vie_etudiante"
+                defaultTitle="Vie étudiante"
+                defaultDescription="Campus, clubs et associations, bourses : découvrez la vie étudiante à l'ISSTM Mahajanga."
+            />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">

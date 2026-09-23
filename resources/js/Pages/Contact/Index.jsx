@@ -1,13 +1,17 @@
-import { Head } from '@inertiajs/react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ContactCards from '../../Components/Contact/ContactCards';
 import ContactMaps from '../../Components/Contact/ContactMaps';
+import SeoHead from '../../Components/QuickEdit/SeoHead';
 
 export default function Index({ content }) {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Contact" />
+            <SeoHead
+                seoKey="contact"
+                defaultTitle="Contact"
+                defaultDescription="Contactez l'ISSTM Mahajanga : adresse, téléphone, email et localisation des campus."
+            />
             <SiteHeader />
 
             <div className="bg-isstm-navy py-10 text-white sm:py-14">
