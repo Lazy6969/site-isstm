@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class PreinscriptionController extends Controller
 {
@@ -60,7 +61,11 @@ class PreinscriptionController extends Controller
         $preinscription->status = PreinscriptionStatus::Accepte;
         $preinscription->save();
 
-        $user->notify(new PreinscriptionAccepted($matricule));
+        try {
+            $user->notify(new PreinscriptionAccepted($matricule));
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         ActivityLog::record(
             'preinscription_approved',
@@ -84,7 +89,11 @@ class PreinscriptionController extends Controller
             'motif_refus' => $validated['motif_refus'] ?? null,
         ]);
 
-        $preinscription->user->notify(new PreinscriptionRefused($validated['motif_refus'] ?? null));
+        try {
+            $preinscription->user->notify(new PreinscriptionRefused($validated['motif_refus'] ?? null));
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         ActivityLog::record(
             'preinscription_refused',

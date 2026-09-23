@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class PreinscriptionController extends Controller
 {
@@ -44,10 +45,18 @@ class PreinscriptionController extends Controller
             return $user;
         });
 
-        $user->sendEmailVerificationNotification();
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (Throwable $e) {
+            report($e);
+        }
+
         Auth::login($user);
 
-        return redirect()->route('preinscription.dossier')
+        // A brand-new candidate account is never verified yet — send them straight to
+        // the "check your inbox" page instead of /mon-dossier, which the `verified`
+        // middleware would otherwise bounce them away from anyway.
+        return redirect()->route('verification.notice')
             ->with('status', 'Votre préinscription a bien été envoyée. Vérifiez votre boîte mail pour activer votre compte et suivre votre dossier.');
     }
 

@@ -59,7 +59,7 @@ it('creates a candidate account and préinscription, logs the candidate in, and 
 
     $response = $this->post('/preinscription', validPreinscriptionPayload(['filiere_id' => $filiere->id]));
 
-    $response->assertRedirect(route('preinscription.dossier'));
+    $response->assertRedirect(route('verification.notice'));
     $response->assertSessionHas('status');
 
     $user = User::firstWhere('email', 'jean.rakoto@example.com');
