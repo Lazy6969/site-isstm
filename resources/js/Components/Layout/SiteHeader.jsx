@@ -7,10 +7,8 @@ import MobileTabBar from './MobileTabBar';
 import MobileMenuButton from './MobileMenuButton';
 import BrandTitle from './BrandTitle';
 import DarkModeToggle from './DarkModeToggle';
-import HeaderNavSkeleton from './HeaderNavSkeleton';
 import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from './headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
-import { useIsNavigating } from '../../lib/useIsNavigating';
 import { useTranslations } from '../../lib/useTranslations';
 import {
     NavigationMenu,
@@ -52,7 +50,6 @@ export default function SiteHeader() {
     const user = auth?.user;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const hidden = useHideOnScroll();
-    const navigating = useIsNavigating();
 
     return (
         <>
@@ -65,73 +62,67 @@ export default function SiteHeader() {
                     <BrandTitle />
                 </Link>
 
-                {navigating ? (
-                    <HeaderNavSkeleton />
-                ) : (
-                    <>
-                        <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
-                            <NavigationMenuList>
-                                <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
-                                <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
-                                <NavigationMenuItem>
-                                    <NavigationMenuLink asChild>
-                                        <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                            {t('nav.actualites', 'Actualités')}
-                                        </Link>
-                                    </NavigationMenuLink>
-                                </NavigationMenuItem>
-                                <NavigationMenuItem>
-                                    <NavigationMenuLink asChild>
-                                        <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                            {t('nav.galerie', 'Galerie')}
-                                        </Link>
-                                    </NavigationMenuLink>
-                                </NavigationMenuItem>
-                                <NavigationMenuItem>
-                                    <NavigationMenuLink asChild>
-                                        <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                            {t('nav.inscription', 'Inscription')}
-                                        </Link>
-                                    </NavigationMenuLink>
-                                </NavigationMenuItem>
-                                <NavigationMenuItem>
-                                    <NavigationMenuLink asChild>
-                                        <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
-                                            {t('nav.contact', 'Contact')}
-                                        </Link>
-                                    </NavigationMenuLink>
-                                </NavigationMenuItem>
-                                {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
-                                <NavigationMenuItem>
-                                    <HeaderSearchButton variant="labelled" />
-                                </NavigationMenuItem>
-                            </NavigationMenuList>
-                        </NavigationMenu>
+                <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
+                    <NavigationMenuList>
+                        <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
+                        <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/actualites" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.actualites', 'Actualités')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/galerie" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.galerie', 'Galerie')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.inscription', 'Inscription')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink asChild>
+                                <Link href="/contact" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                    {t('nav.contact', 'Contact')}
+                                </Link>
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        <NavigationMenuItem>
+                            <HeaderSearchButton variant="labelled" />
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
 
-                        <div className="flex items-center gap-2 justify-self-end sm:gap-3">
-                            <div className="hidden items-center gap-3 md:flex">
-                                <DarkModeToggle />
-                                <LanguageSwitcher />
+                <div className="flex items-center gap-2 justify-self-end sm:gap-3">
+                    <div className="hidden items-center gap-3 md:flex">
+                        <DarkModeToggle />
+                        <LanguageSwitcher />
 
-                                {user && (user.is_messagerie || isCommunityMember) && (
-                                    <div className="flex items-center gap-3 text-sm">
-                                        {user.is_messagerie && (
-                                            <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
-                                                <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
-                                            </Link>
-                                        )}
-                                        {isCommunityMember && <NotificationBell />}
-                                    </div>
+                        {user && (user.is_messagerie || isCommunityMember) && (
+                            <div className="flex items-center gap-3 text-sm">
+                                {user.is_messagerie && (
+                                    <Link href="/messagerie" className="hover:text-isstm-gold" title={t('messagerie.titre', 'Messagerie interne')}>
+                                        <MessageSquare className="h-[18px] w-[18px]" aria-hidden="true" />
+                                    </Link>
                                 )}
+                                {isCommunityMember && <NotificationBell />}
                             </div>
+                        )}
+                    </div>
 
-                            <div className="flex items-center gap-2 md:hidden">
-                                <HeaderSearchButton />
-                                <MobileMenuButton />
-                            </div>
-                        </div>
-                    </>
-                )}
+                    <div className="flex items-center gap-2 md:hidden">
+                        <HeaderSearchButton />
+                        <MobileMenuButton />
+                    </div>
+                </div>
             </div>
             </header>
 

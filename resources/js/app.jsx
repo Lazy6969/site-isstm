@@ -4,11 +4,19 @@ import { createInertiaApp } from '@inertiajs/react';
 import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
 import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
+import { useIsNavigatingToHome } from './lib/useIsNavigatingToHome';
 import QuickEditToggle from './Components/QuickEdit/QuickEditToggle';
 import FlashToastBridge from './Components/Layout/FlashToastBridge';
 import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
+import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
+
+function HomeLoadingSkeletonBridge() {
+    const navigatingToHome = useIsNavigatingToHome();
+
+    return navigatingToHome ? <HomeLoadingSkeleton /> : null;
+}
 
 createInertiaApp({
     resolve: (name) => {
@@ -41,6 +49,7 @@ createInertiaApp({
                         <FlashToastBridge />
                         <Toaster />
                         <LogoutConfirmDialog />
+                        <HomeLoadingSkeletonBridge />
                         {existingLayout ? existingLayout(children) : children}
                     </LogoutConfirmProvider>
                 </QuickEditProvider>

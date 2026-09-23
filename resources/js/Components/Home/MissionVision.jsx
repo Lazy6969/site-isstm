@@ -91,7 +91,7 @@ export default function MissionVision({ content }) {
                                     </div>
 
                                     <svg
-                                        className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[70%] text-isstm-navy md:block ${
+                                        className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[88%] text-isstm-navy md:block ${
                                             block.reverse ? 'right-0' : 'left-0'
                                         }`}
                                         viewBox="0 0 100 100"
