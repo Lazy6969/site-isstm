@@ -52,12 +52,18 @@ const STEPS = [
     { key: 'validation', label: 'Validation', icon: ClipboardCheck },
 ];
 
+// Every field the server can reject must be listed here, otherwise an error on a
+// missing field leaves the candidate on a step where nothing looks wrong.
 const STEP_FIELDS = {
-    identite: ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse', 'password', 'password_confirmation'],
-    famille: ['contact_parents', 'repondant_telephone'],
-    formation: ['annee_bacc', 'serie_bacc', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau'],
+    identite: ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'cin', 'email', 'telephone', 'adresse', 'password', 'password_confirmation'],
+    famille: ['nom_pere', 'nom_mere', 'contact_parents', 'repondant_nom', 'repondant_lien', 'repondant_telephone'],
+    formation: ['annee_bacc', 'serie_bacc', 'serie_bacc_autre', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau'],
     validation: ['photo', 'cin_recto', 'cin_verso', 'diplome_attestation', 'releve_bacc'],
 };
+
+function stepOfField(field) {
+    return STEPS.find((s) => STEP_FIELDS[s.key].includes(field)) ?? STEPS[0];
+}
 
 function RadioGroup({ name, options, value, onChange, error }) {
     return (
@@ -181,8 +187,13 @@ export default function Create({ filieres }) {
         post('/preinscription', {
             forceFormData: true,
             onError: (serverErrors) => {
-                const firstStepWithError = STEPS.find((s) => STEP_FIELDS[s.key].some((field) => field in serverErrors));
-                if (firstStepWithError) goTo(firstStepWithError.key);
+                const errorFields = Object.keys(serverErrors);
+                if (errorFields.length === 0) return;
+
+                // Jump to whichever step owns the *first* rejected field, so the
+                // candidate always lands somewhere the error is actually visible —
+                // never stuck on the last step looking at a form with no visible errors.
+                goTo(stepOfField(errorFields[0]).key);
             },
         });
     }

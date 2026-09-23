@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 
@@ -57,5 +59,53 @@ class StorePreinscriptionRequest extends FormRequest
             'cin_verso' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
             'diplome_attestation' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'civilite' => 'civilité',
+            'sexe' => 'genre',
+            'prenoms' => 'prénom(s)',
+            'date_naissance' => 'date de naissance',
+            'lieu_naissance' => 'lieu de naissance',
+            'nationalite' => 'nationalité',
+            'pays' => 'pays de résidence',
+            'telephone' => 'téléphone du candidat',
+            'adresse' => 'adresse complète',
+            'email' => 'adresse e-mail',
+            'password' => 'mot de passe',
+            'contact_parents' => 'téléphone des parents',
+            'repondant_telephone' => 'téléphone du répondant',
+            'annee_bacc' => 'année du bac',
+            'serie_bacc' => 'série du bac',
+            'serie_bacc_autre' => 'précision de la série',
+            'mention_bacc' => 'mention',
+            'code_redoublement' => 'situation',
+            'filiere_id' => 'filière souhaitée',
+            'photo' => "photo d'identité",
+            'cin_recto' => 'CIN recto',
+            'cin_verso' => 'CIN verso',
+            'diplome_attestation' => 'diplôme ou attestation',
+            'releve_bacc' => 'relevé de notes',
+        ];
+    }
+
+    /**
+     * Validation runs before the controller, so a rejected dossier never reaches
+     * the controller's own logging — log it here or a failed submission leaves no
+     * trace at all, which is exactly how this went undiagnosed.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        Log::warning('preinscription.store: validation refused the dossier', [
+            'email' => $this->input('email'),
+            'errors' => $validator->errors()->toArray(),
+        ]);
+
+        parent::failedValidation($validator);
     }
 }
