@@ -4,6 +4,7 @@ import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
+import EditableButton from '../QuickEdit/EditableButton';
 
 export default function Filieres({ filieres }) {
     const { t } = useTranslations();
@@ -55,13 +56,13 @@ export default function Filieres({ filieres }) {
                 </div>
 
                 <div className="mt-10 text-center">
-                    <Link
+                    <EditableButton
+                        contentKey="accueil_filieres_bouton"
                         href="/filieres"
+                        defaultLabel={t('filieres.toutes_les_filieres', 'Toutes les filières')}
+                        icon={ArrowRight}
                         className="inline-flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-                    >
-                        {t('filieres.toutes_les_filieres', 'Toutes les filières')}
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
+                    />
                 </div>
             </div>
         </section>

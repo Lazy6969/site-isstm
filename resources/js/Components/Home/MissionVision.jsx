@@ -1,9 +1,10 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
+import EditableButton from '../QuickEdit/EditableButton';
 
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
@@ -85,12 +86,12 @@ export default function MissionVision({ content }) {
                                             {block.text}
                                         </EditableText>
 
-                                        <Link
+                                        <EditableButton
+                                            contentKey="mission_vision_bouton"
                                             href="/historique"
+                                            defaultLabel={t('filieres.en_savoir_plus', 'En savoir plus')}
                                             className="mt-8 inline-flex w-fit items-center rounded-full bg-white px-7 py-3 text-sm font-semibold text-isstm-navy transition hover:brightness-95"
-                                        >
-                                            {t('filieres.en_savoir_plus', 'En savoir plus')}
-                                        </Link>
+                                        />
                                     </div>
 
                                     <div

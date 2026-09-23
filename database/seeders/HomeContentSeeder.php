@@ -412,6 +412,13 @@ class HomeContentSeeder extends Seeder
                 "Hiditra amin'ny sehatra Trésor Public",
             ],
 
+            // Boutons CTA principaux (étaient hardcodés dans les fichiers de traduction)
+            'accueil_hero_bouton' => ['Inscrivez-vous', 'Register', 'Misoratra anarana'],
+            'mission_vision_bouton' => ['En savoir plus', 'Learn more', 'Hahafantatra bebe kokoa'],
+            'directeur_bouton' => ['Lire la suite', 'Read more', 'Hamaky bebe kokoa'],
+            'accueil_filieres_bouton' => ['Toutes les filières', 'All Programs', 'Sampana rehetra'],
+            'accueil_actualites_bouton' => ['Toutes les actualités', 'All News', 'Vaovao rehetra'],
+
             // Mentions légales — titre/sous-titre et titres de section (étaient hardcodés)
             'mentions_legales_titre' => ['Mentions légales', 'Legal Notice', 'Fanamarihana ara-dalàna'],
             'mentions_legales_soustitre' => [

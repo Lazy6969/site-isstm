@@ -71,6 +71,15 @@ class UpdateQuickEditContentRequest extends FormRequest
                     'style.line_height' => ['nullable', 'numeric', 'min:1', 'max:3'],
                     'style.letter_spacing' => ['nullable', 'numeric', 'min:-0.05', 'max:0.5'],
                     'style.text_transform' => ['nullable', Rule::in(['none', 'uppercase', 'lowercase', 'capitalize'])],
+                    // Container styling for content keys rendered as a button
+                    // (EditableButton) — plain text content simply never sets these.
+                    'style.bg_color' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+                    'style.bg_color_hover' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+                    'style.border_color' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+                    'style.border_width' => ['nullable', 'integer', 'min:0', 'max:6'],
+                    'style.border_radius' => ['nullable', 'integer', 'min:0', 'max:50'],
+                    'style.shadow' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg'])],
+                    'style.size' => ['nullable', Rule::in(['sm', 'md', 'lg'])],
                 ],
             },
         ];

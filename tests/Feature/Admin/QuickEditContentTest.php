@@ -183,6 +183,42 @@ it('rejects a style with a value outside the whitelisted options', function () {
         ->assertSessionHasErrors('style.align');
 });
 
+it('saves a whitelisted button container style alongside the label (buttons are Text content too)', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'accueil_hero_bouton']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'accueil_hero_bouton',
+            'value' => 'Rejoignez-nous',
+            'style' => ['bg_color' => '#D4A017', 'bg_color_hover' => '#B8860B', 'border_radius' => 24, 'shadow' => 'md', 'size' => 'lg'],
+        ])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('Rejoignez-nous');
+    expect($content->style)->toBe([
+        'bg_color' => '#D4A017',
+        'bg_color_hover' => '#B8860B',
+        'border_radius' => 24,
+        'shadow' => 'md',
+        'size' => 'lg',
+    ]);
+});
+
+it('rejects a button style with a value outside the whitelisted options', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'accueil_hero_bouton']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'accueil_hero_bouton',
+            'value' => 'Rejoignez-nous',
+            'style' => ['shadow' => 'giant'],
+        ])
+        ->assertSessionHasErrors('style.shadow');
+});
+
 it('ignores a submitted style for an icon content key', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $content = SiteContent::factory()->create([

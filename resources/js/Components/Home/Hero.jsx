@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
+import EditableButton from '../QuickEdit/EditableButton';
 
 const IMAGE_DURATION_MS = 5000;
 const IMAGE_ZOOM_DURATION_MS = 9000;
@@ -113,12 +114,12 @@ export default function Hero({ slides }) {
                     </EditableText>
                 </p>
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-                    <Link
+                    <EditableButton
+                        contentKey="accueil_hero_bouton"
                         href="/inscription"
+                        defaultLabel={t('nav.inscrivez_vous', 'Inscrivez-vous')}
                         className="rounded-full bg-isstm-gold px-7 py-3 text-sm font-semibold text-isstm-navy-dark shadow-lg transition hover:brightness-110"
-                    >
-                        {t('nav.inscrivez_vous', 'Inscrivez-vous')}
-                    </Link>
+                    />
                 </div>
             </div>
 

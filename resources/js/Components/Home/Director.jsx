@@ -1,10 +1,11 @@
-import { Link, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { ArrowRight, Quote } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
+import EditableButton from '../QuickEdit/EditableButton';
 
 export default function Director({ content }) {
     const { t } = useTranslations();
@@ -110,19 +111,13 @@ export default function Director({ content }) {
                             </span>
                         </p>
 
-                        <Link
+                        <EditableButton
+                            contentKey="directeur_bouton"
                             href="/mot-du-directeur"
+                            defaultLabel={t('accueil.lire_la_suite', 'Lire la suite')}
+                            icon={ArrowRight}
                             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-isstm-navy hover:text-isstm-gold dark:text-white"
-                        >
-                            {t(
-                                'accueil.lire_la_suite',
-                                'Lire la suite',
-                            )}
-                            <ArrowRight
-                                className="h-4 w-4"
-                                aria-hidden="true"
-                            />
-                        </Link>
+                        />
                     </div>
                 </div>
             </div>

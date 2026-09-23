@@ -6,6 +6,7 @@ import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import EditableButton from '../Components/QuickEdit/EditableButton';
 import { imageStyleToCss } from '../lib/imageStyle';
 
 export default function Bourse({ content = {} }) {
@@ -100,21 +101,14 @@ export default function Bourse({ content = {} }) {
                                     link.description}
                             </EditableText>
 
-                            <a
+                            <EditableButton
+                                contentKey={`${link.key}_bouton`}
                                 href={link.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                defaultLabel={link.button}
+                                icon={ExternalLink}
+                                external
                                 className="mt-5 flex items-center justify-center gap-1.5 rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-                            >
-                                <EditableText as="span" contentKey={`${link.key}_bouton`}>
-                                    {link.button}
-                                </EditableText>
-
-                                <ExternalLink
-                                    className="h-4 w-4"
-                                    aria-hidden="true"
-                                />
-                            </a>
+                            />
                         </Card>
                     ))}
                 </div>

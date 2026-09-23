@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { ArrowRight, Newspaper } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { useTranslations } from '../../lib/useTranslations';
+import EditableButton from '../QuickEdit/EditableButton';
 
 function formatDate(value) {
     if (!value) return null;
@@ -56,13 +57,13 @@ export default function Actualites({ articles }) {
                 </div>
 
                 <div className="mt-10 text-center">
-                    <Link
+                    <EditableButton
+                        contentKey="accueil_actualites_bouton"
                         href="/actualites"
+                        defaultLabel={t('actualites.toutes_les_actualites', 'Toutes les actualités')}
+                        icon={ArrowRight}
                         className="inline-flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-                    >
-                        {t('actualites.toutes_les_actualites', 'Toutes les actualités')}
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
+                    />
                 </div>
             </div>
         </section>
