@@ -27,16 +27,14 @@ export function QuickEditProvider({ children }) {
 
     // Turning quick edit on from inside the admin panel jumps to the public
     // site — there's nothing to edit on screen in /console. Turning it back
-    // off from the public site returns to the admin dashboard, so the pencil
-    // always lands the admin back where they'd expect it.
+    // off stays on the current public page instead of jumping to the admin
+    // dashboard, so the pencil never navigates the admin away unexpectedly.
     const toggle = useCallback(() => {
         const next = !enabled;
         setEnabled(next);
 
         if (next && url.startsWith('/console')) {
             router.visit('/');
-        } else if (!next && !url.startsWith('/console')) {
-            router.visit('/console/dashboard');
         }
     }, [enabled, url]);
 

@@ -42,7 +42,7 @@ createInertiaApp({
                             Mobile already has equivalent access via MobileTabBar's
                             account tab and (for admins) AdminHeader's inline pencil.
                         */}
-                        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 md:flex">
+                        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 rounded-full bg-white/40 p-2 shadow-lg ring-1 ring-white/60 backdrop-blur-md md:flex dark:bg-slate-900/40 dark:ring-white/10">
                             <QuickEditToggle />
                             <FloatingAccountButton />
                         </div>

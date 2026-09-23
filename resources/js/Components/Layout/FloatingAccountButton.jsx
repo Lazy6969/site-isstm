@@ -32,7 +32,7 @@ export default function FloatingAccountButton() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
-                className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full shadow-lg ring-2 ring-white transition hover:scale-105 focus:outline-none"
+                className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition hover:scale-105 focus:outline-none"
                 aria-label={t('profil.mon_compte', 'Mon compte')}
             >
                 <img
