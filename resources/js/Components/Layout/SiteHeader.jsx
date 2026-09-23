@@ -54,7 +54,7 @@ export default function SiteHeader() {
     return (
         <>
             <header
-                className={`sticky top-0 z-40 bg-isstm-navy text-white transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
+                className={`sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
             <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
                 <Link href="/" className="flex min-w-0 items-center gap-3.5">

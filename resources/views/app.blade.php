@@ -5,9 +5,11 @@
     $appearanceDensity = \App\Models\Setting::get('appearance.density', 'normal');
     $sitePrimary = \App\SitePrimaryColor::tryFrom(\App\Models\Setting::get('appearance.site_primary', 'navy')) ?? \App\SitePrimaryColor::Navy;
     $siteAccent = \App\SiteAccentColor::tryFrom(\App\Models\Setting::get('appearance.site_accent', 'gold')) ?? \App\SiteAccentColor::Gold;
+    $siteMenu = \App\SiteMenuColor::tryFrom(\App\Models\Setting::get('appearance.site_menu', 'default')) ?? \App\SiteMenuColor::Default;
     [$accentLight, $accentForegroundLight, $accentDark, $accentForegroundDark] = $appearancePalette->colors();
     [$chromeLight, $chromeDark] = $appearanceChrome->colors();
     [$sitePrimaryColor, $sitePrimaryDark] = $sitePrimary->colors();
+    [$siteMenuColor, $siteMenuText] = $siteMenu->colors();
     $googleFontsFamily = $appearanceFont->googleFontsFamily();
 @endphp
 <!DOCTYPE html>
@@ -44,6 +46,10 @@
             --color-isstm-navy: {!! $sitePrimaryColor !!};
             --color-isstm-navy-dark: {!! $sitePrimaryDark !!};
             --color-isstm-gold: {!! $siteAccent->color() !!};
+            @if ($siteMenu !== \App\SiteMenuColor::Default)
+                --color-isstm-menu: {!! $siteMenuColor !!};
+                --color-isstm-menu-text: {!! $siteMenuText !!};
+            @endif
             @if ($appearanceChrome->isDarkInLightMode())
                 --color-admin-chrome-text: #f8fafc;
                 --color-admin-chrome-text-secondary: #cbd5e1;

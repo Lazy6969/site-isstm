@@ -65,8 +65,8 @@ export default function Header() {
     return (
         <>
             <header
-                className={`fixed inset-x-0 top-0 z-40 text-white transition-[background-color,box-shadow,transform,opacity] duration-500 ${
-                    scrolled ? 'bg-isstm-navy shadow-md' : 'bg-transparent'
+                className={`fixed inset-x-0 top-0 z-40 transition-[background-color,box-shadow,transform,opacity] duration-500 ${
+                    scrolled ? 'bg-isstm-menu text-isstm-menu-text shadow-md' : 'bg-transparent text-white'
                 } ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
             >
             <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">

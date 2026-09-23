@@ -11,7 +11,7 @@ const densityOptions = [
     { value: 'comfortable', label: 'Confortable' },
 ];
 
-export default function Appearance({ settings, palettes, chromes, fonts, sitePrimaries, siteAccents }) {
+export default function Appearance({ settings, palettes, chromes, fonts, sitePrimaries, siteAccents, siteMenus }) {
     const form = useForm({
         palette: settings.palette,
         chrome: settings.chrome,
@@ -19,6 +19,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
         density: settings.density,
         sitePrimary: settings.sitePrimary,
         siteAccent: settings.siteAccent,
+        siteMenu: settings.siteMenu,
     });
 
     function submit(e) {
@@ -85,6 +86,38 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                                                 style={{ backgroundColor: color.swatch }}
                                             >
                                                 {selected && <Check className="h-3.5 w-3.5 text-black mix-blend-difference" aria-hidden="true" />}
+                                            </span>
+                                            <span className="text-admin-text">{color.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                        <div>
+                            <p className="mb-2 text-xs font-medium text-admin-text-secondary">Couleur du menu (barre de navigation)</p>
+                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                                {siteMenus.map((color) => {
+                                    const selected = form.data.siteMenu === color.value;
+                                    return (
+                                        <button
+                                            key={color.value}
+                                            type="button"
+                                            onClick={() => form.setData('siteMenu', color.value)}
+                                            className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
+                                                selected
+                                                    ? 'border-admin-accent bg-admin-hover'
+                                                    : 'border-admin-border hover:bg-admin-hover'
+                                            }`}
+                                        >
+                                            <span
+                                                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
+                                                style={
+                                                    color.swatch
+                                                        ? { backgroundColor: color.swatch }
+                                                        : { background: 'repeating-linear-gradient(45deg, #e2e8f0, #e2e8f0 3px, #fff 3px, #fff 6px)' }
+                                                }
+                                            >
+                                                {selected && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
                                             </span>
                                             <span className="text-admin-text">{color.label}</span>
                                         </button>

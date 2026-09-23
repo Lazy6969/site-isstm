@@ -12,6 +12,10 @@
     --color-isstm-navy: #003366;
     --color-isstm-navy-dark: #001f3f;
     --color-isstm-gold: #d4a017;
+    /* Header/nav bar background — separate token from isstm-navy so it can be
+       overridden independently (see SiteMenuColor); defaults to following it. */
+    --color-isstm-menu: var(--color-isstm-navy);
+    --color-isstm-menu-text: #ffffff;
     --font-script: 'Dancing Script', cursive;
     --font-lora: 'Lora', serif;
 
