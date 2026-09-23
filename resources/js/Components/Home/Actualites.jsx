@@ -5,6 +5,7 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableButton from '../QuickEdit/EditableButton';
 import EditableCardStyle from '../QuickEdit/EditableCardStyle';
 import { cardContainerStyle } from '../../lib/cardStyle';
+import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
 function formatDate(value) {
     if (!value) return null;
@@ -48,7 +49,10 @@ export default function Actualites({ articles }) {
                                 </div>
                                 <CardContent className="p-4 transition-transform duration-300 group-hover:scale-[1.03]">
                                     {article.category && (
-                                        <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
+                                        <span
+                                            className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white"
+                                            style={categoryBadgeStyle(article.category_color)}
+                                        >
                                             {article.category}
                                         </span>
                                     )}

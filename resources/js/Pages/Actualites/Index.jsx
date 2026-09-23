@@ -5,6 +5,7 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ListGridToggle from '../../Components/Layout/ListGridToggle';
 import { useTranslations } from '../../lib/useTranslations';
+import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
 function formatDate(value) {
     if (!value) return null;
@@ -109,7 +110,10 @@ export default function Index({ articles }) {
                                     </div>
                                     <div className="p-4 transition-transform duration-300 group-hover:scale-[1.03]">
                                         {article.category && (
-                                            <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
+                                            <span
+                                                className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white"
+                                                style={categoryBadgeStyle(article.category.color)}
+                                            >
                                                 {article.category.name_fr}
                                             </span>
                                         )}
@@ -132,7 +136,10 @@ export default function Index({ articles }) {
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         {article.category && (
-                                            <span className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white">
+                                            <span
+                                                className="rounded-full bg-isstm-navy/10 px-2.5 py-0.5 text-[11px] font-semibold text-isstm-navy dark:text-white"
+                                                style={categoryBadgeStyle(article.category.color)}
+                                            >
                                                 {article.category.name_fr}
                                             </span>
                                         )}

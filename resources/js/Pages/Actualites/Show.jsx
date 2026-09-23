@@ -4,6 +4,7 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
 
 function formatDate(value) {
     if (!value) return null;
@@ -30,7 +31,9 @@ export default function Show({ article }) {
                     </Link>
                     {article.category && (
                         <div className="mb-2 w-fit">
-                            <Badge variant="gold">{article.category.name_fr}</Badge>
+                            <Badge variant="gold" style={categoryBadgeStyle(article.category.color)}>
+                                {article.category.name_fr}
+                            </Badge>
                         </div>
                     )}
                     <h1 className="text-2xl font-bold sm:text-3xl">{article.title}</h1>

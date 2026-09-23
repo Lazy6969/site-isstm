@@ -11,6 +11,7 @@ class NewsCategory extends Model
         'slug',
         'name_fr',
         'icon',
+        'color',
         'display_order',
     ];
 

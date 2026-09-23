@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, Palette } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
@@ -49,8 +49,26 @@ export default function Index({ articles, categories }) {
     const [editing, setEditing] = useState(null);
     const [preview, setPreview] = useState(null);
     const [rejecting, setRejecting] = useState(null);
+    const [colorsOpen, setColorsOpen] = useState(false);
     const form = useForm(emptyForm);
     const rejectForm = useForm({ rejection_reason: '' });
+    const colorsForm = useForm({
+        colors: Object.fromEntries(categories.map((c) => [c.id, c.color ?? ''])),
+    });
+
+    function openColors() {
+        colorsForm.setData('colors', Object.fromEntries(categories.map((c) => [c.id, c.color ?? ''])));
+        colorsForm.clearErrors();
+        setColorsOpen(true);
+    }
+
+    function submitColors(e) {
+        e.preventDefault();
+        colorsForm.put('/console/actualites/categories/colors', {
+            preserveScroll: true,
+            onSuccess: () => setColorsOpen(false),
+        });
+    }
 
     function openCreate() {
         setEditing(null);
@@ -119,10 +137,16 @@ export default function Index({ articles, categories }) {
         <AdminLayout title="Actualités">
             <div className="mb-5 flex items-center justify-between">
                 <p className="text-sm text-admin-text-secondary">{articles.length} article(s)</p>
-                <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                    Nouvel article
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={openColors} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                        <Palette className="h-4 w-4" aria-hidden="true" />
+                        Couleurs des catégories
+                    </Button>
+                    <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        Nouvel article
+                    </Button>
+                </div>
             </div>
 
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
@@ -148,7 +172,20 @@ export default function Index({ articles, categories }) {
                         {articles.map((article) => (
                             <TableRow key={article.id}>
                                 <TableCell className="font-medium">{article.title}</TableCell>
-                                <TableCell>{article.category?.name_fr ?? '—'}</TableCell>
+                                <TableCell>
+                                    {article.category ? (
+                                        <span className="inline-flex items-center gap-1.5">
+                                            <span
+                                                className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                                                style={{ backgroundColor: article.category.color || '#94a3b8' }}
+                                                aria-hidden="true"
+                                            />
+                                            {article.category.name_fr}
+                                        </span>
+                                    ) : (
+                                        '—'
+                                    )}
+                                </TableCell>
                                 <TableCell>{article.author ?? '—'}</TableCell>
                                 <TableCell>
                                     <Badge variant={statutVariants[article.status]}>{statutLabels[article.status]}</Badge>
@@ -340,6 +377,55 @@ export default function Index({ articles, categories }) {
                             </Button>
                             <Button type="submit" disabled={rejectForm.processing} className="bg-red-600 text-white hover:bg-red-600/90">
                                 Rejeter
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={colorsOpen} onOpenChange={setColorsOpen}>
+                <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Couleurs des catégories</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={submitColors} className="space-y-4">
+                        <p className="text-sm text-admin-text-secondary">
+                            Colore le badge de chaque catégorie sur les pages Actualités du site public.
+                        </p>
+                        <div className="max-h-96 space-y-2 overflow-y-auto pr-1">
+                            {categories.map((category) => (
+                                <div key={category.id} className="flex items-center justify-between gap-3 rounded-lg border border-admin-border p-2.5">
+                                    <span className="text-sm text-admin-text">{category.name_fr}</span>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={colorsForm.data.colors[category.id] || '#94a3b8'}
+                                            onChange={(e) =>
+                                                colorsForm.setData('colors', { ...colorsForm.data.colors, [category.id]: e.target.value })
+                                            }
+                                            className="h-8 w-10 flex-shrink-0 rounded border border-admin-border"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => colorsForm.setData('colors', { ...colorsForm.data.colors, [category.id]: '' })}
+                                            className="text-xs text-admin-muted hover:text-admin-text"
+                                        >
+                                            Défaut
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                onClick={() => setColorsOpen(false)}
+                                className="bg-admin-hover text-admin-text hover:bg-admin-hover/70"
+                            >
+                                Annuler
+                            </Button>
+                            <Button type="submit" disabled={colorsForm.processing} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
+                                Enregistrer
                             </Button>
                         </DialogFooter>
                     </form>

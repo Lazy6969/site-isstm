@@ -23,11 +23,29 @@ class NewsArticleController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Actualites/Index', [
-            'articles' => NewsArticle::with(['category:id,name_fr', 'validator:id,name'])
+            'articles' => NewsArticle::with(['category:id,name_fr,color', 'validator:id,name'])
                 ->orderByDesc('created_at')
                 ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'content', 'image_path', 'author', 'status', 'rejection_reason', 'validated_by', 'validated_at', 'is_featured', 'published_at', 'created_at']),
-            'categories' => NewsCategory::orderBy('name_fr')->get(['id', 'name_fr']),
+            'categories' => NewsCategory::orderBy('name_fr')->get(['id', 'name_fr', 'color']),
         ]);
+    }
+
+    /**
+     * Batched rather than one request per category — an admin picking colors
+     * for all 15 seeded categories shouldn't fire 15 separate saves.
+     */
+    public function updateCategoryColors(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'colors' => ['required', 'array'],
+            'colors.*' => ['nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+        ]);
+
+        foreach ($validated['colors'] as $categoryId => $color) {
+            NewsCategory::whereKey($categoryId)->update(['color' => $color ?: null]);
+        }
+
+        return back()->with('status', 'Couleurs des catégories mises à jour.');
     }
 
     public function store(StoreNewsArticleRequest $request): RedirectResponse

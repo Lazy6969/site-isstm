@@ -12,7 +12,7 @@ class NewsController extends Controller
     public function index(): Response
     {
         $articles = NewsArticle::query()
-            ->with('category:id,name_fr,icon')
+            ->with('category:id,name_fr,icon,color')
             ->where('status', NewsStatus::Publie)
             ->orderByDesc('published_at')
             ->get(['id', 'news_category_id', 'title', 'slug', 'excerpt', 'image_path', 'author', 'published_at']);
@@ -27,7 +27,7 @@ class NewsController extends Controller
         abort_unless($article->status === NewsStatus::Publie, 404);
 
         $article->increment('views');
-        $article->load('category:id,name_fr,icon');
+        $article->load('category:id,name_fr,icon,color');
 
         return Inertia::render('Actualites/Show', ['article' => $article]);
     }

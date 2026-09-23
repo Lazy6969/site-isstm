@@ -11,21 +11,21 @@ class NewsSeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['slug' => 'vie-universitaire', 'name_fr' => 'Vie universitaire', 'icon' => 'fa-building-columns', 'display_order' => 1],
-            ['slug' => 'vie-etudiante', 'name_fr' => 'Vie étudiante', 'icon' => 'fa-users', 'display_order' => 2],
-            ['slug' => 'education', 'name_fr' => 'Éducation', 'icon' => 'fa-graduation-cap', 'display_order' => 3],
-            ['slug' => 'formation', 'name_fr' => 'Formation', 'icon' => 'fa-chalkboard-teacher', 'display_order' => 4],
-            ['slug' => 'recherche', 'name_fr' => 'Recherche', 'icon' => 'fa-flask', 'display_order' => 5],
-            ['slug' => 'evenements', 'name_fr' => 'Événements', 'icon' => 'fa-calendar-days', 'display_order' => 6],
-            ['slug' => 'conferences', 'name_fr' => 'Conférences', 'icon' => 'fa-microphone-lines', 'display_order' => 7],
-            ['slug' => 'concours', 'name_fr' => 'Concours', 'icon' => 'fa-trophy', 'display_order' => 8],
-            ['slug' => 'sports', 'name_fr' => 'Sports', 'icon' => 'fa-futbol', 'display_order' => 9],
-            ['slug' => 'culture', 'name_fr' => 'Culture', 'icon' => 'fa-masks-theater', 'display_order' => 10],
-            ['slug' => 'partenariats', 'name_fr' => 'Partenariats', 'icon' => 'fa-handshake', 'display_order' => 11],
-            ['slug' => 'communiques', 'name_fr' => 'Communiqués', 'icon' => 'fa-bullhorn', 'display_order' => 12],
-            ['slug' => 'annonces', 'name_fr' => 'Annonces', 'icon' => 'fa-thumbtack', 'display_order' => 13],
-            ['slug' => 'administration', 'name_fr' => 'Administration', 'icon' => 'fa-building', 'display_order' => 14],
-            ['slug' => 'opportunites', 'name_fr' => 'Opportunités', 'icon' => 'fa-lightbulb', 'display_order' => 15],
+            ['slug' => 'vie-universitaire', 'name_fr' => 'Vie universitaire', 'icon' => 'fa-building-columns', 'color' => '#1d4ed8', 'display_order' => 1],
+            ['slug' => 'vie-etudiante', 'name_fr' => 'Vie étudiante', 'icon' => 'fa-users', 'color' => '#059669', 'display_order' => 2],
+            ['slug' => 'education', 'name_fr' => 'Éducation', 'icon' => 'fa-graduation-cap', 'color' => '#7c3aed', 'display_order' => 3],
+            ['slug' => 'formation', 'name_fr' => 'Formation', 'icon' => 'fa-chalkboard-teacher', 'color' => '#ea580c', 'display_order' => 4],
+            ['slug' => 'recherche', 'name_fr' => 'Recherche', 'icon' => 'fa-flask', 'color' => '#0891b2', 'display_order' => 5],
+            ['slug' => 'evenements', 'name_fr' => 'Événements', 'icon' => 'fa-calendar-days', 'color' => '#db2777', 'display_order' => 6],
+            ['slug' => 'conferences', 'name_fr' => 'Conférences', 'icon' => 'fa-microphone-lines', 'color' => '#ca8a04', 'display_order' => 7],
+            ['slug' => 'concours', 'name_fr' => 'Concours', 'icon' => 'fa-trophy', 'color' => '#dc2626', 'display_order' => 8],
+            ['slug' => 'sports', 'name_fr' => 'Sports', 'icon' => 'fa-futbol', 'color' => '#16a34a', 'display_order' => 9],
+            ['slug' => 'culture', 'name_fr' => 'Culture', 'icon' => 'fa-masks-theater', 'color' => '#9333ea', 'display_order' => 10],
+            ['slug' => 'partenariats', 'name_fr' => 'Partenariats', 'icon' => 'fa-handshake', 'color' => '#0d9488', 'display_order' => 11],
+            ['slug' => 'communiques', 'name_fr' => 'Communiqués', 'icon' => 'fa-bullhorn', 'color' => '#4f46e5', 'display_order' => 12],
+            ['slug' => 'annonces', 'name_fr' => 'Annonces', 'icon' => 'fa-thumbtack', 'color' => '#c2410c', 'display_order' => 13],
+            ['slug' => 'administration', 'name_fr' => 'Administration', 'icon' => 'fa-building', 'color' => '#475569', 'display_order' => 14],
+            ['slug' => 'opportunites', 'name_fr' => 'Opportunités', 'icon' => 'fa-lightbulb', 'color' => '#d4a017', 'display_order' => 15],
         ];
 
         foreach ($categories as $category) {

@@ -41,7 +41,7 @@ class HomeController extends Controller
                 ]),
             'partenaires' => Partenaire::orderBy('display_order')->get(['nom', 'logo_path', 'site_url']),
             'actualites' => NewsArticle::query()
-                ->with('category:id,name_fr')
+                ->with('category:id,name_fr,color')
                 ->where('status', NewsStatus::Publie)
                 ->orderByDesc('published_at')
                 ->take(3)
@@ -53,6 +53,7 @@ class HomeController extends Controller
                     'image_path' => $item->image_path,
                     'published_at' => $item->published_at,
                     'category' => $item->category?->name_fr,
+                    'category_color' => $item->category?->color,
                 ]),
         ]);
     }
