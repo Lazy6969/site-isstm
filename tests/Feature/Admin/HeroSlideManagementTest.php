@@ -17,13 +17,27 @@ it('lets an admin add a hero slide', function () {
     $admin = User::factory()->role(Role::Admin)->create();
 
     $this->actingAs($admin)->post('/console/accueil', [
-        'image' => UploadedFile::fake()->image('slide.jpg'),
+        'media' => UploadedFile::fake()->image('slide.jpg'),
         'display_order' => 4,
     ])->assertRedirect();
 
     $slide = HeroSlide::latest('id')->first();
     expect($slide->display_order)->toBe(4);
     expect($slide->media_type)->toBe('image');
+    Storage::disk('public')->assertExists(str($slide->image_path)->after('storage/')->toString());
+});
+
+it('lets an admin add a video hero slide and detects the media type from the file', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/accueil', [
+        'media' => UploadedFile::fake()->create('clip.mp4', 500, 'video/mp4'),
+        'display_order' => 2,
+    ])->assertRedirect();
+
+    $slide = HeroSlide::latest('id')->first();
+    expect($slide->media_type)->toBe('video');
     Storage::disk('public')->assertExists(str($slide->image_path)->after('storage/')->toString());
 });
 
@@ -45,7 +59,7 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     $slide = HeroSlide::factory()->create(['image_path' => 'images/slide1.jpg']);
 
     $this->actingAs($admin)->put("/console/accueil/{$slide->id}", [
-        'image' => UploadedFile::fake()->image('premiere.jpg'),
+        'media' => UploadedFile::fake()->image('premiere.jpg'),
     ]);
     $firstPath = str($slide->refresh()->image_path)->after('storage/')->toString();
     Storage::disk('public')->assertExists($firstPath);
@@ -53,9 +67,21 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     expect(HeroSlide::find($slide->id)->image_path)->not->toBe('images/slide1.jpg');
 
     $this->actingAs($admin)->put("/console/accueil/{$slide->id}", [
-        'image' => UploadedFile::fake()->image('seconde.jpg'),
+        'media' => UploadedFile::fake()->image('seconde.jpg'),
     ]);
     Storage::disk('public')->assertMissing($firstPath);
+});
+
+it('switches a hero slide from image to video when replaced with a video upload', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+    $slide = HeroSlide::factory()->create(['image_path' => 'images/slide1.jpg', 'media_type' => 'image']);
+
+    $this->actingAs($admin)->put("/console/accueil/{$slide->id}", [
+        'media' => UploadedFile::fake()->create('clip.mp4', 500, 'video/mp4'),
+    ])->assertRedirect();
+
+    expect($slide->refresh()->media_type)->toBe('video');
 });
 
 it('deletes a hero slide and its uploaded image', function () {

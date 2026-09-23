@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Video } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
@@ -8,12 +8,13 @@ import { Label } from '../../../Components/ui/label';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
 
-const emptyForm = { image: null, display_order: 0 };
+const emptyForm = { media: null, display_order: 0 };
 
 export default function Index({ heroSlides }) {
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [previewType, setPreviewType] = useState(null);
     const form = useForm(emptyForm);
 
     function openCreate() {
@@ -21,21 +22,24 @@ export default function Index({ heroSlides }) {
         form.reset();
         form.clearErrors();
         setPreview(null);
+        setPreviewType(null);
         setOpen(true);
     }
 
     function openEdit(slide) {
         setEditing(slide);
-        form.setData({ image: null, display_order: slide.display_order });
+        form.setData({ media: null, display_order: slide.display_order });
         form.clearErrors();
         setPreview(null);
+        setPreviewType(null);
         setOpen(true);
     }
 
-    function onImageChange(e) {
+    function onMediaChange(e) {
         const file = e.target.files?.[0] ?? null;
-        form.setData('image', file);
+        form.setData('media', file);
         setPreview(file ? URL.createObjectURL(file) : null);
+        setPreviewType(file?.type.startsWith('video/') ? 'video' : 'image');
     }
 
     function submit(e) {
@@ -54,13 +58,16 @@ export default function Index({ heroSlides }) {
         router.delete(`/console/accueil/${slide.id}`, { preserveScroll: true });
     }
 
+    const shownType = previewType ?? editing?.media_type;
+    const shownSrc = preview ?? (editing ? `/${editing.image_path}` : null);
+
     return (
         <AdminLayout title="Images de l'accueil">
             <div className="mb-5 flex items-center justify-between">
                 <p className="text-sm text-admin-text-secondary">{heroSlides.length} diapositive(s)</p>
                 <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Ajouter une image
+                    Ajouter une image ou vidéo
                 </Button>
             </div>
 
@@ -69,6 +76,7 @@ export default function Index({ heroSlides }) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Aperçu</TableHead>
+                            <TableHead>Type</TableHead>
                             <TableHead>Ordre</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
@@ -76,7 +84,7 @@ export default function Index({ heroSlides }) {
                     <TableBody>
                         {heroSlides.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={3} className="py-8 text-center text-admin-muted">
+                                <TableCell colSpan={4} className="py-8 text-center text-admin-muted">
                                     Aucune image pour le moment.
                                 </TableCell>
                             </TableRow>
@@ -84,7 +92,25 @@ export default function Index({ heroSlides }) {
                         {heroSlides.map((slide) => (
                             <TableRow key={slide.id}>
                                 <TableCell>
-                                    <img src={`/${slide.image_path}`} alt="" className="h-14 w-28 rounded-lg border border-admin-border object-cover" />
+                                    {slide.media_type === 'video' ? (
+                                        <video
+                                            src={`/${slide.image_path}`}
+                                            muted
+                                            className="h-14 w-28 rounded-lg border border-admin-border object-cover"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={`/${slide.image_path}`}
+                                            alt=""
+                                            className="h-14 w-28 rounded-lg border border-admin-border object-cover"
+                                        />
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    <span className="inline-flex items-center gap-1.5 text-xs text-admin-text-secondary">
+                                        {slide.media_type === 'video' && <Video className="h-3.5 w-3.5" aria-hidden="true" />}
+                                        {slide.media_type === 'video' ? 'Vidéo' : 'Image'}
+                                    </span>
                                 </TableCell>
                                 <TableCell>{slide.display_order}</TableCell>
                                 <TableCell className="text-right">
@@ -118,22 +144,33 @@ export default function Index({ heroSlides }) {
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
                         <div>
-                            <Label htmlFor="image">Image {editing ? '(optionnel)' : ''}</Label>
-                            {(preview || (editing && editing.image_path)) && (
-                                <img
-                                    src={preview ?? `/${editing.image_path}`}
-                                    alt=""
-                                    className="mt-1.5 h-40 w-full rounded-lg border border-admin-border object-cover"
-                                />
-                            )}
+                            <Label htmlFor="media">Image ou vidéo {editing ? '(optionnel)' : ''}</Label>
+                            {shownSrc &&
+                                (shownType === 'video' ? (
+                                    <video
+                                        src={shownSrc}
+                                        controls
+                                        muted
+                                        className="mt-1.5 h-40 w-full rounded-lg border border-admin-border object-cover"
+                                    />
+                                ) : (
+                                    <img
+                                        src={shownSrc}
+                                        alt=""
+                                        className="mt-1.5 h-40 w-full rounded-lg border border-admin-border object-cover"
+                                    />
+                                ))}
                             <input
-                                id="image"
+                                id="media"
                                 type="file"
-                                accept="image/*"
-                                onChange={onImageChange}
+                                accept="image/*,video/*"
+                                onChange={onMediaChange}
                                 className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
                             />
-                            {form.errors.image && <p className="mt-1 text-sm text-red-500">{form.errors.image}</p>}
+                            <p className="mt-1 text-xs text-admin-muted">
+                                Une vidéo joue jusqu'à sa fin avant de passer à la diapositive suivante ; une image reste 5 secondes.
+                            </p>
+                            {form.errors.media && <p className="mt-1 text-sm text-red-500">{form.errors.media}</p>}
                         </div>
 
                         <div>
