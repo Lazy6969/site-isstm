@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\EvenementStatus;
+use App\GalleryStatus;
 use App\Models\CampusBloc;
+use App\Models\Document;
+use App\Models\Evenement;
 use App\Models\Filiere;
+use App\Models\GalleryAlbum;
 use App\Models\NewsArticle;
 use App\Models\Teacher;
+use App\NewsStatus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +41,7 @@ class SearchController extends Controller
                 ->map(fn ($item) => [...$item->toArray(), 'url' => '/enseignants']);
 
             $results['actualites'] = NewsArticle::query()
-                ->where('status', 'publie')
+                ->where('status', NewsStatus::Publie)
                 ->where(fn ($query) => $query->where('title', 'like', $like)->orWhere('excerpt', 'like', $like))
                 ->limit(5)
                 ->get(['slug', 'title', 'excerpt as subtitle'])
@@ -47,6 +53,26 @@ class SearchController extends Controller
                 ->limit(5)
                 ->get(['bloc_key', 'nom as title', 'signification as subtitle'])
                 ->map(fn ($item) => [...$item->toArray(), 'url' => "/campus/{$item->bloc_key}"]);
+
+            $results['galerie'] = GalleryAlbum::query()
+                ->where('status', GalleryStatus::Publie)
+                ->where(fn ($query) => $query->where('title', 'like', $like)->orWhere('description', 'like', $like))
+                ->limit(5)
+                ->get(['slug', 'title', 'location as subtitle'])
+                ->map(fn ($item) => [...$item->toArray(), 'url' => "/galerie/{$item->slug}"]);
+
+            $results['evenements'] = Evenement::query()
+                ->where('status', EvenementStatus::Publie)
+                ->where(fn ($query) => $query->where('titre', 'like', $like)->orWhere('description', 'like', $like))
+                ->limit(5)
+                ->get(['titre as title', 'lieu as subtitle'])
+                ->map(fn ($item) => [...$item->toArray(), 'url' => '/evenements']);
+
+            $results['documents'] = Document::query()
+                ->where('title', 'like', $like)
+                ->limit(5)
+                ->get(['title', 'category as subtitle', 'file_path'])
+                ->map(fn ($item) => ['title' => $item->title, 'subtitle' => $item->subtitle, 'url' => "/{$item->file_path}"]);
         }
 
         return Inertia::render('Search/Index', [
