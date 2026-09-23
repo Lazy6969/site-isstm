@@ -115,6 +115,7 @@ export default function Create({ filieres }) {
     const { t } = useTranslations();
     const [step, setStep] = useState('identite');
     const [consent, setConsent] = useState(false);
+    const [consentError, setConsentError] = useState('');
     const { data, setData, post, processing, errors, setError, clearErrors } = useForm(emptyForm);
 
     const selectedFiliere = useMemo(() => filieres.find((f) => String(f.id) === String(data.filiere_id)), [filieres, data.filiere_id]);
@@ -172,8 +173,10 @@ export default function Create({ filieres }) {
         e.preventDefault();
 
         if (!consent) {
+            setConsentError('Vous devez accepter le traitement de vos données pour envoyer votre dossier.');
             return;
         }
+        setConsentError('');
 
         post('/preinscription', {
             forceFormData: true,
@@ -194,7 +197,7 @@ export default function Create({ filieres }) {
             <div className="bg-isstm-navy py-8 text-white sm:py-10">
                 <div className="mx-auto max-w-5xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
-                        {t('preinscription.titre', 'Formulaire d’inscription')}
+                        {t('preinscription.titre', 'Votre dossier d’inscription')}
                     </h1>
                     <p className="mt-2 text-white/80">
                         {t('preinscription.soustitre_form', 'Les champs avec un astérisque sont obligatoires. Vos données sont enregistrées uniquement après l’envoi final.')}
@@ -473,7 +476,10 @@ export default function Create({ filieres }) {
                                         <input
                                             type="checkbox"
                                             checked={consent}
-                                            onChange={(e) => setConsent(e.target.checked)}
+                                            onChange={(e) => {
+                                                setConsent(e.target.checked);
+                                                if (e.target.checked) setConsentError('');
+                                            }}
                                             className="mt-0.5 h-4 w-4 rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
                                         />
                                         J&apos;accepte le traitement de mes données pour l&apos;étude de mon dossier et j&apos;ai lu la{' '}
@@ -482,6 +488,7 @@ export default function Create({ filieres }) {
                                         </a>
                                         . <span className="text-red-500">*</span>
                                     </label>
+                                    {consentError && <p className="mt-1 text-sm text-red-600">{consentError}</p>}
 
                                     <div className="mt-6 flex justify-between">
                                         <button type="button" onClick={() => goTo('formation')} className="flex items-center gap-1.5 rounded-full border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 dark:border-slate-600 dark:text-slate-300">
@@ -490,7 +497,7 @@ export default function Create({ filieres }) {
                                         </button>
                                         <button
                                             type="submit"
-                                            disabled={processing || !consent}
+                                            disabled={processing}
                                             className="flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                                         >
                                             <Send className="h-4 w-4" aria-hidden="true" />

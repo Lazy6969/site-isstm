@@ -116,7 +116,7 @@ export default function Hero({ slides }) {
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                     <EditableButton
                         contentKey="accueil_hero_bouton"
-                        href="/inscription"
+                        href="/preinscription"
                         defaultLabel={t('nav.inscrivez_vous', 'Inscrivez-vous')}
                         className="rounded-full bg-isstm-gold px-7 py-3 text-sm font-semibold text-isstm-navy-dark shadow-lg transition hover:brightness-110"
                     />

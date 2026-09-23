@@ -29,7 +29,7 @@ export default function MobileTabBar() {
 
     const accountTab = user
         ? { href: '/profil', label: t('nav.compte', 'Compte'), icon: User }
-        : { href: '/inscription', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
+        : { href: '/preinscription', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
 
     const moreLinks = [
         ...getVieEtudianteLinks(t),

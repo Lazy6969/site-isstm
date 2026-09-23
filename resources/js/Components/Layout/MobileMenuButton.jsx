@@ -29,7 +29,7 @@ export default function MobileMenuButton() {
         ...getVieEtudianteLinks(t),
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie'), icon: Image },
-        { href: '/inscription', label: t('nav.inscription', 'Inscription') },
+        { href: '/preinscription', label: t('nav.inscription', 'Inscription') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
         { href: '/bibliotheque', label: t('bibliotheque.titre', 'Bibliothèque numérique') },
         ...(isCommunityMember ? getCommunauteLinks(t) : []),

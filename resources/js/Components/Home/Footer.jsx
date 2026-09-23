@@ -55,7 +55,7 @@ export default function Footer() {
         ...getVieEtudianteLinks(t),
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie') },
-        { href: '/inscription', label: t('nav.inscription', 'Inscription') },
+        { href: '/preinscription', label: t('nav.inscription', 'Inscription') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
     ];
 

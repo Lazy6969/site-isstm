@@ -82,7 +82,7 @@ export default function SiteHeader() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
-                                <Link href="/inscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                <Link href="/preinscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
                                     {t('nav.inscription', 'Inscription')}
                                 </Link>
                             </NavigationMenuLink>
