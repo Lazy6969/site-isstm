@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { Banknote, Building2, FlaskConical, GraduationCap, MapPin, Phone } from 'lucide-react';
+import { FlaskConical, GraduationCap } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
@@ -42,11 +42,6 @@ const laboratoires = [
     'Laboratoire du Froid et Énergie',
     'Atelier de Fabrication Mécanique',
     'Laboratoire du Génie Biomédical',
-];
-
-const frais = [
-    { designation: 'Licence', malagasy: 'Ar 750 000', etranger: 'Ar 1 090 000' },
-    { designation: 'Master', malagasy: 'Ar 1 050 000', etranger: 'Ar 1 450 000' },
 ];
 
 export default function Index() {
@@ -133,31 +128,6 @@ export default function Index() {
                     </ul>
                 </Card>
 
-                <Card className="overflow-hidden p-0">
-                    <h2 className="flex items-center gap-2 border-b border-slate-100 px-6 py-4 text-lg font-semibold text-isstm-navy dark:border-slate-700 dark:text-white">
-                        <Banknote className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                        Frais de formation annuel estimatif
-                    </h2>
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-slate-100 text-left text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                <th className="px-6 py-2 font-medium">Désignation</th>
-                                <th className="px-6 py-2 font-medium">Malagasy</th>
-                                <th className="px-6 py-2 font-medium">Étranger</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {frais.map((row) => (
-                                <tr key={row.designation}>
-                                    <td className="px-6 py-2.5 font-medium text-isstm-navy dark:text-white">{row.designation}</td>
-                                    <td className="px-6 py-2.5 text-slate-600 dark:text-slate-300">{row.malagasy}</td>
-                                    <td className="px-6 py-2.5 text-slate-600 dark:text-slate-300">{row.etranger}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </Card>
-
                 <Card className="p-6">
                     <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
                         <FlaskConical className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
@@ -168,23 +138,6 @@ export default function Index() {
                             <li key={item}>{item}</li>
                         ))}
                     </ul>
-                </Card>
-
-                <Card className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-start gap-2.5">
-                        <MapPin className="mt-0.5 h-5 w-5 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                        <p className="text-sm text-slate-600 dark:text-slate-300">
-                            Bâtiment Ex-Lolo, Majunga-Be, Mahajanga (401), Madagascar
-                        </p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                        <Phone className="mt-0.5 h-5 w-5 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                        <p className="text-sm text-slate-600 dark:text-slate-300">034 45 289 45 · 032 05 572 30</p>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                        <Building2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                        <p className="text-sm text-slate-600 dark:text-slate-300">isstm.umg@gmail.com</p>
-                    </div>
                 </Card>
             </main>
 
