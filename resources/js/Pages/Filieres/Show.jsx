@@ -29,10 +29,11 @@ export default function Show({ filiere }) {
             <Head title={filiere.nom} />
             <SiteHeader />
 
-            <div
-                className="relative h-72 bg-cover bg-center"
-                style={{ backgroundImage: `url('/${filiere.image_path}')` }}
-            >
+            <div className="relative h-72 overflow-hidden">
+                <div
+                    className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-[8000ms] ease-out hover:scale-110"
+                    style={{ backgroundImage: `url('/${filiere.image_path}')` }}
+                />
                 <div className="absolute inset-0 bg-isstm-navy-dark/70" />
                 <div className="relative mx-auto flex h-full max-w-4xl flex-col justify-end px-6 pb-8 text-white">
                     <Link href="/filieres" className="mb-3 flex items-center gap-1.5 text-sm text-white/80 hover:underline">

@@ -87,8 +87,13 @@ export default function Index({ filieres }) {
                             view === 'grid' ? (
                                 <Link key={filiere.slug} href={`/filieres/${filiere.slug}`} className="group block">
                                     <Card className="overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
-                                        <div className="h-40 bg-cover bg-center" style={{ backgroundImage: `url('/${filiere.image_path}')` }} />
-                                        <CardContent className="p-5">
+                                        <div className="h-40 overflow-hidden">
+                                            <div
+                                                className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                                style={{ backgroundImage: `url('/${filiere.image_path}')` }}
+                                            />
+                                        </div>
+                                        <CardContent className="p-5 transition-transform duration-300 group-hover:scale-[1.02]">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 {filiere.mention && <Badge>{filiere.mention}</Badge>}
                                                 {filiere.niveaux && <Badge variant="outline">{filiere.niveaux}</Badge>}
@@ -105,10 +110,12 @@ export default function Index({ filieres }) {
                             ) : (
                                 <Link key={filiere.slug} href={`/filieres/${filiere.slug}`} className="group block">
                                     <Card className="flex items-center gap-4 overflow-hidden p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                                        <div
-                                            className="h-20 w-28 flex-shrink-0 rounded-lg bg-cover bg-center"
-                                            style={{ backgroundImage: `url('/${filiere.image_path}')` }}
-                                        />
+                                        <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-lg">
+                                            <div
+                                                className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                                                style={{ backgroundImage: `url('/${filiere.image_path}')` }}
+                                            />
+                                        </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
                                                 {filiere.mention && <Badge>{filiere.mention}</Badge>}
