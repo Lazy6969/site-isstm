@@ -1,12 +1,14 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Quote } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
+import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 
 export default function Director({ content }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
     const imgRef = useRef(null);
     const [visible, setVisible] = useState(false);
 
@@ -56,6 +58,7 @@ export default function Director({ content }) {
                                     : 'scale-90 opacity-0'
                             }`}
                             loading="lazy"
+                            style={imageStyleToCss(contentStyles?.directeur_image_path, { includeOpacity: false })}
                         />
 
                         <EditableImage

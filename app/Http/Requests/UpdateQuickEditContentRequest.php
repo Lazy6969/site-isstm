@@ -47,7 +47,16 @@ class UpdateQuickEditContentRequest extends FormRequest
             'locale' => ['nullable', Rule::in(['fr', 'en', 'mg'])],
             ...match ($content?->type) {
                 SiteContentType::Icon => ['value' => ['required', Rule::enum(SiteIcon::class)]],
-                SiteContentType::Image => ['file' => ['required', 'image', 'max:4096']],
+                SiteContentType::Image => [
+                    // Optional now: the dialog also submits style-only changes
+                    // (opacity/filter/radius/position) without a new file.
+                    'file' => ['nullable', 'image', 'max:4096'],
+                    'style' => ['nullable', 'array'],
+                    'style.opacity' => ['nullable', 'integer', 'min:10', 'max:100'],
+                    'style.filter' => ['nullable', Rule::in(['none', 'grayscale', 'sepia', 'blur', 'contrast', 'vivid'])],
+                    'style.border_radius' => ['nullable', 'integer', 'min:0', 'max:100'],
+                    'style.object_position' => ['nullable', Rule::in(['center', 'top', 'bottom', 'left', 'right'])],
+                ],
                 default => [
                     'value' => ['required', 'string', 'max:10000'],
                     'style' => ['nullable', 'array'],

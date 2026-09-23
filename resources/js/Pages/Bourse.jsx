@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -6,9 +6,11 @@ import { Card } from '../Components/ui/card';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import { imageStyleToCss } from '../lib/imageStyle';
 
 export default function Bourse({ content = {} }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
 
     const links = [
         {
@@ -76,6 +78,7 @@ export default function Bourse({ content = {} }) {
                                     alt=""
                                     className="h-32 w-auto object-contain sm:h-40"
                                     loading="lazy"
+                                    style={imageStyleToCss(contentStyles?.[`${link.key}_logo`])}
                                 />
                                 <EditableImage contentKey={`${link.key}_logo`} value={link.logo} />
                             </div>

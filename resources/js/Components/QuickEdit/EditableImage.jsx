@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import EditImageDialog from './EditImageDialog';
@@ -8,10 +9,13 @@ import EditImageDialog from './EditImageDialog';
  * a sibling inside whatever container already holds the <img> (or
  * background-image div), positioned with `className` (the container needs
  * `relative` — image markup varies too much across the site for this to also
- * wrap the image itself, unlike EditableText/EditableIcon).
+ * wrap the image itself, unlike EditableText/EditableIcon). The actual image
+ * markup applies contentStyles[contentKey] itself, via imageStyleToCss /
+ * imageStyleToBackgroundCss (lib/imageStyle.js) — this component only edits it.
  */
 export default function EditableImage({ contentKey, value, className = 'absolute right-3 top-3 z-10' }) {
     const { canEdit, active } = useQuickEdit();
+    const { contentStyles } = usePage().props;
     const [open, setOpen] = useState(false);
 
     if (!canEdit || !active) {
@@ -28,7 +32,13 @@ export default function EditableImage({ contentKey, value, className = 'absolute
             >
                 <Pencil className="h-4 w-4" aria-hidden="true" />
             </button>
-            <EditImageDialog open={open} onClose={() => setOpen(false)} contentKey={contentKey} currentValue={value} />
+            <EditImageDialog
+                open={open}
+                onClose={() => setOpen(false)}
+                contentKey={contentKey}
+                currentValue={value}
+                initialStyle={contentStyles?.[contentKey]}
+            />
         </>
     );
 }

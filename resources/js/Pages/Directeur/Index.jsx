@@ -1,13 +1,15 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Quote } from 'lucide-react';
 import Footer from '../../Components/Home/Footer';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import { useTranslations } from '../../lib/useTranslations';
+import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
 
 export default function Index({ content }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
     const directeurImage = content.directeur_image_path ?? 'images/directeur.jpg';
 
     return (
@@ -30,6 +32,7 @@ export default function Index({ content }) {
                                 alt={t('accueil.directeur_photo_alt', "Photo du Directeur de l'ISSTM")}
                                 className="h-full w-full rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/40"
                                 loading="lazy"
+                                style={imageStyleToCss(contentStyles?.directeur_image_path)}
                             />
                             <EditableImage contentKey="directeur_image_path" value={directeurImage} />
                         </div>

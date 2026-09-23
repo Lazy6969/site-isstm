@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
@@ -6,9 +6,11 @@ import Footer from '../Components/Home/Footer';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
 import { useTranslations } from '../lib/useTranslations';
+import { imageStyleToBackgroundCss, imageStyleToCss } from '../lib/imageStyle';
 
 function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, description, href }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
     const [current, setCurrent] = useState(0);
     const timerRef = useRef(null);
 
@@ -25,7 +27,10 @@ function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, descripti
                     className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
                         index === current ? 'opacity-100' : 'opacity-0'
                     }`}
-                    style={{ backgroundImage: `url('/${slide.value}')` }}
+                    style={{
+                        backgroundImage: `url('/${slide.value}')`,
+                        ...imageStyleToBackgroundCss(contentStyles?.[slide.key], { includeOpacity: false }),
+                    }}
                 >
                     {index === current && <EditableImage contentKey={slide.key} value={slide.value} className="absolute top-3 right-3 z-20" />}
                 </div>
@@ -35,7 +40,12 @@ function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, descripti
 
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
                 <div className="relative mb-4">
-                    <img src={`/${logo}`} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-white/70" />
+                    <img
+                        src={`/${logo}`}
+                        alt=""
+                        className="h-16 w-16 rounded-full object-cover ring-2 ring-white/70"
+                        style={imageStyleToCss(contentStyles?.[logoKey])}
+                    />
                     <EditableImage contentKey={logoKey} value={logo} className="absolute -top-1.5 -right-1.5 z-10 h-6 w-6" />
                 </div>
 
@@ -73,6 +83,7 @@ function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, descripti
 
 export default function VieEtudiante({ content = {} }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
 
     const campusSlides = [
         { key: 'vie_etudiante_campus_slide1_image_path', value: content.vie_etudiante_campus_slide1_image_path ?? 'images/portal_campus_1.jpg' },
@@ -118,6 +129,7 @@ export default function VieEtudiante({ content = {} }) {
                             src={`/${intro1Image}`}
                             alt=""
                             className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                            style={imageStyleToCss(contentStyles?.vie_etudiante_intro1_image_path)}
                         />
                         <EditableImage contentKey="vie_etudiante_intro1_image_path" value={intro1Image} />
                     </div>
@@ -147,6 +159,7 @@ export default function VieEtudiante({ content = {} }) {
                             src={`/${intro2Image}`}
                             alt=""
                             className="w-full scale-100 transition-transform duration-500 hover:scale-110"
+                            style={imageStyleToCss(contentStyles?.vie_etudiante_intro2_image_path)}
                         />
                         <EditableImage contentKey="vie_etudiante_intro2_image_path" value={intro2Image} />
                     </div>

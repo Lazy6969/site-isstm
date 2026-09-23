@@ -6,6 +6,7 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableIcon from '../../Components/QuickEdit/EditableIcon';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
+import { imageStyleToCss } from '../../lib/imageStyle';
 
 const team = [
     { key: 'equipe_membre_1', featured: true, hasHighlight: true, iconDefault: 'Crown' },
@@ -16,7 +17,7 @@ const team = [
 
 export default function Index() {
     const { t } = useTranslations();
-    const { content } = usePage().props;
+    const { content, contentStyles } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -62,6 +63,7 @@ export default function Index() {
                                         alt={content[`${member.key}_nom`] ?? ''}
                                         className="h-32 w-32 rounded-full object-cover shadow-lg ring-4 ring-isstm-gold/30"
                                         loading="lazy"
+                                        style={imageStyleToCss(contentStyles?.[`${member.key}_photo`])}
                                     />
                                     <EditableImage contentKey={`${member.key}_photo`} value={photo} />
                                     {member.featured && (

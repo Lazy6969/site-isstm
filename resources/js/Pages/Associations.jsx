@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../Components/ui/avatar';
 import { useTranslations } from '../lib/useTranslations';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableImage from '../Components/QuickEdit/EditableImage';
+import { imageStyleToBackgroundCss, imageStyleToCss } from '../lib/imageStyle';
 
 const identityCard = [
     {
@@ -124,7 +125,7 @@ const gallery = [
 
 export default function Associations() {
     const { t } = useTranslations();
-    const { content } = usePage().props;
+    const { content, contentStyles } = usePage().props;
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -165,6 +166,7 @@ export default function Associations() {
                         <AvatarImage
                             src={`/${content.associations_logo ?? 'images/aei.jpeg'}`}
                             alt="Logo AEI"
+                            style={imageStyleToCss(contentStyles?.associations_logo)}
                         />
                         <AvatarFallback>AEI</AvatarFallback>
                     </Avatar>
@@ -307,6 +309,7 @@ export default function Associations() {
                                     className="h-32 rounded-xl bg-cover bg-center sm:h-44"
                                     style={{
                                         backgroundImage: `url('/${image}')`,
+                                        ...imageStyleToBackgroundCss(contentStyles?.[item.key]),
                                     }}
                                 />
                                 <EditableImage contentKey={item.key} value={image} />

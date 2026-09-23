@@ -36,11 +36,13 @@ class QuickEditController extends Controller
      * SiteIcon name, or a replacement image — icon/image are shared across
      * locales (see SiteContent::updateForCurrentLocale()).
      * Text is plain only — no HTML is accepted, formatting is applied via the
-     * whitelisted `style` JSON column instead (bold/italic/color/font/...),
-     * rendered client-side as inline CSS, never interpreted as markup.
+     * whitelisted `style` JSON column instead (bold/italic/color/font/... for
+     * text, opacity/filter/radius/position for images), rendered client-side
+     * as inline CSS, never interpreted as markup.
      * Style, like icon/image, isn't locale-specific — it's set directly on the
      * model here so the single save() inside updateForCurrentLocale() below
-     * persists both the value and the style together.
+     * persists both the value and the style together. An image edit may carry
+     * a style change with no new file (replacing the file stays optional).
      */
     public function update(UpdateQuickEditContentRequest $request): RedirectResponse
     {
@@ -49,12 +51,12 @@ class QuickEditController extends Controller
         SiteContentRevision::snapshot($content, $request->user());
 
         $value = match ($content->type) {
-            SiteContentType::Image => $this->storeImage($request, $content),
+            SiteContentType::Image => $request->hasFile('file') ? $this->storeImage($request, $content) : $content->content_value_fr,
             SiteContentType::Text => strip_tags($request->validated('value')),
             SiteContentType::Icon => $request->validated('value'),
         };
 
-        if ($content->type === SiteContentType::Text) {
+        if (in_array($content->type, [SiteContentType::Text, SiteContentType::Image], true)) {
             $content->style = $request->validated('style');
         }
 

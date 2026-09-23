@@ -305,3 +305,37 @@ it('rejects a non-image file for an image content key', function () {
         ->post('/console/content/update', ['key' => 'mission_image_path', 'file' => UploadedFile::fake()->create('malware.php', 10)])
         ->assertSessionHasErrors('file');
 });
+
+it('saves an image style change with no new file', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'mission_image_path',
+        'type' => SiteContentType::Image,
+        'content_value_fr' => 'images/mission.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_image_path',
+            'style' => ['opacity' => 80, 'filter' => 'grayscale', 'border_radius' => 16, 'object_position' => 'top'],
+        ])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('images/mission.jpg');
+    expect($content->style)->toBe([
+        'opacity' => 80,
+        'filter' => 'grayscale',
+        'border_radius' => 16,
+        'object_position' => 'top',
+    ]);
+});
+
+it('rejects an image style with a value outside the whitelisted options', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'mission_image_path', 'type' => SiteContentType::Image]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'mission_image_path', 'style' => ['filter' => 'rainbow']])
+        ->assertSessionHasErrors('style.filter');
+});

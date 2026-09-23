@@ -1,11 +1,13 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
+import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
     const [current, setCurrent] = useState(0);
     const timerRef = useRef(null);
 
@@ -94,7 +96,13 @@ export default function MissionVision({ content }) {
                                     <div
                                         className={`relative z-0 min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}
                                     >
-                                        <img src={`/${block.image}`} alt="" className="h-full w-full object-cover" loading="lazy" />
+                                        <img
+                                            src={`/${block.image}`}
+                                            alt=""
+                                            className="h-full w-full object-cover"
+                                            loading="lazy"
+                                            style={imageStyleToCss(contentStyles?.[block.imageKey])}
+                                        />
                                         {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
                                     </div>
                                 </div>
