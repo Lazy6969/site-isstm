@@ -4,11 +4,6 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 
-const BLOB_PATHS = {
-    left: 'M0,0 H55 C75,8 45,17 65,25 C85,33 40,42 60,50 C80,58 45,67 65,75 C85,83 45,92 55,100 H0 Z',
-    right: 'M100,0 H45 C25,8 55,17 35,25 C15,33 60,42 40,50 C20,58 55,67 35,75 C15,83 55,92 45,100 H100 Z',
-};
-
 export default function MissionVision({ content }) {
     const { t } = useTranslations();
     const [current, setCurrent] = useState(0);
@@ -70,7 +65,7 @@ export default function MissionVision({ content }) {
                                     }`}
                                 >
                                     <div
-                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 md:bg-transparent ${
+                                        className={`relative z-20 flex flex-col justify-center bg-isstm-navy px-8 py-14 sm:px-12 sm:py-20 ${
                                             block.reverse ? 'md:order-2' : ''
                                         }`}
                                     >
@@ -95,17 +90,6 @@ export default function MissionVision({ content }) {
                                             {t('filieres.en_savoir_plus', 'En savoir plus')}
                                         </Link>
                                     </div>
-
-                                    <svg
-                                        className={`pointer-events-none absolute inset-y-0 z-10 hidden h-full w-[88%] text-isstm-navy md:block ${
-                                            block.reverse ? 'right-0' : 'left-0'
-                                        }`}
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="none"
-                                        aria-hidden="true"
-                                    >
-                                        <path d={block.reverse ? BLOB_PATHS.right : BLOB_PATHS.left} fill="currentColor" />
-                                    </svg>
 
                                     <div
                                         className={`relative z-0 min-h-[220px] flex-1 md:h-auto md:min-h-0 ${block.reverse ? 'md:order-1' : ''}`}
