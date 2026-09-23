@@ -18,10 +18,10 @@ export default function VerifyEmail({ status }) {
 
     return (
         <AuthLayout
-            title={t('auth.verifier_email_titre', 'Vérifiez votre e-mail')}
+            title={t('auth.verifier_email_titre', 'Votre dossier a bien été reçu !')}
             subtitle={t(
                 'auth.verifier_email_soustitre',
-                "Un lien de vérification vient d'être envoyé à votre adresse e-mail. Cliquez dessus pour activer votre compte.",
+                "Il ne reste qu'une étape : un lien vient d'être envoyé à votre adresse e-mail. Cliquez dessus pour activer votre compte et suivre votre dossier.",
             )}
         >
             <Head title="Vérifiez votre e-mail" />

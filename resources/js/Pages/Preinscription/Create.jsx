@@ -508,7 +508,7 @@ export default function Create({ filieres }) {
                                             className="flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                                         >
                                             <Send className="h-4 w-4" aria-hidden="true" />
-                                            Envoyer mon inscription
+                                            {processing ? 'Envoi en cours…' : 'Envoyer mon inscription'}
                                         </button>
                                     </div>
                                 </Card>
