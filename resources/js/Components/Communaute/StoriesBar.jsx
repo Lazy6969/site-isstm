@@ -100,6 +100,11 @@ export default function StoriesBar() {
                 >
                     <img src={`/storage/${myGroup.stories[0].media_path}`} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
+                    {myGroup.stories.length > 1 && (
+                        <span className="absolute right-2 top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white/80">
+                            {myGroup.stories.length}
+                        </span>
+                    )}
                     <span className="absolute inset-x-2 bottom-2 truncate text-left text-xs font-semibold text-white">
                         {t('stories.mes_stories', 'Mes stories')}
                     </span>
@@ -130,6 +135,11 @@ export default function StoriesBar() {
                         alt=""
                         className="absolute left-2 top-2 h-8 w-8 rounded-full object-cover ring-2 ring-community-accent"
                     />
+                    {group.stories.length > 1 && (
+                        <span className="absolute right-2 top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white/80">
+                            {group.stories.length}
+                        </span>
+                    )}
                     <span className="absolute inset-x-2 bottom-2 truncate text-left text-xs font-semibold text-white">{group.user.name}</span>
                 </button>
             ))}

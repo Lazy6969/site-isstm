@@ -91,6 +91,24 @@ it('does not notify a user replying to their own comment', function () {
     Notification::assertNothingSent();
 });
 
+it('lets a user reply to a reply and shows it nested in the feed', function () {
+    $post = Post::factory()->create();
+    $topLevelAuthor = User::factory()->role(Role::Etudiant)->create();
+    $topLevel = Comment::factory()->for($post)->for($topLevelAuthor)->create();
+    $replier = User::factory()->role(Role::Etudiant)->create();
+    $reply = Comment::factory()->for($post)->for($replier)->create(['parent_id' => $topLevel->id]);
+    $subReplier = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($subReplier)->post("/communaute/{$post->id}/commentaires", [
+        'body' => 'Réponse à la réponse',
+        'parent_id' => $reply->id,
+    ])->assertRedirect();
+
+    $this->actingAs($subReplier)->get('/communaute')->assertInertia(fn ($page) => $page
+        ->where('posts.data.0.comments.0.replies.0.replies.0.body', 'Réponse à la réponse')
+    );
+});
+
 it('toggles a reaction off when the same type is submitted twice', function () {
     $post = Post::factory()->create();
     $user = User::factory()->role(Role::Etudiant)->create();

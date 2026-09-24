@@ -18,7 +18,7 @@ import {
     Share2,
     Trash2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import CommentItem from './CommentItem';
 import ReportPostDialog from './ReportPostDialog';
 import EditPostDialog from './EditPostDialog';
@@ -44,6 +44,18 @@ function formatDate(dateString) {
 
 function MediaGrid({ media, compact = false }) {
     if (media.length === 0) return null;
+
+    if (media.length === 1 && media[0].type === 'image') {
+        return (
+            <div className="mt-3 flex justify-center overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900">
+                <img
+                    src={`/storage/${media[0].path}`}
+                    alt=""
+                    className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className={`mt-3 grid gap-2 ${media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
@@ -98,7 +110,8 @@ function SharedPostPreview({ post }) {
     );
 }
 
-const COLLAPSED_COMMENT_COUNT = 3;
+const COLLAPSED_COMMENT_COUNT = 1;
+const HOVER_CLOSE_DELAY_MS = 300;
 
 export default function PostCard({ post }) {
     const { t } = useTranslations();
@@ -107,6 +120,17 @@ export default function PostCard({ post }) {
     const [reportOpen, setReportOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
     const [reactionsOpen, setReactionsOpen] = useState(false);
+    const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
+    const reactionCloseTimer = useRef(null);
+
+    function openReactionPicker() {
+        clearTimeout(reactionCloseTimer.current);
+        setReactionPickerOpen(true);
+    }
+
+    function scheduleCloseReactionPicker() {
+        reactionCloseTimer.current = setTimeout(() => setReactionPickerOpen(false), HOVER_CLOSE_DELAY_MS);
+    }
 
     const totalReactions = Object.values(post.reactions).reduce((sum, n) => sum + n, 0);
     const topReactions = REACTIONS.filter((r) => post.reactions[r.value] > 0)
@@ -276,49 +300,63 @@ export default function PostCard({ post }) {
 
             {post.shared_post ? <SharedPostPreview post={post.shared_post} /> : <MediaGrid media={post.media} />}
 
-            {totalReactions > 0 && (
-                <button
-                    type="button"
-                    onClick={() => setReactionsOpen(true)}
-                    className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 hover:underline"
-                >
-                    <span className="flex -space-x-1">
-                        {topReactions.map((r) => (
-                            <span key={r.value} className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] ring-1 ring-white dark:bg-slate-800">
-                                {r.emoji}
+            {(totalReactions > 0 || post.comments.length > 0) && (
+                <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+                    {totalReactions > 0 ? (
+                        <button type="button" onClick={() => setReactionsOpen(true)} className="flex items-center gap-1.5 hover:underline">
+                            <span className="flex -space-x-1">
+                                {topReactions.map((r) => (
+                                    <span key={r.value} className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] ring-1 ring-white dark:bg-slate-800">
+                                        {r.emoji}
+                                    </span>
+                                ))}
                             </span>
-                        ))}
-                    </span>
-                    {totalReactions}
-                </button>
+                            {totalReactions}
+                        </button>
+                    ) : (
+                        <span />
+                    )}
+                    {post.comments.length > 0 && (
+                        <button type="button" onClick={() => setShowAllComments(true)} className="hover:underline">
+                            {t('communaute.nombre_commentaires', '{count} commentaires').replace('{count}', post.comments.length)}
+                        </button>
+                    )}
+                </div>
             )}
 
             <div className="mt-3 flex items-center gap-1 border-t border-slate-100 pt-3 text-sm dark:border-slate-700">
-                <DropdownMenu>
-                    <DropdownMenuTrigger
+                <div className="relative" onMouseEnter={openReactionPicker} onMouseLeave={scheduleCloseReactionPicker}>
+                    {reactionPickerOpen && (
+                        <div className="absolute bottom-full left-0 z-10 mb-1 flex w-auto gap-1 rounded-full bg-white p-1.5 shadow-xl ring-1 ring-slate-100 dark:bg-slate-800 dark:ring-slate-700">
+                            {REACTIONS.map((r) => (
+                                <button
+                                    key={r.value}
+                                    type="button"
+                                    onClick={() => {
+                                        react(r.value);
+                                        setReactionPickerOpen(false);
+                                    }}
+                                    title={t(r.labelKey, r.label)}
+                                    className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:scale-125 ${
+                                        post.my_reaction === r.value ? 'bg-isstm-navy/10' : ''
+                                    }`}
+                                >
+                                    {r.emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => react(post.my_reaction ?? 'like')}
                         className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 font-medium transition ${
                             activeReaction ? 'text-isstm-navy dark:text-white' : 'text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-700/50'
                         }`}
                     >
                         <span aria-hidden="true">{activeReaction?.emoji ?? '👍'}</span>
                         {activeReaction ? t(activeReaction.labelKey, activeReaction.label) : t('communaute.jaime', "J'aime")}
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="flex w-auto gap-1 p-1.5">
-                        {REACTIONS.map((r) => (
-                            <button
-                                key={r.value}
-                                type="button"
-                                onClick={() => react(r.value)}
-                                title={t(r.labelKey, r.label)}
-                                className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:scale-125 ${
-                                    post.my_reaction === r.value ? 'bg-isstm-navy/10' : ''
-                                }`}
-                            >
-                                {r.emoji}
-                            </button>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </button>
+                </div>
 
                 <button
                     type="button"

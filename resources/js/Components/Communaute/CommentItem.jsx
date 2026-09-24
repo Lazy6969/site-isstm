@@ -26,8 +26,10 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
         }
     }
 
+    const visualDepth = Math.min(depth, 2);
+
     return (
-        <div className={depth > 0 ? 'ml-8 mt-3' : 'mt-3'}>
+        <div className={visualDepth > 0 ? 'ml-8 mt-3' : 'mt-3'}>
             <div className="flex items-start gap-2.5">
                 <Avatar className="mt-0.5 h-8 w-8 flex-shrink-0">
                     <AvatarImage src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : undefined} alt="" />
@@ -41,11 +43,9 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
                         <p className="text-sm text-slate-700">{comment.body}</p>
                     </div>
                     <div className="mt-1 flex gap-3 px-3.5 text-xs text-slate-400">
-                        {depth === 0 && (
-                            <button onClick={() => setReplying((v) => !v)} className="font-medium hover:text-isstm-navy">
-                                {t('communaute.repondre', 'Répondre')}
-                            </button>
-                        )}
+                        <button onClick={() => setReplying((v) => !v)} className="font-medium hover:text-isstm-navy">
+                            {t('communaute.repondre', 'Répondre')}
+                        </button>
                         {comment.can_manage && (
                             <button onClick={destroy} className="font-medium hover:text-red-600">
                                 {t('communaute.supprimer', 'Supprimer')}

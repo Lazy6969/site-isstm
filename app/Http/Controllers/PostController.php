@@ -156,7 +156,7 @@ class PostController extends Controller
             'sharedPost.user',
             'sharedPost.media',
             'sharedPost.reactions',
-            'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user'])->oldest(),
+            'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user', 'replies.replies.user'])->oldest(),
         ];
     }
 
