@@ -32,6 +32,7 @@ use Spatie\Permission\Traits\HasRoles;
     'linkedin_url',
     'personal_website',
     'avatar_path',
+    'cover_path',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail

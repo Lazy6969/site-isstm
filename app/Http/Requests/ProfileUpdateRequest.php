@@ -35,6 +35,7 @@ class ProfileUpdateRequest extends FormRequest
             'linkedin_url' => ['nullable', 'url', 'max:255'],
             'personal_website' => ['nullable', 'url', 'max:255'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

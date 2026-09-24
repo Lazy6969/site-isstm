@@ -1,6 +1,11 @@
 <?php
 
+use App\Models\FriendRequest;
+use App\Models\Post;
+use App\Models\PostMedia;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 it('redirects guests to the login page', function () {
     $this->get('/profil')->assertRedirect('/login');
@@ -49,5 +54,39 @@ it('shows a public profile without requiring authentication', function () {
         ->assertInertia(fn ($page) => $page
             ->component('Profile/Show')
             ->where('profile.name', $user->name)
+        );
+});
+
+it('lets a user upload a cover photo', function () {
+    Storage::fake('public');
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->patch('/profil', [
+        'name' => $user->name,
+        'email' => $user->email,
+        'cover' => UploadedFile::fake()->image('couverture.jpg'),
+    ]);
+
+    $response->assertSessionHasNoErrors();
+    $user->refresh();
+    expect($user->cover_path)->not->toBeNull();
+    Storage::disk('public')->assertExists($user->cover_path);
+});
+
+it('shows the public profile\'s friends count, posts and photos', function () {
+    $user = User::factory()->create();
+    $friend = User::factory()->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $user->id, 'recipient_id' => $friend->id]);
+
+    $post = Post::factory()->for($user)->create(['body' => 'Ma première publication.']);
+    PostMedia::create(['post_id' => $post->id, 'path' => 'communaute/photo.jpg', 'type' => 'image', 'display_order' => 0]);
+
+    $this->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page
+            ->component('Profile/Show')
+            ->where('friendsCount', 1)
+            ->where('postsCount', 1)
+            ->has('posts.data', 1)
+            ->has('photos', 1)
         );
 });

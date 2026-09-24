@@ -22,6 +22,7 @@ export default function Edit({ user }) {
         linkedin_url: user.linkedin_url ?? '',
         personal_website: user.personal_website ?? '',
         avatar: null,
+        cover: null,
     });
 
     function submit(e) {
@@ -40,7 +41,30 @@ export default function Edit({ user }) {
                     {t('profil.visibilite', 'Ces informations sont visibles par les autres membres de la communauté ISSTM.')}
                 </p>
 
-                <Card className="mt-8 space-y-6 p-8">
+                <Card className="mt-8 overflow-hidden">
+                    <div className="relative h-40 bg-gradient-to-br from-isstm-navy to-isstm-navy-dark sm:h-48">
+                        {data.cover ? (
+                            <img src={URL.createObjectURL(data.cover)} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                            user.cover_path && <img src={`/storage/${user.cover_path}`} alt="" className="h-full w-full object-cover" />
+                        )}
+                        <label
+                            htmlFor="cover"
+                            className="absolute bottom-3 right-3 cursor-pointer rounded-full bg-black/50 px-3.5 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-black/70"
+                        >
+                            {t('profil.changer_couverture', 'Changer la couverture')}
+                        </label>
+                        <input
+                            id="cover"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setData('cover', e.target.files[0])}
+                            className="hidden"
+                        />
+                    </div>
+                    {errors.cover && <p className="px-8 pt-2 text-sm text-red-600">{errors.cover}</p>}
+
+                    <div className="space-y-6 p-8">
                     <form onSubmit={submit} encType="multipart/form-data" className="space-y-6">
                         <div className="flex items-center gap-5">
                             <Avatar className="h-16 w-16 ring-2 ring-isstm-navy/10">
@@ -101,6 +125,7 @@ export default function Edit({ user }) {
                             {t('profil.enregistrer', 'Enregistrer')}
                         </button>
                     </form>
+                    </div>
                 </Card>
             </main>
 
