@@ -80,6 +80,25 @@ class NotificationController extends Controller
         return back();
     }
 
+    public function destroySelected(Request $request): RedirectResponse|JsonResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['string'],
+        ])['ids'];
+
+        $request->user()->notifications()->whereIn('id', $ids)->delete();
+
+        return $request->wantsJson() ? response()->json(['status' => 'ok']) : back();
+    }
+
+    public function destroyAll(Request $request): RedirectResponse|JsonResponse
+    {
+        $request->user()->notifications()->delete();
+
+        return $request->wantsJson() ? response()->json(['status' => 'ok']) : back();
+    }
+
     /**
      * @param  Collection<int, DatabaseNotification>  $notifications
      * @return Collection<int, array<string, mixed>>

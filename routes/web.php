@@ -137,6 +137,8 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/recentes', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('notifications/supprimer', [NotificationController::class, 'destroySelected'])->name('notifications.destroy-selected');
+    Route::post('notifications/tout-supprimer', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
     Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 

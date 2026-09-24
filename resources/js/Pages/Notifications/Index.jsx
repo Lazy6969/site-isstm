@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { CheckCheck, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import Skeleton from '../../Components/Loading/Skeleton';
 import { Card } from '../../Components/ui/card';
@@ -17,6 +17,13 @@ function formatTime(dateString) {
 export default function Index({ groups, pagination }) {
     const { t } = useTranslations();
     const [pageLoading, setPageLoading] = useState(false);
+    const [selected, setSelected] = useState(() => new Set());
+
+    const allIds = useMemo(
+        () => periodOrder.flatMap((period) => (groups[period] ?? []).map((n) => n.id)),
+        [groups],
+    );
+    const allSelected = allIds.length > 0 && selected.size === allIds.length;
 
     function notificationText(notification) {
         const actor = notification.actor?.name ?? t('notifications.quelquun', "Quelqu'un");
@@ -55,6 +62,39 @@ export default function Index({ groups, pagination }) {
         router.delete(`/notifications/${id}`, { preserveScroll: true });
     }
 
+    function toggleSelected(id) {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+
+            return next;
+        });
+    }
+
+    function toggleSelectAll() {
+        setSelected((prev) => (prev.size === allIds.length ? new Set() : new Set(allIds)));
+    }
+
+    function destroySelected() {
+        if (selected.size === 0) return;
+
+        router.post(
+            '/notifications/supprimer',
+            { ids: Array.from(selected) },
+            { preserveScroll: true, onSuccess: () => setSelected(new Set()) },
+        );
+    }
+
+    function destroyAllNotifications() {
+        if (!confirm(t('notifications.confirmer_tout_supprimer', 'Supprimer toutes les notifications ?'))) return;
+
+        router.post('/notifications/tout-supprimer', {}, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
+    }
+
     function goToPage(page) {
         router.get(
             '/notifications',
@@ -71,11 +111,37 @@ export default function Index({ groups, pagination }) {
 
             <div className="mx-auto max-w-2xl">
 
-            <div className="mb-6 flex justify-end">
-                <button onClick={markAllRead} className="flex items-center gap-1.5 text-sm font-medium text-isstm-gold hover:underline">
-                    <CheckCheck className="h-4 w-4" aria-hidden="true" />
-                    {t('notifications.tout_marquer_lu', 'Tout marquer comme lu')}
-                </button>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={toggleSelectAll}
+                        disabled={allIds.length === 0}
+                        className="rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
+                    />
+                    {allSelected
+                        ? t('notifications.tout_deselectionner', 'Tout désélectionner')
+                        : t('notifications.tout_selectionner', 'Tout sélectionner')}
+                    {selected.size > 0 && ` (${selected.size})`}
+                </label>
+
+                <div className="flex flex-wrap items-center gap-4">
+                    {selected.size > 0 && (
+                        <button onClick={destroySelected} className="flex items-center gap-1.5 text-sm font-medium text-red-600 hover:underline">
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            {t('notifications.supprimer_selection', 'Supprimer la sélection')}
+                        </button>
+                    )}
+                    <button onClick={destroyAllNotifications} className="flex items-center gap-1.5 text-sm font-medium text-red-600 hover:underline">
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        {t('notifications.tout_supprimer', 'Tout supprimer')}
+                    </button>
+                    <button onClick={markAllRead} className="flex items-center gap-1.5 text-sm font-medium text-isstm-gold hover:underline">
+                        <CheckCheck className="h-4 w-4" aria-hidden="true" />
+                        {t('notifications.tout_marquer_lu', 'Tout marquer comme lu')}
+                    </button>
+                </div>
             </div>
 
             {pageLoading && (
@@ -111,6 +177,13 @@ export default function Index({ groups, pagination }) {
                                             key={notification.id}
                                             className={`flex items-start gap-3 p-4 ${!notification.read ? 'ring-1 ring-isstm-gold/30' : ''}`}
                                         >
+                                            <input
+                                                type="checkbox"
+                                                checked={selected.has(notification.id)}
+                                                onChange={() => toggleSelected(notification.id)}
+                                                aria-label={t('notifications.selectionner', 'Sélectionner')}
+                                                className="mt-1.5 flex-shrink-0 rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
+                                            />
                                             <Avatar className="mt-0.5 h-9 w-9 flex-shrink-0">
                                                 <AvatarImage src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : undefined} alt="" />
                                                 <AvatarFallback>{notification.actor?.name?.[0] ?? '?'}</AvatarFallback>

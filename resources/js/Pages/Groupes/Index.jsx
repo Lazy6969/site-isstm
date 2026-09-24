@@ -93,7 +93,7 @@ export default function Index({ groups, canCreate }) {
                     <p className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-8 text-center text-sm text-slate-400 dark:text-slate-500 sm:col-span-2">
                         {t(
                             'groupes.aucun_groupe',
-                            "Vous n'êtes membre d'aucun groupe. Rejoignez-en un avec un code, ou créez-en un si vous êtes enseignant.",
+                            "Vous n'êtes membre d'aucun groupe. Rejoignez-en un avec un code, ou créez le vôtre.",
                         )}
                     </p>
                 )}
@@ -114,7 +114,7 @@ export default function Index({ groups, canCreate }) {
                                 )}
                             </div>
                             <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
-                                {t('groupes.enseignant', 'Enseignant :')} {group.teacher_name}
+                                {t('groupes.cree_par', 'Créé par :')} {group.teacher_name}
                             </p>
                             <div className="mt-2 flex items-center gap-2">
                                 {group.is_delegate && <Badge variant="gold">{t('groupes.delegue', 'Délégué')}</Badge>}

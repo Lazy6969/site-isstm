@@ -48,7 +48,7 @@ class ClassGroupController extends Controller
 
         return Inertia::render('Groupes/Index', [
             'groups' => $groups,
-            'canCreate' => $user->hasLegacyRole(Role::Enseignant, Role::Admin),
+            'canCreate' => $user->hasLegacyRole(Role::Etudiant, Role::Enseignant, Role::Admin),
         ]);
     }
 

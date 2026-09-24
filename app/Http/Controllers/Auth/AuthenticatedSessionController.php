@@ -23,6 +23,12 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        // Persist the regenerated session synchronously instead of relying on
+        // end-of-request save timing — the immediate redirect below issues a
+        // follow-up request right away, and without this the role-gated
+        // middleware on the landing page can momentarily see no authenticated
+        // user and 403, even though refreshing that same page works fine.
+        $request->session()->save();
 
         // A student's home base is the community feed, not the public homepage —
         // the rest of the site stays one click away via AppLayout's "Voir le site" link.

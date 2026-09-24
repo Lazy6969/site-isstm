@@ -202,7 +202,7 @@ export default function Index({ conversations, friends, activeConversation, mess
 
             <div className="flex h-[calc(100vh-220px)] min-h-[520px] overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
                 <aside
-                    className={`flex w-full flex-shrink-0 flex-col border-r border-slate-100 dark:border-slate-700 sm:flex sm:w-80 ${
+                    className={`flex w-full min-h-0 flex-shrink-0 flex-col border-r border-slate-100 dark:border-slate-700 sm:flex sm:w-80 ${
                         activeConversation ? 'hidden' : 'flex'
                     }`}
                 >
@@ -239,7 +239,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                     </div>
                 </aside>
 
-                <section className={`flex-1 flex-col sm:flex ${activeConversation ? 'flex' : 'hidden'}`}>
+                <section className={`min-h-0 flex-1 flex-col sm:flex ${activeConversation ? 'flex' : 'hidden'}`}>
                     {!activeConversation && (
                         <div className="hidden flex-1 items-center justify-center text-sm text-slate-400 dark:text-slate-500 sm:flex">
                             {t('messages.selectionner_conversation', 'Sélectionnez une conversation à gauche.')}
@@ -419,7 +419,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                 </section>
 
                 {!isGroup && showMedia && (
-                    <aside className="fixed inset-0 z-20 flex flex-col bg-white dark:bg-slate-800 sm:static sm:z-auto sm:w-80 sm:flex-shrink-0 sm:border-l sm:border-slate-100 sm:dark:border-slate-700">
+                    <aside className="fixed inset-0 z-20 flex min-h-0 flex-col bg-white dark:bg-slate-800 sm:static sm:z-auto sm:w-80 sm:flex-shrink-0 sm:border-l sm:border-slate-100 sm:dark:border-slate-700">
                         <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-100 p-3 dark:border-slate-700">
                             <h3 className="text-sm font-semibold text-isstm-navy dark:text-white">{t('messages.medias_echanges', 'Médias échangés')}</h3>
                             <button onClick={() => setShowMedia(false)} aria-label={t('nav.fermer', 'Fermer')} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">

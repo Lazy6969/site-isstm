@@ -1,17 +1,31 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { Archive, Bookmark, Paperclip, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
 import StoriesBar from '../../Components/Communaute/StoriesBar';
 import ConversationsSidebar from '../../Components/Communaute/ConversationsSidebar';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { useTranslations } from '../../lib/useTranslations';
+import { greetingPeriod } from '../../lib/greeting';
+
+const GREETINGS = {
+    matin: { key: 'communaute.salutation_matin', fallback: 'Bonjour {name} 👋' },
+    apresmidi: { key: 'communaute.salutation_apresmidi', fallback: 'Bonne après-midi {name} ☀️' },
+    soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
+};
 
 export default function Index({ posts, canPublish, postTypes, conversations }) {
     const { t } = useTranslations();
+    const { auth } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
     const [pageLoading, setPageLoading] = useState(false);
+    const greeting = useMemo(() => {
+        const firstName = auth?.user?.name?.split(' ')[0] ?? '';
+        const { key, fallback } = GREETINGS[greetingPeriod()];
+
+        return t(key, fallback).replace('{name}', firstName);
+    }, [auth?.user?.name, t]);
 
     function submit(e) {
         e.preventDefault();
@@ -33,7 +47,7 @@ export default function Index({ posts, canPublish, postTypes, conversations }) {
     }
 
     return (
-        <AppLayout title={t('communaute.titre', 'Fil communautaire')}>
+        <AppLayout title={greeting}>
             <Head title="Communauté" />
 
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">

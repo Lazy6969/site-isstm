@@ -87,3 +87,47 @@ it('deletes a notification', function () {
 
     expect($user->notifications()->count())->toBe(0);
 });
+
+it('deletes a selection of notifications, leaving the rest untouched', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $post = Post::factory()->create();
+    $user->notify(new NewPostPublished($post));
+    $user->notify(new NewPostPublished($post));
+    $user->notify(new NewPostPublished($post));
+    $ids = $user->notifications()->pluck('id');
+
+    $this->actingAs($user)->post('/notifications/supprimer', [
+        'ids' => $ids->take(2)->all(),
+    ])->assertRedirect();
+
+    expect($user->notifications()->count())->toBe(1);
+    expect($user->notifications()->first()->id)->toBe($ids->last());
+});
+
+it('refuses to delete a selection that includes another users notification', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $other = User::factory()->role(Role::Etudiant)->create();
+    $post = Post::factory()->create();
+    $user->notify(new NewPostPublished($post));
+    $other->notify(new NewPostPublished($post));
+
+    $this->actingAs($user)->post('/notifications/supprimer', [
+        'ids' => $other->notifications()->pluck('id')->all(),
+    ])->assertRedirect();
+
+    expect($other->notifications()->count())->toBe(1);
+});
+
+it('deletes every notification for the user at once', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $other = User::factory()->role(Role::Etudiant)->create();
+    $post = Post::factory()->create();
+    $user->notify(new NewPostPublished($post));
+    $user->notify(new NewPostPublished($post));
+    $other->notify(new NewPostPublished($post));
+
+    $this->actingAs($user)->post('/notifications/tout-supprimer')->assertRedirect();
+
+    expect($user->notifications()->count())->toBe(0);
+    expect($other->notifications()->count())->toBe(1);
+});
