@@ -17,10 +17,14 @@ Route::middleware('guest')->group(function () {
     Route::post('mot-de-passe-oublie', [PasswordResetLinkController::class, 'store'])
         ->middleware('throttle:password-reset')
         ->name('password.email');
-
-    Route::get('reinitialiser-mot-de-passe/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reinitialiser-mot-de-passe', [NewPasswordController::class, 'store'])->name('password.store');
 });
+
+// Not gated behind `guest`: a préinscription candidate is auto-logged-in the moment
+// they submit the form, so their session is already authenticated by the time this
+// e-mailed link reaches them. Under `guest`, RedirectIfAuthenticated would bounce
+// them straight to `home` before they ever saw the new-password form.
+Route::get('reinitialiser-mot-de-passe/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+Route::post('reinitialiser-mot-de-passe', [NewPasswordController::class, 'store'])->name('password.store');
 
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
