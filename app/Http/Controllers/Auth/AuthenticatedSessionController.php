@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        // A student's home base is the community feed, not the public homepage —
+        // the rest of the site stays one click away via AppLayout's "Voir le site" link.
+        $default = $request->user()->role === Role::Etudiant ? route('posts.index') : route('home');
+
+        return redirect()->intended($default);
     }
 
     public function destroy(Request $request): RedirectResponse
