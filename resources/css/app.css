@@ -147,6 +147,32 @@ html[data-community-accent='rose'] { --color-community-accent: #e11d48; }
 html[data-community-accent='violet'] { --color-community-accent: #7c3aed; }
 html[data-community-accent='amber'] { --color-community-accent: #d97706; }
 
+/* Espace étudiant visual identity (indigo→violet gradient, soft lavender
+   canvas), inspired by github.com/Lazy6969/Mirindra_Funding — scoped to
+   .community-shell (AppLayout's root) via CSS custom-property overrides so
+   every existing isstm-navy/isstm-gold utility class in the community pages
+   (Card titles, badges, buttons, borders…) repaints automatically without
+   editing each component, while the public site and admin console keep
+   their own navy/gold identity untouched outside this subtree. */
+.community-shell {
+    --color-isstm-navy: #667eea;
+    --color-isstm-navy-dark: #764ba2;
+    --color-isstm-gold: #f093fb;
+    --gradient-community: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e6e9f5 100%);
+}
+.dark .community-shell {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b3a 100%);
+}
+
+.community-shell :is(.rounded-2xl.border, .rounded-3xl.border) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.community-shell :is(.rounded-2xl.border, .rounded-3xl.border):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -12px rgba(102, 126, 234, 0.35);
+}
+
 @keyframes story-progress {
     from { width: 0%; }
     to { width: 100%; }

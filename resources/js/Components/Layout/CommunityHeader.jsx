@@ -34,7 +34,10 @@ export default function CommunityHeader() {
     }
 
     return (
-        <header className="sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
+        <header
+            className="sticky top-0 z-40 bg-[image:var(--gradient-community)] text-isstm-menu-text shadow-lg"
+            style={{ top: 'env(safe-area-inset-top, 0px)' }}
+        >
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
                 <button
                     type="button"
@@ -79,7 +82,11 @@ export default function CommunityHeader() {
             </div>
 
             <Sheet open={open} onOpenChange={setOpen}>
-                <SheetContent side="bottom" className="max-h-[85vh]">
+                <SheetContent
+                    side="bottom"
+                    className="max-h-[85vh]"
+                    style={{ '--color-isstm-navy': '#667eea', '--color-isstm-gold': '#f093fb' }}
+                >
                     <SheetTitle>{t('nav.menu', 'Menu')}</SheetTitle>
                     <nav className="mt-4 flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                         {navItems.map((item) => (

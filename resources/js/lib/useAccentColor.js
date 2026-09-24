@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export const ACCENT_COLORS = [
-    { value: 'gold', label: 'Or (défaut)', hex: '#d4a017' },
+    { value: 'gold', label: 'Violet (défaut)', hex: '#f093fb' },
     { value: 'emerald', label: 'Émeraude', hex: '#10b981' },
     { value: 'blue', label: 'Bleu', hex: '#2563eb' },
     { value: 'rose', label: 'Rose', hex: '#e11d48' },
