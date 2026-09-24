@@ -11,6 +11,7 @@ use App\Models\Reaction;
 use App\Models\User;
 use App\Notifications\NewPostPublished;
 use App\PostType;
+use App\ReactionType;
 use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,12 +26,8 @@ class PostController extends Controller
         $user = $request->user();
 
         $posts = Post::query()
-            ->with([
-                'user',
-                'media',
-                'reactions',
-                'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user'])->oldest(),
-            ])
+            ->whereDoesntHave('hiddenBy', fn ($query) => $query->where('users.id', $user->id))
+            ->with($this->eagerLoad())
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -44,10 +41,37 @@ class PostController extends Controller
         ]);
     }
 
+    public function show(Request $request, Post $post): Response
+    {
+        $post->load($this->eagerLoad());
+
+        return Inertia::render('Communaute/Show', [
+            'post' => $this->presentPost($post, $request->user()),
+        ]);
+    }
+
+    public function saved(Request $request): Response
+    {
+        $user = $request->user();
+
+        $posts = $user->savedPosts()
+            ->with($this->eagerLoad())
+            ->latest('post_saves.created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $posts->getCollection()->transform(fn (Post $post) => $this->presentPost($post, $user));
+
+        return Inertia::render('Communaute/Enregistres', [
+            'posts' => $posts,
+        ]);
+    }
+
     public function store(StorePostRequest $request): RedirectResponse
     {
         $post = Post::create([
             'user_id' => $request->user()->id,
+            'shared_post_id' => $request->validated('shared_post_id'),
             'type' => $request->validated('type'),
             'body' => $request->validated('body'),
         ]);
@@ -73,7 +97,7 @@ class PostController extends Controller
 
         Notification::send($recipients, new NewPostPublished($post));
 
-        return back()->with('status', 'Publication créée.');
+        return back()->with('status', $post->shared_post_id ? 'Publication partagée.' : 'Publication créée.');
     }
 
     public function destroy(Request $request, Post $post): RedirectResponse
@@ -87,9 +111,26 @@ class PostController extends Controller
     }
 
     /**
+     * @return array<int|string, mixed>
+     */
+    private function eagerLoad(): array
+    {
+        return [
+            'user',
+            'media',
+            'reactions',
+            'savedBy',
+            'sharedPost.user',
+            'sharedPost.media',
+            'sharedPost.reactions',
+            'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user'])->oldest(),
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
-    private function presentPost(Post $post, User $viewer): array
+    private function presentPost(Post $post, User $viewer, bool $nested = false): array
     {
         $reactionCounts = $post->reactions->countBy(fn (Reaction $reaction) => $reaction->type->value);
         $myReaction = $post->reactions->firstWhere('user_id', $viewer->id);
@@ -106,16 +147,18 @@ class PostController extends Controller
                 'avatar_path' => $post->user->avatar_path,
                 'role_label' => $post->user->role->label(),
             ],
-            'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $post->user_id === $viewer->id,
+            'can_manage' => ! $nested && ($viewer->hasLegacyRole(Role::Admin) || $post->user_id === $viewer->id),
             'media' => $post->media->map(fn (PostMedia $media) => [
                 'id' => $media->id,
                 'path' => $media->path,
                 'type' => $media->type->value,
             ]),
-            'likes' => $reactionCounts->get('like', 0),
-            'loves' => $reactionCounts->get('love', 0),
+            'reactions' => collect(ReactionType::cases())
+                ->mapWithKeys(fn (ReactionType $type) => [$type->value => $reactionCounts->get($type->value, 0)]),
             'my_reaction' => $myReaction?->type->value,
-            'comments' => $post->comments->map(fn (Comment $comment) => $this->presentComment($comment, $viewer)),
+            'is_saved' => ! $nested && $post->savedBy->contains('id', $viewer->id),
+            'shared_post' => ! $nested && $post->sharedPost ? $this->presentPost($post->sharedPost, $viewer, nested: true) : null,
+            'comments' => $nested ? [] : $post->comments->map(fn (Comment $comment) => $this->presentComment($comment, $viewer)),
         ];
     }
 

@@ -1,5 +1,5 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { Paperclip, Send } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Bookmark, Paperclip, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
@@ -36,6 +36,16 @@ export default function Index({ posts, canPublish, postTypes }) {
             <Head title="Communauté" />
 
             <StoriesBar />
+
+            <div className="mb-4 flex justify-end">
+                <Link
+                    href="/communaute/enregistres"
+                    className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                >
+                    <Bookmark className="h-4 w-4" aria-hidden="true" />
+                    {t('communaute.mes_enregistrements', 'Publications enregistrées')}
+                </Link>
+            </div>
 
             {canPublish && (
                 <form onSubmit={submit} className="mb-8 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">

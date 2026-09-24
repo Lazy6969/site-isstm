@@ -25,6 +25,9 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParcoursController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostHideController;
+use App\Http\Controllers\PostReportController;
+use App\Http\Controllers\PostSaveController;
 use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SearchController;
@@ -98,8 +101,13 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
 
     Route::get('communaute', [PostController::class, 'index'])->name('posts.index');
     Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
+    Route::get('communaute/enregistres', [PostController::class, 'saved'])->name('posts.saved');
+    Route::get('communaute/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('communaute/{post}/enregistrer', [PostSaveController::class, 'toggle'])->name('posts.save');
+    Route::post('communaute/{post}/masquer', [PostHideController::class, 'store'])->name('posts.hide');
+    Route::post('communaute/{post}/signaler', [PostReportController::class, 'store'])->name('posts.report');
 
     Route::get('stories', [StoryController::class, 'index'])->name('stories.index');
     Route::post('stories', [StoryController::class, 'store'])->name('stories.store');
