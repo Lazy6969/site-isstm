@@ -1,10 +1,25 @@
 import { Link, router, useForm } from '@inertiajs/react';
 import { Send } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function CommentItem({ postId, comment, depth = 0 }) {
+/**
+ * Flattens a comment's reply tree into a single-level list, like
+ * Facebook/Instagram: replying to a reply still threads server-side
+ * (parent_id keeps pointing at the exact comment clicked), but every
+ * descendant renders at the same indent under the top-level comment instead
+ * of nesting deeper and deeper — a "@name" prefix keeps the context of who a
+ * flattened reply was actually answering when that isn't the top-level author.
+ */
+function flattenReplies(replies, replyingToName) {
+    return (replies ?? []).flatMap((reply) => [
+        { ...reply, replyingToName },
+        ...flattenReplies(reply.replies, reply.user.name),
+    ]);
+}
+
+function CommentBubble({ postId, comment, replyingToName, indented }) {
     const { t } = useTranslations();
     const [replying, setReplying] = useState(false);
     const { data, setData, post, processing, reset } = useForm({ body: '', parent_id: comment.id });
@@ -26,10 +41,8 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
         }
     }
 
-    const visualDepth = Math.min(depth, 2);
-
     return (
-        <div className={visualDepth > 0 ? 'ml-8 mt-3' : 'mt-3'}>
+        <div className={indented ? 'ml-8 mt-3' : 'mt-3'}>
             <div className="flex items-start gap-2.5">
                 <Avatar className="mt-0.5 h-8 w-8 flex-shrink-0">
                     <AvatarImage src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : undefined} alt="" />
@@ -40,7 +53,10 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
                         <Link href={`/profil/${comment.user.id}`} className="text-sm font-semibold text-slate-800 hover:text-isstm-navy">
                             {comment.user.name}
                         </Link>
-                        <p className="text-sm text-slate-700">{comment.body}</p>
+                        <p className="text-sm text-slate-700">
+                            {replyingToName && <span className="font-medium text-isstm-navy">@{replyingToName} </span>}
+                            {comment.body}
+                        </p>
                     </div>
                     <div className="mt-1 flex gap-3 px-3.5 text-xs text-slate-400">
                         <button onClick={() => setReplying((v) => !v)} className="font-medium hover:text-isstm-navy">
@@ -72,12 +88,21 @@ export default function CommentItem({ postId, comment, depth = 0 }) {
                             </button>
                         </form>
                     )}
-
-                    {comment.replies?.map((reply) => (
-                        <CommentItem key={reply.id} postId={postId} comment={reply} depth={depth + 1} />
-                    ))}
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CommentItem({ postId, comment, showReplies = true }) {
+    const flatReplies = useMemo(() => flattenReplies(comment.replies, null), [comment.replies]);
+
+    return (
+        <>
+            <CommentBubble postId={postId} comment={comment} indented={false} />
+            {showReplies && flatReplies.map((reply) => (
+                <CommentBubble key={reply.id} postId={postId} comment={reply} replyingToName={reply.replyingToName} indented />
+            ))}
+        </>
     );
 }

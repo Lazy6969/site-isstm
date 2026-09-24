@@ -370,7 +370,7 @@ export default function PostCard({ post }) {
 
             <div className="mt-2 border-t border-slate-100 pt-3 dark:border-slate-700">
                 {(showAllComments ? post.comments : post.comments.slice(0, COLLAPSED_COMMENT_COUNT)).map((comment) => (
-                    <CommentItem key={comment.id} postId={post.id} comment={comment} />
+                    <CommentItem key={comment.id} postId={post.id} comment={comment} showReplies={showAllComments} />
                 ))}
 
                 {post.comments.length > COLLAPSED_COMMENT_COUNT && (
