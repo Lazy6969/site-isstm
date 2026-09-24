@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
 import DarkModeToggle from '../Layout/DarkModeToggle';
+import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -113,6 +114,8 @@ export default function AdminHeader({ onOpenSidebar }) {
                 </Tooltip>
 
                 <DarkModeToggle className="text-admin-chrome-text-secondary hover:bg-admin-chrome-hover hover:text-admin-chrome-text" />
+
+                <LanguageSwitcher className="!border-admin-border !text-admin-chrome-text-secondary hover:!border-admin-accent hover:!text-admin-chrome-text" />
 
                 {canEdit && (
                     <Tooltip>

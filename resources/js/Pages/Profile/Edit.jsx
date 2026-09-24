@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Save } from 'lucide-react';
+import { Check, Circle, KeyRound, Save } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
@@ -25,9 +25,29 @@ export default function Edit({ user }) {
         cover: null,
     });
 
+    const passwordForm = useForm({
+        current_password: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const passwordCriteria = [
+        { key: 'length', label: t('auth.critere_longueur', 'Au moins 8 caractères'), met: passwordForm.data.password.length >= 8 },
+        { key: 'case', label: t('auth.critere_casse', 'Majuscule et minuscule'), met: /[a-z]/.test(passwordForm.data.password) && /[A-Z]/.test(passwordForm.data.password) },
+        { key: 'digit', label: t('auth.critere_chiffre', 'Au moins un chiffre'), met: /[0-9]/.test(passwordForm.data.password) },
+    ];
+
     function submit(e) {
         e.preventDefault();
         post('/profil', { forceFormData: true });
+    }
+
+    function submitPassword(e) {
+        e.preventDefault();
+        passwordForm.put('/profil/mot-de-passe', {
+            preserveScroll: true,
+            onSuccess: () => passwordForm.reset(),
+        });
     }
 
     return (
@@ -126,6 +146,66 @@ export default function Edit({ user }) {
                         </button>
                     </form>
                     </div>
+                </Card>
+
+                <Card className="mt-8 p-8">
+                    <h2 className="text-lg font-semibold text-isstm-navy dark:text-white">
+                        {t('profil.changer_mot_de_passe', 'Changer le mot de passe')}
+                    </h2>
+
+                    <form onSubmit={submitPassword} className="mt-4 space-y-4">
+                        <TextField
+                            id="current_password"
+                            label={t('profil.mot_de_passe_actuel', 'Mot de passe actuel')}
+                            type="password"
+                            value={passwordForm.data.current_password}
+                            onChange={(e) => passwordForm.setData('current_password', e.target.value)}
+                            error={passwordForm.errors.current_password}
+                            required
+                        />
+
+                        <TextField
+                            id="password"
+                            label={t('auth.nouveau_mot_de_passe', 'Nouveau mot de passe')}
+                            type="password"
+                            value={passwordForm.data.password}
+                            onChange={(e) => passwordForm.setData('password', e.target.value)}
+                            error={passwordForm.errors.password}
+                            required
+                        />
+
+                        <ul className="space-y-1 text-xs">
+                            {passwordCriteria.map((c) => (
+                                <li key={c.key} className={`flex items-center gap-2 ${c.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                                    {c.met ? (
+                                        <Check className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                                    ) : (
+                                        <Circle className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                                    )}
+                                    {c.label}
+                                </li>
+                            ))}
+                        </ul>
+
+                        <TextField
+                            id="password_confirmation"
+                            label={t('auth.confirmer_mot_de_passe', 'Confirmer le mot de passe')}
+                            type="password"
+                            value={passwordForm.data.password_confirmation}
+                            onChange={(e) => passwordForm.setData('password_confirmation', e.target.value)}
+                            error={passwordForm.errors.password_confirmation}
+                            required
+                        />
+
+                        <button
+                            type="submit"
+                            disabled={passwordForm.processing}
+                            className="flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                        >
+                            <KeyRound className="h-4 w-4" aria-hidden="true" />
+                            {t('profil.enregistrer_mot_de_passe', 'Modifier le mot de passe')}
+                        </button>
+                    </form>
                 </Card>
             </main>
 

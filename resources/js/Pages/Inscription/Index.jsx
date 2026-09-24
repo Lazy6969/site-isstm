@@ -1,10 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, FileSignature, MapPin, Wallet } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import EditableImage from '../../Components/QuickEdit/EditableImage';
+import { imageStyleToCss } from '../../lib/imageStyle';
 
 function FeeTable({ title, rows }) {
     return (
@@ -66,6 +68,7 @@ const FILIERE_COLORS = [
 
 export default function Index({ content }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
 
     const dateLimite = content.inscription_date_limite
         ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', {
@@ -441,6 +444,16 @@ export default function Index({ content }) {
                             {content.inscription_compte_bancaire}
                         </EditableText>
                     </p>
+
+                    <div className="relative mt-3 inline-block">
+                        <img
+                            src={`/${content.inscription_bred_logo ?? 'images/partenariat/bre.jpg'}`}
+                            alt="BRED"
+                            className="h-10 w-auto object-contain"
+                            style={imageStyleToCss(contentStyles?.inscription_bred_logo)}
+                        />
+                        <EditableImage contentKey="inscription_bred_logo" value={content.inscription_bred_logo} />
+                    </div>
                 </Card>
             </main>
 

@@ -1,5 +1,6 @@
 import { Link, router, useForm } from '@inertiajs/react';
-import { FileText, Heart, Send, ThumbsUp, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, FileText, Heart, Send, ThumbsUp, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import CommentItem from './CommentItem';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -10,9 +11,12 @@ function formatDate(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
+const COLLAPSED_COMMENT_COUNT = 3;
+
 export default function PostCard({ post }) {
     const { t } = useTranslations();
     const { data, setData, post: submitComment, processing, reset } = useForm({ body: '', parent_id: null });
+    const [showAllComments, setShowAllComments] = useState(false);
 
     function react(type) {
         router.post(`/communaute/${post.id}/reaction`, { type }, { preserveScroll: true });
@@ -59,9 +63,24 @@ export default function PostCard({ post }) {
             {post.media.length > 0 && (
                 <div className={`mt-4 grid gap-2 ${post.media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                     {post.media.map((media) => (
-                        <div key={media.id} className="overflow-hidden rounded-xl bg-slate-50">
-                            {media.type === 'image' && <img src={`/storage/${media.path}`} alt="" className="max-h-96 w-full object-cover" />}
-                            {media.type === 'video' && <video src={`/storage/${media.path}`} controls className="max-h-96 w-full" />}
+                        <div
+                            key={media.id}
+                            className={`overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900 ${post.media.length > 1 ? 'aspect-square' : ''}`}
+                        >
+                            {media.type === 'image' && (
+                                <img
+                                    src={`/storage/${media.path}`}
+                                    alt=""
+                                    className={`w-full ${post.media.length > 1 ? 'h-full object-cover' : 'max-h-[600px] object-contain'}`}
+                                />
+                            )}
+                            {media.type === 'video' && (
+                                <video
+                                    src={`/storage/${media.path}`}
+                                    controls
+                                    className={`w-full ${post.media.length > 1 ? 'h-full object-cover' : 'max-h-[600px]'}`}
+                                />
+                            )}
                             {media.type === 'pdf' && (
                                 <a
                                     href={`/storage/${media.path}`}
@@ -102,9 +121,29 @@ export default function PostCard({ post }) {
             </div>
 
             <div className="mt-2 border-t border-slate-100 pt-3">
-                {post.comments.map((comment) => (
+                {(showAllComments ? post.comments : post.comments.slice(0, COLLAPSED_COMMENT_COUNT)).map((comment) => (
                     <CommentItem key={comment.id} postId={post.id} comment={comment} />
                 ))}
+
+                {post.comments.length > COLLAPSED_COMMENT_COUNT && (
+                    <button
+                        type="button"
+                        onClick={() => setShowAllComments((v) => !v)}
+                        className="mt-1 flex items-center gap-1 text-xs font-semibold text-isstm-navy hover:underline dark:text-white"
+                    >
+                        {showAllComments ? (
+                            <>
+                                <ChevronUp className="h-3.5 w-3.5" aria-hidden="true" />
+                                {t('communaute.reduire_commentaires', 'Réduire les commentaires')}
+                            </>
+                        ) : (
+                            <>
+                                <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                                {t('communaute.voir_tous_commentaires', 'Voir les {count} commentaires').replace('{count}', post.comments.length)}
+                            </>
+                        )}
+                    </button>
+                )}
 
                 <form onSubmit={submitTopLevelComment} className="mt-3 flex gap-2">
                     <input

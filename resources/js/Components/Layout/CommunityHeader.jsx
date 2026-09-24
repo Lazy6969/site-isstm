@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, Menu, Settings } from 'lucide-react';
+import { Globe, Menu, MessageCircle, Newspaper, Settings, Users, UsersRound } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import NotificationBell from './NotificationBell';
@@ -11,10 +11,10 @@ import { useTranslations } from '../../lib/useTranslations';
 import { useCloseOnDesktop } from '../../lib/useCloseOnDesktop';
 
 const navItems = [
-    { href: '/communaute', labelKey: 'communaute.titre', label: 'Fil communautaire' },
-    { href: '/amis', labelKey: 'nav.amis', label: 'Amis' },
-    { href: '/messages', labelKey: 'nav.messages', label: 'Messages' },
-    { href: '/groupes', labelKey: 'nav.groupes', label: 'Groupes' },
+    { href: '/communaute', labelKey: 'communaute.titre', label: 'Fil communautaire', icon: Newspaper },
+    { href: '/amis', labelKey: 'nav.amis', label: 'Amis', icon: Users },
+    { href: '/messages', labelKey: 'nav.messages', label: 'Messages', icon: MessageCircle },
+    { href: '/groupes', labelKey: 'nav.groupes', label: 'Groupes', icon: UsersRound },
 ];
 
 /**
@@ -53,10 +53,11 @@ export default function CommunityHeader() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={`whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition ${
+                            className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition ${
                                 isActive(item.href) ? 'bg-community-accent text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'
                             }`}
                         >
+                            <item.icon className="h-4 w-4" aria-hidden="true" />
                             {t(item.labelKey, item.label)}
                         </Link>
                     ))}
@@ -94,8 +95,9 @@ export default function CommunityHeader() {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setOpen(false)}
-                                className="py-3 text-sm text-slate-700 dark:text-slate-200"
+                                className="flex items-center gap-2.5 py-3 text-sm text-slate-700 dark:text-slate-200"
                             >
+                                <item.icon className="h-4 w-4 text-slate-400" aria-hidden="true" />
                                 {t(item.labelKey, item.label)}
                             </Link>
                         ))}

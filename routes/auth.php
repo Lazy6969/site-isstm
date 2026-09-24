@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\ProfileController;
@@ -31,6 +32,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profil', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profil/mot-de-passe', [PasswordController::class, 'update'])->name('password.update');
 
     Route::get('verifier-email', EmailVerificationPromptController::class)->name('verification.notice');
     Route::get('verifier-email/{id}/{hash}', VerifyEmailController::class)
