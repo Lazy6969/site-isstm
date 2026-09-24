@@ -339,7 +339,10 @@ export default function Create({ filieres }) {
                                             Ce mot de passe vous permettra de suivre votre dossier en ligne après vérification de votre e-mail.
                                         </p>
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                            <TextField id="password" type="password" label="Mot de passe" value={data.password} onChange={set('password')} error={errors.password} required />
+                                            <div>
+                                                <TextField id="password" type="password" label="Mot de passe" value={data.password} onChange={set('password')} error={errors.password} required />
+                                                <p className="mt-1 text-xs text-slate-400">8 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre.</p>
+                                            </div>
                                             <TextField id="password_confirmation" type="password" label="Confirmer le mot de passe" value={data.password_confirmation} onChange={set('password_confirmation')} error={errors.password_confirmation} required />
                                         </div>
                                     </div>
