@@ -2,6 +2,7 @@ import { Head, useForm } from '@inertiajs/react';
 import { Check, Circle, KeyRound, Save } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import AppLayout from '../../Components/Layout/AppLayout';
 import TextField from '../../Components/Form/TextField';
 import { Card } from '../../Components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
@@ -9,6 +10,7 @@ import { useTranslations } from '../../lib/useTranslations';
 
 export default function Edit({ user }) {
     const { t } = useTranslations();
+    const isCommunityViewer = ['admin', 'enseignant', 'etudiant'].includes(user.role);
     const { data, setData, post, processing, errors } = useForm({
         _method: 'patch',
         name: user.name ?? '',
@@ -50,12 +52,8 @@ export default function Edit({ user }) {
         });
     }
 
-    return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-            <Head title="Mon profil" />
-            <SiteHeader />
-
-            <main className="mx-auto max-w-3xl px-6 py-12">
+    const content = (
+        <>
                 <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{t('profil.mon_profil', 'Mon profil')}</h1>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {t('profil.visibilite', 'Ces informations sont visibles par les autres membres de la communauté ISSTM.')}
@@ -207,7 +205,24 @@ export default function Edit({ user }) {
                         </button>
                     </form>
                 </Card>
-            </main>
+        </>
+    );
+
+    if (isCommunityViewer) {
+        return (
+            <AppLayout>
+                <Head title="Mon profil" />
+                <div className="mx-auto max-w-3xl">{content}</div>
+            </AppLayout>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+            <Head title="Mon profil" />
+            <SiteHeader />
+
+            <main className="mx-auto max-w-3xl px-6 py-12">{content}</main>
 
             <Footer />
         </div>
