@@ -216,3 +216,62 @@ it('forbids a non-member from opening a class group chat via the unified interfa
 
     $this->actingAs($outsider)->get("/messages/groupe/{$group->id}")->assertForbidden();
 });
+
+it('sends a voice message as an audio attachment', function () {
+    Storage::fake('public');
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", [
+        'attachments' => [UploadedFile::fake()->create('message-vocal.mp3', 100, 'audio/mpeg')],
+    ])->assertSessionHasNoErrors()->assertRedirect();
+
+    $message = Message::query()->where('conversation_id', $conversation->id)->sole();
+    expect($message->attachments->sole()->file_type)->toBe('audio');
+});
+
+it('accepts the .weba/audio-webm recording the browser MediaRecorder actually produces', function () {
+    Storage::fake('public');
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", [
+        'attachments' => [UploadedFile::fake()->create('message-vocal.weba', 100, 'audio/webm')],
+    ])->assertSessionHasNoErrors()->assertRedirect();
+
+    expect(Message::query()->where('conversation_id', $conversation->id)->sole()->attachments->sole()->file_type)->toBe('audio');
+});
+
+it('returns every attachment type — not just images — for the media panel', function () {
+    Storage::fake('public');
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", [
+        'attachments' => [
+            UploadedFile::fake()->image('photo.jpg'),
+            UploadedFile::fake()->create('cours.pdf', 100, 'application/pdf'),
+        ],
+    ])->assertRedirect();
+
+    $this->actingAs($user)->get("/messages/{$conversation->id}")->assertInertia(fn ($page) => $page
+        ->has('media', 2)
+    );
+});
+
+it('lists recent conversations and groups on the community feed sidebar', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $group = ClassGroup::factory()->create(['name' => 'L1 Informatique']);
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $user->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($user)->get('/communaute')->assertInertia(fn ($page) => $page
+        ->component('Communaute/Index')
+        ->has('conversations', 2)
+    );
+});

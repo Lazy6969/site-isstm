@@ -14,6 +14,7 @@ use App\Notifications\NewPostPublished;
 use App\PostType;
 use App\ReactionType;
 use App\Role;
+use App\Services\ConversationListBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -42,6 +43,7 @@ class PostController extends Controller
             'posts' => $posts,
             'canPublish' => $user->hasLegacyRole(Role::Admin, Role::Enseignant),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
+            'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(8)->values(),
         ]);
     }
 

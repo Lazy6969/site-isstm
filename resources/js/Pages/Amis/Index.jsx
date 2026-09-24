@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Check, Search, X } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Inbox, Search, Send, Users, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import UserCard from '../../Components/Amis/UserCard';
 import UserCardSkeleton from '../../Components/Loading/UserCardSkeleton';
@@ -11,13 +11,14 @@ import { useTranslations } from '../../lib/useTranslations';
 export default function Index({ query, searchResults, friends, received, sent, suggestions }) {
     const { t } = useTranslations();
     const [tab, setTab] = useState('recherche');
+    const [friendFilter, setFriendFilter] = useState('');
     const { data, setData, get, processing } = useForm({ q: query ?? '' });
 
     const tabs = [
-        { key: 'recherche', label: t('amis.onglet_recherche', 'Recherche') },
-        { key: 'recues', label: t('amis.onglet_recues', 'Reçues') },
-        { key: 'envoyees', label: t('amis.onglet_envoyees', 'Envoyées') },
-        { key: 'amis', label: t('amis.onglet_amis', 'Amis') },
+        { key: 'recherche', label: t('amis.onglet_recherche', 'Recherche'), icon: Search },
+        { key: 'recues', label: t('amis.onglet_recues', 'Reçues'), icon: Inbox },
+        { key: 'envoyees', label: t('amis.onglet_envoyees', 'Envoyées'), icon: Send },
+        { key: 'amis', label: t('amis.onglet_amis', 'Amis'), icon: Users },
     ];
 
     function search(e) {
@@ -31,6 +32,11 @@ export default function Index({ query, searchResults, friends, received, sent, s
 
     const counts = { recues: received.length, envoyees: sent.length, amis: friends.length };
 
+    const filteredFriends = useMemo(
+        () => friends.filter((u) => u.name.toLowerCase().includes(friendFilter.trim().toLowerCase())),
+        [friends, friendFilter],
+    );
+
     return (
         <AppLayout title={t('nav.amis', 'Amis')}>
             <Head title="Amis" />
@@ -40,12 +46,13 @@ export default function Index({ query, searchResults, friends, received, sent, s
                     <button
                         key={item.key}
                         onClick={() => setTab(item.key)}
-                        className={`px-4 py-2 text-sm font-medium transition ${
+                        className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition ${
                             tab === item.key
                                 ? 'border-b-2 border-isstm-gold text-isstm-navy dark:text-white'
                                 : 'text-slate-500 hover:text-isstm-navy dark:text-slate-400 dark:hover:text-white'
                         }`}
                     >
+                        <item.icon className="h-4 w-4" aria-hidden="true" />
                         {item.label}
                         {counts[item.key] > 0 && <span className="ml-1.5 text-xs text-slate-400 dark:text-slate-500">({counts[item.key]})</span>}
                     </button>
@@ -162,11 +169,28 @@ export default function Index({ query, searchResults, friends, received, sent, s
             )}
 
             {tab === 'amis' && (
-                <div className="grid gap-3 sm:grid-cols-2">
-                    {friends.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('amis.aucun_ami', "Vous n'avez pas encore d'amis.")}</p>}
-                    {friends.map((u) => (
-                        <UserCard key={u.id} user={u} />
-                    ))}
+                <div>
+                    {friends.length > 0 && (
+                        <label className="mb-4 flex items-center gap-2 rounded-lg border border-slate-300 px-3.5 py-2.5 dark:border-slate-600 dark:bg-slate-900">
+                            <Search className="h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+                            <input
+                                type="text"
+                                value={friendFilter}
+                                onChange={(e) => setFriendFilter(e.target.value)}
+                                placeholder={t('amis.filtrer_mes_amis', 'Rechercher parmi vos amis…')}
+                                className="w-full bg-transparent text-sm focus:outline-none dark:text-white"
+                            />
+                        </label>
+                    )}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        {friends.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('amis.aucun_ami', "Vous n'avez pas encore d'amis.")}</p>}
+                        {friends.length > 0 && filteredFriends.length === 0 && (
+                            <p className="text-sm text-slate-400 dark:text-slate-500 sm:col-span-2">{t('amis.aucun_resultat_filtre', 'Aucun ami ne correspond.')}</p>
+                        )}
+                        {filteredFriends.map((u) => (
+                            <UserCard key={u.id} user={u} />
+                        ))}
+                    </div>
                 </div>
             )}
         </AppLayout>

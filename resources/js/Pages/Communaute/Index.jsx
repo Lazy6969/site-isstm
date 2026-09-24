@@ -4,10 +4,11 @@ import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
 import StoriesBar from '../../Components/Communaute/StoriesBar';
+import ConversationsSidebar from '../../Components/Communaute/ConversationsSidebar';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function Index({ posts, canPublish, postTypes }) {
+export default function Index({ posts, canPublish, postTypes, conversations }) {
     const { t } = useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
     const [pageLoading, setPageLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function Index({ posts, canPublish, postTypes }) {
         <AppLayout title={t('communaute.titre', 'Fil communautaire')}>
             <Head title="Communauté" />
 
-            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr]">
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
                 <aside className="hidden lg:sticky lg:top-20 lg:block">
                     <nav className="space-y-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                         <Link
@@ -148,6 +149,8 @@ export default function Index({ posts, canPublish, postTypes }) {
                 </div>
             )}
                 </div>
+
+                <ConversationsSidebar conversations={conversations ?? []} />
             </div>
         </AppLayout>
     );

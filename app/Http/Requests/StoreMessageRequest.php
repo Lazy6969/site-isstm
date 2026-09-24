@@ -25,7 +25,7 @@ class StoreMessageRequest extends FormRequest
         return [
             'body' => ['required_without:attachments', 'nullable', 'string', 'max:5000'],
             'attachments' => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf'],
+            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf,ogg,mp3,wav,m4a,weba'],
             'reply_to_id' => ['nullable', 'integer', 'exists:messages,id'],
         ];
     }
