@@ -10,9 +10,13 @@ use App\Models\Evenement;
 use App\Models\Filiere;
 use App\Models\GalleryAlbum;
 use App\Models\NewsArticle;
+use App\Models\Post;
 use App\Models\Teacher;
+use App\Models\User;
 use App\NewsStatus;
+use App\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -73,6 +77,34 @@ class SearchController extends Controller
                 ->limit(5)
                 ->get(['title', 'category as subtitle', 'file_path'])
                 ->map(fn ($item) => ['title' => $item->title, 'subtitle' => $item->subtitle, 'url' => "/{$item->file_path}"]);
+
+            // Fil communautaire — réservé aux membres de la communauté (admin/enseignant/étudiant),
+            // pour ne jamais faire fuiter des publications ou des comptes vers une recherche publique.
+            $user = $request->user();
+            if ($user && in_array($user->role, [Role::Admin, Role::Enseignant, Role::Etudiant], true)) {
+                $results['publications'] = Post::query()
+                    ->where('body', 'like', $like)
+                    ->with('user:id,name')
+                    ->latest()
+                    ->limit(5)
+                    ->get()
+                    ->map(fn (Post $post) => [
+                        'title' => Str::limit($post->body, 80),
+                        'subtitle' => $post->user?->name,
+                        'url' => '/communaute',
+                    ]);
+
+                $results['personnes'] = User::query()
+                    ->where('name', 'like', $like)
+                    ->whereIn('role', [Role::Admin, Role::Enseignant, Role::Etudiant])
+                    ->limit(5)
+                    ->get(['id', 'name', 'role'])
+                    ->map(fn (User $person) => [
+                        'title' => $person->name,
+                        'subtitle' => $person->role->label(),
+                        'url' => "/profil/{$person->id}",
+                    ]);
+            }
         }
 
         return Inertia::render('Search/Index', [

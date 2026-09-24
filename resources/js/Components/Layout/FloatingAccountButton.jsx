@@ -5,13 +5,15 @@ import { useTranslations } from '../../lib/useTranslations';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 
 /**
- * Floating avatar/account menu, grouped at the middle-left of the viewport
- * with the quick-edit pencil (see app.jsx) instead of living in the header —
- * the header itself now only carries search/notifications/language/dark
- * mode. Hidden inside /console, where AdminHeader already has its own
- * profile menu.
+ * Account avatar + dropdown menu. Rendered two ways: floating at the
+ * middle-left of the viewport alongside the quick-edit pencil on public
+ * pages (see app.jsx, default `side`/`align`), and inline at the end of
+ * CommunityHeader for the espace étudiant (`side="bottom" align="end"`) —
+ * app.jsx hides its own floating copy on community pages so the two never
+ * show up at once. Hidden inside /console, where AdminHeader already has
+ * its own profile menu.
  */
-export default function FloatingAccountButton() {
+export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'right', align = 'center' }) {
     const { props, url } = usePage();
     const { t } = useTranslations();
     const { requestLogout } = useLogoutConfirm();
@@ -33,7 +35,7 @@ export default function FloatingAccountButton() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
-                className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full transition hover:scale-105 focus:outline-none"
+                className={`flex ${size} items-center justify-center overflow-hidden rounded-full transition hover:scale-105 focus:outline-none`}
                 aria-label={t('profil.mon_compte', 'Mon compte')}
             >
                 <img
@@ -42,7 +44,7 @@ export default function FloatingAccountButton() {
                     className="h-full w-full object-cover"
                 />
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center">
+            <DropdownMenuContent side={side} align={align}>
                 {hasConsoleAccess ? (
                     <DropdownMenuItem asChild>
                         <Link href="/console/dashboard">{t('nav.tableau_de_bord', 'Tableau de bord admin')}</Link>
