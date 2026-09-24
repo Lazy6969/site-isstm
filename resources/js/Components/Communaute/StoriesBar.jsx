@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Images, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import StoriesBarSkeleton from '../Loading/StoriesBarSkeleton';
 import StoryViewer from './StoryViewer';
@@ -66,6 +66,7 @@ export default function StoriesBar() {
 
     const myGroup = groups.find((g) => g.is_mine);
     const otherGroups = groups.filter((g) => !g.is_mine);
+    const hasNoStories = otherGroups.length === 0 && (!myGroup || myGroup.stories.length === 0);
 
     return (
         <div className="mb-6 flex gap-3 overflow-x-auto pb-1">
@@ -103,6 +104,16 @@ export default function StoriesBar() {
                         {t('stories.mes_stories', 'Mes stories')}
                     </span>
                 </button>
+            )}
+
+            {hasNoStories && (
+                <div
+                    className="flex h-44 w-28 flex-shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-2 text-center dark:border-slate-700 dark:bg-slate-800/50"
+                    aria-hidden="true"
+                >
+                    <Images className="h-6 w-6 text-slate-300 dark:text-slate-600" aria-hidden="true" />
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500">{t('stories.aucune_story', 'Aucune story pour le moment')}</span>
+                </div>
             )}
 
             {otherGroups.map((group) => (
