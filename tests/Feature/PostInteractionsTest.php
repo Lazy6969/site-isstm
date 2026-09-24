@@ -88,3 +88,63 @@ it('breaks reaction counts down by type including the newer emoji reactions', fu
         ->where('posts.data.0.my_reaction', 'haha')
     );
 });
+
+it('lets the author edit their post body but forbids another student from editing it', function () {
+    $author = User::factory()->role(Role::Enseignant)->create();
+    $post = Post::factory()->for($author)->create(['body' => 'Avant modification']);
+    $other = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($other)->patch("/communaute/{$post->id}", ['body' => 'Piraté'])->assertForbidden();
+
+    $this->actingAs($author)->patch("/communaute/{$post->id}", ['body' => 'Après modification'])->assertRedirect();
+    expect($post->refresh()->body)->toBe('Après modification');
+    expect($post->edited_at)->not->toBeNull();
+});
+
+it('archives a post so it disappears from the shared feed but stays in the author\'s archives', function () {
+    $author = User::factory()->role(Role::Enseignant)->create();
+    $post = Post::factory()->for($author)->create();
+
+    $this->actingAs($author)->post("/communaute/{$post->id}/archiver")->assertRedirect();
+
+    $this->actingAs($author)->get('/communaute')->assertInertia(fn ($page) => $page->has('posts.data', 0));
+    $this->actingAs($author)->get('/communaute/archives')->assertInertia(fn ($page) => $page
+        ->has('posts.data', 1)
+        ->where('posts.data.0.id', $post->id)
+    );
+});
+
+it('pins a post to the top of the feed and unpins whatever was pinned before', function () {
+    $author = User::factory()->role(Role::Enseignant)->create();
+    $older = Post::factory()->for($author)->create(['created_at' => now()->subDay()]);
+    $newer = Post::factory()->for($author)->create();
+
+    $this->actingAs($author)->post("/communaute/{$older->id}/epingler")->assertRedirect();
+    $this->actingAs($author)->get('/communaute')->assertInertia(fn ($page) => $page->where('posts.data.0.id', $older->id));
+
+    $this->actingAs($author)->post("/communaute/{$newer->id}/epingler")->assertRedirect();
+    expect($older->refresh()->pinned_at)->toBeNull();
+    expect($newer->refresh()->pinned_at)->not->toBeNull();
+});
+
+it('blocks new comments once the author disables them for a post', function () {
+    $author = User::factory()->role(Role::Enseignant)->create();
+    $post = Post::factory()->for($author)->create();
+    $commenter = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($author)->post("/communaute/{$post->id}/commentaires-toggle")->assertRedirect();
+    expect($post->refresh()->comments_disabled)->toBeTrue();
+
+    $this->actingAs($commenter)->post("/communaute/{$post->id}/commentaires", ['body' => 'Salut'])->assertForbidden();
+});
+
+it('lists who reacted to a post and with which reaction', function () {
+    $post = Post::factory()->create();
+    $user = User::factory()->role(Role::Etudiant)->create(['name' => 'Rina Étudiante']);
+
+    $this->actingAs($user)->post("/communaute/{$post->id}/reaction", ['type' => 'love']);
+
+    $this->actingAs($user)->getJson("/communaute/{$post->id}/reactions")
+        ->assertOk()
+        ->assertJson(['reactions' => [['type' => 'love', 'emoji' => '❤️', 'user' => ['id' => $user->id, 'name' => 'Rina Étudiante']]]]);
+});

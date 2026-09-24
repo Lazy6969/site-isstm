@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Bookmark, Paperclip, Send } from 'lucide-react';
+import { Archive, Bookmark, Paperclip, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
@@ -37,7 +37,16 @@ export default function Index({ posts, canPublish, postTypes }) {
 
             <StoriesBar />
 
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex flex-wrap justify-end gap-4">
+                {canPublish && (
+                    <Link
+                        href="/communaute/archives"
+                        className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                    >
+                        <Archive className="h-4 w-4" aria-hidden="true" />
+                        {t('communaute.mes_archives', 'Publications archivées')}
+                    </Link>
+                )}
                 <Link
                     href="/communaute/enregistres"
                     className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"

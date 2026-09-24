@@ -1,12 +1,19 @@
 import { Link, router, useForm } from '@inertiajs/react';
 import {
+    Archive,
+    ArchiveRestore,
     Bookmark,
     ChevronDown,
     ChevronUp,
     Copy,
     FileText,
     Flag,
+    MessageSquareOff,
+    MessageSquareText,
     MoreHorizontal,
+    Pencil,
+    Pin,
+    PinOff,
     Send,
     Share2,
     Trash2,
@@ -14,6 +21,8 @@ import {
 import { useState } from 'react';
 import CommentItem from './CommentItem';
 import ReportPostDialog from './ReportPostDialog';
+import EditPostDialog from './EditPostDialog';
+import ReactionsListDialog from './ReactionsListDialog';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -96,6 +105,8 @@ export default function PostCard({ post }) {
     const { data, setData, post: submitComment, processing, reset } = useForm({ body: '', parent_id: null });
     const [showAllComments, setShowAllComments] = useState(false);
     const [reportOpen, setReportOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [reactionsOpen, setReactionsOpen] = useState(false);
 
     const totalReactions = Object.values(post.reactions).reduce((sum, n) => sum + n, 0);
     const topReactions = REACTIONS.filter((r) => post.reactions[r.value] > 0)
@@ -121,6 +132,18 @@ export default function PostCard({ post }) {
 
     function copyLink() {
         navigator.clipboard?.writeText(`${window.location.origin}/communaute/${post.id}`);
+    }
+
+    function toggleArchive() {
+        router.post(`/communaute/${post.id}/archiver`, {}, { preserveScroll: true });
+    }
+
+    function togglePin() {
+        router.post(`/communaute/${post.id}/epingler`, {}, { preserveScroll: true });
+    }
+
+    function toggleComments() {
+        router.post(`/communaute/${post.id}/commentaires-toggle`, {}, { preserveScroll: true });
     }
 
     function submitTopLevelComment(e) {
@@ -153,10 +176,17 @@ export default function PostCard({ post }) {
                         </Link>
                         <p className="text-xs text-slate-400">
                             {post.user.role_label} · {formatDate(post.created_at)}
+                            {post.edited_at && ` · ${t('communaute.modifie', 'Modifié')}`}
                         </p>
                     </div>
                 </div>
                 <div className="flex items-center gap-1.5">
+                    {post.is_pinned && (
+                        <Badge variant="gold">
+                            <Pin className="h-3 w-3" aria-hidden="true" />
+                            {t('communaute.epingle', 'Épinglé')}
+                        </Badge>
+                    )}
                     <Badge>{post.type_label}</Badge>
                     <DropdownMenu>
                         <DropdownMenuTrigger
@@ -187,6 +217,50 @@ export default function PostCard({ post }) {
                             {post.can_manage && (
                                 <>
                                     <DropdownMenuSeparator />
+                                    <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+                                        <Pencil className="h-4 w-4" aria-hidden="true" />
+                                        {t('communaute.modifier', 'Modifier')}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={togglePin}>
+                                        {post.is_pinned ? (
+                                            <>
+                                                <PinOff className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.desepingler', 'Désépingler')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Pin className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.epingler', 'Épingler en haut du fil')}
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={toggleArchive}>
+                                        {post.is_archived ? (
+                                            <>
+                                                <ArchiveRestore className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.desarchiver', 'Désarchiver')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Archive className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.archiver', 'Archiver')}
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onSelect={toggleComments}>
+                                        {post.comments_disabled ? (
+                                            <>
+                                                <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.reactiver_commentaires', 'Réactiver les commentaires')}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <MessageSquareOff className="h-4 w-4" aria-hidden="true" />
+                                                {t('communaute.desactiver_commentaires', 'Désactiver les commentaires')}
+                                            </>
+                                        )}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem onSelect={destroyPost} className="text-red-600">
                                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                                         {t('communaute.supprimer', 'Supprimer')}
@@ -203,7 +277,11 @@ export default function PostCard({ post }) {
             {post.shared_post ? <SharedPostPreview post={post.shared_post} /> : <MediaGrid media={post.media} />}
 
             {totalReactions > 0 && (
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-400">
+                <button
+                    type="button"
+                    onClick={() => setReactionsOpen(true)}
+                    className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 hover:underline"
+                >
                     <span className="flex -space-x-1">
                         {topReactions.map((r) => (
                             <span key={r.value} className="flex h-4 w-4 items-center justify-center rounded-full bg-white text-[10px] ring-1 ring-white dark:bg-slate-800">
@@ -212,7 +290,7 @@ export default function PostCard({ post }) {
                         ))}
                     </span>
                     {totalReactions}
-                </div>
+                </button>
             )}
 
             <div className="mt-3 flex items-center gap-1 border-t border-slate-100 pt-3 text-sm dark:border-slate-700">
@@ -277,25 +355,31 @@ export default function PostCard({ post }) {
                     </button>
                 )}
 
-                <form onSubmit={submitTopLevelComment} className="mt-3 flex gap-2">
-                    <input
-                        type="text"
-                        value={data.body}
-                        onChange={(e) => setData('body', e.target.value)}
-                        placeholder={t('communaute.ecrire_commentaire', 'Écrire un commentaire…')}
-                        className="w-full rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
-                    />
-                    <button
-                        disabled={processing || !data.body}
-                        className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-3.5 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                        <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                        {t('communaute.envoyer', 'Envoyer')}
-                    </button>
-                </form>
+                {post.comments_disabled ? (
+                    <p className="mt-3 text-xs text-slate-400">{t('communaute.commentaires_desactives', 'Les commentaires sont désactivés pour cette publication.')}</p>
+                ) : (
+                    <form onSubmit={submitTopLevelComment} className="mt-3 flex gap-2">
+                        <input
+                            type="text"
+                            value={data.body}
+                            onChange={(e) => setData('body', e.target.value)}
+                            placeholder={t('communaute.ecrire_commentaire', 'Écrire un commentaire…')}
+                            className="w-full rounded-full border border-slate-300 px-3.5 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
+                        />
+                        <button
+                            disabled={processing || !data.body}
+                            className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-3.5 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                            <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('communaute.envoyer', 'Envoyer')}
+                        </button>
+                    </form>
+                )}
             </div>
 
             <ReportPostDialog open={reportOpen} onClose={() => setReportOpen(false)} postId={post.id} />
+            <EditPostDialog open={editOpen} onClose={() => setEditOpen(false)} post={post} />
+            <ReactionsListDialog open={reactionsOpen} onClose={() => setReactionsOpen(false)} postId={post.id} />
         </Card>
     );
 }

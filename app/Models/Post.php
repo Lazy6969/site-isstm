@@ -20,12 +20,20 @@ class Post extends Model
         'shared_post_id',
         'type',
         'body',
+        'comments_disabled',
+        'archived_at',
+        'pinned_at',
+        'edited_at',
     ];
 
     protected function casts(): array
     {
         return [
             'type' => PostType::class,
+            'comments_disabled' => 'boolean',
+            'archived_at' => 'datetime',
+            'pinned_at' => 'datetime',
+            'edited_at' => 'datetime',
         ];
     }
 

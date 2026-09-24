@@ -14,6 +14,8 @@ class CommentController extends Controller
 {
     public function store(StoreCommentRequest $request, Post $post): RedirectResponse
     {
+        abort_if($post->comments_disabled, 403, 'Les commentaires sont désactivés pour cette publication.');
+
         $comment = $post->comments()->create([
             'parent_id' => $request->validated('parent_id'),
             'user_id' => $request->user()->id,

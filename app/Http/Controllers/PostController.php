@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\MediaType;
 use App\Models\Comment;
 use App\Models\Post;
@@ -27,7 +28,10 @@ class PostController extends Controller
 
         $posts = Post::query()
             ->whereDoesntHave('hiddenBy', fn ($query) => $query->where('users.id', $user->id))
+            ->whereNull('archived_at')
             ->with($this->eagerLoad())
+            ->orderByRaw('pinned_at is null')
+            ->orderByDesc('pinned_at')
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -67,6 +71,25 @@ class PostController extends Controller
         ]);
     }
 
+    public function archives(Request $request): Response
+    {
+        $user = $request->user();
+
+        $posts = Post::query()
+            ->where('user_id', $user->id)
+            ->whereNotNull('archived_at')
+            ->with($this->eagerLoad())
+            ->latest('archived_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $posts->getCollection()->transform(fn (Post $post) => $this->presentPost($post, $user));
+
+        return Inertia::render('Communaute/Archives', [
+            'posts' => $posts,
+        ]);
+    }
+
     public function store(StorePostRequest $request): RedirectResponse
     {
         $post = Post::create([
@@ -98,6 +121,16 @@ class PostController extends Controller
         Notification::send($recipients, new NewPostPublished($post));
 
         return back()->with('status', $post->shared_post_id ? 'Publication partagée.' : 'Publication créée.');
+    }
+
+    public function update(UpdatePostRequest $request, Post $post): RedirectResponse
+    {
+        $post->update([
+            'body' => $request->validated('body'),
+            'edited_at' => now(),
+        ]);
+
+        return back()->with('status', 'Publication modifiée.');
     }
 
     public function destroy(Request $request, Post $post): RedirectResponse
@@ -141,6 +174,10 @@ class PostController extends Controller
             'type_label' => $post->type->label(),
             'body' => $post->body,
             'created_at' => $post->created_at,
+            'edited_at' => $post->edited_at,
+            'comments_disabled' => $post->comments_disabled,
+            'is_pinned' => $post->pinned_at !== null,
+            'is_archived' => $post->archived_at !== null,
             'user' => [
                 'id' => $post->user->id,
                 'name' => $post->user->name,
