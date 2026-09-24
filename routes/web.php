@@ -28,8 +28,10 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StaffMessageController;
+use App\Http\Controllers\StoryController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +98,12 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function ()
     Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
     Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->name('comments.store');
+
+    Route::get('stories', [StoryController::class, 'index'])->name('stories.index');
+    Route::post('stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
+
+    Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
     Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
 

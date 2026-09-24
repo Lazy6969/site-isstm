@@ -5,17 +5,25 @@ import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
 import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
 import { useIsNavigatingToHome } from './lib/useIsNavigatingToHome';
+import { useIsNavigatingToCommunity } from './lib/useIsNavigatingToCommunity';
 import QuickEditToggle from './Components/QuickEdit/QuickEditToggle';
 import FlashToastBridge from './Components/Layout/FlashToastBridge';
 import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
+import CommunitySkeleton from './Components/Loading/CommunitySkeleton';
 
 function HomeLoadingSkeletonBridge() {
     const navigatingToHome = useIsNavigatingToHome();
 
     return navigatingToHome ? <HomeLoadingSkeleton /> : null;
+}
+
+function CommunitySkeletonBridge() {
+    const navigatingToCommunity = useIsNavigatingToCommunity();
+
+    return navigatingToCommunity ? <CommunitySkeleton /> : null;
 }
 
 const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/notifications'];
@@ -68,6 +76,7 @@ createInertiaApp({
                         <Toaster />
                         <LogoutConfirmDialog />
                         <HomeLoadingSkeletonBridge />
+                        <CommunitySkeletonBridge />
                         {existingLayout ? existingLayout(children) : children}
                     </LogoutConfirmProvider>
                 </QuickEditProvider>

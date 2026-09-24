@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, Menu } from 'lucide-react';
+import { Globe, Menu, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import NotificationBell from './NotificationBell';
@@ -9,7 +9,6 @@ import DarkModeToggle from './DarkModeToggle';
 import FloatingAccountButton from './FloatingAccountButton';
 import { useTranslations } from '../../lib/useTranslations';
 import { useCloseOnDesktop } from '../../lib/useCloseOnDesktop';
-import { useHideOnScroll } from '../../lib/useHideOnScroll';
 
 const navItems = [
     { href: '/communaute', labelKey: 'communaute.titre', label: 'Fil communautaire' },
@@ -27,7 +26,6 @@ const navItems = [
 export default function CommunityHeader() {
     const { url } = usePage();
     const { t } = useTranslations();
-    const hidden = useHideOnScroll();
     const [open, setOpen] = useState(false);
     useCloseOnDesktop(setOpen);
 
@@ -36,9 +34,7 @@ export default function CommunityHeader() {
     }
 
     return (
-        <header
-            className={`sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
-        >
+        <header className="sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
                 <button
                     type="button"
@@ -55,7 +51,7 @@ export default function CommunityHeader() {
                             key={item.href}
                             href={item.href}
                             className={`whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium transition ${
-                                isActive(item.href) ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'
+                                isActive(item.href) ? 'bg-community-accent text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'
                             }`}
                         >
                             {t(item.labelKey, item.label)}
@@ -99,6 +95,10 @@ export default function CommunityHeader() {
                         <Link href="/" onClick={() => setOpen(false)} className="flex items-center gap-2.5 py-3 text-sm text-slate-700 dark:text-slate-200">
                             <Globe className="h-4 w-4 text-slate-400" aria-hidden="true" />
                             {t('nav.voir_le_site', 'Voir le site')}
+                        </Link>
+                        <Link href="/parametres" onClick={() => setOpen(false)} className="flex items-center gap-2.5 py-3 text-sm text-slate-700 dark:text-slate-200">
+                            <Settings className="h-4 w-4 text-slate-400" aria-hidden="true" />
+                            {t('nav.parametres', 'Paramètres')}
                         </Link>
                     </nav>
                     <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-700">

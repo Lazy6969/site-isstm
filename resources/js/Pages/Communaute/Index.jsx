@@ -3,6 +3,7 @@ import { Paperclip, Send } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
+import StoriesBar from '../../Components/Communaute/StoriesBar';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -33,6 +34,8 @@ export default function Index({ posts, canPublish, postTypes }) {
     return (
         <AppLayout title={t('communaute.titre', 'Fil communautaire')}>
             <Head title="Communauté" />
+
+            <StoriesBar />
 
             {canPublish && (
                 <form onSubmit={submit} className="mb-8 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">

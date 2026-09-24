@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
@@ -22,6 +22,7 @@ export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'righ
     // console access (super-admin, scolarite, ...), not just literal "admin".
     const hasConsoleAccess = (props.auth?.permissions ?? []).includes('dashboard.view');
     const hasPendingPreinscription = props.hasPendingPreinscription;
+    const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
 
     if (!user || url.startsWith('/console')) {
         return null;
@@ -60,6 +61,14 @@ export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'righ
                 {hasPendingPreinscription && (
                     <DropdownMenuItem asChild>
                         <Link href="/mon-dossier">{t('profil.mon_dossier', 'Mon dossier de préinscription')}</Link>
+                    </DropdownMenuItem>
+                )}
+                {isCommunityMember && (
+                    <DropdownMenuItem asChild>
+                        <Link href="/parametres">
+                            <Settings className="h-4 w-4" aria-hidden="true" />
+                            {t('nav.parametres', 'Paramètres')}
+                        </Link>
                     </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />

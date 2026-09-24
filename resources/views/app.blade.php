@@ -32,6 +32,11 @@
             var stored = localStorage.getItem('theme');
             var dark = stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches);
             document.documentElement.classList.toggle('dark', dark);
+
+            var accent = localStorage.getItem('communityAccent');
+            if (accent && accent !== 'gold') {
+                document.documentElement.setAttribute('data-community-accent', accent);
+            }
         })();
     </script>
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])

@@ -1,4 +1,5 @@
 import CommunityHeader from './CommunityHeader';
+import CommunityMobileTabBar from './CommunityMobileTabBar';
 
 export default function AppLayout({ children, title }) {
     return (
@@ -9,6 +10,8 @@ export default function AppLayout({ children, title }) {
                 {title && <h1 className="mb-6 text-2xl font-bold text-isstm-navy dark:text-white">{title}</h1>}
                 {children}
             </main>
+
+            <CommunityMobileTabBar />
         </div>
     );
 }
