@@ -107,3 +107,70 @@ it('hides a message only for the user who deleted it', function () {
     expect($message->hiddenFor()->where('users.id', $user->id)->exists())->toBeTrue();
     expect($message->hiddenFor()->where('users.id', $friend->id)->exists())->toBeFalse();
 });
+
+it('lets the sender edit their message but forbids the recipient from editing it', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+    $message = Message::create(['conversation_id' => $conversation->id, 'sender_id' => $user->id, 'body' => 'Avant']);
+
+    $this->actingAs($friend)->patch("/messages/message/{$message->id}", ['body' => 'Piraté'])->assertForbidden();
+
+    $this->actingAs($user)->patch("/messages/message/{$message->id}", ['body' => 'Après'])->assertRedirect();
+    expect($message->refresh()->body)->toBe('Après');
+    expect($message->edited_at)->not->toBeNull();
+});
+
+it('unsends a message for everyone but only for the sender', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+    $message = Message::create(['conversation_id' => $conversation->id, 'sender_id' => $user->id, 'body' => 'oups']);
+
+    $this->actingAs($friend)->post("/messages/message/{$message->id}/supprimer")->assertForbidden();
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/supprimer")->assertRedirect();
+    expect($message->refresh()->body)->toBeNull();
+    expect($message->deleted_at)->not->toBeNull();
+});
+
+it('forwards a message into another conversation the sender is part of', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friendA = User::factory()->role(Role::Etudiant)->create();
+    $friendB = User::factory()->role(Role::Etudiant)->create();
+    $sourceConversation = Conversation::create(['user_one_id' => min($user->id, $friendA->id), 'user_two_id' => max($user->id, $friendA->id)]);
+    $targetConversation = Conversation::create(['user_one_id' => min($user->id, $friendB->id), 'user_two_id' => max($user->id, $friendB->id)]);
+    $message = Message::create(['conversation_id' => $sourceConversation->id, 'sender_id' => $friendA->id, 'body' => 'À transférer']);
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/transferer", ['conversation_id' => $targetConversation->id])->assertRedirect();
+
+    $forwarded = Message::query()->where('conversation_id', $targetConversation->id)->sole();
+    expect($forwarded->body)->toBe('À transférer');
+    expect($forwarded->forwarded_from_id)->toBe($message->id);
+    expect($forwarded->sender_id)->toBe($user->id);
+});
+
+it('replies to a specific message within the same conversation', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+    $original = Message::create(['conversation_id' => $conversation->id, 'sender_id' => $friend->id, 'body' => 'Salut, ça va ?']);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", ['body' => 'Oui et toi !', 'reply_to_id' => $original->id])->assertRedirect();
+
+    $reply = Message::query()->where('reply_to_id', $original->id)->sole();
+    expect($reply->body)->toBe('Oui et toi !');
+});
+
+it('reacts to a message and toggles the reaction off on a second identical reaction', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+    $message = Message::create(['conversation_id' => $conversation->id, 'sender_id' => $friend->id, 'body' => 'hello']);
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/reaction", ['type' => 'love'])->assertRedirect();
+    expect($message->reactions()->where('user_id', $user->id)->exists())->toBeTrue();
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/reaction", ['type' => 'love'])->assertRedirect();
+    expect($message->reactions()->where('user_id', $user->id)->exists())->toBeFalse();
+});

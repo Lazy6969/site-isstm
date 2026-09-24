@@ -12,13 +12,19 @@ class Message extends Model
     protected $fillable = [
         'conversation_id',
         'sender_id',
+        'reply_to_id',
+        'forwarded_from_id',
         'body',
+        'edited_at',
+        'deleted_at',
     ];
 
     protected function casts(): array
     {
         return [
             'read_at' => 'datetime',
+            'edited_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -32,9 +38,24 @@ class Message extends Model
         return $this->belongsTo(User::class, 'sender_id');
     }
 
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'reply_to_id');
+    }
+
+    public function forwardedFrom(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'forwarded_from_id');
+    }
+
     public function attachments(): HasMany
     {
         return $this->hasMany(MessageAttachment::class);
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(MessageReaction::class);
     }
 
     public function hiddenFor(): BelongsToMany

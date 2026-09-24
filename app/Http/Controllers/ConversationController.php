@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageAttachment;
+use App\Models\MessageReaction;
 use App\Models\User;
+use App\ReactionType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -142,22 +144,10 @@ class ConversationController extends Controller
             $data['messages'] = Message::query()
                 ->where('conversation_id', $active->id)
                 ->whereDoesntHave('hiddenFor', fn ($query) => $query->where('users.id', $user->id))
-                ->with('attachments')
+                ->with(['attachments', 'replyTo.sender', 'forwardedFrom.sender', 'reactions.user:id,name'])
                 ->orderBy('created_at')
                 ->get()
-                ->map(fn (Message $message) => [
-                    'id' => $message->id,
-                    'sender_id' => $message->sender_id,
-                    'body' => $message->body,
-                    'created_at' => $message->created_at,
-                    'read_at' => $message->read_at,
-                    'attachments' => $message->attachments->map(fn (MessageAttachment $attachment) => [
-                        'id' => $attachment->id,
-                        'path' => $attachment->path,
-                        'original_name' => $attachment->original_name,
-                        'file_type' => $attachment->file_type,
-                    ]),
-                ]);
+                ->map(fn (Message $message) => $this->presentMessage($message, $user));
 
             $data['media'] = MessageAttachment::query()
                 ->whereHas('message', fn ($query) => $query->where('conversation_id', $active->id))
@@ -167,5 +157,39 @@ class ConversationController extends Controller
         }
 
         return Inertia::render('Messages/Index', $data);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function presentMessage(Message $message, User $viewer): array
+    {
+        $reactionCounts = $message->reactions->countBy(fn (MessageReaction $reaction) => $reaction->type->value);
+        $myReaction = $message->reactions->firstWhere('user_id', $viewer->id);
+
+        return [
+            'id' => $message->id,
+            'sender_id' => $message->sender_id,
+            'body' => $message->body,
+            'created_at' => $message->created_at,
+            'read_at' => $message->read_at,
+            'edited_at' => $message->edited_at,
+            'deleted_at' => $message->deleted_at,
+            'attachments' => $message->attachments->map(fn (MessageAttachment $attachment) => [
+                'id' => $attachment->id,
+                'path' => $attachment->path,
+                'original_name' => $attachment->original_name,
+                'file_type' => $attachment->file_type,
+            ]),
+            'reply_to' => $message->replyTo ? [
+                'id' => $message->replyTo->id,
+                'sender_name' => $message->replyTo->sender->name,
+                'body' => $message->replyTo->deleted_at ? null : $message->replyTo->body,
+            ] : null,
+            'forwarded_from_sender' => $message->forwardedFrom?->sender->name,
+            'reactions' => collect(ReactionType::cases())
+                ->mapWithKeys(fn (ReactionType $type) => [$type->value => $reactionCounts->get($type->value, 0)]),
+            'my_reaction' => $myReaction?->type->value,
+        ];
     }
 }

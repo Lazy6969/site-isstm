@@ -20,6 +20,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\MessageForwardController;
+use App\Http\Controllers\MessageReactionController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
@@ -99,7 +101,11 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
     Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
     Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
+    Route::patch('messages/message/{message}', [MessageController::class, 'update'])->name('messages.messages.update');
     Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->name('messages.messages.destroy');
+    Route::post('messages/message/{message}/supprimer', [MessageController::class, 'unsend'])->name('messages.messages.unsend');
+    Route::post('messages/message/{message}/transferer', [MessageForwardController::class, 'store'])->name('messages.messages.forward');
+    Route::post('messages/message/{message}/reaction', [MessageReactionController::class, 'store'])->name('messages.messages.reaction');
     Route::get('messages/{conversation}/statut', [ConversationController::class, 'status'])->name('messages.status');
     Route::post('messages/{conversation}/frappe', [ConversationController::class, 'typing'])->name('messages.typing');
 

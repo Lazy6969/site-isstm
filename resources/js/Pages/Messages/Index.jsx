@@ -1,19 +1,11 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, FileText, Images, Paperclip, Search, Send } from 'lucide-react';
+import { ArrowLeft, Images, Paperclip, Search, Send, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
+import MessageBubble from '../../Components/Messages/MessageBubble';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
-
-function formatTime(dateString) {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
-
-function formatHourMinute(dateString) {
-    return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-}
 
 const TYPING_PING_THROTTLE_MS = 2000;
 const STATUS_POLL_MS = 4000;
@@ -24,13 +16,15 @@ export default function Index({ conversations, friends, activeConversation, mess
     const [showMedia, setShowMedia] = useState(false);
     const [opening, setOpening] = useState(false);
     const [liveStatus, setLiveStatus] = useState({ online: false, typing: false });
-    const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [] });
+    const [replyingTo, setReplyingTo] = useState(null);
+    const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [], reply_to_id: null });
     const lastTypingPingAt = useRef(0);
 
     useEffect(() => {
         if (!activeConversation) return undefined;
 
         setLiveStatus({ online: activeConversation.user.online, typing: false });
+        setReplyingTo(null);
 
         function poll() {
             fetch(`/messages/${activeConversation.id}/statut`, { headers: { Accept: 'application/json' } })
@@ -91,12 +85,21 @@ export default function Index({ conversations, friends, activeConversation, mess
         post(`/messages/${activeConversation.id}/envoyer`, {
             forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                setReplyingTo(null);
+            },
         });
     }
 
-    function hideMessage(id) {
-        router.delete(`/messages/message/${id}`, { preserveScroll: true });
+    function startReply(message) {
+        setReplyingTo(message);
+        setData('reply_to_id', message.id);
+    }
+
+    function cancelReply() {
+        setReplyingTo(null);
+        setData('reply_to_id', null);
     }
 
     return (
@@ -213,49 +216,28 @@ export default function Index({ conversations, friends, activeConversation, mess
 
                             {!opening && (
                                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                                    {messages.map((m) => {
-                                        const isOwn = m.sender_id !== activeConversation.user.id;
-                                        const isLastOwnMessage = isOwn && m.id === lastOwnMessageId;
+                                    {messages.map((m) => (
+                                        <MessageBubble
+                                            key={m.id}
+                                            message={m}
+                                            isOwn={m.sender_id !== activeConversation.user.id}
+                                            isLastOwnMessage={m.sender_id !== activeConversation.user.id && m.id === lastOwnMessageId}
+                                            conversations={conversations}
+                                            onReply={() => startReply(m)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
 
-                                        return (
-                                        <div key={m.id} className={`group flex ${m.sender_id === activeConversation.user.id ? 'justify-start' : 'justify-end'}`}>
-                                            <div className="max-w-xs">
-                                                {m.body && (
-                                                    <p
-                                                        className={`rounded-2xl px-3.5 py-2 text-sm ${
-                                                            m.sender_id === activeConversation.user.id ? 'bg-slate-100 text-slate-700' : 'bg-isstm-navy text-white'
-                                                        }`}
-                                                    >
-                                                        {m.body}
-                                                    </p>
-                                                )}
-                                                {m.attachments.map((a) => (
-                                                    <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
-                                                        {a.file_type === 'image' ? (
-                                                            <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
-                                                        ) : (
-                                                            <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
-                                                                <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                                                                {a.original_name}
-                                                            </span>
-                                                        )}
-                                                    </a>
-                                                ))}
-                                                <div className="mt-0.5 flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
-                                                    <span>{formatTime(m.created_at)}</span>
-                                                    <button onClick={() => hideMessage(m.id)} className="opacity-0 hover:underline group-hover:opacity-100">
-                                                        {t('messages.masquer', 'Masquer')}
-                                                    </button>
-                                                </div>
-                                                {isLastOwnMessage && m.read_at && (
-                                                    <p className="mt-0.5 text-right text-[11px] text-slate-400 dark:text-slate-500">
-                                                        {t('messages.vu_a', 'Vu à')} {formatHourMinute(m.read_at)}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                        );
-                                    })}
+                            {replyingTo && (
+                                <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                                    <span className="truncate">
+                                        {t('messages.reponse_a', 'Réponse à')} <span className="font-medium">{replyingTo.sender_id === activeConversation.user.id ? activeConversation.user.name : t('messages.vous', 'vous')}</span>
+                                        {replyingTo.body ? ` · ${replyingTo.body}` : ''}
+                                    </span>
+                                    <button type="button" onClick={cancelReply} className="flex-shrink-0" aria-label={t('nav.annuler', 'Annuler')}>
+                                        <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                    </button>
                                 </div>
                             )}
 
