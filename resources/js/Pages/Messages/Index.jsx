@@ -91,6 +91,9 @@ export default function Index({ conversations, friends, activeConversation, mess
         return [...conversations, ...withoutConversation].filter((item) => itemName(item).toLowerCase().includes(filter.toLowerCase()));
     }, [conversations, friends, filter]);
 
+    const dmItems = useMemo(() => items.filter((item) => item.kind !== 'groupe'), [items]);
+    const groupItems = useMemo(() => items.filter((item) => item.kind === 'groupe'), [items]);
+
     const lastOwnMessageId = useMemo(() => {
         if (!activeConversation || isGroup) return null;
         const ownMessages = messages.filter((m) => m.sender_id !== activeConversation.user.id);
@@ -151,6 +154,43 @@ export default function Index({ conversations, friends, activeConversation, mess
         setData('reply_to_id', message.id);
     }
 
+    function conversationButton(item) {
+        return (
+            <button
+                key={item.kind === 'groupe' ? `groupe-${item.id}` : `dm-${item.user.id}`}
+                onClick={() => openConversation(item)}
+                className={`flex w-full items-center gap-2.5 border-b border-slate-50 p-3 text-left transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50 ${
+                    isActiveItem(item, activeConversation) ? 'bg-isstm-navy/5' : ''
+                }`}
+            >
+                <span className="relative flex-shrink-0">
+                    {item.kind === 'groupe' ? (
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-community-accent/15 text-community-accent">
+                            <Users className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                    ) : (
+                        <Avatar className="h-10 w-10">
+                            <AvatarImage src={itemAvatarPath(item) ? `/storage/${itemAvatarPath(item)}` : undefined} alt="" />
+                            <AvatarFallback>{itemName(item)?.[0]}</AvatarFallback>
+                        </Avatar>
+                    )}
+                    {itemOnline(item) && (
+                        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />
+                    )}
+                </span>
+                <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{itemName(item)}</p>
+                    <p className="truncate text-xs text-slate-400 dark:text-slate-500">{item.last_message ?? t('messages.demarrer_conversation', 'Démarrer la conversation')}</p>
+                </div>
+                {item.unread_count > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-isstm-gold px-1 text-[10px] font-bold text-white">
+                        {item.unread_count}
+                    </span>
+                )}
+            </button>
+        );
+    }
+
     function cancelReply() {
         setReplyingTo(null);
         setData('reply_to_id', null);
@@ -160,13 +200,13 @@ export default function Index({ conversations, friends, activeConversation, mess
         <AppLayout title={t('nav.messages', 'Messages')}>
             <Head title="Messages" />
 
-            <div className="flex h-[70vh] overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+            <div className="flex h-[calc(100vh-220px)] min-h-[520px] overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
                 <aside
-                    className={`w-full flex-shrink-0 border-r border-slate-100 dark:border-slate-700 sm:block sm:w-72 ${
-                        activeConversation ? 'hidden' : 'block'
+                    className={`flex w-full flex-shrink-0 flex-col border-r border-slate-100 dark:border-slate-700 sm:flex sm:w-80 ${
+                        activeConversation ? 'hidden' : 'flex'
                     }`}
                 >
-                    <div className="border-b border-slate-100 dark:border-slate-700 p-3">
+                    <div className="flex-shrink-0 border-b border-slate-100 dark:border-slate-700 p-3">
                         <label className="flex items-center gap-2 rounded-full border border-slate-300 px-3.5 py-1.5">
                             <Search className="h-3.5 w-3.5 flex-shrink-0 text-slate-400 dark:text-slate-500" aria-hidden="true" />
                             <input
@@ -178,42 +218,24 @@ export default function Index({ conversations, friends, activeConversation, mess
                             />
                         </label>
                     </div>
-                    <div className="h-[calc(70vh-57px)] overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto">
                         {items.length === 0 && <p className="p-4 text-center text-sm text-slate-400 dark:text-slate-500">{t('messages.aucune_conversation', 'Aucune conversation.')}</p>}
-                        {items.map((item) => (
-                            <button
-                                key={item.kind === 'groupe' ? `groupe-${item.id}` : `dm-${item.user.id}`}
-                                onClick={() => openConversation(item)}
-                                className={`flex w-full items-center gap-2.5 border-b border-slate-50 p-3 text-left transition hover:bg-slate-50 ${
-                                    isActiveItem(item, activeConversation) ? 'bg-isstm-navy/5' : ''
-                                }`}
-                            >
-                                <span className="relative flex-shrink-0">
-                                    {item.kind === 'groupe' ? (
-                                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-community-accent/15 text-community-accent">
-                                            <Users className="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                    ) : (
-                                        <Avatar className="h-10 w-10">
-                                            <AvatarImage src={itemAvatarPath(item) ? `/storage/${itemAvatarPath(item)}` : undefined} alt="" />
-                                            <AvatarFallback>{itemName(item)?.[0]}</AvatarFallback>
-                                        </Avatar>
-                                    )}
-                                    {itemOnline(item) && (
-                                        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />
-                                    )}
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{itemName(item)}</p>
-                                    <p className="truncate text-xs text-slate-400 dark:text-slate-500">{item.last_message ?? t('messages.demarrer_conversation', 'Démarrer la conversation')}</p>
-                                </div>
-                                {item.unread_count > 0 && (
-                                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-isstm-gold px-1 text-[10px] font-bold text-white">
-                                        {item.unread_count}
-                                    </span>
-                                )}
-                            </button>
-                        ))}
+                        {dmItems.length > 0 && (
+                            <div>
+                                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                                    {t('messages.section_messages', 'Messages')}
+                                </p>
+                                {dmItems.map(conversationButton)}
+                            </div>
+                        )}
+                        {groupItems.length > 0 && (
+                            <div>
+                                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                                    {t('messages.section_groupes', 'Groupes')}
+                                </p>
+                                {groupItems.map(conversationButton)}
+                            </div>
+                        )}
                     </div>
                 </aside>
 
@@ -315,60 +337,6 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </div>
                             )}
 
-                            {!isGroup && showMedia && (
-                                <div className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-                                    <div className="flex gap-1 px-3 pt-2">
-                                        {[
-                                            { key: 'images', label: t('messages.medias_images', 'Images'), icon: Images },
-                                            { key: 'videos', label: t('messages.medias_videos', 'Vidéos'), icon: VideoIcon },
-                                            { key: 'documents', label: t('messages.medias_documents', 'Documents'), icon: FileText },
-                                            { key: 'liens', label: t('messages.medias_liens', 'Liens'), icon: Link2 },
-                                        ].map((tabItem) => (
-                                            <button
-                                                key={tabItem.key}
-                                                onClick={() => setMediaTab(tabItem.key)}
-                                                className={`flex items-center gap-1 rounded-t-lg px-2.5 py-1.5 text-xs font-medium ${
-                                                    mediaTab === tabItem.key ? 'bg-white text-isstm-navy dark:bg-slate-800 dark:text-white' : 'text-slate-400'
-                                                }`}
-                                            >
-                                                <tabItem.icon className="h-3 w-3" aria-hidden="true" />
-                                                {tabItem.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="flex gap-2 overflow-x-auto p-3">
-                                        {mediaByTab[mediaTab].length === 0 && (
-                                            <p className="text-xs text-slate-400 dark:text-slate-500">{t('messages.aucun_media', 'Aucun média échangé.')}</p>
-                                        )}
-                                        {mediaTab === 'liens'
-                                            ? mediaByTab.liens.map((l) => (
-                                                  <a key={l.id} href={l.url} target="_blank" rel="noopener" className="flex max-w-[10rem] flex-shrink-0 items-center gap-1 truncate rounded-lg bg-white px-2.5 py-1.5 text-xs text-isstm-navy underline dark:bg-slate-800 dark:text-white">
-                                                      <Link2 className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
-                                                      {l.url}
-                                                  </a>
-                                              ))
-                                            : mediaByTab[mediaTab].map((m) =>
-                                                  mediaTab === 'images' ? (
-                                                      <a key={m.id} href={`/storage/${m.path}`} target="_blank" rel="noopener">
-                                                          <img src={`/storage/${m.path}`} alt="" className="h-16 w-16 flex-shrink-0 rounded-lg object-cover" />
-                                                      </a>
-                                                  ) : (
-                                                      <a
-                                                          key={m.id}
-                                                          href={`/storage/${m.path}`}
-                                                          target="_blank"
-                                                          rel="noopener"
-                                                          className="flex h-16 w-16 flex-shrink-0 flex-col items-center justify-center gap-1 rounded-lg bg-white text-center dark:bg-slate-800"
-                                                      >
-                                                          {mediaTab === 'videos' ? <VideoIcon className="h-5 w-5 text-slate-400" aria-hidden="true" /> : <FileText className="h-5 w-5 text-slate-400" aria-hidden="true" />}
-                                                          <span className="w-full truncate px-1 text-[9px] text-slate-400">{m.original_name}</span>
-                                                      </a>
-                                                  ),
-                                              )}
-                                    </div>
-                                </div>
-                            )}
-
                             {opening && <MessageThreadSkeleton />}
 
                             {!opening && (
@@ -449,6 +417,94 @@ export default function Index({ conversations, friends, activeConversation, mess
                         </>
                     )}
                 </section>
+
+                {!isGroup && showMedia && (
+                    <aside className="fixed inset-0 z-20 flex flex-col bg-white dark:bg-slate-800 sm:static sm:z-auto sm:w-80 sm:flex-shrink-0 sm:border-l sm:border-slate-100 sm:dark:border-slate-700">
+                        <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-100 p-3 dark:border-slate-700">
+                            <h3 className="text-sm font-semibold text-isstm-navy dark:text-white">{t('messages.medias_echanges', 'Médias échangés')}</h3>
+                            <button onClick={() => setShowMedia(false)} aria-label={t('nav.fermer', 'Fermer')} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <X className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                        </div>
+
+                        <div className="flex flex-shrink-0 gap-1 border-b border-slate-100 p-2 dark:border-slate-700">
+                            {[
+                                { key: 'images', label: t('messages.medias_images', 'Images'), icon: Images },
+                                { key: 'videos', label: t('messages.medias_videos', 'Vidéos'), icon: VideoIcon },
+                                { key: 'documents', label: t('messages.medias_documents', 'Documents'), icon: FileText },
+                                { key: 'liens', label: t('messages.medias_liens', 'Liens'), icon: Link2 },
+                            ].map((tabItem) => (
+                                <button
+                                    key={tabItem.key}
+                                    onClick={() => setMediaTab(tabItem.key)}
+                                    title={tabItem.label}
+                                    className={`flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium ${
+                                        mediaTab === tabItem.key
+                                            ? 'bg-isstm-navy/5 text-isstm-navy dark:bg-white/10 dark:text-white'
+                                            : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                                    }`}
+                                >
+                                    <tabItem.icon className="h-4 w-4" aria-hidden="true" />
+                                    {tabItem.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-3">
+                            {mediaByTab[mediaTab].length === 0 && (
+                                <p className="text-center text-xs text-slate-400 dark:text-slate-500">{t('messages.aucun_media', 'Aucun média échangé.')}</p>
+                            )}
+
+                            {mediaTab === 'images' && (
+                                <div className="grid grid-cols-3 gap-2">
+                                    {mediaByTab.images.map((m) => (
+                                        <a key={m.id} href={`/storage/${m.path}`} target="_blank" rel="noopener">
+                                            <img src={`/storage/${m.path}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+
+                            {(mediaTab === 'videos' || mediaTab === 'documents') && (
+                                <div className="space-y-1.5">
+                                    {mediaByTab[mediaTab].map((m) => (
+                                        <a
+                                            key={m.id}
+                                            href={`/storage/${m.path}`}
+                                            target="_blank"
+                                            rel="noopener"
+                                            className="flex items-center gap-2.5 rounded-lg bg-slate-50 p-2 text-xs dark:bg-slate-900"
+                                        >
+                                            {mediaTab === 'videos' ? (
+                                                <VideoIcon className="h-6 w-6 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                            ) : (
+                                                <FileText className="h-6 w-6 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                            )}
+                                            <span className="min-w-0 flex-1 truncate text-slate-600 dark:text-slate-300">{m.original_name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+
+                            {mediaTab === 'liens' && (
+                                <div className="space-y-1.5">
+                                    {mediaByTab.liens.map((l) => (
+                                        <a
+                                            key={l.id}
+                                            href={l.url}
+                                            target="_blank"
+                                            rel="noopener"
+                                            className="flex items-center gap-2 truncate rounded-lg bg-slate-50 p-2 text-xs text-isstm-navy underline dark:bg-slate-900 dark:text-white"
+                                        >
+                                            <Link2 className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                                            <span className="truncate">{l.url}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </aside>
+                )}
             </div>
         </AppLayout>
     );

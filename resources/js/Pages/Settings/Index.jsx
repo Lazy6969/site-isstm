@@ -28,6 +28,7 @@ export default function Index() {
         <AppLayout title={t('parametres.titre', 'Paramètres')}>
             <Head title="Paramètres" />
 
+            <div className="mx-auto max-w-2xl">
             <Card className="flex items-center gap-4 p-5">
                 <img
                     src={user?.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
@@ -102,6 +103,7 @@ export default function Index() {
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 {t('nav.deconnexion', 'Déconnexion')}
             </button>
+            </div>
         </AppLayout>
     );
 }

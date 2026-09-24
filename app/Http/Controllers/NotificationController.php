@@ -104,6 +104,7 @@ class NotificationController extends Controller
                 'actor' => $actor ? ['id' => $actor->id, 'name' => $actor->name, 'avatar_path' => $actor->avatar_path] : null,
                 'post_id' => $post?->id,
                 'post_excerpt' => $post ? str($post->body ?? '')->limit(80)->toString() : null,
+                'comment_id' => $notification->data['comment_id'] ?? null,
                 'friend_request_id' => $notification->data['friend_request_id'] ?? null,
                 'conversation_id' => $notification->data['conversation_id'] ?? null,
             ];

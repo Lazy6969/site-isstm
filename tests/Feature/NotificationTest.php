@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use App\Notifications\CommentReplied;
 use App\Notifications\NewPostPublished;
 use App\Role;
 
@@ -27,6 +29,20 @@ it('returns the unread count and recent notifications for the bell dropdown', fu
     $response->assertOk();
     expect($response->json('unread_count'))->toBe(1);
     expect($response->json('notifications'))->toHaveCount(1);
+});
+
+it('includes the post and comment ids for a comment-reply notification, for deep-linking', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $post = Post::factory()->create();
+    $reply = Comment::factory()->for($post)->create();
+
+    $user->notify(new CommentReplied($reply));
+
+    $response = $this->actingAs($user)->getJson('/notifications/recentes');
+
+    $response->assertOk();
+    expect($response->json('notifications.0.post_id'))->toBe($post->id);
+    expect($response->json('notifications.0.comment_id'))->toBe($reply->id);
 });
 
 it('marks a single notification as read', function () {

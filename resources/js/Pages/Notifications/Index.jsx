@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { CheckCheck, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
@@ -6,6 +6,7 @@ import Skeleton from '../../Components/Loading/Skeleton';
 import { Card } from '../../Components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
+import { markNotificationRead, notificationLink } from '../../lib/notifications';
 
 const periodOrder = ["Aujourd'hui", 'Hier', 'Cette semaine', 'Plus ancien'];
 
@@ -34,23 +35,16 @@ export default function Index({ groups, pagination }) {
         }
     }
 
-    function notificationLink(notification) {
-        switch (notification.type) {
-            case 'demande_ami':
-            case 'ami_accepte':
-                return '/amis';
-            case 'nouveau_message':
-                return notification.conversation_id ? `/messages/${notification.conversation_id}` : '/messages';
-            case 'reponse_commentaire':
-            case 'nouvelle_publication':
-                return '/communaute';
-            default:
-                return null;
-        }
-    }
-
     function markRead(id) {
         router.post(`/notifications/${id}/lu`, {}, { preserveScroll: true });
+    }
+
+    async function openNotification(notification) {
+        const link = notificationLink(notification);
+        if (!notification.read) {
+            await markNotificationRead(notification.id);
+        }
+        router.visit(link);
     }
 
     function markAllRead() {
@@ -74,6 +68,8 @@ export default function Index({ groups, pagination }) {
     return (
         <AppLayout title={t('nav.notifications', 'Notifications')}>
             <Head title="Notifications" />
+
+            <div className="mx-auto max-w-2xl">
 
             <div className="mb-6 flex justify-end">
                 <button onClick={markAllRead} className="flex items-center gap-1.5 text-sm font-medium text-isstm-gold hover:underline">
@@ -119,17 +115,10 @@ export default function Index({ groups, pagination }) {
                                                 <AvatarImage src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : undefined} alt="" />
                                                 <AvatarFallback>{notification.actor?.name?.[0] ?? '?'}</AvatarFallback>
                                             </Avatar>
-                                            {notificationLink(notification) ? (
-                                                <Link href={notificationLink(notification)} className="min-w-0 flex-1">
-                                                    <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
-                                                    <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
-                                                </Link>
-                                            ) : (
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
-                                                    <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
-                                                </div>
-                                            )}
+                                            <button type="button" onClick={() => openNotification(notification)} className="min-w-0 flex-1 text-left">
+                                                <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
+                                                <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
+                                            </button>
                                             <div className="flex flex-shrink-0 gap-3 text-xs">
                                                 {!notification.read && (
                                                     <button onClick={() => markRead(notification.id)} className="font-medium text-isstm-navy dark:text-white hover:underline">
@@ -167,6 +156,7 @@ export default function Index({ groups, pagination }) {
                     </button>
                 </div>
             )}
+            </div>
         </AppLayout>
     );
 }

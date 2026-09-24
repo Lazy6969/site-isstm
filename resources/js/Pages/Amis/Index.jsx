@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Check, Inbox, Search, Send, Users, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import UserCard from '../../Components/Amis/UserCard';
 import UserCardSkeleton from '../../Components/Loading/UserCardSkeleton';
@@ -10,16 +10,28 @@ import { useTranslations } from '../../lib/useTranslations';
 
 export default function Index({ query, searchResults, friends, received, sent, suggestions }) {
     const { t } = useTranslations();
-    const [tab, setTab] = useState('recherche');
-    const [friendFilter, setFriendFilter] = useState('');
-    const { data, setData, get, processing } = useForm({ q: query ?? '' });
-
+    const params = useMemo(() => new URLSearchParams(window.location.search), []);
+    const highlightId = params.get('highlight');
     const tabs = [
         { key: 'recherche', label: t('amis.onglet_recherche', 'Recherche'), icon: Search },
         { key: 'recues', label: t('amis.onglet_recues', 'Reçues'), icon: Inbox },
         { key: 'envoyees', label: t('amis.onglet_envoyees', 'Envoyées'), icon: Send },
         { key: 'amis', label: t('amis.onglet_amis', 'Amis'), icon: Users },
     ];
+    const [tab, setTab] = useState(() => {
+        const requested = params.get('tab');
+
+        return tabs.some((item) => item.key === requested) ? requested : 'recherche';
+    });
+    const [friendFilter, setFriendFilter] = useState('');
+    const { data, setData, get, processing } = useForm({ q: query ?? '' });
+    const highlightRef = useRef(null);
+
+    useEffect(() => {
+        if (highlightId && highlightRef.current) {
+            highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, [tab, highlightId]);
 
     function search(e) {
         e.preventDefault();
@@ -122,7 +134,12 @@ export default function Index({ query, searchResults, friends, received, sent, s
                 <div className="space-y-3">
                     {received.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('amis.aucune_demande_recue', 'Aucune demande reçue.')}</p>}
                     {received.map((request) => (
-                        <Card key={request.id} className="flex items-center gap-3 p-4">
+                        <div key={request.id} ref={String(request.id) === highlightId ? highlightRef : null}>
+                        <Card
+                            className={`flex items-center gap-3 p-4 ${
+                                String(request.id) === highlightId ? 'bg-blue-500/10 ring-2 ring-blue-400' : ''
+                            }`}
+                        >
                             <span className="relative flex-shrink-0">
                                 <Avatar className="h-12 w-12">
                                     <AvatarImage src={request.user.avatar_path ? `/storage/${request.user.avatar_path}` : undefined} alt="" />
@@ -155,6 +172,7 @@ export default function Index({ query, searchResults, friends, received, sent, s
                                 </button>
                             </div>
                         </Card>
+                        </div>
                     ))}
                 </div>
             )}
@@ -188,7 +206,9 @@ export default function Index({ query, searchResults, friends, received, sent, s
                             <p className="text-sm text-slate-400 dark:text-slate-500 sm:col-span-2">{t('amis.aucun_resultat_filtre', 'Aucun ami ne correspond.')}</p>
                         )}
                         {filteredFriends.map((u) => (
-                            <UserCard key={u.id} user={u} />
+                            <div key={u.id} ref={String(u.id) === highlightId ? highlightRef : null}>
+                                <UserCard user={u} highlighted={String(u.id) === highlightId} />
+                            </div>
                         ))}
                     </div>
                 </div>

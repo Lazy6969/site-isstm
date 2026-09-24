@@ -5,7 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function UserCard({ user }) {
+export default function UserCard({ user, highlighted = false }) {
     const { t } = useTranslations();
 
     function sendRequest() {
@@ -17,7 +17,7 @@ export default function UserCard({ user }) {
     }
 
     return (
-        <Card className="flex items-center gap-3 p-4">
+        <Card className={`flex items-center gap-3 p-4 ${highlighted ? 'bg-blue-500/10 ring-2 ring-blue-400' : ''}`}>
             <Link href={`/profil/${user.id}`} className="relative flex-shrink-0">
                 <Avatar className="h-12 w-12">
                     <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />

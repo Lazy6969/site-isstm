@@ -18,7 +18,7 @@ import {
     Share2,
     Trash2,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CommentItem from './CommentItem';
 import ReportPostDialog from './ReportPostDialog';
 import EditPostDialog from './EditPostDialog';
@@ -113,7 +113,7 @@ function SharedPostPreview({ post }) {
 const COLLAPSED_COMMENT_COUNT = 1;
 const HOVER_CLOSE_DELAY_MS = 300;
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, highlightCommentId = null }) {
     const { t } = useTranslations();
     const { data, setData, post: submitComment, processing, reset } = useForm({ body: '', parent_id: null });
     const [showAllComments, setShowAllComments] = useState(false);
@@ -122,6 +122,12 @@ export default function PostCard({ post }) {
     const [reactionsOpen, setReactionsOpen] = useState(false);
     const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
     const reactionCloseTimer = useRef(null);
+
+    useEffect(() => {
+        if (highlightCommentId) {
+            setShowAllComments(true);
+        }
+    }, [highlightCommentId]);
 
     function openReactionPicker() {
         clearTimeout(reactionCloseTimer.current);
@@ -370,7 +376,13 @@ export default function PostCard({ post }) {
 
             <div className="mt-2 border-t border-slate-100 pt-3 dark:border-slate-700">
                 {(showAllComments ? post.comments : post.comments.slice(0, COLLAPSED_COMMENT_COUNT)).map((comment) => (
-                    <CommentItem key={comment.id} postId={post.id} comment={comment} showReplies={showAllComments} />
+                    <CommentItem
+                        key={comment.id}
+                        postId={post.id}
+                        comment={comment}
+                        showReplies={showAllComments}
+                        highlightCommentId={highlightCommentId}
+                    />
                 ))}
 
                 {post.comments.length > COLLAPSED_COMMENT_COUNT && (

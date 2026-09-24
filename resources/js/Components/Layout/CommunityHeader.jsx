@@ -38,7 +38,7 @@ export default function CommunityHeader() {
             className="sticky top-0 z-40 bg-[image:var(--gradient-community)] text-isstm-menu-text shadow-lg"
             style={{ top: 'env(safe-area-inset-top, 0px)' }}
         >
-            <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+            <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-10">
                 <button
                     type="button"
                     onClick={() => setOpen(true)}

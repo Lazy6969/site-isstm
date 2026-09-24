@@ -43,7 +43,7 @@ class PostController extends Controller
             'posts' => $posts,
             'canPublish' => $user->hasLegacyRole(Role::Admin, Role::Enseignant),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
-            'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(8)->values(),
+            'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(10)->values(),
         ]);
     }
 
