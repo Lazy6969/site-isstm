@@ -1,8 +1,4 @@
-function xsrfToken() {
-    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
-
-    return match ? decodeURIComponent(match[1]) : '';
-}
+import { xsrfToken } from './csrf';
 
 /**
  * Where clicking a notification should land — deep-linking to the exact

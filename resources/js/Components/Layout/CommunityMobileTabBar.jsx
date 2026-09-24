@@ -3,7 +3,7 @@ import { Bell, Home, MessageCircle, Users } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 
 const tabs = [
-    { href: '/communaute', icon: Home, labelKey: 'communaute.titre', label: 'Fil' },
+    { href: '/communaute', icon: Home, labelKey: 'nav.fil_court', label: 'Fil' },
     { href: '/amis', icon: Users, labelKey: 'nav.amis', label: 'Amis' },
     { href: '/messages', icon: MessageCircle, labelKey: 'nav.messages', label: 'Messages' },
     { href: '/notifications', icon: Bell, labelKey: 'nav.notifications', label: 'Notifications' },

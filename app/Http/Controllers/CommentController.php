@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Notifications\CommentReplied;
@@ -30,6 +31,13 @@ class CommentController extends Controller
         }
 
         return back()->with('status', 'Commentaire ajouté.');
+    }
+
+    public function update(UpdateCommentRequest $request, Comment $comment): RedirectResponse
+    {
+        $comment->update(['body' => $request->validated('body'), 'edited_at' => now()]);
+
+        return back()->with('status', 'Commentaire modifié.');
     }
 
     public function destroy(Request $request, Comment $comment): RedirectResponse

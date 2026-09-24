@@ -1,3 +1,4 @@
+import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -34,7 +35,7 @@ export default function ReactionsListDialog({ open, onClose, postId }) {
                         <p className="py-6 text-center text-sm text-slate-400">{t('communaute.aucune_reaction', 'Aucune réaction pour le moment.')}</p>
                     )}
                     {reactions?.map((r) => (
-                        <div key={r.user.id} className="flex items-center gap-3 py-2">
+                        <Link key={r.user.id} href={`/profil/${r.user.id}`} className="flex items-center gap-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700/50">
                             <div className="relative">
                                 <Avatar className="h-9 w-9">
                                     <AvatarImage src={r.user.avatar_path ? `/storage/${r.user.avatar_path}` : undefined} alt="" />
@@ -43,7 +44,7 @@ export default function ReactionsListDialog({ open, onClose, postId }) {
                                 <span className="absolute -bottom-1 -right-1 text-sm">{r.emoji}</span>
                             </div>
                             <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{r.user.name}</span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </DialogContent>

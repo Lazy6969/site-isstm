@@ -69,14 +69,14 @@ export default function StoriesBar() {
     const hasNoStories = otherGroups.length === 0 && (!myGroup || myGroup.stories.length === 0);
 
     return (
-        <div className="mb-6 flex gap-3 overflow-x-auto pb-1">
+        <div className="mb-6 flex snap-x snap-mandatory touch-pan-x gap-3 overflow-x-auto scroll-smooth pb-1">
             <input ref={fileInputRef} type="file" accept="image/*" onChange={onFileSelected} className="hidden" />
 
             <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="relative h-44 w-28 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100 transition disabled:opacity-50 dark:ring-slate-700"
+                className="relative h-44 w-28 flex-shrink-0 snap-start overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-100 transition disabled:opacity-50 dark:ring-slate-700"
             >
                 <img
                     src={user?.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
@@ -96,7 +96,7 @@ export default function StoriesBar() {
                 <button
                     type="button"
                     onClick={() => setViewer({ groupIndex: groups.indexOf(myGroup), storyIndex: 0 })}
-                    className="relative h-44 w-28 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm ring-2 ring-community-accent"
+                    className="relative h-44 w-28 flex-shrink-0 snap-start overflow-hidden rounded-2xl shadow-sm ring-2 ring-community-accent"
                 >
                     <img src={`/storage/${myGroup.stories[0].media_path}`} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
@@ -113,7 +113,7 @@ export default function StoriesBar() {
 
             {hasNoStories && (
                 <div
-                    className="flex h-44 w-28 flex-shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-2 text-center dark:border-slate-700 dark:bg-slate-800/50"
+                    className="flex h-44 w-28 flex-shrink-0 snap-start flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-2 text-center dark:border-slate-700 dark:bg-slate-800/50"
                     aria-hidden="true"
                 >
                     <Images className="h-6 w-6 text-slate-300 dark:text-slate-600" aria-hidden="true" />
@@ -126,7 +126,7 @@ export default function StoriesBar() {
                     key={group.user.id}
                     type="button"
                     onClick={() => setViewer({ groupIndex: groups.indexOf(group), storyIndex: 0 })}
-                    className="relative h-44 w-28 flex-shrink-0 overflow-hidden rounded-2xl shadow-sm ring-2 ring-community-accent"
+                    className="relative h-44 w-28 flex-shrink-0 snap-start overflow-hidden rounded-2xl shadow-sm ring-2 ring-community-accent"
                 >
                     <img src={`/storage/${group.stories[0].media_path}`} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />

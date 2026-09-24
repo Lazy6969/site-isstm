@@ -10,6 +10,7 @@ import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleto
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 import { extractLinks } from '../../lib/linkify';
+import { xsrfToken } from '../../lib/csrf';
 
 const TYPING_PING_THROTTLE_MS = 2000;
 const STATUS_POLL_MS = 4000;
@@ -33,7 +34,7 @@ function isActiveItem(item, activeConversation) {
     return activeConversation.kind !== 'groupe' && activeConversation.user?.id === item.user.id;
 }
 
-export default function Index({ conversations, friends, activeConversation, messages, groupMessages, media }) {
+export default function Index({ conversations, friends, activeConversation, messages = [], groupMessages = [], media = [] }) {
     const { t } = useTranslations();
     const { auth } = usePage().props;
     const [filter, setFilter] = useState('');
@@ -65,11 +66,6 @@ export default function Index({ conversations, friends, activeConversation, mess
 
         return () => clearInterval(interval);
     }, [activeConversation?.id, isGroup]);
-
-    function xsrfToken() {
-        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
-        return match ? decodeURIComponent(match[1]) : '';
-    }
 
     function pingTyping() {
         if (!activeConversation || isGroup) return;

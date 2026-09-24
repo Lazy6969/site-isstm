@@ -66,3 +66,28 @@ it('lets the author delete their own story but not someone else\'s', function ()
     $this->actingAs($author)->delete("/stories/{$story->id}")->assertRedirect();
     $this->assertModelMissing($story);
 });
+
+it('records a story view from another viewer but not from the author themselves', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($viewer)->postJson("/stories/{$story->id}/vue")->assertOk();
+    $this->actingAs($author)->postJson("/stories/{$story->id}/vue")->assertOk();
+
+    expect($story->viewedBy()->count())->toBe(1);
+    expect($story->viewedBy()->first()->id)->toBe($viewer->id);
+});
+
+it('only exposes the story view count to its own author', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+    $story->viewedBy()->attach($viewer->id);
+
+    $asAuthor = $this->actingAs($author)->getJson('/stories')->json('groups');
+    expect($asAuthor[0]['stories'][0]['views_count'])->toBe(1);
+
+    $asViewer = $this->actingAs($viewer)->getJson('/stories')->json('groups');
+    expect($asViewer[0]['stories'][0]['views_count'])->toBeNull();
+});

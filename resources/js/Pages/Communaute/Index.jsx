@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Archive, Bookmark, Paperclip, Send } from 'lucide-react';
+import { Archive, Bookmark, LayoutDashboard, Paperclip, Send } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
@@ -69,6 +69,13 @@ export default function Index({ posts, canPublish, postTypes, conversations }) {
                                 {t('communaute.archives_court', 'Archivés')}
                             </Link>
                         )}
+                        <Link
+                            href="/tableau-de-bord"
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                        >
+                            <LayoutDashboard className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {t('nav.tableau_bord', 'Tableau de bord')}
+                        </Link>
                     </nav>
                 </aside>
 

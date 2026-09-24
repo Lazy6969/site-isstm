@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
-import { Trash2, X } from 'lucide-react';
+import { Eye, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
+import { xsrfToken } from '../../lib/csrf';
 
 const STORY_DURATION_MS = 5000;
 
@@ -37,6 +38,16 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
         return () => clearTimeout(timer);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [groupIndex, storyIndex, paused]);
+
+    useEffect(() => {
+        if (!story || story.can_manage) return;
+
+        fetch(`/stories/${story.id}/vue`, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': xsrfToken() },
+        }).catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [story?.id]);
 
     useEffect(() => {
         function onKeyDown(e) {
@@ -114,6 +125,12 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
                     </div>
                 </div>
                 <div className="flex items-center gap-1">
+                    {story.views_count != null && (
+                        <span className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90">
+                            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                            {story.views_count}
+                        </span>
+                    )}
                     {story.can_manage && (
                         <button
                             type="button"

@@ -31,6 +31,7 @@ class PostController extends Controller
             ->whereDoesntHave('hiddenBy', fn ($query) => $query->where('users.id', $user->id))
             ->whereNull('archived_at')
             ->with($this->eagerLoad())
+            ->withCount('viewedBy')
             ->orderByRaw('pinned_at is null')
             ->orderByDesc('pinned_at')
             ->latest()
@@ -41,7 +42,7 @@ class PostController extends Controller
 
         return Inertia::render('Communaute/Index', [
             'posts' => $posts,
-            'canPublish' => $user->hasLegacyRole(Role::Admin, Role::Enseignant),
+            'canPublish' => $user->hasLegacyRole(Role::Etudiant, Role::Admin, Role::Enseignant),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
             'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(10)->values(),
         ]);
@@ -50,6 +51,8 @@ class PostController extends Controller
     public function show(Request $request, Post $post): Response
     {
         $post->load($this->eagerLoad());
+        $post->viewedBy()->syncWithoutDetaching([$request->user()->id]);
+        $post->loadCount('viewedBy');
 
         return Inertia::render('Communaute/Show', [
             'post' => $this->presentPost($post, $request->user()),
@@ -62,6 +65,7 @@ class PostController extends Controller
 
         $posts = $user->savedPosts()
             ->with($this->eagerLoad())
+            ->withCount('viewedBy')
             ->latest('post_saves.created_at')
             ->paginate(10)
             ->withQueryString();
@@ -81,6 +85,7 @@ class PostController extends Controller
             ->where('user_id', $user->id)
             ->whereNotNull('archived_at')
             ->with($this->eagerLoad())
+            ->withCount('viewedBy')
             ->latest('archived_at')
             ->paginate(10)
             ->withQueryString();
@@ -178,6 +183,7 @@ class PostController extends Controller
             'created_at' => $post->created_at,
             'edited_at' => $post->edited_at,
             'comments_disabled' => $post->comments_disabled,
+            'views_count' => $nested ? 0 : ($post->viewed_by_count ?? 0),
             'is_pinned' => $post->pinned_at !== null,
             'is_archived' => $post->archived_at !== null,
             'user' => [
@@ -210,6 +216,7 @@ class PostController extends Controller
             'id' => $comment->id,
             'body' => $comment->body,
             'created_at' => $comment->created_at,
+            'edited_at' => $comment->edited_at,
             'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $comment->user_id === $viewer->id,
             'user' => [
                 'id' => $comment->user->id,

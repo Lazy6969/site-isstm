@@ -9,6 +9,7 @@ use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirecteurController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
@@ -128,9 +129,12 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
 
     Route::get('stories', [StoryController::class, 'index'])->name('stories.index');
     Route::post('stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::post('stories/{story}/vue', [StoryController::class, 'view'])->name('stories.view');
     Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
 
     Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
+    Route::get('tableau-de-bord', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::patch('commentaires/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
 

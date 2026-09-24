@@ -51,16 +51,17 @@ it('records a report and does not duplicate it on a second report from the same 
     expect(PostReport::query()->where('post_id', $post->id)->sole()->reason)->toBe('Toujours un problème');
 });
 
-it('lets a teacher share a post to their own feed but forbids a student from sharing', function () {
+it('lets a teacher and a student share a post to their own feed', function () {
     $original = Post::factory()->create();
     $teacher = User::factory()->role(Role::Enseignant)->create();
     $student = User::factory()->role(Role::Etudiant)->create();
 
     $this->actingAs($teacher)->post('/communaute', ['type' => 'autre', 'shared_post_id' => $original->id])->assertRedirect();
-    $share = Post::query()->where('shared_post_id', $original->id)->sole();
-    expect($share->user_id)->toBe($teacher->id);
+    $teacherShare = Post::query()->where('shared_post_id', $original->id)->where('user_id', $teacher->id)->sole();
+    expect($teacherShare->user_id)->toBe($teacher->id);
 
-    $this->actingAs($student)->post('/communaute', ['type' => 'autre', 'shared_post_id' => $original->id])->assertForbidden();
+    $this->actingAs($student)->post('/communaute', ['type' => 'autre', 'shared_post_id' => $original->id])->assertRedirect();
+    expect(Post::query()->where('shared_post_id', $original->id)->where('user_id', $student->id)->exists())->toBeTrue();
 });
 
 it('shows a single post permalink page with its shared post nested', function () {

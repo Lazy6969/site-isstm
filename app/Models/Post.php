@@ -76,4 +76,9 @@ class Post extends Model
     {
         return $this->belongsToMany(User::class, 'post_hides');
     }
+
+    public function viewedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'post_views');
+    }
 }

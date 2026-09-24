@@ -11,10 +11,12 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
-it('forbids a student from publishing a post', function () {
+it('lets a student publish a post', function () {
     $student = User::factory()->role(Role::Etudiant)->create();
 
-    $this->actingAs($student)->post('/communaute', ['type' => 'autre', 'body' => 'Bonjour'])->assertForbidden();
+    $this->actingAs($student)->post('/communaute', ['type' => 'autre', 'body' => 'Bonjour'])->assertRedirect();
+
+    expect(Post::query()->where('user_id', $student->id)->exists())->toBeTrue();
 });
 
 it('lets a teacher publish a post with media and notifies the other community members', function () {
@@ -129,4 +131,42 @@ it('replaces an existing reaction with a different type', function () {
 
     $reaction = Reaction::query()->where('post_id', $post->id)->where('user_id', $user->id)->sole();
     expect($reaction->type->value)->toBe('love');
+});
+
+it('records a view when a post permalink is visited, once per viewer', function () {
+    $post = Post::factory()->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($viewer)->get("/communaute/{$post->id}")->assertInertia(fn ($page) => $page
+        ->where('post.views_count', 1)
+    );
+
+    $this->actingAs($viewer)->get("/communaute/{$post->id}");
+
+    expect($post->viewedBy()->count())->toBe(1);
+
+    $this->actingAs($viewer)->get('/communaute')->assertInertia(fn ($page) => $page
+        ->where('posts.data.0.views_count', 1)
+    );
+});
+
+it('lets the author edit their own comment and marks it edited', function () {
+    $post = Post::factory()->create();
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $comment = Comment::factory()->for($post)->for($author)->create(['body' => 'Texte original']);
+
+    $this->actingAs($author)->patch("/commentaires/{$comment->id}", ['body' => 'Texte corrigé'])->assertRedirect();
+
+    $comment->refresh();
+    expect($comment->body)->toBe('Texte corrigé');
+    expect($comment->edited_at)->not->toBeNull();
+});
+
+it('forbids editing someone elses comment', function () {
+    $post = Post::factory()->create();
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $comment = Comment::factory()->for($post)->for($author)->create();
+    $other = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($other)->patch("/commentaires/{$comment->id}", ['body' => 'Piraté'])->assertForbidden();
 });

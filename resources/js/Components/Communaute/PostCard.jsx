@@ -6,6 +6,7 @@ import {
     ChevronDown,
     ChevronUp,
     Copy,
+    Eye,
     FileText,
     Flag,
     MessageSquareOff,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import CommentItem from './CommentItem';
+import ExpandableText from './ExpandableText';
 import ReportPostDialog from './ReportPostDialog';
 import EditPostDialog from './EditPostDialog';
 import ReactionsListDialog from './ReactionsListDialog';
@@ -104,7 +106,7 @@ function SharedPostPreview({ post }) {
                     <p className="text-xs text-slate-400">{formatDate(post.created_at)}</p>
                 </div>
             </div>
-            {post.body && <p className="mt-2 whitespace-pre-line text-sm text-slate-700 dark:text-slate-200">{post.body}</p>}
+            {post.body && <ExpandableText text={post.body} className="mt-2 whitespace-pre-line text-sm text-slate-700 dark:text-slate-200" />}
             <MediaGrid media={post.media} compact />
         </div>
     );
@@ -204,9 +206,15 @@ export default function PostCard({ post, highlightCommentId = null }) {
                         <Link href={`/profil/${post.user.id}`} className="font-semibold text-slate-800 hover:text-isstm-navy dark:text-slate-100">
                             {post.user.name}
                         </Link>
-                        <p className="text-xs text-slate-400">
+                        <p className="flex items-center gap-1 text-xs text-slate-400">
                             {post.user.role_label} · {formatDate(post.created_at)}
                             {post.edited_at && ` · ${t('communaute.modifie', 'Modifié')}`}
+                            {post.views_count > 0 && (
+                                <span className="ml-1 flex items-center gap-0.5">
+                                    <Eye className="h-3 w-3" aria-hidden="true" />
+                                    {post.views_count}
+                                </span>
+                            )}
                         </p>
                     </div>
                 </div>
@@ -302,7 +310,7 @@ export default function PostCard({ post, highlightCommentId = null }) {
                 </div>
             </div>
 
-            {post.body && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200">{post.body}</p>}
+            {post.body && <ExpandableText text={post.body} className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200" />}
 
             {post.shared_post ? <SharedPostPreview post={post.shared_post} /> : <MediaGrid media={post.media} />}
 
