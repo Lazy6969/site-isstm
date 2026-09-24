@@ -95,6 +95,31 @@ function RadioGroup({ name, options, value, onChange, error }) {
     );
 }
 
+function PasswordChecklist({ password }) {
+    const rules = [
+        { label: '8 caractères minimum', met: password.length >= 8 },
+        { label: 'Une majuscule', met: /[A-Z]/.test(password) },
+        { label: 'Une minuscule', met: /[a-z]/.test(password) },
+        { label: 'Un chiffre', met: /[0-9]/.test(password) },
+    ];
+
+    return (
+        <ul className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1">
+            {rules.map((rule) => (
+                <li
+                    key={rule.label}
+                    className={`flex items-center gap-1.5 text-xs ${rule.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}
+                >
+                    <span className={`flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full ${rule.met ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-700'}`}>
+                        {rule.met && <Check className="h-2.5 w-2.5" aria-hidden="true" />}
+                    </span>
+                    {rule.label}
+                </li>
+            ))}
+        </ul>
+    );
+}
+
 function FileInput({ id, label, file, onChange, error }) {
     return (
         <div>
@@ -148,6 +173,9 @@ export default function Create({ filieres }) {
         if (step === 'identite') {
             for (const field of ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse', 'password']) {
                 if (!data[field]) missing[field] = 'Ce champ est requis.';
+            }
+            if (data.password && (data.password.length < 8 || !/[A-Z]/.test(data.password) || !/[a-z]/.test(data.password) || !/[0-9]/.test(data.password))) {
+                missing.password = 'Le mot de passe doit respecter les 4 conditions ci-dessous.';
             }
             if (data.password && data.password !== data.password_confirmation) {
                 missing.password_confirmation = 'La confirmation ne correspond pas au mot de passe.';
@@ -341,7 +369,7 @@ export default function Create({ filieres }) {
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
                                                 <TextField id="password" type="password" label="Mot de passe" value={data.password} onChange={set('password')} error={errors.password} required />
-                                                <p className="mt-1 text-xs text-slate-400">8 caractères minimum, avec au moins une majuscule, une minuscule et un chiffre.</p>
+                                                <PasswordChecklist password={data.password} />
                                             </div>
                                             <TextField id="password_confirmation" type="password" label="Confirmer le mot de passe" value={data.password_confirmation} onChange={set('password_confirmation')} error={errors.password_confirmation} required />
                                         </div>
