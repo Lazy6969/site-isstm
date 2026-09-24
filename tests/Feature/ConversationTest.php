@@ -41,6 +41,17 @@ it('sends a message with an attachment in an existing conversation', function ()
     expect($message->attachments)->toHaveCount(1);
 });
 
+it('notifies the other participant when a message is sent', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", ['body' => 'Salut !'])->assertRedirect();
+
+    expect($friend->notifications()->first()?->data['type'] ?? null)->toBe('nouveau_message');
+    expect($user->notifications()->count())->toBe(0);
+});
+
 it('forbids a user outside the conversation from sending a message', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
     $friend = User::factory()->role(Role::Etudiant)->create();

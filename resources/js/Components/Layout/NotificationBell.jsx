@@ -18,9 +18,33 @@ function timeAgo(dateString) {
 function notificationText(notification) {
     const actor = notification.actor?.name ?? 'Quelqu\'un';
 
-    return notification.type === 'reponse_commentaire'
-        ? `${actor} a répondu à votre commentaire`
-        : `${actor} a publié dans le fil communautaire`;
+    switch (notification.type) {
+        case 'reponse_commentaire':
+            return `${actor} a répondu à votre commentaire`;
+        case 'demande_ami':
+            return `${actor} vous a envoyé une demande d'ami`;
+        case 'ami_accepte':
+            return `${actor} a accepté votre demande d'ami`;
+        case 'nouveau_message':
+            return `${actor} vous a envoyé un message`;
+        default:
+            return `${actor} a publié dans le fil communautaire`;
+    }
+}
+
+function notificationLink(notification) {
+    switch (notification.type) {
+        case 'demande_ami':
+        case 'ami_accepte':
+            return '/amis';
+        case 'nouveau_message':
+            return notification.conversation_id ? `/messages/${notification.conversation_id}` : '/messages';
+        case 'reponse_commentaire':
+        case 'nouvelle_publication':
+            return '/communaute';
+        default:
+            return '/notifications';
+    }
 }
 
 export default function NotificationBell() {
@@ -107,7 +131,7 @@ export default function NotificationBell() {
                             notifications.map((notification) => (
                                 <Link
                                     key={notification.id}
-                                    href="/notifications"
+                                    href={notificationLink(notification)}
                                     className={`flex items-start gap-3 border-b border-slate-50 px-4 py-3 text-sm transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50 ${
                                         !notification.read ? 'bg-isstm-navy/5 dark:bg-isstm-gold/10' : ''
                                     }`}

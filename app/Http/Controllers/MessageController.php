@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMessageRequest;
 use App\MediaType;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Notifications\NewMessageReceived;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,8 @@ class MessageController extends Controller
                 'file_size' => $file->getSize(),
             ]);
         }
+
+        $conversation->otherUser($user)->notify(new NewMessageReceived($message));
 
         return back();
     }

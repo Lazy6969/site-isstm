@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { CheckCheck, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
@@ -20,9 +20,33 @@ export default function Index({ groups, pagination }) {
     function notificationText(notification) {
         const actor = notification.actor?.name ?? t('notifications.quelquun', "Quelqu'un");
 
-        return notification.type === 'reponse_commentaire'
-            ? `${actor} ${t('notifications.a_repondu', 'a répondu à votre commentaire')}`
-            : `${actor} ${t('notifications.a_publie', 'a publié :')} « ${notification.post_excerpt ?? ''} »`;
+        switch (notification.type) {
+            case 'reponse_commentaire':
+                return `${actor} ${t('notifications.a_repondu', 'a répondu à votre commentaire')}`;
+            case 'demande_ami':
+                return `${actor} ${t('notifications.demande_ami', "vous a envoyé une demande d'ami")}`;
+            case 'ami_accepte':
+                return `${actor} ${t('notifications.ami_accepte', 'a accepté votre demande d\'ami')}`;
+            case 'nouveau_message':
+                return `${actor} ${t('notifications.nouveau_message', 'vous a envoyé un message')}`;
+            default:
+                return `${actor} ${t('notifications.a_publie', 'a publié :')} « ${notification.post_excerpt ?? ''} »`;
+        }
+    }
+
+    function notificationLink(notification) {
+        switch (notification.type) {
+            case 'demande_ami':
+            case 'ami_accepte':
+                return '/amis';
+            case 'nouveau_message':
+                return notification.conversation_id ? `/messages/${notification.conversation_id}` : '/messages';
+            case 'reponse_commentaire':
+            case 'nouvelle_publication':
+                return '/communaute';
+            default:
+                return null;
+        }
     }
 
     function markRead(id) {
@@ -95,10 +119,17 @@ export default function Index({ groups, pagination }) {
                                                 <AvatarImage src={notification.actor?.avatar_path ? `/storage/${notification.actor.avatar_path}` : undefined} alt="" />
                                                 <AvatarFallback>{notification.actor?.name?.[0] ?? '?'}</AvatarFallback>
                                             </Avatar>
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
-                                                <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
-                                            </div>
+                                            {notificationLink(notification) ? (
+                                                <Link href={notificationLink(notification)} className="min-w-0 flex-1">
+                                                    <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
+                                                    <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
+                                                </Link>
+                                            ) : (
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-sm text-slate-700 dark:text-slate-200">{notificationText(notification)}</p>
+                                                    <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{formatTime(notification.created_at)}</p>
+                                                </div>
+                                            )}
                                             <div className="flex flex-shrink-0 gap-3 text-xs">
                                                 {!notification.read && (
                                                     <button onClick={() => markRead(notification.id)} className="font-medium text-isstm-navy dark:text-white hover:underline">
