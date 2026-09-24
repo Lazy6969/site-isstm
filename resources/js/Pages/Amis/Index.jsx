@@ -116,10 +116,15 @@ export default function Index({ query, searchResults, friends, received, sent, s
                     {received.length === 0 && <p className="text-sm text-slate-400 dark:text-slate-500">{t('amis.aucune_demande_recue', 'Aucune demande reçue.')}</p>}
                     {received.map((request) => (
                         <Card key={request.id} className="flex items-center gap-3 p-4">
-                            <Avatar className="h-12 w-12">
-                                <AvatarImage src={request.user.avatar_path ? `/storage/${request.user.avatar_path}` : undefined} alt="" />
-                                <AvatarFallback>{request.user.name?.[0]}</AvatarFallback>
-                            </Avatar>
+                            <span className="relative flex-shrink-0">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={request.user.avatar_path ? `/storage/${request.user.avatar_path}` : undefined} alt="" />
+                                    <AvatarFallback>{request.user.name?.[0]}</AvatarFallback>
+                                </Avatar>
+                                {request.user.online && (
+                                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />
+                                )}
+                            </span>
                             <div className="min-w-0 flex-1">
                                 <Link href={`/profil/${request.user.id}`} className="block truncate font-semibold text-slate-800 dark:text-slate-100 hover:text-isstm-navy">
                                     {request.user.name}

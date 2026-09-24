@@ -81,7 +81,7 @@ Route::get('preinscription', [PreinscriptionController::class, 'create'])->name(
 Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
 Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth', 'verified'])->name('preinscription.dossier');
 
-Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function () {
+Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
     Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
     Route::post('amis/demandes/{friendRequest}/accepter', [FriendController::class, 'accept'])->name('friends.accept');
@@ -93,6 +93,8 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function ()
     Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
     Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
     Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->name('messages.messages.destroy');
+    Route::get('messages/{conversation}/statut', [ConversationController::class, 'status'])->name('messages.status');
+    Route::post('messages/{conversation}/frappe', [ConversationController::class, 'typing'])->name('messages.typing');
 
     Route::get('communaute', [PostController::class, 'index'])->name('posts.index');
     Route::post('communaute', [PostController::class, 'store'])->name('posts.store');

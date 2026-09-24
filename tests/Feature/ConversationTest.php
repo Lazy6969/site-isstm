@@ -72,6 +72,30 @@ it('marks messages as read when the conversation is opened', function () {
     expect($message->refresh()->read_at)->not->toBeNull();
 });
 
+it('reports the other participant\'s online and typing status', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create(['last_activity' => now()]);
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $response = $this->actingAs($user)->getJson("/messages/{$conversation->id}/statut");
+    $response->assertOk()->assertJson(['online' => true, 'typing' => false]);
+
+    $this->actingAs($friend)->postJson("/messages/{$conversation->id}/frappe")->assertOk();
+
+    $this->actingAs($user)->getJson("/messages/{$conversation->id}/statut")
+        ->assertJson(['online' => true, 'typing' => true]);
+});
+
+it('forbids checking status or pinging typing for a conversation you are not part of', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $outsider = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($outsider)->getJson("/messages/{$conversation->id}/statut")->assertForbidden();
+    $this->actingAs($outsider)->postJson("/messages/{$conversation->id}/frappe")->assertForbidden();
+});
+
 it('hides a message only for the user who deleted it', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
     $friend = User::factory()->role(Role::Etudiant)->create();

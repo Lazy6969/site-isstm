@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureIsMessagerieUser;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\TouchLastActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'messagerie' => EnsureIsMessagerieUser::class,
+            'activity' => TouchLastActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

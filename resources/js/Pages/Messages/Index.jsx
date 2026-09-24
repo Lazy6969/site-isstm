@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, FileText, Images, Paperclip, Search, Send } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
@@ -11,12 +11,54 @@ function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
+function formatHourMinute(dateString) {
+    return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+const TYPING_PING_THROTTLE_MS = 2000;
+const STATUS_POLL_MS = 4000;
+
 export default function Index({ conversations, friends, activeConversation, messages, media }) {
     const { t } = useTranslations();
     const [filter, setFilter] = useState('');
     const [showMedia, setShowMedia] = useState(false);
     const [opening, setOpening] = useState(false);
+    const [liveStatus, setLiveStatus] = useState({ online: false, typing: false });
     const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [] });
+    const lastTypingPingAt = useRef(0);
+
+    useEffect(() => {
+        if (!activeConversation) return undefined;
+
+        setLiveStatus({ online: activeConversation.user.online, typing: false });
+
+        function poll() {
+            fetch(`/messages/${activeConversation.id}/statut`, { headers: { Accept: 'application/json' } })
+                .then((res) => res.json())
+                .then(setLiveStatus)
+                .catch(() => {});
+        }
+
+        const interval = setInterval(poll, STATUS_POLL_MS);
+
+        return () => clearInterval(interval);
+    }, [activeConversation?.id]);
+
+    function xsrfToken() {
+        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    function pingTyping() {
+        if (!activeConversation) return;
+        const now = Date.now();
+        if (now - lastTypingPingAt.current < TYPING_PING_THROTTLE_MS) return;
+        lastTypingPingAt.current = now;
+        fetch(`/messages/${activeConversation.id}/frappe`, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': xsrfToken() },
+        }).catch(() => {});
+    }
 
     const items = useMemo(() => {
         const conversationUserIds = new Set(conversations.map((c) => c.user.id));
@@ -26,6 +68,13 @@ export default function Index({ conversations, friends, activeConversation, mess
 
         return [...conversations, ...withoutConversation].filter((item) => item.user.name.toLowerCase().includes(filter.toLowerCase()));
     }, [conversations, friends, filter]);
+
+    const lastOwnMessageId = useMemo(() => {
+        if (!activeConversation) return null;
+        const ownMessages = messages.filter((m) => m.sender_id !== activeConversation.user.id);
+
+        return ownMessages.length > 0 ? ownMessages[ownMessages.length - 1].id : null;
+    }, [messages, activeConversation]);
 
     function openConversation(item) {
         const options = { preserveScroll: true, onStart: () => setOpening(true), onFinish: () => setOpening(false) };
@@ -82,10 +131,15 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     activeConversation?.user.id === item.user.id ? 'bg-isstm-navy/5' : ''
                                 }`}
                             >
-                                <Avatar className="h-10 w-10 flex-shrink-0">
-                                    <AvatarImage src={item.user.avatar_path ? `/storage/${item.user.avatar_path}` : undefined} alt="" />
-                                    <AvatarFallback>{item.user.name?.[0]}</AvatarFallback>
-                                </Avatar>
+                                <span className="relative flex-shrink-0">
+                                    <Avatar className="h-10 w-10">
+                                        <AvatarImage src={item.user.avatar_path ? `/storage/${item.user.avatar_path}` : undefined} alt="" />
+                                        <AvatarFallback>{item.user.name?.[0]}</AvatarFallback>
+                                    </Avatar>
+                                    {item.user.online && (
+                                        <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />
+                                    )}
+                                </span>
                                 <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-semibold text-slate-800">{item.user.name}</p>
                                     <p className="truncate text-xs text-slate-400 dark:text-slate-500">{item.last_message ?? t('messages.demarrer_conversation', 'Démarrer la conversation')}</p>
@@ -115,11 +169,25 @@ export default function Index({ conversations, friends, activeConversation, mess
                                         <ArrowLeft className="h-5 w-5" aria-hidden="true" />
                                     </Link>
                                     <Link href={`/profil/${activeConversation.user.id}`} className="flex min-w-0 items-center gap-2.5">
-                                        <Avatar className="h-9 w-9 flex-shrink-0">
-                                            <AvatarImage src={activeConversation.user.avatar_path ? `/storage/${activeConversation.user.avatar_path}` : undefined} alt="" />
-                                            <AvatarFallback>{activeConversation.user.name?.[0]}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="truncate font-semibold text-slate-800">{activeConversation.user.name}</span>
+                                        <span className="relative flex-shrink-0">
+                                            <Avatar className="h-9 w-9">
+                                                <AvatarImage src={activeConversation.user.avatar_path ? `/storage/${activeConversation.user.avatar_path}` : undefined} alt="" />
+                                                <AvatarFallback>{activeConversation.user.name?.[0]}</AvatarFallback>
+                                            </Avatar>
+                                            {liveStatus.online && (
+                                                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />
+                                            )}
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className="block truncate font-semibold text-slate-800 dark:text-slate-100">{activeConversation.user.name}</span>
+                                            <span className="block text-xs text-slate-400 dark:text-slate-500">
+                                                {liveStatus.typing
+                                                    ? t('messages.en_train_decrire', "en train d'écrire…")
+                                                    : liveStatus.online
+                                                      ? t('messages.en_ligne', 'En ligne')
+                                                      : ''}
+                                            </span>
+                                        </span>
                                     </Link>
                                 </div>
                                 <button onClick={() => setShowMedia((v) => !v)} className="flex flex-shrink-0 items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
@@ -145,7 +213,11 @@ export default function Index({ conversations, friends, activeConversation, mess
 
                             {!opening && (
                                 <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                                    {messages.map((m) => (
+                                    {messages.map((m) => {
+                                        const isOwn = m.sender_id !== activeConversation.user.id;
+                                        const isLastOwnMessage = isOwn && m.id === lastOwnMessageId;
+
+                                        return (
                                         <div key={m.id} className={`group flex ${m.sender_id === activeConversation.user.id ? 'justify-start' : 'justify-end'}`}>
                                             <div className="max-w-xs">
                                                 {m.body && (
@@ -175,9 +247,15 @@ export default function Index({ conversations, friends, activeConversation, mess
                                                         {t('messages.masquer', 'Masquer')}
                                                     </button>
                                                 </div>
+                                                {isLastOwnMessage && m.read_at && (
+                                                    <p className="mt-0.5 text-right text-[11px] text-slate-400 dark:text-slate-500">
+                                                        {t('messages.vu_a', 'Vu à')} {formatHourMinute(m.read_at)}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
 
@@ -189,7 +267,10 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 <input
                                     type="text"
                                     value={data.body}
-                                    onChange={(e) => setData('body', e.target.value)}
+                                    onChange={(e) => {
+                                        setData('body', e.target.value);
+                                        pingTyping();
+                                    }}
                                     placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                                     className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                 />

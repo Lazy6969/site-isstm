@@ -6,8 +6,10 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,6 +32,44 @@ class ConversationController extends Controller
             ->update(['read_at' => now()]);
 
         return $this->render($request, $conversation);
+    }
+
+    /**
+     * Polled every few seconds while a conversation is open — whether the
+     * other participant is online (User::isOnline(), refreshed by the
+     * `activity` middleware) and currently typing (see typing() below).
+     */
+    public function status(Request $request, Conversation $conversation): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($conversation->involves($user), 403);
+
+        $other = $conversation->otherUser($user);
+
+        return response()->json([
+            'online' => $other->isOnline(),
+            'typing' => Cache::has($this->typingCacheKey($conversation, $other)),
+        ]);
+    }
+
+    /**
+     * Pinged (debounced) by the message textarea while the user types — sets
+     * a short-lived flag the other participant's status() poll picks up.
+     * Never persisted: a stale tab just stops refreshing it and it expires.
+     */
+    public function typing(Request $request, Conversation $conversation): JsonResponse
+    {
+        $user = $request->user();
+        abort_unless($conversation->involves($user), 403);
+
+        Cache::put($this->typingCacheKey($conversation, $user), true, now()->addSeconds(5));
+
+        return response()->json(['status' => 'ok']);
+    }
+
+    private function typingCacheKey(Conversation $conversation, User $user): string
+    {
+        return "typing:{$conversation->id}:{$user->id}";
     }
 
     public function store(Request $request, User $friend): RedirectResponse
@@ -69,6 +109,7 @@ class ConversationController extends Controller
                     'id' => $conversation->otherUser($user)->id,
                     'name' => $conversation->otherUser($user)->name,
                     'avatar_path' => $conversation->otherUser($user)->avatar_path,
+                    'online' => $conversation->otherUser($user)->isOnline(),
                 ],
                 'last_message' => $conversation->messages->first()?->body,
                 'last_message_at' => $conversation->messages->first()?->created_at,
@@ -83,6 +124,7 @@ class ConversationController extends Controller
                 'id' => $friend->id,
                 'name' => $friend->name,
                 'avatar_path' => $friend->avatar_path,
+                'online' => $friend->isOnline(),
             ]),
         ];
 
@@ -93,6 +135,7 @@ class ConversationController extends Controller
                     'id' => $active->otherUser($user)->id,
                     'name' => $active->otherUser($user)->name,
                     'avatar_path' => $active->otherUser($user)->avatar_path,
+                    'online' => $active->otherUser($user)->isOnline(),
                 ],
             ];
 

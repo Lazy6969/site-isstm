@@ -16,7 +16,7 @@ it('forbids a user without a community role from viewing the friends hub', funct
 
 it('renders the friends hub with friends, requests and suggestions', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
-    $friend = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create(['last_activity' => now()]);
     FriendRequest::factory()->accepted()->create(['sender_id' => $user->id, 'recipient_id' => $friend->id]);
 
     $sender = User::factory()->role(Role::Etudiant)->create();
@@ -26,6 +26,7 @@ it('renders the friends hub with friends, requests and suggestions', function ()
         ->component('Amis/Index')
         ->has('friends', 1)
         ->has('received', 1)
+        ->where('friends.0.online', true)
     );
 });
 

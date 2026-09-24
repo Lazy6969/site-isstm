@@ -18,11 +18,12 @@ export default function UserCard({ user }) {
 
     return (
         <Card className="flex items-center gap-3 p-4">
-            <Link href={`/profil/${user.id}`}>
+            <Link href={`/profil/${user.id}`} className="relative flex-shrink-0">
                 <Avatar className="h-12 w-12">
                     <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />
                     <AvatarFallback>{user.name?.[0]}</AvatarFallback>
                 </Avatar>
+                {user.online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
             </Link>
             <div className="min-w-0 flex-1">
                 <Link href={`/profil/${user.id}`} className="block truncate font-semibold text-slate-800 hover:text-isstm-navy">
