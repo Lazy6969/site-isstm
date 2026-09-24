@@ -99,6 +99,7 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
 
     Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
     Route::get('messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    Route::get('messages/groupe/{group}', [ConversationController::class, 'showGroup'])->name('messages.show-group');
     Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
     Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
     Route::patch('messages/message/{message}', [MessageController::class, 'update'])->name('messages.messages.update');

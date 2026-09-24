@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClassGroup;
+use App\Models\ClassGroupMember;
+use App\Models\ClassGroupMessage;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageAttachment;
@@ -34,6 +37,24 @@ class ConversationController extends Controller
             ->update(['read_at' => now()]);
 
         return $this->render($request, $conversation);
+    }
+
+    /**
+     * Opens a class group's chat inside the same unified /messages interface
+     * as 1-to-1 conversations (merged conversation list, same chat panel
+     * layout) — the group's own richer page (announcements, presence,
+     * members, moderation) stays at /groupes/{group}, linked from here via
+     * the "Plus" button rather than duplicated inline.
+     */
+    public function showGroup(Request $request, ClassGroup $group): Response
+    {
+        $user = $request->user();
+        $membership = $group->memberFor($user);
+        abort_if($membership === null || $membership->is_banned, 403);
+
+        $membership->update(['last_read_at' => now()]);
+
+        return $this->render($request, activeGroup: $group);
     }
 
     /**
@@ -92,11 +113,11 @@ class ConversationController extends Controller
         return redirect()->route('messages.show', $conversation);
     }
 
-    private function render(Request $request, ?Conversation $active = null): Response
+    private function render(Request $request, ?Conversation $active = null, ?ClassGroup $activeGroup = null): Response
     {
         $user = $request->user();
 
-        $conversations = Conversation::query()
+        $dms = Conversation::query()
             ->where('user_one_id', $user->id)
             ->orWhere('user_two_id', $user->id)
             ->with(['userOne', 'userTwo'])
@@ -107,6 +128,7 @@ class ConversationController extends Controller
             ->get()
             ->map(fn (Conversation $conversation) => [
                 'id' => $conversation->id,
+                'kind' => 'dm',
                 'user' => [
                     'id' => $conversation->otherUser($user)->id,
                     'name' => $conversation->otherUser($user)->name,
@@ -116,9 +138,28 @@ class ConversationController extends Controller
                 'last_message' => $conversation->messages->first()?->body,
                 'last_message_at' => $conversation->messages->first()?->created_at,
                 'unread_count' => $conversation->unread_count,
-            ])
-            ->sortByDesc('last_message_at')
-            ->values();
+            ]);
+
+        $groups = ClassGroupMember::query()
+            ->where('user_id', $user->id)
+            ->where('is_banned', false)
+            ->with('classGroup')
+            ->get()
+            ->map(function (ClassGroupMember $membership) use ($user) {
+                $group = $membership->classGroup;
+                $lastMessage = ClassGroupMessage::query()->where('class_group_id', $group->id)->latest()->first();
+
+                return [
+                    'id' => $group->id,
+                    'kind' => 'groupe',
+                    'name' => $group->name,
+                    'last_message' => $lastMessage?->deleted_for_everyone_at ? null : $lastMessage?->body,
+                    'last_message_at' => $lastMessage?->created_at,
+                    'unread_count' => $group->unreadCountFor($user, $membership->last_read_at),
+                ];
+            });
+
+        $conversations = $dms->concat($groups)->sortByDesc('last_message_at')->values();
 
         $data = [
             'conversations' => $conversations,
@@ -133,6 +174,7 @@ class ConversationController extends Controller
         if ($active !== null) {
             $data['activeConversation'] = [
                 'id' => $active->id,
+                'kind' => 'dm',
                 'user' => [
                     'id' => $active->otherUser($user)->id,
                     'name' => $active->otherUser($user)->name,
@@ -154,6 +196,37 @@ class ConversationController extends Controller
                 ->where('file_type', 'image')
                 ->latest()
                 ->get(['id', 'path', 'original_name']);
+        }
+
+        if ($activeGroup !== null) {
+            $data['activeConversation'] = [
+                'id' => $activeGroup->id,
+                'kind' => 'groupe',
+                'name' => $activeGroup->name,
+                'member_count' => $activeGroup->members()->where('is_banned', false)->count(),
+            ];
+
+            $data['groupMessages'] = ClassGroupMessage::query()
+                ->where('class_group_id', $activeGroup->id)
+                ->whereDoesntHave('hiddenFor', fn ($query) => $query->where('users.id', $user->id))
+                ->with(['sender', 'attachments'])
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn (ClassGroupMessage $message) => [
+                    'id' => $message->id,
+                    'sender_id' => $message->sender_id,
+                    'sender_name' => $message->sender->name,
+                    'sender_avatar_path' => $message->sender->avatar_path,
+                    'body' => $message->body,
+                    'created_at' => $message->created_at,
+                    'deleted_for_everyone' => $message->deleted_for_everyone_at !== null,
+                    'attachments' => $message->attachments->map(fn ($a) => [
+                        'id' => $a->id,
+                        'path' => $a->path,
+                        'original_name' => $a->original_name,
+                        'file_type' => $a->file_type,
+                    ]),
+                ]);
         }
 
         return Inertia::render('Messages/Index', $data);

@@ -1,5 +1,9 @@
 <?php
 
+use App\GroupMemberRole;
+use App\Models\ClassGroup;
+use App\Models\ClassGroupMember;
+use App\Models\ClassGroupMessage;
 use App\Models\Conversation;
 use App\Models\FriendRequest;
 use App\Models\Message;
@@ -173,4 +177,42 @@ it('reacts to a message and toggles the reaction off on a second identical react
 
     $this->actingAs($user)->post("/messages/message/{$message->id}/reaction", ['type' => 'love'])->assertRedirect();
     expect($message->reactions()->where('user_id', $user->id)->exists())->toBeFalse();
+});
+
+it('lists both direct conversations and class groups together on /messages', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $group = ClassGroup::factory()->create(['name' => 'L1 Informatique']);
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $user->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($user)->get('/messages')->assertInertia(fn ($page) => $page
+        ->component('Messages/Index')
+        ->has('conversations', 2)
+        ->where('conversations.1.kind', 'groupe')
+        ->where('conversations.1.name', 'L1 Informatique')
+    );
+});
+
+it('opens a class group chat inside the unified messages interface', function () {
+    $group = ClassGroup::factory()->create(['name' => 'L2 Génie Civil']);
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+    ClassGroupMessage::create(['class_group_id' => $group->id, 'sender_id' => $student->id, 'body' => 'Salut le groupe']);
+
+    $this->actingAs($student)->get("/messages/groupe/{$group->id}")->assertInertia(fn ($page) => $page
+        ->component('Messages/Index')
+        ->where('activeConversation.kind', 'groupe')
+        ->where('activeConversation.name', 'L2 Génie Civil')
+        ->has('groupMessages', 1)
+        ->where('groupMessages.0.body', 'Salut le groupe')
+    );
+});
+
+it('forbids a non-member from opening a class group chat via the unified interface', function () {
+    $group = ClassGroup::factory()->create();
+    $outsider = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($outsider)->get("/messages/groupe/{$group->id}")->assertForbidden();
 });
