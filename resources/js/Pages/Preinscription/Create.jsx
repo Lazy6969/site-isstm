@@ -196,10 +196,13 @@ export default function Create({ filieres }) {
         for (const field of fields) clearErrors(field);
         for (const [field, message] of Object.entries(missing)) setError(field, message);
 
-        // Client-side checks are a hint, not a gate: the server is the source of
-        // truth for validation (it re-checks everything on submit and routes back
-        // to the first step with an error). Never trap a candidate on a step they
-        // can't get past because of a client-only edge case.
+        // Required fields block advancing to the next step; facultative ones
+        // (cin, série "Autre" unless selected, parent/répondant details beyond
+        // the one contact number required) never appear in `missing` above, so
+        // they never hold up navigation. The server still re-validates
+        // everything on final submit as a safety net.
+        if (Object.keys(missing).length > 0) return;
+
         goTo(STEPS[currentIndex + 1].key);
     }
 
