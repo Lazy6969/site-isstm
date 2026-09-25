@@ -3,7 +3,9 @@
 use App\Models\Filiere;
 use App\Models\Preinscription;
 use App\Models\User;
+use App\Notifications\PreinscriptionSubmitted;
 use App\PreinscriptionStatus;
+use App\Role;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -81,6 +83,24 @@ it('creates a candidate account and préinscription, logs the candidate in, and 
     Storage::disk('public')->assertExists($preinscription->diplome_attestation_path);
 
     Notification::assertSentTo($user, VerifyEmail::class);
+});
+
+it('notifies every admin holding preinscriptions.manage when a dossier is submitted', function () {
+    Storage::fake('public');
+    Notification::fake();
+    $filiere = Filiere::factory()->create();
+    $scolarite = User::factory()->role(Role::Admin)->create();
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+
+    $this->post('/preinscription', validPreinscriptionPayload(['filiere_id' => $filiere->id]));
+
+    $candidate = User::firstWhere('email', 'jean.rakoto@example.com');
+    $preinscription = Preinscription::firstWhere('user_id', $candidate->id);
+
+    Notification::assertSentTo($scolarite, PreinscriptionSubmitted::class, function ($notification) use ($preinscription) {
+        return $notification->preinscription->is($preinscription);
+    });
+    Notification::assertNotSentTo($etudiant, PreinscriptionSubmitted::class);
 });
 
 it('rejects a submission with an e-mail already used by an account', function () {

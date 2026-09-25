@@ -6,12 +6,14 @@ use App\Http\Requests\StorePreinscriptionRequest;
 use App\Models\Filiere;
 use App\Models\Preinscription;
 use App\Models\User;
+use App\Notifications\PreinscriptionSubmitted;
 use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -30,7 +32,7 @@ class PreinscriptionController extends Controller
         Log::info('preinscription.store: request received', ['email' => $request->email]);
 
         try {
-            $user = DB::transaction(function () use ($request) {
+            [$user, $preinscription] = DB::transaction(function () use ($request) {
                 $user = User::create([
                     'name' => trim("{$request->nom} {$request->prenoms}"),
                     'email' => $request->email,
@@ -38,7 +40,7 @@ class PreinscriptionController extends Controller
                     'role' => Role::User,
                 ]);
 
-                Preinscription::create([
+                $preinscription = Preinscription::create([
                     ...$request->safe()->except([
                         'photo', 'releve_bacc', 'cin_recto', 'cin_verso', 'diplome_attestation',
                         'password', 'password_confirmation',
@@ -51,7 +53,7 @@ class PreinscriptionController extends Controller
                     'user_id' => $user->id,
                 ]);
 
-                return $user;
+                return [$user, $preinscription];
             });
         } catch (Throwable $e) {
             report($e);
@@ -65,6 +67,12 @@ class PreinscriptionController extends Controller
 
         try {
             $user->sendEmailVerificationNotification();
+        } catch (Throwable $e) {
+            report($e);
+        }
+
+        try {
+            Notification::send(User::permission('preinscriptions.manage')->get(), new PreinscriptionSubmitted($preinscription));
         } catch (Throwable $e) {
             report($e);
         }

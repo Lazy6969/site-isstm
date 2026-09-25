@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
+import { Menu, Search, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
+import AdminNotificationBell from './AdminNotificationBell';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -138,24 +139,7 @@ export default function AdminHeader({ onOpenSidebar }) {
                     </Tooltip>
                 )}
 
-                <DropdownMenu>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <DropdownMenuTrigger
-                                className="flex h-9 w-9 items-center justify-center rounded-full text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text focus:outline-none"
-                                aria-label="Notifications"
-                            >
-                                <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
-                            </DropdownMenuTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent>Notifications</TooltipContent>
-                    </Tooltip>
-                    <DropdownMenuContent className="w-72 bg-admin-card text-admin-text">
-                        <p className="px-3 py-2 text-sm font-semibold text-admin-text">Notifications</p>
-                        <DropdownMenuSeparator className="bg-admin-border" />
-                        <p className="px-3 py-6 text-center text-sm text-admin-muted">Aucune notification pour le moment.</p>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <AdminNotificationBell />
 
                 {user && (
                     <DropdownMenu>
