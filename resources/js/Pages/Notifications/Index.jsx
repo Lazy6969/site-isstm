@@ -1,5 +1,5 @@
-import { Head, router } from '@inertiajs/react';
-import { CheckCheck, CheckSquare, Trash2 } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, CheckCheck, CheckSquare, Trash2 } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import Skeleton from '../../Components/Loading/Skeleton';
@@ -143,6 +143,11 @@ export default function Index({ groups, pagination }) {
             <Head title="Notifications" />
 
             <div className="mx-auto max-w-2xl">
+
+            <Link href="/communaute" className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('communaute.retour_fil', 'Retour au fil')}
+            </Link>
 
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 {selectMode ? (

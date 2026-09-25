@@ -19,7 +19,7 @@ class ClassGroupPresenceController extends Controller
     {
         $user = $request->user();
         $membership = $group->memberFor($user);
-        abort_if($membership === null || ! $membership->canDownloadPresence(), 403);
+        abort_if($membership === null || ! $membership->canDownloadPresence() || ! $group->hasPresenceFeature(), 403);
 
         $students = ClassGroupMember::query()
             ->where('class_group_id', $group->id)
@@ -51,7 +51,7 @@ class ClassGroupPresenceController extends Controller
     public function store(StorePresenceRequest $request, ClassGroup $group): RedirectResponse
     {
         $membership = $group->memberFor($request->user());
-        abort_if($membership === null || ! $membership->canModerate(), 403);
+        abort_if($membership === null || ! $membership->canModerate() || ! $group->hasPresenceFeature(), 403);
 
         $session = ClassGroupPresenceSession::query()->updateOrCreate(
             ['class_group_id' => $group->id, 'session_date' => $request->validated('session_date')],

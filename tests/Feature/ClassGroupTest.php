@@ -4,6 +4,7 @@ use App\GroupMemberRole;
 use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
+use App\Models\FriendRequest;
 use App\Models\User;
 use App\Role;
 
@@ -133,4 +134,87 @@ it('forbids a student from publishing an announcement', function () {
         'type' => 'devoir',
         'title' => 'Rendu du TP',
     ])->assertForbidden();
+});
+
+it('hides the presence feature for a group a student created', function () {
+    $student = User::factory()->role(Role::Etudiant)->create();
+    $this->actingAs($student)->post('/groupes', ['name' => 'Révisions', 'type' => 'classe']);
+    $group = ClassGroup::query()->sole();
+
+    $this->actingAs($student)->get("/groupes/{$group->id}")->assertInertia(fn ($page) => $page
+        ->where('group.has_presence', false)
+    );
+
+    $this->actingAs($student)->get("/groupes/{$group->id}/presence")->assertForbidden();
+});
+
+it('keeps the presence feature for a group a teacher created', function () {
+    $group = ClassGroup::factory()->create();
+    $teacher = $group->teacher;
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $teacher->id, 'role_in_group' => GroupMemberRole::Enseignant]);
+
+    $this->actingAs($teacher)->get("/groupes/{$group->id}")->assertInertia(fn ($page) => $page
+        ->where('group.has_presence', true)
+    );
+});
+
+it('lets the group owner add several friends directly, but only actual friends', function () {
+    $group = ClassGroup::factory()->create();
+    $teacher = $group->teacher;
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $teacher->id, 'role_in_group' => GroupMemberRole::Enseignant]);
+
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $teacher->id, 'recipient_id' => $friend->id]);
+    $stranger = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($teacher)->post("/groupes/{$group->id}/membres", [
+        'user_ids' => [$friend->id, $stranger->id],
+    ])->assertRedirect();
+
+    expect(ClassGroupMember::query()->where('class_group_id', $group->id)->where('user_id', $friend->id)->exists())->toBeTrue();
+    expect(ClassGroupMember::query()->where('class_group_id', $group->id)->where('user_id', $stranger->id)->exists())->toBeFalse();
+});
+
+it('forbids a regular member from adding friends to the group', function () {
+    $group = ClassGroup::factory()->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $student->id, 'recipient_id' => $friend->id]);
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/membres", ['user_ids' => [$friend->id]])->assertForbidden();
+});
+
+it('lets the group owner archive and unarchive the group, hiding it from the active list meanwhile', function () {
+    $group = ClassGroup::factory()->create();
+    $teacher = $group->teacher;
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $teacher->id, 'role_in_group' => GroupMemberRole::Enseignant]);
+
+    $this->actingAs($teacher)->post("/groupes/{$group->id}/archiver")->assertRedirect();
+    expect($group->refresh()->archived_at)->not->toBeNull();
+
+    $this->actingAs($teacher)->get('/groupes')->assertInertia(fn ($page) => $page->has('groups', 0));
+    $this->actingAs($teacher)->get('/groupes/archives')->assertInertia(fn ($page) => $page->has('groups', 1));
+
+    $this->actingAs($teacher)->post("/groupes/{$group->id}/archiver")->assertRedirect();
+    expect($group->refresh()->archived_at)->toBeNull();
+});
+
+it('forbids a regular member from archiving or deleting the group', function () {
+    $group = ClassGroup::factory()->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/archiver")->assertForbidden();
+    $this->actingAs($student)->delete("/groupes/{$group->id}")->assertForbidden();
+});
+
+it('lets the group owner permanently delete the group', function () {
+    $group = ClassGroup::factory()->create();
+    $teacher = $group->teacher;
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $teacher->id, 'role_in_group' => GroupMemberRole::Enseignant]);
+
+    $this->actingAs($teacher)->delete("/groupes/{$group->id}")->assertRedirect(route('class-groups.index'));
+
+    expect(ClassGroup::query()->find($group->id))->toBeNull();
 });

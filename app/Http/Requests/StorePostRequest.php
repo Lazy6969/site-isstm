@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\PostType;
+use App\PostVisibility;
 use App\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,6 +32,11 @@ class StorePostRequest extends FormRequest
             'media' => ['nullable', 'array', 'max:10'],
             'media.*' => ['file', 'max:20480', 'mimes:jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf'],
             'shared_post_id' => ['nullable', 'integer', Rule::exists('posts', 'id')],
+            'visibility' => ['nullable', Rule::enum(PostVisibility::class)],
+            'mood' => ['nullable', 'string', 'max:50'],
+            'location' => ['nullable', 'string', 'max:150'],
+            'tagged_user_ids' => ['nullable', 'array', 'max:20'],
+            'tagged_user_ids.*' => ['integer'],
         ];
     }
 }

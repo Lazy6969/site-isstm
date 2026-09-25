@@ -1,11 +1,13 @@
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { Archive, Bookmark, LayoutDashboard, Paperclip, Send } from 'lucide-react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Archive, Bookmark, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
 import StoriesBar from '../../Components/Communaute/StoriesBar';
 import ConversationsSidebar from '../../Components/Communaute/ConversationsSidebar';
+import ComposePostModal from '../../Components/Communaute/ComposePostModal';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
+import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 import { greetingPeriod } from '../../lib/greeting';
 
@@ -15,26 +17,17 @@ const GREETINGS = {
     soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
 };
 
-export default function Index({ posts, canPublish, postTypes, conversations }) {
+export default function Index({ posts, canPublish, postTypes, friends, conversations }) {
     const { t } = useTranslations();
     const { auth } = usePage().props;
-    const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
     const [pageLoading, setPageLoading] = useState(false);
+    const [composeOpen, setComposeOpen] = useState(false);
     const greeting = useMemo(() => {
         const firstName = auth?.user?.name?.split(' ')[0] ?? '';
         const { key, fallback } = GREETINGS[greetingPeriod()];
 
         return t(key, fallback).replace('{name}', firstName);
     }, [auth?.user?.name, t]);
-
-    function submit(e) {
-        e.preventDefault();
-        post('/communaute', {
-            forceFormData: true,
-            preserveScroll: true,
-            onSuccess: () => reset(),
-        });
-    }
 
     function goToPage(url) {
         if (url) {
@@ -102,43 +95,36 @@ export default function Index({ posts, canPublish, postTypes, conversations }) {
                     <StoriesBar />
 
                     {canPublish && (
-                <form onSubmit={submit} className="mb-8 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
-                    <div className="flex gap-3">
-                        <select
-                            value={data.type}
-                            onChange={(e) => setData('type', e.target.value)}
-                            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-isstm-navy focus:outline-none"
-                        >
-                            {postTypes.map((type) => (
-                                <option key={type.value} value={type.value}>
-                                    {type.label}
-                                </option>
-                            ))}
-                        </select>
-                        <label className="flex flex-1 items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                            <Paperclip className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                            <input type="file" multiple onChange={(e) => setData('media', Array.from(e.target.files))} className="flex-1 text-sm" />
-                        </label>
-                    </div>
-                    <textarea
-                        value={data.body}
-                        onChange={(e) => setData('body', e.target.value)}
-                        rows={3}
-                        placeholder={t('communaute.placeholder_publication', 'Partager une actualité avec la communauté…')}
-                        className="mt-3 w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-isstm-navy focus:outline-none focus:ring-2 focus:ring-isstm-navy/20"
+                        <div className="mb-8 flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-sm">
+                            <Avatar className="h-10 w-10 flex-shrink-0">
+                                <AvatarImage src={auth?.user?.avatar_path ? `/storage/${auth.user.avatar_path}` : undefined} alt="" />
+                                <AvatarFallback>{auth?.user?.name?.[0]}</AvatarFallback>
+                            </Avatar>
+                            <button
+                                type="button"
+                                onClick={() => setComposeOpen(true)}
+                                className="flex-1 rounded-full bg-slate-100 px-4 py-2.5 text-left text-sm text-slate-500 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                            >
+                                {t('communaute.publier_statut', 'Publier un statut')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setComposeOpen(true)}
+                                className="flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-emerald-600 hover:bg-slate-100 dark:hover:bg-slate-700"
+                            >
+                                <ImageIcon className="h-5 w-5" aria-hidden="true" />
+                                <span className="hidden sm:inline">{t('communaute.photo', 'Photo')}</span>
+                            </button>
+                        </div>
+                    )}
+
+                    <ComposePostModal
+                        open={composeOpen}
+                        onClose={() => setComposeOpen(false)}
+                        postTypes={postTypes}
+                        friends={friends ?? []}
+                        user={auth?.user}
                     />
-                    {errors.body && <p className="mt-1 text-sm text-red-600">{errors.body}</p>}
-                    <div className="mt-3 flex justify-end">
-                        <button
-                            disabled={processing}
-                            className="flex items-center gap-2 rounded-full bg-isstm-navy px-5 py-2 text-sm font-semibold text-white transition hover:bg-isstm-navy-dark disabled:opacity-50"
-                        >
-                            <Send className="h-4 w-4" aria-hidden="true" />
-                            {t('communaute.publier', 'Publier')}
-                        </button>
-                    </div>
-                </form>
-            )}
 
             <div className="space-y-6">
                 {pageLoading && [...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}

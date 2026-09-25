@@ -1,10 +1,15 @@
-import { Head } from '@inertiajs/react';
-import { Eye, FileText, Heart, MessageCircle, Users, UsersRound } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Eye, FileText, Heart, MessageCircle, Users, UsersRound } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function Index({ stats }) {
+const tooltipStyle = { borderRadius: 8, fontSize: 13, border: '1px solid var(--color-slate-200)' };
+const axisTick = { fill: 'currentColor', fontSize: 11 };
+const pieColors = ['#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#64748b', '#dc2626'];
+
+export default function Index({ stats, viewsOverTime, reactionsByType }) {
     const { t } = useTranslations();
 
     const cards = [
@@ -22,6 +27,11 @@ export default function Index({ stats }) {
         <AppLayout title={t('dashboard.titre', 'Tableau de bord')}>
             <Head title="Tableau de bord" />
 
+            <Link href="/communaute" className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('communaute.retour_fil', 'Retour au fil')}
+            </Link>
+
             <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
                 {t('dashboard.sous_titre', "Aperçu de votre activité et de votre portée sur l'espace communautaire.")}
             </p>
@@ -34,6 +44,71 @@ export default function Index({ stats }) {
                         <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{card.label}</p>
                     </Card>
                 ))}
+            </div>
+
+            <div className="mt-5 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+                <Card className="p-5 text-slate-600 dark:text-slate-300">
+                    <h2 className="text-sm font-semibold text-isstm-navy dark:text-white">
+                        {t('dashboard.vues_14_jours', 'Vues reçues — 14 derniers jours')}
+                    </h2>
+                    <ResponsiveContainer width="100%" height={240}>
+                        <AreaChart data={viewsOverTime} margin={{ left: -20, right: 10, top: 16 }}>
+                            <defs>
+                                <linearGradient id="dashboardViewsFill" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="var(--color-community-accent)" stopOpacity={0.3} />
+                                    <stop offset="100%" stopColor="var(--color-community-accent)" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid stroke="currentColor" className="text-slate-100 dark:text-slate-700" vertical={false} />
+                            <XAxis dataKey="date" tick={axisTick} className="text-slate-400" axisLine={false} tickLine={false} />
+                            <YAxis allowDecimals={false} tick={axisTick} className="text-slate-400" axisLine={false} tickLine={false} width={30} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Area
+                                type="monotone"
+                                dataKey="total"
+                                name={t('dashboard.vues', 'Vues')}
+                                stroke="var(--color-community-accent)"
+                                strokeWidth={2}
+                                fill="url(#dashboardViewsFill)"
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </Card>
+
+                <Card className="p-5 text-slate-600 dark:text-slate-300">
+                    <h2 className="text-sm font-semibold text-isstm-navy dark:text-white">
+                        {t('dashboard.repartition_reactions', 'Répartition des réactions')}
+                    </h2>
+                    {reactionsByType.length === 0 ? (
+                        <p className="py-16 text-center text-sm text-slate-400 dark:text-slate-500">
+                            {t('dashboard.aucune_reaction', 'Aucune réaction reçue pour le moment.')}
+                        </p>
+                    ) : (
+                        <>
+                            <ResponsiveContainer width="100%" height={180}>
+                                <PieChart>
+                                    <Tooltip contentStyle={tooltipStyle} />
+                                    <Pie data={reactionsByType} dataKey="total" nameKey="type" innerRadius={45} outerRadius={70} paddingAngle={2}>
+                                        {reactionsByType.map((entry, index) => (
+                                            <Cell key={entry.type} fill={pieColors[index % pieColors.length]} />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                            <ul className="mt-2 space-y-1.5">
+                                {reactionsByType.map((entry, index) => (
+                                    <li key={entry.type} className="flex items-center gap-2 text-xs">
+                                        <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: pieColors[index % pieColors.length] }} />
+                                        <span className="flex-1 truncate">
+                                            {entry.emoji} {entry.type}
+                                        </span>
+                                        <span className="font-medium text-isstm-navy dark:text-white">{entry.total}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </Card>
             </div>
         </AppLayout>
     );

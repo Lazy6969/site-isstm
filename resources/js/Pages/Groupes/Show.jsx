@@ -1,19 +1,23 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Ban, Crown, FileText, Paperclip, Printer, Send, ShieldCheck, Trash2, UserCheck } from 'lucide-react';
+import { ArchiveRestore, ArrowLeft, Ban, Crown, MoreHorizontal, Paperclip, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
+import AttachmentPreview from '../../Components/Messages/AttachmentPreview';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../Components/ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 
 function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Show({ group, membership, members, messages, announcements }) {
+export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup }) {
     const { t } = useTranslations();
     const [tab, setTab] = useState('discussion');
+    const [showAddFriends, setShowAddFriends] = useState(false);
+    const [selectedFriends, setSelectedFriends] = useState([]);
     const messageForm = useForm({ body: '', attachments: [] });
     const announcementForm = useForm({ type: 'devoir', title: '', description: '', due_date: '' });
 
@@ -69,9 +73,39 @@ export default function Show({ group, membership, members, messages, announcemen
         router.post(`/groupes/membres/${memberId}/delegue`, {}, { preserveScroll: true });
     }
 
+    function toggleFriendSelection(friendId) {
+        setSelectedFriends((prev) => (prev.includes(friendId) ? prev.filter((id) => id !== friendId) : [...prev, friendId]));
+    }
+
+    function submitAddFriends(e) {
+        e.preventDefault();
+        router.post(
+            `/groupes/${group.id}/membres`,
+            { user_ids: selectedFriends },
+            { preserveScroll: true, onSuccess: () => { setSelectedFriends([]); setShowAddFriends(false); } },
+        );
+    }
+
+    function archiveGroup() {
+        if (confirm(t('groupes.confirmer_archiver', 'Archiver ce groupe ? Il restera consultable dans « Groupes archivés ».'))) {
+            router.post(`/groupes/${group.id}/archiver`, {}, { preserveScroll: true });
+        }
+    }
+
+    function destroyGroup() {
+        if (confirm(t('groupes.confirmer_suppression_groupe', 'Supprimer définitivement ce groupe ? Cette action est irréversible.'))) {
+            router.delete(`/groupes/${group.id}`);
+        }
+    }
+
     return (
         <AppLayout>
             <Head title={group.name} />
+
+            <Link href="/groupes" className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('groupes.retour_mes_groupes', 'Retour à mes groupes')}
+            </Link>
 
             <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -86,7 +120,7 @@ export default function Show({ group, membership, members, messages, announcemen
                             {t('groupes.code', 'Code :')} {group.join_code}
                         </Badge>
                     )}
-                    {membership.can_download_presence && (
+                    {group.has_presence && membership.can_download_presence && (
                         <Link
                             href={`/groupes/${group.id}/presence`}
                             className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:bg-isstm-navy/5"
@@ -95,8 +129,69 @@ export default function Show({ group, membership, members, messages, announcemen
                             {t('groupes.feuille_presence', 'Feuille de présence')}
                         </Link>
                     )}
+                    {membership.can_moderate && friendsNotInGroup.length > 0 && (
+                        <button
+                            onClick={() => setShowAddFriends((v) => !v)}
+                            className="flex items-center gap-1.5 rounded-full border border-isstm-navy/30 px-3 py-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:bg-isstm-navy/5"
+                        >
+                            <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('groupes.ajouter_amis', 'Ajouter des amis')}
+                        </button>
+                    )}
+                    {membership.can_moderate && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700">
+                                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={archiveGroup}>
+                                    <ArchiveRestore className="h-4 w-4" aria-hidden="true" />
+                                    {t('groupes.archiver', 'Archiver le groupe')}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={destroyGroup} className="text-red-600">
+                                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                    {t('groupes.supprimer_groupe', 'Supprimer le groupe')}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </div>
+
+            {showAddFriends && (
+                <Card className="mb-6 p-5">
+                    <h2 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">{t('groupes.ajouter_amis', 'Ajouter des amis')}</h2>
+                    <form onSubmit={submitAddFriends}>
+                        <div className="grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
+                            {friendsNotInGroup.map((friend) => (
+                                <label
+                                    key={friend.id}
+                                    className="flex items-center gap-2.5 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-600"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedFriends.includes(friend.id)}
+                                        onChange={() => toggleFriendSelection(friend.id)}
+                                        className="rounded border-slate-300 text-isstm-navy focus:ring-isstm-navy/30"
+                                    />
+                                    <Avatar className="h-7 w-7">
+                                        <AvatarImage src={friend.avatar_path ? `/storage/${friend.avatar_path}` : undefined} alt="" />
+                                        <AvatarFallback>{friend.name?.[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="truncate text-slate-700 dark:text-slate-200">{friend.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                        <button
+                            disabled={selectedFriends.length === 0}
+                            className="mt-3 flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                        >
+                            <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                            {t('groupes.ajouter_selection', 'Ajouter')} {selectedFriends.length > 0 ? `(${selectedFriends.length})` : ''}
+                        </button>
+                    </form>
+                </Card>
+            )}
 
             <div className="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
                 {tabs.map((item) => (
@@ -129,16 +224,7 @@ export default function Show({ group, membership, members, messages, announcemen
                                         <>
                                             {m.body && <p className="text-sm text-slate-700 dark:text-slate-200">{m.body}</p>}
                                             {m.attachments.map((a) => (
-                                                <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
-                                                    {a.file_type === 'image' ? (
-                                                        <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
-                                                    ) : (
-                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
-                                                            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                                                            {a.original_name}
-                                                        </span>
-                                                    )}
-                                                </a>
+                                                <AttachmentPreview key={a.id} attachment={a} />
                                             ))}
                                             <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">

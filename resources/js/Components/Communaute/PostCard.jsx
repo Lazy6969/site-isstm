@@ -6,9 +6,11 @@ import {
     ChevronDown,
     ChevronUp,
     Copy,
+    Download,
     Eye,
     FileText,
     Flag,
+    Globe,
     MessageSquareOff,
     MessageSquareText,
     MoreHorizontal,
@@ -18,6 +20,7 @@ import {
     Send,
     Share2,
     Trash2,
+    Users,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import CommentItem from './CommentItem';
@@ -50,11 +53,13 @@ function MediaGrid({ media, compact = false }) {
     if (media.length === 1 && media[0].type === 'image') {
         return (
             <div className="mt-3 flex justify-center overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900">
-                <img
-                    src={`/storage/${media[0].path}`}
-                    alt=""
-                    className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
-                />
+                <a href={`/storage/${media[0].path}`} download>
+                    <img
+                        src={`/storage/${media[0].path}`}
+                        alt=""
+                        className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+                    />
+                </a>
             </div>
         );
     }
@@ -64,24 +69,41 @@ function MediaGrid({ media, compact = false }) {
             {media.map((m) => (
                 <div key={m.id} className={`overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900 ${media.length > 1 ? 'aspect-square' : ''}`}>
                     {m.type === 'image' && (
-                        <img
-                            src={`/storage/${m.path}`}
-                            alt=""
-                            className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}`}
-                        />
+                        <a href={`/storage/${m.path}`} download className="block h-full w-full">
+                            <img
+                                src={`/storage/${m.path}`}
+                                alt=""
+                                className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}`}
+                            />
+                        </a>
                     )}
                     {m.type === 'video' && (
-                        <video
-                            src={`/storage/${m.path}`}
-                            controls
-                            className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-72' : 'max-h-[600px]'}`}
-                        />
+                        <div className="relative">
+                            <video
+                                src={`/storage/${m.path}`}
+                                controls
+                                className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-72' : 'max-h-[600px]'}`}
+                            />
+                            <a
+                                href={`/storage/${m.path}`}
+                                download
+                                className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white"
+                                aria-label="Télécharger la vidéo"
+                            >
+                                <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                            </a>
+                        </div>
                     )}
                     {m.type === 'pdf' && (
-                        <a href={`/storage/${m.path}`} target="_blank" rel="noopener" className="flex items-center gap-2 p-4 text-sm font-medium text-isstm-navy hover:underline">
-                            <FileText className="h-4 w-4" aria-hidden="true" />
-                            Voir le document
-                        </a>
+                        <div className="flex items-center gap-2 p-4 text-sm font-medium text-isstm-navy">
+                            <FileText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            <a href={`/storage/${m.path}`} target="_blank" rel="noopener" className="hover:underline">
+                                Voir le document
+                            </a>
+                            <a href={`/storage/${m.path}`} download className="ml-auto flex-shrink-0" aria-label="Télécharger le document">
+                                <Download className="h-4 w-4" aria-hidden="true" />
+                            </a>
+                        </div>
                     )}
                 </div>
             ))}
@@ -203,12 +225,44 @@ export default function PostCard({ post, highlightCommentId = null }) {
                         </Avatar>
                     </Link>
                     <div>
-                        <Link href={`/profil/${post.user.id}`} className="font-semibold text-slate-800 hover:text-isstm-navy dark:text-slate-100">
-                            {post.user.name}
-                        </Link>
+                        <p className="font-semibold text-slate-800 dark:text-slate-100">
+                            <Link href={`/profil/${post.user.id}`} className="hover:text-isstm-navy">
+                                {post.user.name}
+                            </Link>
+                            {post.mood && <span className="font-normal"> {t('communaute.se_sent', 'se sent')} {post.mood}</span>}
+                            {post.tagged_users?.length > 0 && (
+                                <span className="font-normal">
+                                    {' '}
+                                    {t('communaute.avec', 'avec')}{' '}
+                                    {post.tagged_users.map((u, i) => (
+                                        <span key={u.id}>
+                                            <Link href={`/profil/${u.id}`} className="font-semibold hover:text-isstm-navy">
+                                                {u.name}
+                                            </Link>
+                                            {i < post.tagged_users.length - 1 ? ', ' : ''}
+                                        </span>
+                                    ))}
+                                </span>
+                            )}
+                            {post.location && (
+                                <span className="font-normal">
+                                    {' '}
+                                    {t('communaute.a', 'à')} <span className="font-semibold">{post.location}</span>
+                                </span>
+                            )}
+                        </p>
                         <p className="flex items-center gap-1 text-xs text-slate-400">
                             {post.user.role_label} · {formatDate(post.created_at)}
                             {post.edited_at && ` · ${t('communaute.modifie', 'Modifié')}`}
+                            {post.visibility === 'amis' ? (
+                                <Users className="ml-1 h-3 w-3" aria-hidden="true">
+                                    <title>{t('communaute.visibilite_amis', 'Amis')}</title>
+                                </Users>
+                            ) : (
+                                <Globe className="ml-1 h-3 w-3" aria-hidden="true">
+                                    <title>{t('communaute.visibilite_public', 'Public')}</title>
+                                </Globe>
+                            )}
                             {post.views_count > 0 && (
                                 <span className="ml-1 flex items-center gap-0.5">
                                     <Eye className="h-3 w-3" aria-hidden="true" />

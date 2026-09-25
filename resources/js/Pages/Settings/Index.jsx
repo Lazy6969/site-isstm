@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Check, LogOut, Moon, Sun, User } from 'lucide-react';
+import { ArrowLeft, Check, LogOut, Moon, Sun, User } from 'lucide-react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Card } from '../../Components/ui/card';
 import LanguageSwitcher from '../../Components/Layout/LanguageSwitcher';
@@ -29,6 +29,10 @@ export default function Index() {
             <Head title="Paramètres" />
 
             <div className="mx-auto max-w-2xl">
+            <Link href="/communaute" className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('communaute.retour_fil', 'Retour au fil')}
+            </Link>
             <Card className="flex items-center gap-4 p-5">
                 <img
                     src={user?.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}

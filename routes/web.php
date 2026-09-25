@@ -149,7 +149,11 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('groupes', [ClassGroupController::class, 'index'])->name('class-groups.index');
     Route::post('groupes', [ClassGroupController::class, 'store'])->name('class-groups.store');
     Route::post('groupes/rejoindre', [ClassGroupController::class, 'join'])->name('class-groups.join');
+    Route::get('groupes/archives', [ClassGroupController::class, 'archives'])->name('class-groups.archives');
     Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->name('class-groups.show');
+    Route::delete('groupes/{group}', [ClassGroupController::class, 'destroy'])->name('class-groups.destroy');
+    Route::post('groupes/{group}/archiver', [ClassGroupController::class, 'archive'])->name('class-groups.archive');
+    Route::post('groupes/{group}/membres', [ClassGroupController::class, 'addMembers'])->name('class-groups.members.add');
     Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->name('class-groups.messages.store');
     Route::delete('groupes/messages/{message}', [ClassGroupMessageController::class, 'destroy'])->name('class-groups.messages.destroy');
     Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->name('class-groups.announcements.store');
