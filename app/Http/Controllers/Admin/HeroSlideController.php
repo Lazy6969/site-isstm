@@ -66,9 +66,10 @@ class HeroSlideController extends Controller
         return MediaType::fromMimeType($file->getMimeType()) === MediaType::Video ? 'video' : 'image';
     }
 
+    // Soft-deleted — the image stays on disk until the admin permanently
+    // deletes the slide from the Corbeille (see Admin\TrashController).
     public function destroy(HeroSlide $heroSlide): RedirectResponse
     {
-        $this->deleteUploadedImage($heroSlide->image_path, 'hero');
         $heroSlide->delete();
 
         return back()->with('status', 'Diapositive supprimée.');

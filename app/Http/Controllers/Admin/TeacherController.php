@@ -74,9 +74,10 @@ class TeacherController extends Controller
         return back()->with('status', 'Enseignant mis à jour.');
     }
 
+    // Soft-deleted — the photo stays on disk until the admin permanently
+    // deletes the teacher from the Corbeille (see Admin\TrashController).
     public function destroy(Teacher $teacher): RedirectResponse
     {
-        $this->deleteUploadedImage($teacher->photo_path, 'teachers');
         $teacher->delete();
 
         return back()->with('status', 'Enseignant supprimé.');

@@ -76,9 +76,10 @@ class TestimonialController extends Controller
         return back()->with('status', 'Témoignage mis à jour.');
     }
 
+    // Soft-deleted — the image stays on disk until the admin permanently
+    // deletes the testimonial from the Corbeille (see Admin\TrashController).
     public function destroy(Testimonial $temoignage): RedirectResponse
     {
-        $this->deleteUploadedImage($temoignage->image_path, 'testimonials');
         $temoignage->delete();
 
         return back()->with('status', 'Témoignage supprimé.');

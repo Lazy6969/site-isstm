@@ -62,7 +62,7 @@ it('replaces the uploaded photo and deletes the previous one, but never a bundle
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes a teacher and its uploaded photo', function () {
+it('soft-deletes a teacher, keeping its photo until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $teacher = Teacher::factory()->create(['photo_path' => 'storage/teachers/old.jpg']);
@@ -71,7 +71,8 @@ it('deletes a teacher and its uploaded photo', function () {
     $this->actingAs($admin)->delete("/console/enseignants/{$teacher->id}")->assertRedirect();
 
     expect(Teacher::find($teacher->id))->toBeNull();
-    Storage::disk('public')->assertMissing('teachers/old.jpg');
+    expect(Teacher::onlyTrashed()->find($teacher->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('teachers/old.jpg');
 });
 
 it('shows all teachers to the admin ordered by display order', function () {

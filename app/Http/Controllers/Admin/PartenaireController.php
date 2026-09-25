@@ -69,9 +69,10 @@ class PartenaireController extends Controller
         return back()->with('status', 'Partenaire mis à jour.');
     }
 
+    // Soft-deleted — the logo stays on disk until the admin permanently
+    // deletes the partenaire from the Corbeille (see Admin\TrashController).
     public function destroy(Partenaire $partenaire): RedirectResponse
     {
-        $this->deleteUploadedImage($partenaire->logo_path, 'partenaires');
         $partenaire->delete();
 
         return back()->with('status', 'Partenaire supprimé.');

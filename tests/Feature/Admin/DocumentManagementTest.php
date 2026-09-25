@@ -68,7 +68,7 @@ it('replaces the uploaded file and deletes the previous one', function () {
     expect(Document::find($document->id)->file_path)->not->toBe('storage/documents/old.pdf');
 });
 
-it('deletes a document and its file', function () {
+it('soft-deletes a document, keeping its file until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $document = Document::factory()->create(['file_path' => 'storage/documents/old.pdf']);
@@ -77,7 +77,8 @@ it('deletes a document and its file', function () {
     $this->actingAs($admin)->delete("/console/documents/{$document->id}")->assertRedirect();
 
     expect(Document::find($document->id))->toBeNull();
-    Storage::disk('public')->assertMissing('documents/old.pdf');
+    expect(Document::onlyTrashed()->find($document->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('documents/old.pdf');
 });
 
 it('lists documents for the admin, including student-only ones', function () {

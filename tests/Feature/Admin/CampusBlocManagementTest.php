@@ -72,7 +72,7 @@ it('removes a single photo from a campus bloc by index', function () {
     Storage::disk('public')->assertMissing('campus/a.jpg');
 });
 
-it('deletes a campus bloc and its photos', function () {
+it('soft-deletes a campus bloc, keeping its photos until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     Storage::disk('public')->put('campus/old.jpg', 'fake');
@@ -81,7 +81,8 @@ it('deletes a campus bloc and its photos', function () {
     $this->actingAs($admin)->delete("/console/campus/{$bloc->id}")->assertRedirect();
 
     expect(CampusBloc::find($bloc->id))->toBeNull();
-    Storage::disk('public')->assertMissing('campus/old.jpg');
+    expect(CampusBloc::onlyTrashed()->find($bloc->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('campus/old.jpg');
 });
 
 it('lists campus blocs for the admin', function () {

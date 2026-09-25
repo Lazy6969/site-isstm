@@ -62,7 +62,7 @@ it('lets an admin add photos to an album', function () {
     $album->photos->each(fn (GalleryPhoto $photo) => Storage::disk('public')->assertExists(str($photo->image_path)->after('storage/')->toString()));
 });
 
-it('lets an admin delete a photo', function () {
+it('soft-deletes a photo, keeping its file until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     Storage::disk('public')->put('galerie/photo.jpg', 'fake');
@@ -71,10 +71,11 @@ it('lets an admin delete a photo', function () {
     $this->actingAs($admin)->delete("/console/galerie/photos/{$photo->id}")->assertRedirect();
 
     expect(GalleryPhoto::find($photo->id))->toBeNull();
-    Storage::disk('public')->assertMissing('galerie/photo.jpg');
+    expect(GalleryPhoto::onlyTrashed()->find($photo->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('galerie/photo.jpg');
 });
 
-it('deletes an album, its cover image, and all of its photos when destroyed', function () {
+it('soft-deletes an album and all of its photos when destroyed, keeping their files until purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $album = GalleryAlbum::factory()->create(['cover_image' => 'storage/galerie/cover.jpg']);
@@ -86,6 +87,8 @@ it('deletes an album, its cover image, and all of its photos when destroyed', fu
 
     expect(GalleryAlbum::find($album->id))->toBeNull();
     expect(GalleryPhoto::find($photo->id))->toBeNull();
-    Storage::disk('public')->assertMissing('galerie/cover.jpg');
-    Storage::disk('public')->assertMissing('galerie/photo.jpg');
+    expect(GalleryAlbum::onlyTrashed()->find($album->id))->not->toBeNull();
+    expect(GalleryPhoto::onlyTrashed()->find($photo->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('galerie/cover.jpg');
+    Storage::disk('public')->assertExists('galerie/photo.jpg');
 });

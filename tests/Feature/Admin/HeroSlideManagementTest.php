@@ -84,7 +84,7 @@ it('switches a hero slide from image to video when replaced with a video upload'
     expect($slide->refresh()->media_type)->toBe('video');
 });
 
-it('deletes a hero slide and its uploaded image', function () {
+it('soft-deletes a hero slide, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $slide = HeroSlide::factory()->create(['image_path' => 'storage/hero/old.jpg']);
@@ -93,7 +93,8 @@ it('deletes a hero slide and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/accueil/{$slide->id}")->assertRedirect();
 
     expect(HeroSlide::find($slide->id))->toBeNull();
-    Storage::disk('public')->assertMissing('hero/old.jpg');
+    expect(HeroSlide::onlyTrashed()->find($slide->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('hero/old.jpg');
 });
 
 it('shows all hero slides to the admin', function () {

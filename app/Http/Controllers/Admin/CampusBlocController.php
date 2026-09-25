@@ -53,11 +53,10 @@ class CampusBlocController extends Controller
         return back()->with('status', 'Bloc mis à jour.');
     }
 
+    // Soft-deleted — the images stay on disk until the admin permanently
+    // deletes the bloc from the Corbeille (see Admin\TrashController).
     public function destroy(CampusBloc $bloc): RedirectResponse
     {
-        foreach ($bloc->images ?? [] as $image) {
-            $this->deleteUploadedImage($image, 'campus');
-        }
         $bloc->delete();
 
         return back()->with('status', 'Bloc supprimé.');

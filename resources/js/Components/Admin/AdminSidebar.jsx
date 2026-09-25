@@ -23,6 +23,7 @@ import {
     Network,
     GalleryHorizontal,
     KeyRound,
+    Trash2,
 } from 'lucide-react';
 
 const navGroups = [
@@ -69,6 +70,7 @@ const navGroups = [
             { href: '/console/roles', label: 'Rôles', icon: ShieldCheck, permission: 'roles.view' },
             { href: '/console/cles-acces', label: "Clés d'accès", icon: KeyRound, permission: 'access-keys.manage' },
             { href: '/console/activity-log', label: 'Journal d\'activité', icon: History, permission: 'activity-log.view' },
+            { href: '/console/corbeille', label: 'Corbeille', icon: Trash2, permission: 'dashboard.view' },
         ],
     },
     {

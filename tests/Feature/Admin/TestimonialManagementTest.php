@@ -64,7 +64,7 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes a testimonial and its uploaded image', function () {
+it('soft-deletes a testimonial, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $testimonial = Testimonial::factory()->create(['image_path' => 'storage/testimonials/old.jpg']);
@@ -73,7 +73,8 @@ it('deletes a testimonial and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/temoignages/{$testimonial->id}")->assertRedirect();
 
     expect(Testimonial::find($testimonial->id))->toBeNull();
-    Storage::disk('public')->assertMissing('testimonials/old.jpg');
+    expect(Testimonial::onlyTrashed()->find($testimonial->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('testimonials/old.jpg');
 });
 
 it('shows all testimonials to the admin', function () {

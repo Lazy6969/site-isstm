@@ -6,11 +6,14 @@ use App\TeacherCategory;
 use Database\Factories\TeacherFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Teacher extends Model
 {
     /** @use HasFactory<TeacherFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
