@@ -149,3 +149,5 @@ require __DIR__.'/settings.php';
 require __DIR__.'/statistics.php';
 require __DIR__.'/hero-slides.php';
 require __DIR__.'/auth.php';
+require __DIR__.'/access-keys.php';
+require __DIR__.'/subdomain-admin.php';
