@@ -218,7 +218,9 @@ export default function Create({ filieres }) {
         e.preventDefault();
 
         if (!consent) {
-            setConsentError('Vous devez accepter le traitement de vos données pour envoyer votre dossier.');
+            const message = 'Vous devez accepter le traitement de vos données pour envoyer votre dossier.';
+            setConsentError(message);
+            setErrorModal(message);
             return;
         }
         setConsentError('');
