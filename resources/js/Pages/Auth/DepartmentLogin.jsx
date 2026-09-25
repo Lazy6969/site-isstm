@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { KeyRound, LogIn } from 'lucide-react';
+import { AlertTriangle, KeyRound, LogIn } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
 
@@ -15,9 +15,18 @@ export default function DepartmentLogin({ department, label }) {
         post(`/login`);
     }
 
+    const formError = errors.email || errors.access_key;
+
     return (
         <AuthLayout title={`Espace ${label}`} subtitle="Accès réservé — identifiant, mot de passe et clé d'accès du département.">
             <Head title={`Connexion — ${label}`} />
+
+            {formError && (
+                <p className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                    {formError}
+                </p>
+            )}
 
             <form onSubmit={submit} className="space-y-4">
                 <TextField

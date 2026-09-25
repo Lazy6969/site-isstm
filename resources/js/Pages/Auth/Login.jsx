@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { LogIn } from 'lucide-react';
+import { AlertTriangle, LogIn } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
 import { useTranslations } from '../../lib/useTranslations';
@@ -20,6 +20,13 @@ export default function Login() {
     return (
         <AuthLayout title={t('auth.connexion_titre', 'Connexion')} subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}>
             <Head title="Connexion" />
+
+            {errors.email && (
+                <p className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/15 dark:text-red-400">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                    {errors.email}
+                </p>
+            )}
 
             <form onSubmit={submit} className="space-y-4">
                 <TextField
