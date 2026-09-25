@@ -43,6 +43,7 @@ class RolePermissionSeeder extends Seeder
         'documents.view', 'documents.create', 'documents.edit', 'documents.delete',
         'users.view', 'users.edit',
         'roles.view', 'roles.edit',
+        'access-keys.manage',
         'activity-log.view',
         'settings.manage',
         'statistics.view',

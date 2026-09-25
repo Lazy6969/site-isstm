@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Check } from 'lucide-react';
+import { Check, Palette, PanelLeft, Rows3, SwatchBook, Type } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Label } from '../../../Components/ui/label';
@@ -10,6 +11,45 @@ const densityOptions = [
     { value: 'normal', label: 'Normal' },
     { value: 'comfortable', label: 'Confortable' },
 ];
+
+const sections = [
+    { id: 'couleurs-site', label: 'Couleurs du site', icon: Palette },
+    { id: 'palette-admin', label: 'Palette admin', icon: SwatchBook },
+    { id: 'sidebar-menu', label: 'Sidebar & menu', icon: PanelLeft },
+    { id: 'typographie', label: 'Typographie', icon: Type },
+    { id: 'densite', label: 'Densité', icon: Rows3 },
+];
+
+/** Sticky jump-to-section bar, keeps the active section highlighted while scrolling. */
+function QuickNav({ activeId }) {
+    return (
+        <nav
+            aria-label="Accès rapide aux sections"
+            className="sticky top-16 z-20 -mx-1 mb-6 overflow-x-auto border-b border-admin-border bg-admin-bg/95 px-1 py-2.5 backdrop-blur-sm"
+        >
+            <ul className="flex w-max min-w-full gap-1.5 sm:w-auto">
+                {sections.map(({ id, label, icon: Icon }) => {
+                    const active = activeId === id;
+                    return (
+                        <li key={id}>
+                            <a
+                                href={`#${id}`}
+                                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                                    active
+                                        ? 'border-admin-accent bg-admin-accent text-admin-accent-foreground'
+                                        : 'border-admin-border text-admin-text-secondary hover:bg-admin-hover'
+                                }`}
+                            >
+                                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                                {label}
+                            </a>
+                        </li>
+                    );
+                })}
+            </ul>
+        </nav>
+    );
+}
 
 /**
  * A swatch a null `swatch` renders as a diagonal-stripe "auto" pattern — used
@@ -60,6 +100,29 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
         siteFooter: settings.siteFooter,
     });
 
+    const [activeId, setActiveId] = useState(sections[0].id);
+    const sectionRefs = useRef({});
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries.filter((entry) => entry.isIntersecting);
+                if (visible.length > 0) {
+                    setActiveId(visible[0].target.id);
+                }
+            },
+            { rootMargin: '-96px 0px -70% 0px', threshold: 0 },
+        );
+        Object.values(sectionRefs.current).forEach((el) => el && observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    function registerSection(id) {
+        return (el) => {
+            sectionRefs.current[id] = el;
+        };
+    }
+
     function submit(e) {
         e.preventDefault();
         form.put('/console/settings/appearance', { preserveScroll: true });
@@ -67,8 +130,11 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
 
     return (
         <AdminLayout title="Apparence">
-            <form onSubmit={submit} className="max-w-2xl space-y-8">
-                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+            <form onSubmit={submit} className="max-w-2xl">
+                <QuickNav activeId={activeId} />
+
+                <div className="space-y-8">
+                <section id="couleurs-site" ref={registerSection('couleurs-site')} className="scroll-mt-32 rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Couleurs du site public</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">
                         Couleur principale, d'accent, du menu et du footer du site (accueil, filières, actualités...) — indépendant de
@@ -111,7 +177,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     </div>
                 </section>
 
-                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+                <section id="palette-admin" ref={registerSection('palette-admin')} className="scroll-mt-32 rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Palette de couleurs</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">
                         S'applique à l'ensemble de l'administration, pour tous les utilisateurs.
@@ -119,7 +185,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     <ColorSwatchGrid options={palettes} value={form.data.palette} onChange={(value) => form.setData('palette', value)} />
                 </section>
 
-                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+                <section id="sidebar-menu" ref={registerSection('sidebar-menu')} className="scroll-mt-32 rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Couleur de la sidebar et du menu</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">
                         Fond de la barre latérale et du menu horizontal en haut, indépendant de la couleur d'accent.
@@ -132,7 +198,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     />
                 </section>
 
-                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+                <section id="typographie" ref={registerSection('typographie')} className="scroll-mt-32 rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Typographie</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">Police utilisée dans l'administration uniquement.</p>
                     <Label htmlFor="font">Police</Label>
@@ -145,7 +211,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                     </Select>
                 </section>
 
-                <section className="rounded-xl border border-admin-border bg-admin-card p-5">
+                <section id="densite" ref={registerSection('densite')} className="scroll-mt-32 rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-1 text-sm font-semibold text-admin-text">Densité</h2>
                     <p className="mb-4 text-sm text-admin-text-secondary">Contrôle l'espacement des tableaux et listes.</p>
                     <div className="flex gap-2">
@@ -175,6 +241,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                         Enregistrer
                     </Button>
                     <p className="text-xs text-admin-muted">Les changements s'appliquent après actualisation de la page.</p>
+                </div>
                 </div>
             </form>
         </AdminLayout>

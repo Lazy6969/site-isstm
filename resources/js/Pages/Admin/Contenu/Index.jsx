@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm, Link } from '@inertiajs/react';
 import {
     Pencil,
-    ChevronDown,
     Type,
     Image as ImageIcon,
     Shapes,
@@ -22,8 +21,6 @@ import {
     Users,
     BarChart3,
     Wallet,
-    Maximize2,
-    Minimize2,
     Archive,
 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
@@ -32,7 +29,6 @@ import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
 import { Badge } from '../../../Components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
 import { ICONS, getIcon } from '../../../Components/QuickEdit/icons';
 
 const localeLabels = { fr: 'FR', en: 'EN', mg: 'MG' };
@@ -65,6 +61,49 @@ function categoryIcon(label) {
     return CATEGORY_ICON_RULES.find(([pattern]) => pattern.test(lower))?.[1] ?? FolderOpen;
 }
 
+/**
+ * The category picker — a compact menu on the right, content on the left, so
+ * editing a category never requires scrolling past every other one first.
+ * Renders as a horizontal scrollable strip on mobile, a stacked list on
+ * desktop (same markup, just a different flex direction).
+ */
+function CategoryMenu({ groups, selected, onSelect }) {
+    return (
+        <nav aria-label="Catégories de contenu" className="lg:sticky lg:top-20">
+            <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-admin-muted lg:px-0">Menu</p>
+            <ul className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:gap-1.5 lg:overflow-visible lg:pb-0">
+                {groups.map(([label, items]) => {
+                    const Icon = categoryIcon(label);
+                    const active = selected === label;
+                    return (
+                        <li key={label} className="flex-shrink-0 lg:flex-shrink">
+                            <button
+                                type="button"
+                                onClick={() => onSelect(label)}
+                                className={`flex w-full items-center gap-2.5 whitespace-nowrap rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition lg:whitespace-normal ${
+                                    active
+                                        ? 'border-admin-accent bg-admin-accent/10 text-admin-accent'
+                                        : 'border-admin-border bg-admin-card text-admin-text-secondary hover:bg-admin-hover'
+                                }`}
+                            >
+                                <span
+                                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
+                                        active ? 'bg-admin-accent text-admin-accent-foreground' : 'bg-admin-hover text-admin-text-secondary'
+                                    }`}
+                                >
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
+                                </span>
+                                <span className="min-w-0 flex-1 truncate">{label}</span>
+                                <span className="flex-shrink-0 text-xs opacity-70">{items.length}</span>
+                            </button>
+                        </li>
+                    );
+                })}
+            </ul>
+        </nav>
+    );
+}
+
 function truncate(value, max = 90) {
     if (!value) return '—';
     return value.length > max ? `${value.slice(0, max)}…` : value;
@@ -77,9 +116,13 @@ function matchesSearch(content, term) {
     );
 }
 
-function EditContentDialog({ editing, onClose, icons }) {
-    const open = editing !== null;
-    const { content, locale } = editing ?? {};
+/**
+ * The edit form for whichever item was clicked — shown inline on the right
+ * (in place of CategoryMenu) instead of a modal, so it never blocks the
+ * content being edited. Saving hides it again (see onSuccess: onClose).
+ */
+function InlineEditPanel({ editing, onClose, icons }) {
+    const { content, locale } = editing;
     const form = useForm({ key: '', value: '', file: null, locale: null });
 
     useEffect(() => {
@@ -111,97 +154,94 @@ function EditContentDialog({ editing, onClose, icons }) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
-                {content && (
-                    <>
-                        <DialogHeader>
-                            <DialogTitle>
-                                {content.content_key}
-                                {locale && <span className="ml-2 text-xs font-normal text-admin-muted">({localeLabels[locale]})</span>}
-                            </DialogTitle>
-                        </DialogHeader>
+        <div className="rounded-2xl border border-admin-border bg-admin-card p-5 shadow-sm lg:sticky lg:top-20">
+            <div className="mb-4 flex items-start justify-between gap-3">
+                <p className="min-w-0 truncate font-mono text-xs text-admin-muted" title={content.content_key}>
+                    {content.content_key}
+                    {locale && <span className="ml-2 font-sans text-admin-text-secondary">({localeLabels[locale]})</span>}
+                </p>
+                <button
+                    onClick={onClose}
+                    className="flex-shrink-0 rounded-lg p-1.5 text-admin-muted transition hover:bg-admin-hover hover:text-admin-text"
+                    aria-label="Fermer sans enregistrer"
+                >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+            </div>
 
-                        {content.type === 'text' && (
-                            <form onSubmit={submit} className="space-y-3">
-                                {locale === 'fr' && (
-                                    <p className="rounded-lg bg-admin-accent/10 px-3 py-2 text-xs text-admin-accent">
-                                        En enregistrant, l'anglais et le malgache seront traduits automatiquement à partir de ce texte français.
-                                    </p>
-                                )}
-                                <Textarea value={form.data.value} onChange={(e) => form.setData('value', e.target.value)} rows={6} autoFocus />
-                                {form.errors.value && <p className="text-sm text-red-500">{form.errors.value}</p>}
-                                <DialogFooter>
-                                    <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
-                                        Annuler
-                                    </Button>
-                                    <Button type="submit" disabled={form.processing} className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90">
-                                        Enregistrer
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        )}
+            {content.type === 'text' && (
+                <form onSubmit={submit} className="space-y-3">
+                    {locale === 'fr' && (
+                        <p className="rounded-lg bg-admin-accent/10 px-3 py-2 text-xs text-admin-accent">
+                            En enregistrant, l'anglais et le malgache seront traduits automatiquement à partir de ce texte français.
+                        </p>
+                    )}
+                    <Textarea value={form.data.value} onChange={(e) => form.setData('value', e.target.value)} rows={8} autoFocus />
+                    {form.errors.value && <p className="text-sm text-red-500">{form.errors.value}</p>}
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                            Annuler
+                        </Button>
+                        <Button type="submit" disabled={form.processing} className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90">
+                            Enregistrer
+                        </Button>
+                    </div>
+                </form>
+            )}
 
-                        {content.type === 'icon' && (
-                            <div>
-                                <div className="grid grid-cols-6 gap-2">
-                                    {icons.map((name) => {
-                                        const Icon = ICONS[name];
-                                        const selected = name === form.data.value;
-                                        return (
-                                            <button
-                                                key={name}
-                                                type="button"
-                                                onClick={() => pickIcon(name)}
-                                                disabled={form.processing}
-                                                title={name}
-                                                className={`flex h-12 w-12 items-center justify-center rounded-lg border transition disabled:opacity-50 ${
-                                                    selected
-                                                        ? 'border-admin-accent bg-admin-accent/10 text-admin-accent'
-                                                        : 'border-admin-border text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text'
-                                                }`}
-                                            >
-                                                <Icon className="h-5 w-5" aria-hidden="true" />
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                {form.errors.value && <p className="mt-3 text-sm text-red-500">{form.errors.value}</p>}
-                            </div>
-                        )}
+            {content.type === 'icon' && (
+                <div>
+                    <div className="grid grid-cols-4 gap-2">
+                        {icons.map((name) => {
+                            const Icon = ICONS[name];
+                            const selected = name === form.data.value;
+                            return (
+                                <button
+                                    key={name}
+                                    type="button"
+                                    onClick={() => pickIcon(name)}
+                                    disabled={form.processing}
+                                    title={name}
+                                    className={`flex h-12 w-12 items-center justify-center rounded-lg border transition disabled:opacity-50 ${
+                                        selected
+                                            ? 'border-admin-accent bg-admin-accent/10 text-admin-accent'
+                                            : 'border-admin-border text-admin-text-secondary hover:bg-admin-hover hover:text-admin-text'
+                                    }`}
+                                >
+                                    <Icon className="h-5 w-5" aria-hidden="true" />
+                                </button>
+                            );
+                        })}
+                    </div>
+                    {form.errors.value && <p className="mt-3 text-sm text-red-500">{form.errors.value}</p>}
+                </div>
+            )}
 
-                        {content.type === 'image' && (
-                            <form onSubmit={submit} className="space-y-4">
-                                <img
-                                    src={`/${content.content_value_fr}`}
-                                    alt=""
-                                    className="h-40 w-full rounded-lg border border-admin-border object-cover"
-                                />
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => form.setData('file', e.target.files?.[0] ?? null)}
-                                    className="block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
-                                />
-                                {form.errors.file && <p className="text-sm text-red-500">{form.errors.file}</p>}
-                                <DialogFooter>
-                                    <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
-                                        Annuler
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={form.processing || !form.data.file}
-                                        className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
-                                    >
-                                        Enregistrer
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        )}
-                    </>
-                )}
-            </DialogContent>
-        </Dialog>
+            {content.type === 'image' && (
+                <form onSubmit={submit} className="space-y-4">
+                    <img src={`/${content.content_value_fr}`} alt="" className="h-40 w-full rounded-lg border border-admin-border object-cover" />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => form.setData('file', e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
+                    />
+                    {form.errors.file && <p className="text-sm text-red-500">{form.errors.file}</p>}
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                            Annuler
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={form.processing || !form.data.file}
+                            className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                        >
+                            Enregistrer
+                        </Button>
+                    </div>
+                </form>
+            )}
+        </div>
     );
 }
 
@@ -305,38 +345,28 @@ function ContentCard({ content, onEdit }) {
     );
 }
 
-function GroupSection({ label, items, onEdit, open, onToggle }) {
+/** The left-hand content pane for whichever category is selected in CategoryMenu. */
+function CategoryPanel({ label, items, onEdit }) {
     const CategoryIcon = categoryIcon(label);
 
     return (
-        <div className="overflow-hidden rounded-2xl border border-admin-border bg-admin-card shadow-sm transition-shadow duration-200 hover:shadow-md">
-            <button
-                onClick={onToggle}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-admin-hover"
-            >
-                <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-admin-accent/15 to-admin-accent/5 text-admin-accent">
-                        <CategoryIcon className="h-[18px] w-[18px]" aria-hidden="true" />
-                    </span>
-                    <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-admin-text">{label}</p>
-                        <p className="text-xs text-admin-muted">
-                            {items.length} élément{items.length > 1 ? 's' : ''}
-                        </p>
-                    </div>
+        <div className="overflow-hidden rounded-2xl border border-admin-border bg-admin-card shadow-sm">
+            <div className="flex items-center gap-3 px-5 py-4">
+                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-admin-accent/15 to-admin-accent/5 text-admin-accent">
+                    <CategoryIcon className="h-[18px] w-[18px]" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-admin-text">{label}</p>
+                    <p className="text-xs text-admin-muted">
+                        {items.length} élément{items.length > 1 ? 's' : ''}
+                    </p>
                 </div>
-                <ChevronDown
-                    className={`h-4 w-4 flex-shrink-0 text-admin-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-                    aria-hidden="true"
-                />
-            </button>
-            {open && (
-                <div className="grid grid-cols-1 gap-3 border-t border-admin-border p-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {items.map((content) => (
-                        <ContentCard key={content.id} content={content} onEdit={onEdit} />
-                    ))}
-                </div>
-            )}
+            </div>
+            <div className="grid grid-cols-1 gap-3 border-t border-admin-border p-4 sm:grid-cols-2 xl:grid-cols-3">
+                {items.map((content) => (
+                    <ContentCard key={content.id} content={content} onEdit={onEdit} />
+                ))}
+            </div>
         </div>
     );
 }
@@ -344,7 +374,7 @@ function GroupSection({ label, items, onEdit, open, onToggle }) {
 export default function Index({ groups, icons }) {
     const [editing, setEditing] = useState(null);
     const [search, setSearch] = useState('');
-    const [collapsed, setCollapsed] = useState(() => new Set());
+    const [selected, setSelected] = useState(() => Object.keys(groups)[0] ?? null);
 
     function onEdit(content, locale) {
         setEditing({ content, locale });
@@ -371,17 +401,15 @@ export default function Index({ groups, icons }) {
             .filter(([, items]) => items.length > 0);
     }, [groups, term, isSearching]);
 
-    function toggleGroup(label) {
-        setCollapsed((prev) => {
-            const next = new Set(prev);
-            if (next.has(label)) {
-                next.delete(label);
-            } else {
-                next.add(label);
-            }
-            return next;
-        });
-    }
+    // Keep the selected category valid: fall back to the first visible one
+    // when a search filters the current selection out (or on first load).
+    useEffect(() => {
+        if (visibleGroups.some(([label]) => label === selected)) return;
+        setSelected(visibleGroups[0]?.[0] ?? null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visibleGroups]);
+
+    const selectedGroup = visibleGroups.find(([label]) => label === selected);
 
     return (
         <AdminLayout
@@ -408,63 +436,40 @@ export default function Index({ groups, icons }) {
                 <StatCard label="Catégories" value={stats.categories} icon={FolderOpen} />
             </div>
 
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="relative w-full sm:max-w-sm">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
-                    <Input
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Rechercher une clé ou un texte..."
-                        className="pl-9"
-                    />
-                    {search && (
-                        <button
-                            onClick={() => setSearch('')}
-                            className="absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-admin-muted transition hover:bg-admin-hover hover:text-admin-text"
-                            aria-label="Effacer la recherche"
-                        >
-                            <X className="h-3.5 w-3.5" aria-hidden="true" />
-                        </button>
+            <div className="relative mb-4 w-full sm:max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
+                <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Rechercher une clé ou un texte..."
+                    className="pl-9"
+                />
+                {search && (
+                    <button
+                        onClick={() => setSearch('')}
+                        className="absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-admin-muted transition hover:bg-admin-hover hover:text-admin-text"
+                        aria-label="Effacer la recherche"
+                    >
+                        <X className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                )}
+            </div>
+
+            {visibleGroups.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-admin-border bg-admin-card py-14 text-center">
+                    <Search className="h-6 w-6 text-admin-muted" aria-hidden="true" />
+                    <p className="text-sm text-admin-text-secondary">Aucun contenu ne correspond à « {search} ».</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+                    {selectedGroup && <CategoryPanel label={selectedGroup[0]} items={selectedGroup[1]} onEdit={onEdit} />}
+                    {editing ? (
+                        <InlineEditPanel editing={editing} onClose={() => setEditing(null)} icons={icons} />
+                    ) : (
+                        <CategoryMenu groups={visibleGroups} selected={selected} onSelect={setSelected} />
                     )}
                 </div>
-                <div className="flex flex-shrink-0 gap-2">
-                    <button
-                        onClick={() => setCollapsed(new Set())}
-                        className="flex items-center gap-1.5 rounded-lg border border-admin-border px-2.5 py-1.5 text-xs font-medium text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                    >
-                        <Maximize2 className="h-3.5 w-3.5" aria-hidden="true" />
-                        Tout déplier
-                    </button>
-                    <button
-                        onClick={() => setCollapsed(new Set(Object.keys(groups)))}
-                        className="flex items-center gap-1.5 rounded-lg border border-admin-border px-2.5 py-1.5 text-xs font-medium text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                    >
-                        <Minimize2 className="h-3.5 w-3.5" aria-hidden="true" />
-                        Tout replier
-                    </button>
-                </div>
-            </div>
-
-            <div className="space-y-4">
-                {visibleGroups.length === 0 && (
-                    <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-admin-border bg-admin-card py-14 text-center">
-                        <Search className="h-6 w-6 text-admin-muted" aria-hidden="true" />
-                        <p className="text-sm text-admin-text-secondary">Aucun contenu ne correspond à « {search} ».</p>
-                    </div>
-                )}
-                {visibleGroups.map(([label, items]) => (
-                    <GroupSection
-                        key={label}
-                        label={label}
-                        items={items}
-                        onEdit={onEdit}
-                        open={isSearching || !collapsed.has(label)}
-                        onToggle={() => toggleGroup(label)}
-                    />
-                ))}
-            </div>
-
-            <EditContentDialog editing={editing} onClose={() => setEditing(null)} icons={icons} />
+            )}
         </AdminLayout>
     );
 }

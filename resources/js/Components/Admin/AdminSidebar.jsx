@@ -22,6 +22,7 @@ import {
     BarChart3,
     Network,
     GalleryHorizontal,
+    KeyRound,
 } from 'lucide-react';
 
 const navGroups = [
@@ -66,6 +67,7 @@ const navGroups = [
         items: [
             { href: '/console/users', label: 'Utilisateurs', icon: Users, permission: 'users.view' },
             { href: '/console/roles', label: 'Rôles', icon: ShieldCheck, permission: 'roles.view' },
+            { href: '/console/cles-acces', label: "Clés d'accès", icon: KeyRound, permission: 'access-keys.manage' },
             { href: '/console/activity-log', label: 'Journal d\'activité', icon: History, permission: 'activity-log.view' },
         ],
     },
