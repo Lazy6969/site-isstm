@@ -41,7 +41,12 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
     }
 
     function destroy(etudiant) {
-        if (!confirm(`Supprimer le dossier de ${etudiant.user?.name} ? Ses inscriptions seront supprimées avec.`)) return;
+        if (
+            !confirm(
+                `Supprimer définitivement le compte de ${etudiant.user?.name} ? Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages...) seront effacées. Cette action est irréversible.`,
+            )
+        )
+            return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
     }
 
@@ -106,7 +111,7 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                                         type="button"
                                         onClick={() => destroy(etudiant)}
                                         className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-600"
-                                        aria-label={`Supprimer le dossier de ${etudiant.user?.name}`}
+                                        aria-label={`Supprimer le compte de ${etudiant.user?.name}`}
                                     >
                                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                                     </button>

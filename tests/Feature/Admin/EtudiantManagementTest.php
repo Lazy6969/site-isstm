@@ -71,17 +71,29 @@ it('lets an admin update a dossier étudiant', function () {
     expect($etudiant->statut)->toBe(StatutEtudiant::Suspendu);
 });
 
-it('lets an admin delete a dossier étudiant, cascading its inscriptions but keeping the user account', function () {
+it('lets an admin delete a student account entirely, wiping the dossier and its inscriptions', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $etudiant = Etudiant::factory()->create();
     $inscription = Inscription::factory()->for($etudiant)->create();
+    $userId = $etudiant->user_id;
 
     $this->actingAs($admin)->delete("/console/scolarite/etudiants/{$etudiant->id}")
         ->assertRedirect('/console/scolarite/etudiants');
 
+    expect(User::find($userId))->toBeNull();
     expect(Etudiant::find($etudiant->id))->toBeNull();
     expect(Inscription::find($inscription->id))->toBeNull();
-    expect(User::find($etudiant->user_id))->not->toBeNull();
+});
+
+it('blocks login once a student account has been deleted', function () {
+    $etudiant = Etudiant::factory()->create();
+    $email = $etudiant->user->email;
+
+    $etudiant->user->delete();
+
+    $this->post('/login', ['email' => $email, 'password' => 'password'])
+        ->assertSessionHasErrors('email');
+    $this->assertGuest();
 });
 
 it('forbids a non-admin from deleting a dossier étudiant', function () {

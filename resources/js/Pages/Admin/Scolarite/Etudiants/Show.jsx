@@ -32,7 +32,12 @@ export default function Show({ etudiant }) {
     }
 
     function destroy() {
-        if (!confirm(`Supprimer le dossier de ${etudiant.user.name} ? Ses inscriptions seront supprimées avec.`)) return;
+        if (
+            !confirm(
+                `Supprimer définitivement le compte de ${etudiant.user.name} ? Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages...) seront effacées. Cette action est irréversible.`,
+            )
+        )
+            return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`);
     }
 
@@ -139,7 +144,7 @@ export default function Show({ etudiant }) {
                                 className="ml-auto bg-transparent text-red-600 hover:bg-red-500/10"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                Supprimer le dossier
+                                Supprimer le compte
                             </Button>
                         </div>
                     </form>

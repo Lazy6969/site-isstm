@@ -61,12 +61,21 @@ class EtudiantController extends Controller
         return back()->with('status', "Dossier de {$etudiant->user->name} mis à jour.");
     }
 
+    /**
+     * Deletes the student's whole account, not just the dossier — every foreign
+     * key that touches `users` cascades from there (etudiant, inscriptions,
+     * posts, messages, friend requests, notifications, etc.), so the account
+     * stops working and none of their data survives. This is deliberately not
+     * a soft delete: there's no other path in the app to reach a "removed"
+     * student, and an admin choosing this action means it for good.
+     */
     public function destroy(Etudiant $etudiant): RedirectResponse
     {
-        $name = $etudiant->user->name;
+        $user = $etudiant->user;
+        $name = $user->name;
 
-        $etudiant->delete();
+        $user->delete();
 
-        return redirect()->route('admin.scolarite.etudiants.index')->with('status', "Dossier de {$name} supprimé.");
+        return redirect()->route('admin.scolarite.etudiants.index')->with('status', "Le compte de {$name} et toutes ses données ont été supprimés.");
     }
 }
