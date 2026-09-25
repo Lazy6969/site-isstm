@@ -32,6 +32,7 @@ use Spatie\Permission\Traits\HasRoles;
     'linkedin_url',
     'personal_website',
     'avatar_path',
+    'cover_path',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
@@ -96,6 +97,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function savedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'post_saves');
+    }
+
+    public function stories(): HasMany
+    {
+        return $this->hasMany(Story::class);
     }
 
     public function classGroupMemberships(): HasMany

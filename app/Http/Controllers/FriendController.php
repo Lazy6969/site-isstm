@@ -6,6 +6,8 @@ use App\FriendRequestStatus;
 use App\Models\FriendRequest;
 use App\Models\Preinscription;
 use App\Models\User;
+use App\Notifications\FriendRequestAccepted;
+use App\Notifications\FriendRequestReceived;
 use App\PreinscriptionStatus;
 use App\Role;
 use Illuminate\Database\Eloquent\Builder;
@@ -69,11 +71,13 @@ class FriendController extends Controller
         abort_unless($recipient->hasLegacyRole(Role::Admin, Role::Enseignant, Role::Etudiant), 422);
         abort_if($sender->friendshipWith($recipient) !== null, 409, 'Une relation existe déjà avec cet utilisateur.');
 
-        FriendRequest::create([
+        $friendRequest = FriendRequest::create([
             'sender_id' => $sender->id,
             'recipient_id' => $recipient->id,
             'status' => FriendRequestStatus::Pending,
         ]);
+
+        $recipient->notify(new FriendRequestReceived($friendRequest));
 
         return back()->with('status', "Demande d'ami envoyée à {$recipient->name}.");
     }
@@ -84,6 +88,8 @@ class FriendController extends Controller
         abort_unless($friendRequest->status === FriendRequestStatus::Pending, 409);
 
         $friendRequest->update(['status' => FriendRequestStatus::Accepted]);
+
+        $friendRequest->sender->notify(new FriendRequestAccepted($friendRequest));
 
         return back()->with('status', "Vous êtes maintenant ami avec {$friendRequest->sender->name}.");
     }
@@ -125,6 +131,7 @@ class FriendController extends Controller
             'filiere' => $preinscription?->filiere?->nom_fr,
             'status' => $this->relationshipStatus($friendRequest, $viewer),
             'friend_request_id' => $friendRequest?->id,
+            'online' => $candidate->isOnline(),
         ];
     }
 

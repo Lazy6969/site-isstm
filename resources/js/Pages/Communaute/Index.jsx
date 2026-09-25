@@ -1,15 +1,31 @@
-import { Head, router, useForm } from '@inertiajs/react';
-import { Paperclip, Send } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Archive, Bookmark, LayoutDashboard, Paperclip, Send } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
+import StoriesBar from '../../Components/Communaute/StoriesBar';
+import ConversationsSidebar from '../../Components/Communaute/ConversationsSidebar';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { useTranslations } from '../../lib/useTranslations';
+import { greetingPeriod } from '../../lib/greeting';
 
-export default function Index({ posts, canPublish, postTypes }) {
+const GREETINGS = {
+    matin: { key: 'communaute.salutation_matin', fallback: 'Bonjour {name} 👋' },
+    apresmidi: { key: 'communaute.salutation_apresmidi', fallback: 'Bonne après-midi {name} ☀️' },
+    soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
+};
+
+export default function Index({ posts, canPublish, postTypes, conversations }) {
     const { t } = useTranslations();
+    const { auth } = usePage().props;
     const { data, setData, post, processing, errors, reset } = useForm({ type: 'autre', body: '', media: [] });
     const [pageLoading, setPageLoading] = useState(false);
+    const greeting = useMemo(() => {
+        const firstName = auth?.user?.name?.split(' ')[0] ?? '';
+        const { key, fallback } = GREETINGS[greetingPeriod()];
+
+        return t(key, fallback).replace('{name}', firstName);
+    }, [auth?.user?.name, t]);
 
     function submit(e) {
         e.preventDefault();
@@ -31,10 +47,61 @@ export default function Index({ posts, canPublish, postTypes }) {
     }
 
     return (
-        <AppLayout title={t('communaute.titre', 'Fil communautaire')}>
+        <AppLayout title={greeting}>
             <Head title="Communauté" />
 
-            {canPublish && (
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
+                <aside className="hidden lg:sticky lg:top-20 lg:block">
+                    <nav className="space-y-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                        <Link
+                            href="/communaute/enregistres"
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                        >
+                            <Bookmark className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {t('communaute.enregistres_court', 'Enregistrés')}
+                        </Link>
+                        {canPublish && (
+                            <Link
+                                href="/communaute/archives"
+                                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                            >
+                                <Archive className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                                {t('communaute.archives_court', 'Archivés')}
+                            </Link>
+                        )}
+                        <Link
+                            href="/tableau-de-bord"
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                        >
+                            <LayoutDashboard className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {t('nav.tableau_bord', 'Tableau de bord')}
+                        </Link>
+                    </nav>
+                </aside>
+
+                <div className="min-w-0">
+                    <div className="mb-4 flex justify-end gap-4 lg:hidden">
+                        {canPublish && (
+                            <Link
+                                href="/communaute/archives"
+                                className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                            >
+                                <Archive className="h-4 w-4" aria-hidden="true" />
+                                {t('communaute.archives_court', 'Archivés')}
+                            </Link>
+                        )}
+                        <Link
+                            href="/communaute/enregistres"
+                            className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                        >
+                            <Bookmark className="h-4 w-4" aria-hidden="true" />
+                            {t('communaute.enregistres_court', 'Enregistrés')}
+                        </Link>
+                    </div>
+
+                    <StoriesBar />
+
+                    {canPublish && (
                 <form onSubmit={submit} className="mb-8 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-sm">
                     <div className="flex gap-3">
                         <select
@@ -102,6 +169,10 @@ export default function Index({ posts, canPublish, postTypes }) {
                     </button>
                 </div>
             )}
+                </div>
+
+                <ConversationsSidebar conversations={conversations ?? []} />
+            </div>
         </AppLayout>
     );
 }

@@ -15,7 +15,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasLegacyRole(Role::Admin, Role::Enseignant);
+        return $this->user()->hasLegacyRole(Role::Etudiant, Role::Admin, Role::Enseignant);
     }
 
     /**
@@ -27,9 +27,10 @@ class StorePostRequest extends FormRequest
     {
         return [
             'type' => ['required', Rule::enum(PostType::class)],
-            'body' => ['required_without:media', 'nullable', 'string', 'max:5000'],
+            'body' => ['required_without_all:media,shared_post_id', 'nullable', 'string', 'max:5000'],
             'media' => ['nullable', 'array', 'max:10'],
             'media.*' => ['file', 'max:20480', 'mimes:jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf'],
+            'shared_post_id' => ['nullable', 'integer', Rule::exists('posts', 'id')],
         ];
     }
 }

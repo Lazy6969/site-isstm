@@ -9,6 +9,7 @@ use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirecteurController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvenementController;
@@ -20,16 +21,27 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\MessageForwardController;
+use App\Http\Controllers\MessageReactionController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParcoursController;
+use App\Http\Controllers\PostArchiveController;
+use App\Http\Controllers\PostCommentsToggleController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostHideController;
+use App\Http\Controllers\PostPinController;
+use App\Http\Controllers\PostReactionListController;
+use App\Http\Controllers\PostReportController;
+use App\Http\Controllers\PostSaveController;
 use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StaffMessageController;
+use App\Http\Controllers\StoryController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,7 +91,7 @@ Route::get('preinscription', [PreinscriptionController::class, 'create'])->name(
 Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
 Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth', 'verified'])->name('preinscription.dossier');
 
-Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function () {
+Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
     Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
     Route::post('amis/demandes/{friendRequest}/accepter', [FriendController::class, 'accept'])->name('friends.accept');
@@ -88,20 +100,49 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant'])->group(function ()
 
     Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
     Route::get('messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    Route::get('messages/groupe/{group}', [ConversationController::class, 'showGroup'])->name('messages.show-group');
     Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
     Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
+    Route::patch('messages/message/{message}', [MessageController::class, 'update'])->name('messages.messages.update');
     Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->name('messages.messages.destroy');
+    Route::post('messages/message/{message}/supprimer', [MessageController::class, 'unsend'])->name('messages.messages.unsend');
+    Route::post('messages/message/{message}/transferer', [MessageForwardController::class, 'store'])->name('messages.messages.forward');
+    Route::post('messages/message/{message}/reaction', [MessageReactionController::class, 'store'])->name('messages.messages.reaction');
+    Route::get('messages/{conversation}/statut', [ConversationController::class, 'status'])->name('messages.status');
+    Route::post('messages/{conversation}/frappe', [ConversationController::class, 'typing'])->name('messages.typing');
 
     Route::get('communaute', [PostController::class, 'index'])->name('posts.index');
     Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
+    Route::get('communaute/enregistres', [PostController::class, 'saved'])->name('posts.saved');
+    Route::get('communaute/archives', [PostController::class, 'archives'])->name('posts.archives');
+    Route::get('communaute/{post}', [PostController::class, 'show'])->name('posts.show');
+    Route::patch('communaute/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
     Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('communaute/{post}/enregistrer', [PostSaveController::class, 'toggle'])->name('posts.save');
+    Route::post('communaute/{post}/masquer', [PostHideController::class, 'store'])->name('posts.hide');
+    Route::post('communaute/{post}/signaler', [PostReportController::class, 'store'])->name('posts.report');
+    Route::post('communaute/{post}/archiver', [PostArchiveController::class, 'toggle'])->name('posts.archive');
+    Route::post('communaute/{post}/epingler', [PostPinController::class, 'toggle'])->name('posts.pin');
+    Route::post('communaute/{post}/commentaires-toggle', [PostCommentsToggleController::class, 'toggle'])->name('posts.comments-toggle');
+    Route::get('communaute/{post}/reactions', [PostReactionListController::class, 'index'])->name('posts.reactions');
+
+    Route::get('stories', [StoryController::class, 'index'])->name('stories.index');
+    Route::post('stories', [StoryController::class, 'store'])->name('stories.store');
+    Route::post('stories/{story}/vue', [StoryController::class, 'view'])->name('stories.view');
+    Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
+
+    Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
+    Route::get('tableau-de-bord', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::patch('commentaires/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/recentes', [NotificationController::class, 'recent'])->name('notifications.recent');
     Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('notifications/supprimer', [NotificationController::class, 'destroySelected'])->name('notifications.destroy-selected');
+    Route::post('notifications/tout-supprimer', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
     Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 

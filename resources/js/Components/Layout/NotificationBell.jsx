@@ -2,6 +2,7 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Skeleton from '../Loading/Skeleton';
+import { markNotificationRead, notificationLink } from '../../lib/notifications';
 
 function timeAgo(dateString) {
     const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -18,9 +19,18 @@ function timeAgo(dateString) {
 function notificationText(notification) {
     const actor = notification.actor?.name ?? 'Quelqu\'un';
 
-    return notification.type === 'reponse_commentaire'
-        ? `${actor} a répondu à votre commentaire`
-        : `${actor} a publié dans le fil communautaire`;
+    switch (notification.type) {
+        case 'reponse_commentaire':
+            return `${actor} a répondu à votre commentaire`;
+        case 'demande_ami':
+            return `${actor} vous a envoyé une demande d'ami`;
+        case 'ami_accepte':
+            return `${actor} a accepté votre demande d'ami`;
+        case 'nouveau_message':
+            return `${actor} vous a envoyé un message`;
+        default:
+            return `${actor} a publié dans le fil communautaire`;
+    }
 }
 
 export default function NotificationBell() {
@@ -58,6 +68,16 @@ export default function NotificationBell() {
             preserveScroll: true,
             onSuccess: () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))),
         });
+    }
+
+    async function openNotification(notification) {
+        const link = notificationLink(notification);
+        if (!notification.read) {
+            setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)));
+            await markNotificationRead(notification.id);
+        }
+        setOpen(false);
+        router.visit(link);
     }
 
     return (
@@ -105,10 +125,11 @@ export default function NotificationBell() {
 
                         {!loading &&
                             notifications.map((notification) => (
-                                <Link
+                                <button
+                                    type="button"
                                     key={notification.id}
-                                    href="/notifications"
-                                    className={`flex items-start gap-3 border-b border-slate-50 px-4 py-3 text-sm transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50 ${
+                                    onClick={() => openNotification(notification)}
+                                    className={`flex w-full items-start gap-3 border-b border-slate-50 px-4 py-3 text-left text-sm transition hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50 ${
                                         !notification.read ? 'bg-isstm-navy/5 dark:bg-isstm-gold/10' : ''
                                     }`}
                                 >
@@ -122,7 +143,7 @@ export default function NotificationBell() {
                                         <span className="mt-0.5 block text-xs text-slate-400">{timeAgo(notification.created_at)}</span>
                                     </span>
                                     {!notification.read && <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-isstm-gold" />}
-                                </Link>
+                                </button>
                             ))}
                     </div>
 

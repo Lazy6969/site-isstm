@@ -7,10 +7,17 @@ use App\Models\ClassGroupMember;
 use App\Models\User;
 use App\Role;
 
-it('forbids a student from creating a class group', function () {
+it('lets a student create their own class group and become its first member', function () {
     $student = User::factory()->role(Role::Etudiant)->create();
 
-    $this->actingAs($student)->post('/groupes', ['name' => 'Ma classe', 'type' => 'classe'])->assertForbidden();
+    $response = $this->actingAs($student)->post('/groupes', ['name' => 'Groupe de révision', 'type' => 'classe']);
+
+    $group = ClassGroup::query()->first();
+    $response->assertRedirect(route('class-groups.show', $group));
+    expect($group->teacher_id)->toBe($student->id);
+
+    $membership = ClassGroupMember::query()->where('class_group_id', $group->id)->where('user_id', $student->id)->sole();
+    expect($membership->role_in_group)->toBe(GroupMemberRole::Enseignant);
 });
 
 it('lets a teacher create a class group and become its first member', function () {

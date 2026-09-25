@@ -1,21 +1,50 @@
 import '../css/app.css';
 import { createRoot } from 'react-dom/client';
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, usePage } from '@inertiajs/react';
 import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
 import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
 import { useIsNavigatingToHome } from './lib/useIsNavigatingToHome';
+import { useIsNavigatingToCommunity } from './lib/useIsNavigatingToCommunity';
 import QuickEditToggle from './Components/QuickEdit/QuickEditToggle';
 import FlashToastBridge from './Components/Layout/FlashToastBridge';
 import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
+import CommunitySkeleton from './Components/Loading/CommunitySkeleton';
 
 function HomeLoadingSkeletonBridge() {
     const navigatingToHome = useIsNavigatingToHome();
 
     return navigatingToHome ? <HomeLoadingSkeleton /> : null;
+}
+
+function CommunitySkeletonBridge() {
+    const navigatingToCommunity = useIsNavigatingToCommunity();
+
+    return navigatingToCommunity ? <CommunitySkeleton /> : null;
+}
+
+const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/notifications'];
+
+// CommunityHeader (the espace étudiant's own header) renders its own inline
+// FloatingAccountButton at the end of its nav — this global floating copy
+// would otherwise show up a second time on top of it.
+function FloatingAccountGroup() {
+    const { url } = usePage();
+    const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
+
+    if (inCommunitySpace) {
+        return null;
+    }
+
+    return (
+        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 rounded-full bg-white/40 p-2 shadow-lg ring-1 ring-white/60 backdrop-blur-md md:flex dark:bg-slate-900/40 dark:ring-white/10">
+            <QuickEditToggle />
+            <FloatingAccountButton />
+        </div>
+    );
 }
 
 createInertiaApp({
@@ -42,14 +71,12 @@ createInertiaApp({
                             Mobile already has equivalent access via MobileTabBar's
                             account tab and (for admins) AdminHeader's inline pencil.
                         */}
-                        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 rounded-full bg-white/40 p-2 shadow-lg ring-1 ring-white/60 backdrop-blur-md md:flex dark:bg-slate-900/40 dark:ring-white/10">
-                            <QuickEditToggle />
-                            <FloatingAccountButton />
-                        </div>
+                        <FloatingAccountGroup />
                         <FlashToastBridge />
                         <Toaster />
                         <LogoutConfirmDialog />
                         <HomeLoadingSkeletonBridge />
+                        <CommunitySkeletonBridge />
                         {existingLayout ? existingLayout(children) : children}
                     </LogoutConfirmProvider>
                 </QuickEditProvider>

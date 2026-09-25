@@ -24,6 +24,8 @@ export default function Index({ query, results }) {
         galerie: t('nav.galerie', 'Galerie'),
         evenements: t('nav.evenements', 'Événements'),
         documents: t('nav.documents', 'Documents'),
+        publications: t('recherche.publications', 'Publications'),
+        personnes: t('recherche.personnes', 'Personnes'),
     };
 
     function submit(e) {

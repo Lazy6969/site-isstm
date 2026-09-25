@@ -1,10 +1,12 @@
-import { Head, Link } from '@inertiajs/react';
-import { CalendarClock, FileSignature, MapPin, Wallet } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, FileSignature, MapPin, Wallet } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import EditableImage from '../../Components/QuickEdit/EditableImage';
+import { imageStyleToCss } from '../../lib/imageStyle';
 
 function FeeTable({ title, rows }) {
     return (
@@ -34,8 +36,39 @@ function FeeTable({ title, rows }) {
     );
 }
 
+function DossierCard({ title, subtitle, items }) {
+    return (
+        <Card className="p-6">
+            <h3 className="font-semibold text-isstm-navy dark:text-white">{title}</h3>
+            {subtitle && <p className="mt-0.5 text-xs font-medium uppercase tracking-wide text-isstm-gold">{subtitle}</p>}
+
+            <ul className="mt-4 space-y-2.5">
+                {items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
+                        <span>{item}</span>
+                    </li>
+                ))}
+            </ul>
+        </Card>
+    );
+}
+
+const FILIERE_COLORS = [
+    ['Génie Civil (GC)', 'bg-yellow-400'],
+    ['Génie Hydraulique (GH)', 'bg-green-300'],
+    ['Génie Architecture (GArch)', 'bg-amber-800'],
+    ['Génie Électrique (GE)', 'bg-orange-500'],
+    ['Génie Industriel (GI)', 'bg-blue-500'],
+    ['Génie Thermique (GT)', 'bg-green-800'],
+    ['Génie Informatique (GInfo)', 'bg-pink-400'],
+    ['Génie Électronique Informatique (GEI)', 'bg-violet-500'],
+    ['Génie Biomédicale (GBM)', 'bg-red-500'],
+];
+
 export default function Index({ content }) {
     const { t } = useTranslations();
+    const { contentStyles } = usePage().props;
 
     const dateLimite = content.inscription_date_limite
         ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', {
@@ -268,6 +301,109 @@ export default function Index({ content }) {
                     </p>
                 </section>
 
+                <section>
+                    <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
+                        <ClipboardList className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                        {t('inscription.dossiers_titre', 'Dossiers à fournir')}
+                    </h2>
+                    <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                        {t(
+                            'inscription.dossiers_soustitre',
+                            "La composition du dossier dépend de votre situation : première préinscription, entrée en L1, entrée en Master 1, ou réinscription.",
+                        )}
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <DossierCard
+                            title={t('inscription.dossiers_preinscription_titre', "Préinscription dans l'ISSTM")}
+                            items={[
+                                t('inscription.dossiers_fiche_preinscription', 'Fiche de préinscription'),
+                                t('inscription.dossiers_copie_naissance', "Copie d'acte de naissance (moins de 6 mois)"),
+                                t('inscription.dossiers_photocopie_bac', 'Photocopie certifiée du relevé de notes du Baccalauréat'),
+                                t('inscription.dossiers_cert_residence_parents', 'Certificat de résidence des parents (moins de 3 mois)'),
+                                t('inscription.dossiers_enveloppes', "Deux enveloppes timbrées avec l'adresse du candidat"),
+                                t('inscription.dossiers_recu_preinscription', 'Reçu de versement de préinscription : nationaux 70 000 Ar, étrangers 110 000 Ar'),
+                            ]}
+                        />
+
+                        <DossierCard
+                            title={t('inscription.master_preinscription_titre', 'Pré-inscription en Master 1')}
+                            subtitle={t('inscription.master_docs_requis', 'Documents requis')}
+                            items={[
+                                t('inscription.dossiers_fiche_preinscription', 'Fiche de préinscription'),
+                                t('inscription.dossiers_photos_4', "Photos d'identité : 04 photos (4×4)"),
+                                t('inscription.dossiers_cert_residence_parents', 'Certificat de résidence des parents (moins de 3 mois)'),
+                                t('inscription.master_photocopie_licence', "Photocopie certifiée de l'attestation ou du diplôme de Licence"),
+                                t('inscription.dossiers_copie_naissance', "Copie d'acte de naissance (moins de 6 mois)"),
+                                t('inscription.master_photocopie_cin', 'Photocopie CIN légalisée'),
+                                t('inscription.master_enveloppe_pm', 'Une enveloppe PM timbrée'),
+                                t('inscription.dossiers_recu_preinscription', 'Reçu de versement de préinscription : nationaux 70 000 Ar, étrangers 110 000 Ar'),
+                            ]}
+                        />
+
+                        <DossierCard
+                            title={t('inscription.dossiers_l1_titre', "Inscription initiale (L1 et L2 Biomédical)")}
+                            items={[
+                                t('inscription.dossiers_photos_4', "Photos d'identité : 04 photos (4×4)"),
+                                t('inscription.dossiers_lettre_engagement', "Lettre d'engagement manuscrite légalisée à la Commune Urbaine de Mahajanga"),
+                                t('inscription.dossiers_cert_residence', "Certificats de résidence (du répondant à Mahajanga et de l'étudiant)"),
+                                t('inscription.dossiers_releve_bac', 'Relevé de notes du Baccalauréat'),
+                                t('inscription.dossiers_preuve_versement_l1', '1er versement : nationaux 250 000 Ar, étrangers 350 000 Ar'),
+                                t('inscription.dossiers_fiche_inscription', "Fiche d'inscription : à retirer à la scolarité (200 Ar)"),
+                                t('inscription.dossiers_achat_tenue', 'Achat de la tenue ISSTM : 20 000 Ar'),
+                            ]}
+                        />
+
+                        <DossierCard
+                            title={t('inscription.reinscription_titre', 'Réinscriptions (L2, L3 et redoublants)')}
+                            items={[
+                                t('inscription.dossiers_photos_3', "Photos d'identité : 03 photos (4×4)"),
+                                t('inscription.reinscription_carte_etudiant', "Photocopie de la carte d'étudiant"),
+                                t('inscription.dossiers_lettre_engagement', "Lettre d'engagement manuscrite légalisée à la Commune Urbaine de Mahajanga"),
+                                t('inscription.dossiers_cert_residence', "Certificats de résidence (du répondant à Mahajanga et de l'étudiant)"),
+                                t('inscription.dossiers_preuve_versement_l1', '1er versement : nationaux 250 000 Ar, étrangers 350 000 Ar'),
+                                t('inscription.reinscription_fiche', 'Fiche de réinscription : 200 Ar (à retirer à la scolarité)'),
+                                t('inscription.dossiers_achat_tenue', 'Achat de la tenue ISSTM : 20 000 Ar'),
+                            ]}
+                        />
+
+                        <DossierCard
+                            title={t('inscription.reinscription_m2_titre', 'Réinscriptions M2 et redoublants Master')}
+                            items={[
+                                t('inscription.dossiers_photos_3', "Photos d'identité : 03 photos (4×4)"),
+                                t('inscription.reinscription_carte_etudiant', "Photocopie de la carte d'étudiant"),
+                                t('inscription.dossiers_lettre_engagement', "Lettre d'engagement manuscrite légalisée à la Commune Urbaine de Mahajanga"),
+                                t('inscription.dossiers_cert_residence', "Certificats de résidence (du répondant à Mahajanga et de l'étudiant)"),
+                                t('inscription.reinscription_m2_releve', 'Relevé de notes du Master 1'),
+                                t('inscription.reinscription_fiche', 'Fiche de réinscription : 200 Ar (à retirer à la scolarité)'),
+                                t('inscription.reinscription_m2_versement', 'Preuve de versement : nationaux 550 000 Ar, étrangers 750 000 Ar'),
+                            ]}
+                        />
+
+                        <Card className="p-6">
+                            <h3 className="font-semibold text-isstm-navy dark:text-white">
+                                {t('inscription.chemises_titre', 'Couleur des chemises par filière (L1)')}
+                            </h3>
+                            <p className="mt-0.5 text-xs text-slate-400">
+                                {t('inscription.chemises_soustitre', '2 chemises cartonnées, couleur selon la filière')}
+                            </p>
+                            <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                {FILIERE_COLORS.map(([label, colorClass]) => (
+                                    <li key={label} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                        <span className={`h-3 w-3 flex-shrink-0 rounded-full ${colorClass}`} aria-hidden="true" />
+                                        {label}
+                                    </li>
+                                ))}
+                            </ul>
+                        </Card>
+                    </div>
+
+                    <div className="mt-5 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                        <p className="font-semibold">{t('inscription.dossiers_incomplets', 'Les dossiers incomplets ne seront pas considérés.')}</p>
+                    </div>
+                </section>
+
                 <Card className="p-6">
                     <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
                         <MapPin
@@ -308,6 +444,16 @@ export default function Index({ content }) {
                             {content.inscription_compte_bancaire}
                         </EditableText>
                     </p>
+
+                    <div className="relative mt-3 inline-block">
+                        <img
+                            src={`/${content.inscription_bred_logo ?? 'images/partenariat/bre.jpg'}`}
+                            alt="BRED"
+                            className="h-10 w-auto object-contain"
+                            style={imageStyleToCss(contentStyles?.inscription_bred_logo)}
+                        />
+                        <EditableImage contentKey="inscription_bred_logo" value={content.inscription_bred_logo} />
+                    </div>
                 </Card>
             </main>
 

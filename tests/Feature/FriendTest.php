@@ -16,7 +16,7 @@ it('forbids a user without a community role from viewing the friends hub', funct
 
 it('renders the friends hub with friends, requests and suggestions', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
-    $friend = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create(['last_activity' => now()]);
     FriendRequest::factory()->accepted()->create(['sender_id' => $user->id, 'recipient_id' => $friend->id]);
 
     $sender = User::factory()->role(Role::Etudiant)->create();
@@ -26,16 +26,18 @@ it('renders the friends hub with friends, requests and suggestions', function ()
         ->component('Amis/Index')
         ->has('friends', 1)
         ->has('received', 1)
+        ->where('friends.0.online', true)
     );
 });
 
-it('sends a friend request', function () {
+it('sends a friend request and notifies the recipient', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
     $recipient = User::factory()->role(Role::Etudiant)->create();
 
     $this->actingAs($user)->post("/amis/{$recipient->id}")->assertRedirect();
 
     expect(FriendRequest::query()->where('sender_id', $user->id)->where('recipient_id', $recipient->id)->exists())->toBeTrue();
+    expect($recipient->notifications()->first()?->data['type'] ?? null)->toBe('demande_ami');
 });
 
 it('refuses a duplicate friend request', function () {
@@ -46,7 +48,7 @@ it('refuses a duplicate friend request', function () {
     $this->actingAs($user)->post("/amis/{$recipient->id}")->assertStatus(409);
 });
 
-it('lets the recipient accept a pending friend request', function () {
+it('lets the recipient accept a pending friend request and notifies the original sender', function () {
     $sender = User::factory()->role(Role::Etudiant)->create();
     $recipient = User::factory()->role(Role::Etudiant)->create();
     $friendRequest = FriendRequest::factory()->create(['sender_id' => $sender->id, 'recipient_id' => $recipient->id]);
@@ -54,6 +56,7 @@ it('lets the recipient accept a pending friend request', function () {
     $this->actingAs($recipient)->post("/amis/demandes/{$friendRequest->id}/accepter")->assertRedirect();
 
     expect($friendRequest->refresh()->status)->toBe(FriendRequestStatus::Accepted);
+    expect($sender->notifications()->first()?->data['type'] ?? null)->toBe('ami_accepte');
 });
 
 it('forbids the sender from accepting their own request', function () {

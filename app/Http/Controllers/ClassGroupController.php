@@ -9,11 +9,9 @@ use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\ClassGroupMessage;
-use App\Models\User;
 use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,13 +42,13 @@ class ClassGroupController extends Controller
                 'role_in_group' => $membership->role_in_group->value,
                 'is_delegate' => $membership->is_delegate,
                 'join_code' => $membership->role_in_group === GroupMemberRole::Enseignant ? $group->join_code : null,
-                'unread_count' => $this->unreadCount($group, $user, $membership->last_read_at),
+                'unread_count' => $group->unreadCountFor($user, $membership->last_read_at),
             ];
         });
 
         return Inertia::render('Groupes/Index', [
             'groups' => $groups,
-            'canCreate' => $user->hasLegacyRole(Role::Enseignant, Role::Admin),
+            'canCreate' => $user->hasLegacyRole(Role::Etudiant, Role::Enseignant, Role::Admin),
         ]);
     }
 
@@ -161,24 +159,6 @@ class ClassGroupController extends Controller
                     'teacher_name' => $a->teacher->name,
                 ]),
         ]);
-    }
-
-    private function unreadCount(ClassGroup $group, User $user, ?Carbon $lastReadAt): int
-    {
-        $messages = ClassGroupMessage::query()
-            ->where('class_group_id', $group->id)
-            ->where('sender_id', '!=', $user->id)
-            ->whereNull('deleted_for_everyone_at')
-            ->when($lastReadAt, fn ($query) => $query->where('created_at', '>', $lastReadAt))
-            ->count();
-
-        $announcements = ClassGroupAnnouncement::query()
-            ->where('class_group_id', $group->id)
-            ->where('teacher_id', '!=', $user->id)
-            ->when($lastReadAt, fn ($query) => $query->where('created_at', '>', $lastReadAt))
-            ->count();
-
-        return $messages + $announcements;
     }
 
     private function generateJoinCode(): string

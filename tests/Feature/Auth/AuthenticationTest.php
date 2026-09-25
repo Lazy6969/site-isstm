@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Role;
 
 it('renders the login page', function () {
     $this->get('/login')->assertOk();
@@ -16,6 +17,18 @@ it('logs the user in with valid credentials', function () {
 
     $this->assertAuthenticatedAs($user);
     $response->assertRedirect(route('home'));
+});
+
+it('sends a student straight to the community feed instead of the homepage', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticatedAs($user);
+    $response->assertRedirect(route('posts.index'));
 });
 
 it('rejects an invalid password', function () {

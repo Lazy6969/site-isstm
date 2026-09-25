@@ -80,6 +80,25 @@ class NotificationController extends Controller
         return back();
     }
 
+    public function destroySelected(Request $request): RedirectResponse|JsonResponse
+    {
+        $ids = $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['string'],
+        ])['ids'];
+
+        $request->user()->notifications()->whereIn('id', $ids)->delete();
+
+        return $request->wantsJson() ? response()->json(['status' => 'ok']) : back();
+    }
+
+    public function destroyAll(Request $request): RedirectResponse|JsonResponse
+    {
+        $request->user()->notifications()->delete();
+
+        return $request->wantsJson() ? response()->json(['status' => 'ok']) : back();
+    }
+
     /**
      * @param  Collection<int, DatabaseNotification>  $notifications
      * @return Collection<int, array<string, mixed>>
@@ -104,6 +123,9 @@ class NotificationController extends Controller
                 'actor' => $actor ? ['id' => $actor->id, 'name' => $actor->name, 'avatar_path' => $actor->avatar_path] : null,
                 'post_id' => $post?->id,
                 'post_excerpt' => $post ? str($post->body ?? '')->limit(80)->toString() : null,
+                'comment_id' => $notification->data['comment_id'] ?? null,
+                'friend_request_id' => $notification->data['friend_request_id'] ?? null,
+                'conversation_id' => $notification->data['conversation_id'] ?? null,
             ];
         });
     }
