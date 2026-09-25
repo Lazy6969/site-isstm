@@ -15,6 +15,7 @@ Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.
     Route::get('etudiants/{etudiant}', [EtudiantController::class, 'show'])->middleware('can:etudiants.view')->name('etudiants.show');
     Route::post('etudiants', [EtudiantController::class, 'store'])->middleware('can:etudiants.create')->name('etudiants.store');
     Route::put('etudiants/{etudiant}', [EtudiantController::class, 'update'])->middleware('can:etudiants.edit')->name('etudiants.update');
+    Route::delete('etudiants/{etudiant}', [EtudiantController::class, 'destroy'])->middleware('can:etudiants.delete')->name('etudiants.destroy');
 
     Route::get('inscriptions', [InscriptionController::class, 'index'])->middleware('can:inscriptions.view')->name('inscriptions.index');
     Route::post('inscriptions', [InscriptionController::class, 'store'])->middleware('can:inscriptions.create')->name('inscriptions.store');

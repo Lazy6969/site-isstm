@@ -32,7 +32,11 @@ class AuthenticatedSessionController extends Controller
 
         // A student's home base is the community feed, not the public homepage —
         // the rest of the site stays one click away via AppLayout's "Voir le site" link.
-        $default = $request->user()->role === Role::Etudiant ? route('posts.index') : route('home');
+        $default = match (true) {
+            $request->user()->can('dashboard.view') => route('admin.dashboard'),
+            $request->user()->role === Role::Etudiant => route('posts.index'),
+            default => route('home'),
+        };
 
         return redirect()->intended($default);
     }

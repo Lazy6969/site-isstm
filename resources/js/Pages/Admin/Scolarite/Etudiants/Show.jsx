@@ -1,5 +1,5 @@
-import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Label } from '../../../../Components/ui/label';
@@ -29,6 +29,11 @@ export default function Show({ etudiant }) {
     function submit(e) {
         e.preventDefault();
         form.put(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
+    }
+
+    function destroy() {
+        if (!confirm(`Supprimer le dossier de ${etudiant.user.name} ? Ses inscriptions seront supprimées avec.`)) return;
+        router.delete(`/console/scolarite/etudiants/${etudiant.id}`);
     }
 
     return (
@@ -120,13 +125,21 @@ export default function Show({ etudiant }) {
                             </Select>
                         </div>
 
-                        <div className="sm:col-span-3">
+                        <div className="flex items-center gap-3 sm:col-span-3">
                             <Button
                                 type="submit"
                                 disabled={form.processing}
                                 className="bg-admin-text text-admin-bg hover:bg-admin-text/90"
                             >
                                 Enregistrer
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={destroy}
+                                className="ml-auto bg-transparent text-red-600 hover:bg-red-500/10"
+                            >
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                Supprimer le dossier
                             </Button>
                         </div>
                     </form>

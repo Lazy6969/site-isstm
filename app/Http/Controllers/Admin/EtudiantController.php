@@ -60,4 +60,13 @@ class EtudiantController extends Controller
 
         return back()->with('status', "Dossier de {$etudiant->user->name} mis à jour.");
     }
+
+    public function destroy(Etudiant $etudiant): RedirectResponse
+    {
+        $name = $etudiant->user->name;
+
+        $etudiant->delete();
+
+        return redirect()->route('admin.scolarite.etudiants.index')->with('status', "Dossier de {$name} supprimé.");
+    }
 }

@@ -19,6 +19,18 @@ it('logs the user in with valid credentials', function () {
     $response->assertRedirect(route('home'));
 });
 
+it('sends an admin straight to the console dashboard instead of the homepage', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $response = $this->post('/login', [
+        'email' => $admin->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertAuthenticatedAs($admin);
+    $response->assertRedirect(route('admin.dashboard'));
+});
+
 it('sends a student straight to the community feed instead of the homepage', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
 

@@ -2,6 +2,7 @@
 
 use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Models\Inscription;
 use App\Models\User;
 use App\Role;
 use App\StatutEtudiant;
@@ -68,4 +69,26 @@ it('lets an admin update a dossier étudiant', function () {
     $etudiant->refresh();
     expect($etudiant->classe_id)->toBe($nouvelleClasse->id);
     expect($etudiant->statut)->toBe(StatutEtudiant::Suspendu);
+});
+
+it('lets an admin delete a dossier étudiant, cascading its inscriptions but keeping the user account', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $etudiant = Etudiant::factory()->create();
+    $inscription = Inscription::factory()->for($etudiant)->create();
+
+    $this->actingAs($admin)->delete("/console/scolarite/etudiants/{$etudiant->id}")
+        ->assertRedirect('/console/scolarite/etudiants');
+
+    expect(Etudiant::find($etudiant->id))->toBeNull();
+    expect(Inscription::find($inscription->id))->toBeNull();
+    expect(User::find($etudiant->user_id))->not->toBeNull();
+});
+
+it('forbids a non-admin from deleting a dossier étudiant', function () {
+    $etudiant = Etudiant::factory()->create();
+    $other = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($other)->delete("/console/scolarite/etudiants/{$etudiant->id}")->assertForbidden();
+
+    expect(Etudiant::find($etudiant->id))->not->toBeNull();
 });

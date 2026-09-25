@@ -1,6 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { AlertTriangle, ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users, XCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
@@ -147,7 +147,15 @@ export default function Create({ filieres }) {
     const [step, setStep] = useState('identite');
     const [consent, setConsent] = useState(false);
     const [consentError, setConsentError] = useState('');
+    const [errorModal, setErrorModal] = useState('');
     const { data, setData, post, processing, errors, setError, clearErrors } = useForm(emptyForm);
+
+    // A failed submit (catch block in the controller) comes back as a full
+    // page redirect with a flashed `error`, not an Inertia form error — catch
+    // it here so it gets the same visible window as a validation failure.
+    useEffect(() => {
+        if (flash?.error) setErrorModal(flash.error);
+    }, [flash?.error]);
 
     const selectedFiliere = useMemo(() => filieres.find((f) => String(f.id) === String(data.filiere_id)), [filieres, data.filiere_id]);
     const niveaux = useMemo(() => (selectedFiliere?.niveaux ? selectedFiliere.niveaux.split(',') : []), [selectedFiliere]);
@@ -225,6 +233,13 @@ export default function Create({ filieres }) {
                 // candidate always lands somewhere the error is actually visible —
                 // never stuck on the last step looking at a form with no visible errors.
                 goTo(stepOfField(errorFields[0]).key);
+
+                // The email is the one field most likely to silently block a
+                // resubmission (already registered) — call it out by itself in
+                // the window when it's the problem, instead of a vague count.
+                setErrorModal(
+                    serverErrors.email ?? `${errorFields.length} champ(s) du formulaire doivent être corrigés avant l'envoi.`,
+                );
             },
         });
     }
@@ -564,6 +579,35 @@ export default function Create({ filieres }) {
             </main>
 
             <Footer />
+
+            {errorModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    onClick={() => setErrorModal('')}
+                >
+                    <div
+                        className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/15">
+                            <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true" />
+                        </div>
+                        <h2 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
+                            Votre dossier n'a pas pu être envoyé
+                        </h2>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{errorModal}</p>
+                        <button
+                            type="button"
+                            onClick={() => setErrorModal('')}
+                            className="mt-5 w-full rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                        >
+                            Corriger
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
