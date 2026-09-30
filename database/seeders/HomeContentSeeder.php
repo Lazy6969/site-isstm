@@ -507,12 +507,87 @@ class HomeContentSeeder extends Seeder
                 'Taratasy sy antontan-taratasy azo alaina.',
             ],
             'campus_titre' => ['La Vie au Campus', 'Campus Life', 'Ny fiainana eny Campus'],
-            'preinscription_titre' => ['Préinscription en ligne', 'Online Pre-registration', 'Fisoratana anarana mialoha an-tserasera'],
-            'preinscription_soustitre' => [
-                "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.",
-                'Fill out this form to submit your application to ISSTM.',
-                "Fenoy ity taratasy ity mba handraisana ny fangatahanao ao amin'ny ISSTM.",
+            'campus_soustitre' => [
+                "L'université est un melting-pot culturel :",
+                'The university is a cultural melting pot:',
+                'Fitambaran\'ny kolontsaina samihafa ny oniversite :',
             ],
+            'campus_soustitre_suite' => [
+                'associations régionales, appelées « blocs », représentent la diversité et la solidarité des étudiants venus de toute Madagascar.',
+                'regional associations, called "blocs", represent the diversity and solidarity of students from all over Madagascar.',
+                'fikambanana isam-paritra, antsoina hoe « bloc », maneho ny fahasamihafan\'ny sy ny firaisan-kinan\'ny mpianatra avy manerana an\'i Madagasikara.',
+            ],
+            // Banner for the préinscription wizard itself (Preinscription/Create.jsx)
+            // — renamed from its earlier, now-unused wording to match what the
+            // page actually shows today, so wiring it to EditableText doesn't
+            // silently change the visible text.
+            'preinscription_titre' => ["Votre dossier d'inscription", 'Your application file', 'Ny antontan-taratasinao fisoratana anarana'],
+            'preinscription_soustitre' => [
+                'Les champs avec un astérisque sont obligatoires. Créez votre compte candidat pour commencer.',
+                'Fields marked with an asterisk are required. Create your candidate account to get started.',
+                'Ilaina ny saha misy kisarisary *. Mamorona ny kaontinao mpilatsaka hanombohana.',
+            ],
+            'preinscription_soustitre_brouillon' => [
+                'Votre progression est enregistrée à chaque étape. Vous pouvez reprendre ce dossier plus tard depuis « Mon dossier ».',
+                'Your progress is saved at every step. You can resume this file later from "My file".',
+                'Voatahiry ny fandrosoanao amin\'ny dingana tsirairay. Azonao atao ny mamerina ity antontan-taratasy ity avy amin\'ny « Ny antontan-taratasiko ».',
+            ],
+            'dossier_titre' => ['Suivi de mon dossier', 'Application tracking', 'Fanaraha-maso ny antontan-taratasiko'],
+            'reinscription_titre' => ['Réinscription et redoublement', 'Re-enrollment and repeat year', 'Fanoratana indray sy famerenana taona'],
+            'reinscription_soustitre' => [
+                "Étudiant déjà inscrit ? Soumettez votre dossier de réinscription ou de redoublement pour l'année en cours.",
+                'Already an enrolled student? Submit your re-enrollment or repeat-year file for the current year.',
+                "Efa mpianatra voasoratra anarana ? Alefaso ny antontan-taratasinao fanoratana indray na famerenana taona ho an'ny taona ankehitriny.",
+            ],
+            'inscription_titre' => ['Inscription — Année', 'Enrollment — Year', 'Fisoratana anarana — Taona'],
+            'inscription_soustitre' => [
+                'Frais de scolarité, dates et modalités de dépôt.',
+                'Tuition fees, deadlines and submission details.',
+                'Saram-pianarana, daty ary fomba fandraisana.',
+            ],
+            'enseignants_titre' => ['Corps enseignant', 'Teaching Staff', 'Mpampianatra'],
+            'enseignants_soustitre' => [
+                'Une équipe pédagogique permanente et vacataire au service de la réussite des étudiants.',
+                'A permanent and part-time teaching team dedicated to student success.',
+                "Ekipa mpampianatra tsy tapaka sy vonjimaika manolo-tena ho an'ny fahombiazan'ny mpianatra.",
+            ],
+            'rejoindre_titre' => ["Rejoindre l'ISSTM", 'Join ISSTM', 'Miditra ao amin\'ny ISSTM'],
+            'rejoindre_soustitre' => [
+                'Choisissez le parcours qui correspond à votre situation.',
+                'Choose the path that matches your situation.',
+                "Safidio ny lalana mifanaraka amin'ny toe-javatra misy anao.",
+            ],
+
+            // Optional photo behind each page's navy title banner — empty by
+            // default (plain navy, as every banner already looked), uploaded
+            // by an admin via the quick-edit pencil. `_image_path` marks them
+            // as SiteContentType::Image in the loop below, same as any other
+            // quick-edit image.
+            'actualites_banniere_image_path' => ['', '', ''],
+            'associations_banniere_image_path' => ['', '', ''],
+            'bourse_banniere_image_path' => ['', '', ''],
+            'directeur_banniere_image_path' => ['', '', ''],
+            'documents_banniere_image_path' => ['', '', ''],
+            'enseignants_banniere_image_path' => ['', '', ''],
+            'equipe_banniere_image_path' => ['', '', ''],
+            'evenements_banniere_image_path' => ['', '', ''],
+            'filieres_banniere_image_path' => ['', '', ''],
+            'formations_banniere_image_path' => ['', '', ''],
+            'galerie_banniere_image_path' => ['', '', ''],
+            'parcours_banniere_image_path' => ['', '', ''],
+            'recherche_banniere_image_path' => ['', '', ''],
+            'vie_etudiante_banniere_image_path' => ['', '', ''],
+            'campus_banniere_image_path' => ['', '', ''],
+            'histoire_banniere_image_path' => ['', '', ''],
+            'contact_banniere_image_path' => ['', '', ''],
+            'rejoindre_banniere_image_path' => ['', '', ''],
+            'preinscription_banniere_image_path' => ['', '', ''],
+            'dossier_banniere_image_path' => ['', '', ''],
+            'reinscription_banniere_image_path' => ['', '', ''],
+            // Already had a real photo, hardcoded — seeded with it so wiring it
+            // up to EditableImage doesn't blank the banner out on first load.
+            'inscription_banniere_image_path' => ['images/portal_campus_1.jpg', 'images/portal_campus_1.jpg', 'images/portal_campus_1.jpg'],
+
             'contact_titre' => ['Contactez-nous', 'Contact us', 'Mifandraisa aminay'],
             'contact_soustitre' => [
                 'Une question sur les formations, les inscriptions ou la vie étudiante ? Notre équipe vous répond avec plaisir.',

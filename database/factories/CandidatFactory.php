@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
+use App\Models\Candidat;
 use App\Models\Filiere;
-use App\Models\Preinscription;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Preinscription>
+ * @extends Factory<Candidat>
  */
-class PreinscriptionFactory extends Factory
+class CandidatFactory extends Factory
 {
     /**
      * Define the model's default state.

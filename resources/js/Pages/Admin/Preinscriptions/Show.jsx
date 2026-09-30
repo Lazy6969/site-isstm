@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { FileText, UserCheck, UserX } from 'lucide-react';
+import { FileText, PencilLine, UserCheck, UserX } from 'lucide-react';
 import { useState } from 'react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../Components/ui/avatar';
@@ -48,10 +48,11 @@ const DOCUMENTS = [
 export default function Show({ preinscription }) {
     const { t } = useTranslations();
     const [processing, setProcessing] = useState(false);
-    const [showRefuse, setShowRefuse] = useState(false);
+    const [panel, setPanel] = useState(null); // null | 'refuse' | 'correction'
     const [motif, setMotif] = useState('');
+    const [commentaire, setCommentaire] = useState('');
 
-    const isDecided = preinscription.status !== 'en_attente';
+    const isDecided = !['en_attente', 'en_cours_examen', 'a_completer'].includes(preinscription.status);
 
     function approve() {
         if (!window.confirm(t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'))) {
@@ -71,6 +72,16 @@ export default function Show({ preinscription }) {
         );
     }
 
+    function requestCorrection() {
+        if (!commentaire) return;
+        setProcessing(true);
+        router.post(
+            `/console/preinscriptions/${preinscription.id}/demander-correction`,
+            { commentaire_correction: commentaire },
+            { onFinish: () => setProcessing(false) },
+        );
+    }
+
     return (
         <AdminLayout title={`${preinscription.nom} ${preinscription.prenoms}`}>
             <div className="mb-6 flex items-center gap-4">
@@ -83,7 +94,8 @@ export default function Show({ preinscription }) {
                         {preinscription.filiere?.nom_fr} · {preinscription.niveau}
                     </p>
                     <p className="text-sm text-admin-text-secondary">
-                        {t('preinscriptions_admin.deposee_le', 'Déposée le')} {formatDate(preinscription.created_at)}
+                        {preinscription.numero_dossier ? `${preinscription.numero_dossier} · ` : ''}
+                        {t('preinscriptions_admin.deposee_le', 'Déposée le')} {formatDate(preinscription.submitted_at ?? preinscription.created_at)}
                     </p>
                 </div>
             </div>
@@ -139,7 +151,7 @@ export default function Show({ preinscription }) {
                 </div>
             ) : (
                 <div className="mt-6 flex flex-col gap-3 rounded-xl border border-admin-border bg-admin-card p-5 sm:flex-row sm:items-start sm:justify-between">
-                    {showRefuse ? (
+                    {panel === 'refuse' && (
                         <div className="flex-1 space-y-3">
                             <Textarea
                                 value={motif}
@@ -148,7 +160,7 @@ export default function Show({ preinscription }) {
                             />
                             <div className="flex gap-2">
                                 <Button
-                                    onClick={() => setShowRefuse(false)}
+                                    onClick={() => setPanel(null)}
                                     className="border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover"
                                 >
                                     {t('preinscriptions_admin.annuler', 'Annuler')}
@@ -159,10 +171,42 @@ export default function Show({ preinscription }) {
                                 </Button>
                             </div>
                         </div>
-                    ) : (
+                    )}
+
+                    {panel === 'correction' && (
+                        <div className="flex-1 space-y-3">
+                            <Textarea
+                                value={commentaire}
+                                onChange={(e) => setCommentaire(e.target.value)}
+                                placeholder={t('preinscriptions_admin.correction_placeholder', 'Précisez ce qui doit être corrigé ou complété')}
+                            />
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={() => setPanel(null)}
+                                    className="border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover"
+                                >
+                                    {t('preinscriptions_admin.annuler', 'Annuler')}
+                                </Button>
+                                <Button onClick={requestCorrection} disabled={processing || !commentaire} className="bg-amber-600 text-white hover:bg-amber-600/90">
+                                    <PencilLine className="h-4 w-4" aria-hidden="true" />
+                                    {t('preinscriptions_admin.envoyer_correction', 'Envoyer la demande')}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {panel === null && (
                         <>
                             <Button
-                                onClick={() => setShowRefuse(true)}
+                                onClick={() => setPanel('correction')}
+                                disabled={processing}
+                                className="border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover"
+                            >
+                                <PencilLine className="h-4 w-4" aria-hidden="true" />
+                                {t('preinscriptions_admin.demander_correction', 'Demander une correction')}
+                            </Button>
+                            <Button
+                                onClick={() => setPanel('refuse')}
                                 disabled={processing}
                                 className="border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover"
                             >

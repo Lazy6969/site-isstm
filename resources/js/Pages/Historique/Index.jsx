@@ -1,6 +1,7 @@
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
 
 export default function Index({ content = {} }) {
@@ -14,8 +15,9 @@ export default function Index({ content = {} }) {
 
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="histoire_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <EditableText
                         as="h1"
                         contentKey="histoire_titre"

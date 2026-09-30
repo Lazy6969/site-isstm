@@ -64,11 +64,15 @@ it('lets an admin update a dossier étudiant', function () {
         'classe_id' => $nouvelleClasse->id,
         'matricule' => $etudiant->matricule,
         'statut' => StatutEtudiant::Suspendu->value,
+        'telephone' => '0341112233',
+        'adresse' => 'Nouvelle adresse, Mahajanga',
     ])->assertRedirect();
 
     $etudiant->refresh();
     expect($etudiant->classe_id)->toBe($nouvelleClasse->id);
     expect($etudiant->statut)->toBe(StatutEtudiant::Suspendu);
+    expect($etudiant->telephone)->toBe('0341112233');
+    expect($etudiant->adresse)->toBe('Nouvelle adresse, Mahajanga');
 });
 
 it('lets an admin delete a student account entirely, wiping the dossier and its inscriptions', function () {

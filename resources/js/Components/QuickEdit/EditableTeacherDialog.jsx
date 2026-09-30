@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select } from '../ui/select';
+import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 
 const CATEGORY_OPTIONS = [
@@ -11,30 +12,34 @@ const CATEGORY_OPTIONS = [
     { value: 'vacataire', label: 'Vacataire' },
 ];
 
+const DEPARTEMENT_OPTIONS = ['STI', 'STGC', 'STNPA'];
+
+function formFrom(teacher) {
+    return {
+        name: teacher.name ?? '',
+        category: teacher.category ?? 'permanent',
+        departement: teacher.departement ?? '',
+        specialty_fr: teacher.specialty ?? '',
+        description_fr: teacher.description ?? '',
+        email: teacher.email ?? '',
+        photo: null,
+    };
+}
+
 /**
  * In-place edit for one teacher card on the public Enseignants page — reuses
  * the existing admin endpoint (PUT /console/enseignants/{teacher}, gated by
- * `enseignants.edit`) rather than adding a second update path; only the
- * fields the public card actually shows are editable here (full bio/EN/MG
- * specialty still go through the admin panel).
+ * `enseignants.edit`) rather than adding a second update path. Covers every
+ * field the card itself displays; the EN/MG translations still go through
+ * the admin panel, since the public card never shows them.
  */
 export default function EditableTeacherDialog({ open, onClose, teacher }) {
-    const form = useForm({
-        name: teacher.name ?? '',
-        category: teacher.category ?? 'permanent',
-        specialty_fr: teacher.specialty ?? '',
-        photo: null,
-    });
+    const form = useForm(formFrom(teacher));
     const [preview, setPreview] = useState(null);
 
     useEffect(() => {
         if (open) {
-            form.setData({
-                name: teacher.name ?? '',
-                category: teacher.category ?? 'permanent',
-                specialty_fr: teacher.specialty ?? '',
-                photo: null,
-            });
+            form.setData(formFrom(teacher));
             form.clearErrors();
             setPreview(null);
         }
@@ -91,6 +96,37 @@ export default function EditableTeacherDialog({ open, onClose, teacher }) {
                             onChange={(e) => form.setData('specialty_fr', e.target.value)}
                             className="mt-1.5"
                         />
+                        {form.errors.specialty_fr && <p className="mt-1 text-sm text-red-500">{form.errors.specialty_fr}</p>}
+                    </div>
+
+                    <div>
+                        <Label htmlFor="teacher-description">Description</Label>
+                        <Textarea
+                            id="teacher-description"
+                            value={form.data.description_fr}
+                            onChange={(e) => form.setData('description_fr', e.target.value)}
+                            rows={3}
+                            className="mt-1.5"
+                        />
+                        {form.errors.description_fr && <p className="mt-1 text-sm text-red-500">{form.errors.description_fr}</p>}
+                    </div>
+
+                    <div>
+                        <Label htmlFor="teacher-departement">Département</Label>
+                        <Select
+                            id="teacher-departement"
+                            value={form.data.departement}
+                            onChange={(e) => form.setData('departement', e.target.value)}
+                            className="mt-1.5"
+                        >
+                            <option value="">— Aucun —</option>
+                            {DEPARTEMENT_OPTIONS.map((option) => (
+                                <option key={option} value={option}>
+                                    {option}
+                                </option>
+                            ))}
+                        </Select>
+                        {form.errors.departement && <p className="mt-1 text-sm text-red-500">{form.errors.departement}</p>}
                     </div>
 
                     <div>
@@ -107,6 +143,18 @@ export default function EditableTeacherDialog({ open, onClose, teacher }) {
                                 </option>
                             ))}
                         </Select>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="teacher-email">E-mail</Label>
+                        <Input
+                            id="teacher-email"
+                            type="email"
+                            value={form.data.email}
+                            onChange={(e) => form.setData('email', e.target.value)}
+                            className="mt-1.5"
+                        />
+                        {form.errors.email && <p className="mt-1 text-sm text-red-500">{form.errors.email}</p>}
                     </div>
 
                     <DialogFooter>

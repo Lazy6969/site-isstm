@@ -1,0 +1,26 @@
+{
+    "name": "ISSTM Mahajanga",
+    "short_name": "ISSTM",
+    "description": "Institut Supérieur des Sciences et Technologies de Mahajanga — filières, actualités, vie étudiante et espace candidat.",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#ffffff",
+    "theme_color": "#003366",
+    "lang": "fr",
+    "icons": [
+        {
+            "src": "/images/pwa-icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/pwa-icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

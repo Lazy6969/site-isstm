@@ -8,7 +8,7 @@ import MobileMenuButton from '../Layout/MobileMenuButton';
 import NotificationBell from '../Layout/NotificationBell';
 import BrandTitle from '../Layout/BrandTitle';
 import DarkModeToggle from '../Layout/DarkModeToggle';
-import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from '../Layout/headerNavLinks';
+import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
 import { useTranslations } from '../../lib/useTranslations';
 import {
@@ -95,7 +95,7 @@ export default function Header() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
-                                <Link href="/preinscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                <Link href="/rejoindre" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
                                     {t('nav.inscription', 'Inscription')}
                                 </Link>
                             </NavigationMenuLink>
@@ -107,7 +107,15 @@ export default function Header() {
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
-                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        {isCommunityMember && (
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/communaute" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.fil_communautaire', 'Fil communautaire')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        )}
                         <NavigationMenuItem>
                             <HeaderSearchButton variant="labelled" />
                         </NavigationMenuItem>

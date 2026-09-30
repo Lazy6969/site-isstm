@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\TeacherCategory;
+use App\TeacherDepartement;
 use Database\Factories\TeacherFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class Teacher extends Model
     protected $fillable = [
         'name',
         'category',
+        'departement',
         'specialty_fr',
         'specialty_en',
         'specialty_mg',
@@ -33,6 +35,7 @@ class Teacher extends Model
     {
         return [
             'category' => TeacherCategory::class,
+            'departement' => TeacherDepartement::class,
         ];
     }
 }

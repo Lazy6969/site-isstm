@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTeacherRequest;
 use App\Models\Teacher;
 use App\TeacherCategory;
+use App\TeacherDepartement;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,7 @@ class TeacherController extends Controller
     {
         return Inertia::render('Admin/Enseignants/Index', [
             'teachers' => Teacher::orderBy('display_order')->get([
-                'id', 'name', 'category', 'specialty_fr', 'specialty_en', 'specialty_mg',
+                'id', 'name', 'category', 'departement', 'specialty_fr', 'specialty_en', 'specialty_mg',
                 'description_fr', 'description_en', 'description_mg',
                 'photo_path', 'email', 'display_order',
             ]),
@@ -49,6 +50,7 @@ class TeacherController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'category' => ['required', Rule::enum(TeacherCategory::class)],
+            'departement' => ['nullable', Rule::enum(TeacherDepartement::class)],
             'specialty_fr' => ['nullable', 'string', 'max:255'],
             'specialty_en' => ['nullable', 'string', 'max:255'],
             'specialty_mg' => ['nullable', 'string', 'max:255'],

@@ -7,7 +7,7 @@ import MobileTabBar from './MobileTabBar';
 import MobileMenuButton from './MobileMenuButton';
 import BrandTitle from './BrandTitle';
 import DarkModeToggle from './DarkModeToggle';
-import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from './headerNavLinks';
+import { getEtablissementLinks, getVieEtudianteLinks } from './headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
 import { useTranslations } from '../../lib/useTranslations';
 import {
@@ -82,7 +82,7 @@ export default function SiteHeader() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
-                                <Link href="/preinscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                <Link href="/rejoindre" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
                                     {t('nav.inscription', 'Inscription')}
                                 </Link>
                             </NavigationMenuLink>
@@ -94,7 +94,15 @@ export default function SiteHeader() {
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
-                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        {isCommunityMember && (
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/communaute" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.fil_communautaire', 'Fil communautaire')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        )}
                         <NavigationMenuItem>
                             <HeaderSearchButton variant="labelled" />
                         </NavigationMenuItem>

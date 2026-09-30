@@ -9,6 +9,7 @@ import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 export default function Index({ filieres }) {
     const { t } = useTranslations();
@@ -40,8 +41,9 @@ export default function Index({ filieres }) {
             />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-6xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="filieres_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="filieres_titre">
                             {content.filieres_titre ?? t('filieres.titre', 'Nos filières')}

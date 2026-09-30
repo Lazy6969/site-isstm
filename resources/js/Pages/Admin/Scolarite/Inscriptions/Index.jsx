@@ -1,15 +1,25 @@
 import { useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { Download, Eye, Plus, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
-import { Button } from '../../../../Components/ui/button';
+import { Button, buttonVariants } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
 import { Label } from '../../../../Components/ui/label';
 import { Select } from '../../../../Components/ui/select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
+import { cn } from '../../../../lib/utils';
 
-const statutLabels = { en_attente: 'En attente', validee: 'Validée', annulee: 'Annulée' };
+const statutLabels = {
+    brouillon: 'Brouillon',
+    en_attente: 'Soumis',
+    en_cours_examen: "En cours d'examen",
+    a_completer: 'À compléter',
+    validee: 'Validée',
+    annulee: 'Refusée',
+};
+
+const typeLabels = { reinscription: 'Réinscription', redoublement: 'Redoublant' };
 
 export default function Index({ inscriptions, etudiants, classes }) {
     const [open, setOpen] = useState(false);
@@ -39,10 +49,16 @@ export default function Index({ inscriptions, etudiants, classes }) {
         <AdminLayout title="Inscriptions">
             <div className="mb-5 flex items-center justify-between">
                 <p className="text-sm text-admin-text-secondary">{inscriptions.length} inscription(s)</p>
-                <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                    Nouvelle inscription
-                </Button>
+                <div className="flex gap-2">
+                    <a href="/console/scolarite/inscriptions/export" className={cn(buttonVariants(), 'border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover')}>
+                        <Download className="h-4 w-4" aria-hidden="true" />
+                        Exporter
+                    </a>
+                    <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        Nouvelle inscription
+                    </Button>
+                </div>
             </div>
 
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
@@ -50,6 +66,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Étudiant</TableHead>
+                            <TableHead>Type</TableHead>
                             <TableHead>Classe</TableHead>
                             <TableHead>Année</TableHead>
                             <TableHead>Numéro</TableHead>
@@ -60,7 +77,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
                     <TableBody>
                         {inscriptions.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
+                                <TableCell colSpan={7} className="py-8 text-center text-admin-muted">
                                     Aucune inscription pour le moment.
                                 </TableCell>
                             </TableRow>
@@ -68,30 +85,46 @@ export default function Index({ inscriptions, etudiants, classes }) {
                         {inscriptions.map((inscription) => (
                             <TableRow key={inscription.id}>
                                 <TableCell className="font-medium">{inscription.etudiant?.user?.name}</TableCell>
+                                <TableCell>{typeLabels[inscription.type] ?? 'Saisie manuelle'}</TableCell>
                                 <TableCell>{inscription.classe?.nom ?? '—'}</TableCell>
                                 <TableCell>{inscription.annee}</TableCell>
-                                <TableCell>{inscription.numero ?? '—'}</TableCell>
+                                <TableCell>{inscription.numero_dossier ?? inscription.numero ?? '—'}</TableCell>
                                 <TableCell>
-                                    <Select
-                                        value={inscription.statut}
-                                        onChange={(e) => updateStatut(inscription, e.target.value)}
-                                        className="h-8 w-36 text-xs"
-                                    >
-                                        {Object.entries(statutLabels).map(([value, label]) => (
-                                            <option key={value} value={value}>
-                                                {label}
-                                            </option>
-                                        ))}
-                                    </Select>
+                                    {inscription.type === null ? (
+                                        <Select
+                                            value={inscription.statut}
+                                            onChange={(e) => updateStatut(inscription, e.target.value)}
+                                            className="h-8 w-36 text-xs"
+                                        >
+                                            {Object.entries(statutLabels).map(([value, label]) => (
+                                                <option key={value} value={value}>
+                                                    {label}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    ) : (
+                                        <span className="text-xs font-medium text-admin-text">{statutLabels[inscription.statut]}</span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <button
-                                        onClick={() => destroy(inscription)}
-                                        className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
-                                        aria-label="Supprimer l'inscription"
-                                    >
-                                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                    </button>
+                                    <div className="flex items-center justify-end gap-1">
+                                        {inscription.type !== null && (
+                                            <Link
+                                                href={`/console/scolarite/inscriptions/${inscription.id}`}
+                                                className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
+                                                aria-label="Examiner le dossier"
+                                            >
+                                                <Eye className="h-4 w-4" aria-hidden="true" />
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={() => destroy(inscription)}
+                                            className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
+                                            aria-label="Supprimer l'inscription"
+                                        >
+                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                        </button>
+                                    </div>
                                 </TableCell>
                             </TableRow>
                         ))}

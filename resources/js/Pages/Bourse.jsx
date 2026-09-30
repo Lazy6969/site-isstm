@@ -11,6 +11,7 @@ import EditableCardStyle from '../Components/QuickEdit/EditableCardStyle';
 import SeoHead from '../Components/QuickEdit/SeoHead';
 import { imageStyleToCss } from '../lib/imageStyle';
 import { cardContainerStyle } from '../lib/cardStyle';
+import BannerBackground from '../Components/QuickEdit/BannerBackground';
 
 export default function Bourse({ content = {} }) {
     const { t } = useTranslations();
@@ -57,8 +58,9 @@ export default function Bourse({ content = {} }) {
 
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="bourse_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="bourse_titre">
                             {content.bourse_titre}

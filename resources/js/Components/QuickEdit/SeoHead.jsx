@@ -30,7 +30,7 @@ export default function SeoHead({ seoKey, defaultTitle, defaultDescription = '' 
                     <button
                         type="button"
                         onClick={() => setOpen(true)}
-                        className="fixed right-5 bottom-5 z-40 hidden items-center gap-2 rounded-full bg-amber-400 px-4 py-2.5 text-xs font-semibold text-amber-950 shadow-lg ring-2 ring-white transition hover:scale-105 md:flex"
+                        className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full bg-amber-400 px-4 py-2.5 text-xs font-semibold text-amber-950 shadow-lg ring-2 ring-white transition hover:scale-105 md:flex"
                         aria-label="Modifier le référencement (SEO) de cette page"
                         title="Modifier le référencement (SEO) de cette page"
                     >

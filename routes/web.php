@@ -19,6 +19,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\InscriptionDossierController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MessageForwardController;
@@ -87,9 +88,16 @@ Route::get('galerie/{album:slug}', [GalleryController::class, 'show'])->name('ga
 Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
 
 Route::get('inscription', [InscriptionController::class, 'index'])->name('inscription');
+Route::inertia('rejoindre', 'Rejoindre')->name('rejoindre');
 Route::get('preinscription', [PreinscriptionController::class, 'create'])->name('preinscription.create');
-Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
+Route::post('preinscription/compte', [PreinscriptionController::class, 'storeAccount'])->middleware('throttle:10,1')->name('preinscription.store-account');
+Route::patch('preinscription/{preinscription}/brouillon', [PreinscriptionController::class, 'saveDraft'])->middleware(['auth', 'throttle:20,1'])->name('preinscription.save-draft');
+Route::post('preinscription/{preinscription}/soumettre', [PreinscriptionController::class, 'submit'])->middleware(['auth', 'throttle:10,1'])->name('preinscription.submit');
 Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth', 'verified'])->name('preinscription.dossier');
+
+Route::get('reinscription', [InscriptionDossierController::class, 'create'])->middleware(['auth', 'role:etudiant', 'verified'])->name('inscription-dossier.create');
+Route::patch('reinscription/{inscription}/brouillon', [InscriptionDossierController::class, 'saveDraft'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:20,1'])->name('inscription-dossier.save-draft');
+Route::post('reinscription/{inscription}/soumettre', [InscriptionDossierController::class, 'submit'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:10,1'])->name('inscription-dossier.submit');
 
 Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');

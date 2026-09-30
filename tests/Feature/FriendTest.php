@@ -1,9 +1,9 @@
 <?php
 
 use App\FriendRequestStatus;
+use App\Models\Candidat;
 use App\Models\Filiere;
 use App\Models\FriendRequest;
-use App\Models\Preinscription;
 use App\Models\User;
 use App\PreinscriptionStatus;
 use App\Role;
@@ -82,13 +82,13 @@ it('prioritises suggestions from the same filiere', function () {
     $otherFiliere = Filiere::factory()->create();
 
     $user = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $user->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
+    Candidat::factory()->create(['user_id' => $user->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $sameFiliere = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $sameFiliere->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
+    Candidat::factory()->create(['user_id' => $sameFiliere->id, 'filiere_id' => $filiere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $otherStudent = User::factory()->role(Role::Etudiant)->create();
-    Preinscription::factory()->create(['user_id' => $otherStudent->id, 'filiere_id' => $otherFiliere->id, 'status' => PreinscriptionStatus::Accepte]);
+    Candidat::factory()->create(['user_id' => $otherStudent->id, 'filiere_id' => $otherFiliere->id, 'status' => PreinscriptionStatus::Accepte]);
 
     $this->actingAs($user)->get('/amis')->assertInertia(fn ($page) => $page
         ->component('Amis/Index')

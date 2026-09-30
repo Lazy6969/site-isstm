@@ -22,11 +22,15 @@ function NewsletterForm({ t }) {
             </p>
             <form onSubmit={submit} className="mt-3 flex max-w-sm gap-2">
                 <input
+                    id="newsletter-email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={data.email}
                     onChange={(e) => setData('email', e.target.value)}
                     placeholder="votre@email.com"
+                    aria-label={t('footer.newsletter', 'Newsletter')}
                     className="w-full rounded-lg border border-isstm-footer-text/15 bg-isstm-footer-text/5 px-3.5 py-2 text-sm text-isstm-footer-text placeholder:text-isstm-footer-text/40 focus:border-isstm-gold focus:outline-none"
                 />
                 <button
@@ -55,7 +59,7 @@ export default function Footer() {
         ...getVieEtudianteLinks(t),
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie') },
-        { href: '/preinscription', label: t('nav.inscription', 'Inscription') },
+        { href: '/rejoindre', label: t('nav.inscription', 'Inscription') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
     ];
 

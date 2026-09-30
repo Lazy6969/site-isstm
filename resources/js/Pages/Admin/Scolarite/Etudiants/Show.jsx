@@ -24,6 +24,8 @@ export default function Show({ etudiant }) {
         matricule: etudiant.matricule,
         classe_id: etudiant.classe_id ? String(etudiant.classe_id) : '',
         statut: etudiant.statut,
+        telephone: etudiant.telephone ?? '',
+        adresse: etudiant.adresse ?? '',
     });
 
     function submit(e) {
@@ -74,13 +76,77 @@ export default function Show({ etudiant }) {
                                 <Badge variant={statutVariants[etudiant.statut]}>{statutLabels[etudiant.statut]}</Badge>
                             </dd>
                         </div>
-                        {etudiant.preinscription && (
+                        {etudiant.candidat && (
                             <div className="flex justify-between">
                                 <dt className="text-admin-text-secondary">Préinscription</dt>
-                                <dd className="text-admin-text">{formatDate(etudiant.preinscription.created_at)}</dd>
+                                <dd className="text-admin-text">{formatDate(etudiant.candidat.created_at)}</dd>
                             </div>
                         )}
                     </dl>
+
+                    {(etudiant.date_naissance || etudiant.cin || etudiant.nom_pere || etudiant.nom_mere) && (
+                        <>
+                            <h3 className="mt-6 mb-3 text-xs font-semibold tracking-wide text-admin-muted uppercase">Identité</h3>
+                            <dl className="space-y-2 text-sm">
+                                {etudiant.civilite && (
+                                    <div className="flex justify-between">
+                                        <dt className="text-admin-text-secondary">Civilité</dt>
+                                        <dd className="text-admin-text">{etudiant.civilite} · {etudiant.sexe === 'F' ? 'Féminin' : 'Masculin'}</dd>
+                                    </div>
+                                )}
+                                {etudiant.date_naissance && (
+                                    <div className="flex justify-between">
+                                        <dt className="text-admin-text-secondary">Né(e) le</dt>
+                                        <dd className="text-admin-text">{formatDate(etudiant.date_naissance)}{etudiant.lieu_naissance ? ` à ${etudiant.lieu_naissance}` : ''}</dd>
+                                    </div>
+                                )}
+                                {etudiant.cin && (
+                                    <div className="flex justify-between">
+                                        <dt className="text-admin-text-secondary">CIN</dt>
+                                        <dd className="text-admin-text">{etudiant.cin}</dd>
+                                    </div>
+                                )}
+                                {etudiant.nationalite && (
+                                    <div className="flex justify-between">
+                                        <dt className="text-admin-text-secondary">Nationalité</dt>
+                                        <dd className="text-admin-text">{etudiant.nationalite}</dd>
+                                    </div>
+                                )}
+                            </dl>
+
+                            {(etudiant.nom_pere || etudiant.nom_mere || etudiant.repondant_nom) && (
+                                <>
+                                    <h3 className="mt-5 mb-3 text-xs font-semibold tracking-wide text-admin-muted uppercase">Famille</h3>
+                                    <dl className="space-y-2 text-sm">
+                                        {etudiant.nom_pere && (
+                                            <div className="flex justify-between">
+                                                <dt className="text-admin-text-secondary">Père</dt>
+                                                <dd className="text-admin-text">{etudiant.nom_pere}</dd>
+                                            </div>
+                                        )}
+                                        {etudiant.nom_mere && (
+                                            <div className="flex justify-between">
+                                                <dt className="text-admin-text-secondary">Mère</dt>
+                                                <dd className="text-admin-text">{etudiant.nom_mere}</dd>
+                                            </div>
+                                        )}
+                                        {etudiant.contact_parents && (
+                                            <div className="flex justify-between">
+                                                <dt className="text-admin-text-secondary">Tél. parents</dt>
+                                                <dd className="text-admin-text">{etudiant.contact_parents}</dd>
+                                            </div>
+                                        )}
+                                        {etudiant.repondant_nom && (
+                                            <div className="flex justify-between">
+                                                <dt className="text-admin-text-secondary">Répondant</dt>
+                                                <dd className="text-admin-text">{etudiant.repondant_nom} ({etudiant.repondant_lien})</dd>
+                                            </div>
+                                        )}
+                                    </dl>
+                                </>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 <div className="rounded-xl border border-admin-border bg-admin-card p-5 lg:col-span-2">
@@ -128,6 +194,28 @@ export default function Show({ etudiant }) {
                                     </option>
                                 ))}
                             </Select>
+                        </div>
+
+                        <div>
+                            <Label htmlFor="telephone">Téléphone</Label>
+                            <Input
+                                id="telephone"
+                                value={form.data.telephone}
+                                onChange={(e) => form.setData('telephone', e.target.value)}
+                                className="mt-1.5"
+                            />
+                            {form.errors.telephone && <p className="mt-1 text-sm text-red-500">{form.errors.telephone}</p>}
+                        </div>
+
+                        <div className="sm:col-span-2">
+                            <Label htmlFor="adresse">Adresse</Label>
+                            <Input
+                                id="adresse"
+                                value={form.data.adresse}
+                                onChange={(e) => form.setData('adresse', e.target.value)}
+                                className="mt-1.5"
+                            />
+                            {form.errors.adresse && <p className="mt-1 text-sm text-red-500">{form.errors.adresse}</p>}
                         </div>
 
                         <div className="flex items-center gap-3 sm:col-span-3">

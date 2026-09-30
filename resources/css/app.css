@@ -12,6 +12,9 @@
     --color-isstm-navy: #003366;
     --color-isstm-navy-dark: #001f3f;
     --color-isstm-gold: #d4a017;
+    /* Accent of the teacher cards' own layout (see Enseignants/Index.jsx) —
+       a token rather than a literal so the colour stays changeable in one place. */
+    --color-isstm-red: #dc143c;
     /* Header/nav bar background — separate token from isstm-navy so it can be
        overridden independently (see SiteMenuColor); defaults to following it. */
     --color-isstm-menu: var(--color-isstm-navy);

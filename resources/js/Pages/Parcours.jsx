@@ -16,6 +16,7 @@ import { useTranslations } from '../lib/useTranslations';
 import { useQuickEdit } from '../lib/useQuickEdit';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableOrgPersonDialog from '../Components/QuickEdit/EditableOrgPersonDialog';
+import BannerBackground from '../Components/QuickEdit/BannerBackground';
 
 const CURSUS_GRADIENTS = {
     bacc: 'from-[#6fa8dc] to-[#4a86c5]',
@@ -55,8 +56,9 @@ export default function Parcours({ orgPeople = {} }) {
             <Head title="Organigramme & Parcours" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-5xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="parcours_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-5xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="parcours_titre">
                             {content.parcours_titre}

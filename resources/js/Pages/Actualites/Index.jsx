@@ -11,6 +11,7 @@ import QuickAddNewsDialog from '../../Components/QuickEdit/QuickAddNewsDialog';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useTranslations } from '../../lib/useTranslations';
 import { categoryBadgeStyle } from '../../lib/categoryBadgeStyle';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 function formatDate(value) {
     if (!value) return null;
@@ -51,8 +52,9 @@ export default function Index({ articles }) {
             />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-6xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="actualites_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="actualites_titre">
                             {content.actualites_titre ?? 'Actualités'}

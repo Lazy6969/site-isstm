@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 const emptyForm = {
     name: '',
     category: 'permanent',
+    departement: '',
     specialty_fr: '',
     specialty_en: '',
     specialty_mg: '',
@@ -27,6 +28,7 @@ const emptyForm = {
 
 const categorieVariants = { permanent: 'success', vacataire: 'outline' };
 const categorieLabels = { permanent: 'Enseignant permanent', vacataire: 'Enseignant vacataire' };
+const departementOptions = ['STI', 'STGC', 'STNPA'];
 
 export default function Index({ teachers }) {
     const [open, setOpen] = useState(false);
@@ -47,6 +49,7 @@ export default function Index({ teachers }) {
         form.setData({
             name: teacher.name,
             category: teacher.category,
+            departement: teacher.departement ?? '',
             specialty_fr: teacher.specialty_fr ?? '',
             specialty_en: teacher.specialty_en ?? '',
             specialty_mg: teacher.specialty_mg ?? '',
@@ -100,6 +103,7 @@ export default function Index({ teachers }) {
                         <TableRow>
                             <TableHead>Nom</TableHead>
                             <TableHead>Catégorie</TableHead>
+                            <TableHead>Département</TableHead>
                             <TableHead>Spécialité</TableHead>
                             <TableHead>Email</TableHead>
                             <TableHead>Ordre</TableHead>
@@ -109,7 +113,7 @@ export default function Index({ teachers }) {
                     <TableBody>
                         {teachers.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
+                                <TableCell colSpan={7} className="py-8 text-center text-admin-muted">
                                     Aucun enseignant pour le moment.
                                 </TableCell>
                             </TableRow>
@@ -120,6 +124,7 @@ export default function Index({ teachers }) {
                                 <TableCell>
                                     <Badge variant={categorieVariants[teacher.category]}>{categorieLabels[teacher.category]}</Badge>
                                 </TableCell>
+                                <TableCell>{teacher.departement ?? '—'}</TableCell>
                                 <TableCell>{teacher.specialty_fr ?? '—'}</TableCell>
                                 <TableCell>{teacher.email ?? '—'}</TableCell>
                                 <TableCell>{teacher.display_order ?? '—'}</TableCell>
@@ -153,7 +158,7 @@ export default function Index({ teachers }) {
                         <DialogTitle>{editing ? "Modifier l'enseignant" : 'Nouvel enseignant'}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                             <div>
                                 <Label htmlFor="name">Nom</Label>
                                 <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} className="mt-1.5" />
@@ -171,6 +176,23 @@ export default function Index({ teachers }) {
                                     <option value="vacataire">Enseignant vacataire</option>
                                 </Select>
                                 {form.errors.category && <p className="mt-1 text-sm text-red-500">{form.errors.category}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="departement">Département</Label>
+                                <Select
+                                    id="departement"
+                                    value={form.data.departement}
+                                    onChange={(e) => form.setData('departement', e.target.value)}
+                                    className="mt-1.5"
+                                >
+                                    <option value="">— Aucun —</option>
+                                    {departementOptions.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option}
+                                        </option>
+                                    ))}
+                                </Select>
+                                {form.errors.departement && <p className="mt-1 text-sm text-red-500">{form.errors.departement}</p>}
                             </div>
                         </div>
 

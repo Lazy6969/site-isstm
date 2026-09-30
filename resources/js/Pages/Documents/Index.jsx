@@ -10,6 +10,7 @@ import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 export default function Index({ documents }) {
     const { auth, content } = usePage().props;
@@ -28,8 +29,9 @@ export default function Index({ documents }) {
             <Head title="Documents administratifs" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="documents_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="documents_titre">
                             {content.documents_titre ?? t('nav.documents', 'Documents administratifs')}

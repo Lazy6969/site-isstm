@@ -9,9 +9,11 @@ Route::middleware(['auth'])->prefix('console')->name('admin.')->group(function (
     Route::get('dashboard', [DashboardController::class, 'index'])->middleware('can:dashboard.view')->name('dashboard');
 
     Route::get('preinscriptions', [PreinscriptionController::class, 'index'])->middleware('can:preinscriptions.manage')->name('preinscriptions.index');
+    Route::get('preinscriptions/export', [PreinscriptionController::class, 'export'])->middleware('can:preinscriptions.manage')->name('preinscriptions.export');
     Route::get('preinscriptions/{preinscription}', [PreinscriptionController::class, 'show'])->middleware('can:preinscriptions.manage')->name('preinscriptions.show');
     Route::post('preinscriptions/{preinscription}/approve', [PreinscriptionController::class, 'approve'])->middleware('can:preinscriptions.manage')->name('preinscriptions.approve');
     Route::post('preinscriptions/{preinscription}/refuse', [PreinscriptionController::class, 'refuse'])->middleware('can:preinscriptions.manage')->name('preinscriptions.refuse');
+    Route::post('preinscriptions/{preinscription}/demander-correction', [PreinscriptionController::class, 'requestCorrection'])->middleware('can:preinscriptions.manage')->name('preinscriptions.request-correction');
 
     Route::middleware('can:dashboard.view')->prefix('corbeille')->name('trash.')->group(function () {
         Route::get('/', [TrashController::class, 'index'])->name('index');

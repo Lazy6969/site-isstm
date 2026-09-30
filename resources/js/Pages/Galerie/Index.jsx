@@ -11,6 +11,7 @@ import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 function formatDate(value) {
     if (!value) return null;
@@ -39,8 +40,9 @@ export default function Index({ albums }) {
             <Head title="Galerie" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-6xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="galerie_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="galerie_titre">
                             {content.galerie_titre ?? t('nav.galerie', 'Galerie')}

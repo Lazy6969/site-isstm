@@ -4,6 +4,7 @@ use App\Models\Teacher;
 use App\Models\User;
 use App\Role;
 use App\TeacherCategory;
+use App\TeacherDepartement;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,35 @@ it('lets an admin create a teacher with the category cast to the enum', function
     $teacher = Teacher::latest('id')->first();
     expect($teacher->name)->toBe('Jean Rakoto');
     expect($teacher->category)->toBe(TeacherCategory::Vacataire);
+});
+
+it('stores the department a teacher belongs to and rejects one outside the three', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/enseignants', [
+        'name' => 'Jean Rakoto',
+        'category' => 'permanent',
+        'departement' => 'STGC',
+    ])->assertRedirect();
+
+    expect(Teacher::latest('id')->first()->departement)->toBe(TeacherDepartement::Stgc);
+
+    $this->actingAs($admin)->post('/console/enseignants', [
+        'name' => 'Paul Rabe',
+        'category' => 'permanent',
+        'departement' => 'STXX',
+    ])->assertSessionHasErrors('departement');
+});
+
+it('leaves the department empty when none is given', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/enseignants', [
+        'name' => 'Jean Rakoto',
+        'category' => 'permanent',
+    ])->assertRedirect();
+
+    expect(Teacher::latest('id')->first()->departement)->toBeNull();
 });
 
 it('lets an admin update a teacher without touching its photo when none is uploaded', function () {

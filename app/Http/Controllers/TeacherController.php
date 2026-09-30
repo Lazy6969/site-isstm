@@ -12,7 +12,7 @@ class TeacherController extends Controller
     {
         return Inertia::render('Enseignants/Index', [
             'teachers' => Teacher::orderBy('display_order')->get([
-                'id', 'name', 'category', 'specialty_fr as specialty', 'photo_path', 'email',
+                'id', 'name', 'category', 'departement', 'specialty_fr as specialty', 'description_fr as description', 'photo_path', 'email',
             ]),
         ]);
     }

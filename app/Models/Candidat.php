@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use App\PreinscriptionStatus;
-use Database\Factories\PreinscriptionFactory;
+use Database\Factories\CandidatFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Preinscription extends Model
+class Candidat extends Model
 {
-    /** @use HasFactory<PreinscriptionFactory> */
+    /** @use HasFactory<CandidatFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -49,6 +49,9 @@ class Preinscription extends Model
         'status',
         'reviewed_at',
         'motif_refus',
+        'numero_dossier',
+        'commentaire_correction',
+        'submitted_at',
     ];
 
     protected function casts(): array
@@ -57,6 +60,7 @@ class Preinscription extends Model
             'date_naissance' => 'date',
             'status' => PreinscriptionStatus::class,
             'reviewed_at' => 'datetime',
+            'submitted_at' => 'datetime',
         ];
     }
 
@@ -73,5 +77,17 @@ class Preinscription extends Model
     public function etudiant(): HasOne
     {
         return $this->hasOne(Etudiant::class);
+    }
+
+    /**
+     * PI-{année}-{séquence sur 5 chiffres}, ex: PI-2026-00042. La séquence
+     * repart de 1 chaque année, sur le même principe que Etudiant::generateMatricule().
+     */
+    public static function generateNumeroDossier(): string
+    {
+        $year = now()->year;
+        $count = static::query()->where('numero_dossier', 'like', "PI-{$year}-%")->count() + 1;
+
+        return sprintf('PI-%d-%05d', $year, $count);
     }
 }

@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\Candidat;
 use App\Models\Etudiant;
 use App\Models\Evenement;
 use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
-use App\Models\Preinscription;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -35,7 +35,7 @@ class StatisticsController extends Controller
             'contentByStatus' => $this->contentByStatus(),
             'etudiantsByStatut' => $this->countBy(Etudiant::query(), 'statut', fn ($s) => $s->label()),
             'inscriptionsByStatut' => $this->countBy(Inscription::query(), 'statut', fn ($s) => $s->label()),
-            'preinscriptionsByStatut' => $this->countBy(Preinscription::query(), 'status', fn ($s) => $s->label()),
+            'preinscriptionsByStatut' => $this->countBy(Candidat::query(), 'status', fn ($s) => $s->label()),
             'activiteParJour' => $this->activiteParJour(),
         ]);
     }

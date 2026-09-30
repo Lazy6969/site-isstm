@@ -90,7 +90,11 @@ export default function Hero({ slides }) {
                     />
                 ),
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-isstm-navy-dark/55 via-isstm-navy-dark/35 to-isstm-navy-dark/70" />
+            {/* Neutral black, not the theme color (--color-isstm-navy-dark): the
+                site's primary-color picker tints UI chrome, never a photo —
+                this gradient's only job is keeping the text readable over
+                whatever slide is showing, unaffected by which color is active. */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
 
             <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
                 <h1 className="font-script text-5xl leading-tight text-balance text-isstm-gold drop-shadow-[2px_2px_5px_rgba(0,0,0,0.5)] sm:text-6xl">
@@ -116,8 +120,8 @@ export default function Hero({ slides }) {
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                     <EditableButton
                         contentKey="accueil_hero_bouton"
-                        href="/preinscription"
-                        defaultLabel={t('nav.inscrivez_vous', 'Inscrivez-vous')}
+                        href="/rejoindre"
+                        defaultLabel={t('nav.inscrivez_vous', "Rejoindre l'établissement")}
                         className="rounded-full bg-isstm-gold px-7 py-3 text-sm font-semibold text-isstm-navy-dark shadow-lg transition hover:brightness-110"
                     />
                 </div>

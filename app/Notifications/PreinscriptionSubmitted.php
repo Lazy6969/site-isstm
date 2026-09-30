@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\Preinscription;
+use App\Models\Candidat;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -15,7 +15,7 @@ class PreinscriptionSubmitted extends Notification
 {
     use Queueable;
 
-    public function __construct(public Preinscription $preinscription) {}
+    public function __construct(public Candidat $preinscription) {}
 
     /**
      * @return array<int, string>

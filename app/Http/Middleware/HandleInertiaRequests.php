@@ -3,8 +3,10 @@
 namespace App\Http\Middleware;
 
 use App\Http\Controllers\Admin\ContactFieldVisibilityController;
+use App\Models\Setting;
 use App\Models\SiteContent;
 use App\PreinscriptionStatus;
+use App\SitePrimaryColor;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -65,9 +67,17 @@ class HandleInertiaRequests extends Middleware
             // Drives the "Mon dossier" link in FloatingAccountButton — a candidate
             // account (role User) with a préinscription still awaiting a decision.
             'hasPendingPreinscription' => fn () => $request->user()
-                ?->preinscriptions()
+                ?->candidats()
                 ->where('status', PreinscriptionStatus::Soumis)
                 ->exists() ?? false,
+            // Feeds the quick site-color picker fixed on the public site (see
+            // SitePrimaryColorPicker.jsx) — shared globally rather than only on
+            // the admin settings page, since the picker itself is available
+            // everywhere quick edit is on.
+            'sitePrimaryColor' => fn () => [
+                'current' => Setting::get('appearance.site_primary', SitePrimaryColor::Navy->value),
+                'options' => SitePrimaryColor::options(),
+            ],
         ];
     }
 }

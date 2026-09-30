@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Candidat;
 use App\Models\Classe;
 use App\Models\Etudiant;
 use App\Models\Inscription;
-use App\Models\Preinscription;
 use App\PreinscriptionStatus;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -70,7 +70,7 @@ class DepartmentDashboardController extends Controller
             'etudiants' => Etudiant::count(),
             'inscriptions' => Inscription::count(),
             'classes' => Classe::count(),
-            'preinscriptions_en_attente' => Preinscription::where('status', PreinscriptionStatus::Soumis)->count(),
+            'preinscriptions_en_attente' => Candidat::where('status', PreinscriptionStatus::Soumis)->count(),
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\TeacherCategory;
+use App\TeacherDepartement;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -27,6 +28,7 @@ class StoreTeacherRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'category' => ['required', Rule::enum(TeacherCategory::class)],
+            'departement' => ['nullable', Rule::enum(TeacherDepartement::class)],
             'specialty_fr' => ['nullable', 'string', 'max:255'],
             'specialty_en' => ['nullable', 'string', 'max:255'],
             'specialty_mg' => ['nullable', 'string', 'max:255'],

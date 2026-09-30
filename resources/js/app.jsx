@@ -11,6 +11,8 @@ import FlashToastBridge from './Components/Layout/FlashToastBridge';
 import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
+import ScrollProgressRobot from './Components/Layout/ScrollProgressRobot';
+import SitePrimaryColorPicker from './Components/QuickEdit/SitePrimaryColorPicker';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
 import CommunitySkeleton from './Components/Loading/CommunitySkeleton';
 
@@ -32,10 +34,12 @@ const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/noti
 // FloatingAccountButton at the end of its nav — this global floating copy
 // would otherwise show up a second time on top of it.
 function FloatingAccountGroup() {
-    const { url } = usePage();
+    const { props, url } = usePage();
     const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
 
-    if (inCommunitySpace) {
+    // Both children render nothing for a signed-out visitor, which left this
+    // container as an empty pill pinned to the middle-left of every page.
+    if (inCommunitySpace || ! props.auth?.user) {
         return null;
     }
 
@@ -72,6 +76,8 @@ createInertiaApp({
                             account tab and (for admins) AdminHeader's inline pencil.
                         */}
                         <FloatingAccountGroup />
+                        <ScrollProgressRobot />
+                        <SitePrimaryColorPicker />
                         <FlashToastBridge />
                         <Toaster />
                         <LogoutConfirmDialog />
@@ -93,3 +99,11 @@ createInertiaApp({
         showSpinner: false,
     },
 });
+
+// Production only: in dev, Vite serves unhashed, constantly-changing files —
+// a service worker caching those would fight HMR instead of helping anyone.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+    });
+}

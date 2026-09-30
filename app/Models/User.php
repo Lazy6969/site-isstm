@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\FriendRequestStatus;
+use App\Notifications\QueuedResetPassword;
+use App\Notifications\QueuedVerifyEmail;
 use App\PreinscriptionStatus;
 use App\Role;
 use Database\Factories\UserFactory;
@@ -71,6 +73,25 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Queued instead of the framework default — real SMTP delivery is slow
+     * enough that sending it inline blocked the request that triggers it
+     * (account creation, password-reset requests). See QueuedResetPassword.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new QueuedResetPassword($token));
+    }
+
+    /**
+     * Queued instead of the framework default — same reasoning as
+     * sendPasswordResetNotification(). See QueuedVerifyEmail.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new QueuedVerifyEmail);
+    }
+
+    /**
      * Checks the legacy `role` enum column. Named distinctly from Spatie's
      * HasRoles::hasRole() (string/BackedEnum role names) — Spatie's own internals
      * call $user->hasRole() with incompatible arguments, so the two can't share a name.
@@ -86,9 +107,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Etudiant::class);
     }
 
-    public function preinscriptions(): HasMany
+    public function candidats(): HasMany
     {
-        return $this->hasMany(Preinscription::class);
+        return $this->hasMany(Candidat::class);
     }
 
     public function sentFriendRequests(): HasMany
@@ -158,9 +179,9 @@ class User extends Authenticatable implements MustVerifyEmail
      * The user's filière, resolved through their latest approved préinscription (there is no
      * direct filière column on users — see amis_get_filiere() in the legacy reference).
      */
-    public function approvedPreinscription(): ?Preinscription
+    public function approvedCandidat(): ?Candidat
     {
-        return Preinscription::query()
+        return Candidat::query()
             ->where('user_id', $this->id)
             ->where('status', PreinscriptionStatus::Accepte)
             ->latest('created_at')

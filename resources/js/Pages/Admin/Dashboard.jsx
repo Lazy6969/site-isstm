@@ -52,6 +52,7 @@ export default function Dashboard({
     etudiantsParNiveau,
     etudiantsParFiliere,
     activiteRecente,
+    dossiersParType,
 }) {
     const [periode, setPeriode] = useState(6);
 
@@ -143,6 +144,22 @@ export default function Dashboard({
                                 fill="url(#preinscriptionsFill)"
                             />
                         </AreaChart>
+                    </ResponsiveContainer>
+                </ChartCard>
+            </div>
+
+            <div className="mt-5">
+                <ChartCard title="Dossiers par type" description="Préinscriptions, réinscriptions et redoublants — état actuel">
+                    <ResponsiveContainer width="100%" height={240}>
+                        <BarChart data={dossiersParType} margin={{ left: -20, right: 10, top: 10 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-admin-border)" vertical={false} />
+                            <XAxis dataKey="type" tick={axisTick} axisLine={{ stroke: 'var(--color-admin-border)' }} tickLine={false} />
+                            <YAxis allowDecimals={false} tick={axisTick} axisLine={false} tickLine={false} width={30} />
+                            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-admin-hover)' }} />
+                            <Bar dataKey="en_cours" name="En cours" stackId="dossiers" fill="var(--color-admin-chart-2)" radius={[0, 0, 0, 0]} />
+                            <Bar dataKey="valide" name="Validé" stackId="dossiers" fill="var(--color-admin-chart-3)" radius={[0, 0, 0, 0]} />
+                            <Bar dataKey="refuse" name="Refusé" stackId="dossiers" fill="var(--color-admin-chart-5)" radius={[4, 4, 0, 0]} />
+                        </BarChart>
                     </ResponsiveContainer>
                 </ChartCard>
             </div>

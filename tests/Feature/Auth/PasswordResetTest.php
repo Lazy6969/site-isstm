@@ -2,7 +2,7 @@
 
 use App\Models\SecurityLog;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\QueuedResetPassword;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 
@@ -12,7 +12,7 @@ it('sends a reset link for a known email and logs the event', function () {
 
     $response = $this->post('/mot-de-passe-oublie', ['email' => $user->email]);
 
-    Notification::assertSentTo($user, ResetPassword::class);
+    Notification::assertSentTo($user, QueuedResetPassword::class);
     $response->assertSessionHas('status');
     expect(SecurityLog::where('event_type', 'reset_link_sent')->where('identifier', $user->email)->exists())->toBeTrue();
 });

@@ -34,7 +34,7 @@ class EtudiantController extends Controller
 
     public function show(Etudiant $etudiant): Response
     {
-        $etudiant->load(['user', 'classe.filiere', 'preinscription', 'inscriptions.classe']);
+        $etudiant->load(['user', 'classe.filiere', 'candidat', 'inscriptions.classe']);
 
         return Inertia::render('Admin/Scolarite/Etudiants/Show', [
             'etudiant' => $etudiant,
@@ -54,6 +54,8 @@ class EtudiantController extends Controller
             'classe_id' => ['nullable', 'exists:classes,id'],
             'matricule' => ['required', 'string', 'max:50', Rule::unique('etudiants', 'matricule')->ignore($etudiant->id)],
             'statut' => ['required', Rule::enum(StatutEtudiant::class)],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'adresse' => ['nullable', 'string', 'max:255'],
         ]);
 
         $etudiant->update($validated);
