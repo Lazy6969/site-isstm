@@ -12,7 +12,7 @@ import Contact from '../Components/Home/Contact';
 import Footer from '../Components/Home/Footer';
 import SectionVisibility from '../Components/QuickEdit/SectionVisibility';
 
-export default function Home({ content, heroSlides, testimonials, filieres, partenaires, actualites, hiddenSections = [] }) {
+export default function Home({ content, heroSlides, heroSparkleColor, testimonials, filieres, partenaires, actualites, hiddenSections = [] }) {
     return (
         <>
             <SeoHead
@@ -22,7 +22,7 @@ export default function Home({ content, heroSlides, testimonials, filieres, part
             />
 
             <Header />
-            <Hero slides={heroSlides} />
+            <Hero slides={heroSlides} sparkleColor={heroSparkleColor} />
             <SectionVisibility section="stats" label="Statistiques" hidden={hiddenSections.includes('stats')}>
                 <Stats content={content} />
             </SectionVisibility>

@@ -76,6 +76,11 @@ class HandleInertiaRequests extends Middleware
             // everywhere quick edit is on.
             'sitePrimaryColor' => fn () => [
                 'current' => Setting::get('appearance.site_primary', SitePrimaryColor::Navy->value),
+                // The actual "#rrggbb" this resolves to, whether `current` is a
+                // preset key or already a custom hex — lets any quick-edit color
+                // picker (e.g. HeroSparkleColorPicker) default to the real color
+                // currently in effect, even when it's a named preset.
+                'resolvedHex' => SitePrimaryColor::resolve(Setting::get('appearance.site_primary'))[0],
                 'options' => SitePrimaryColor::options(),
             ],
         ];

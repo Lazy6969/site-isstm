@@ -5,9 +5,25 @@
  */
 export const FONT_OPTIONS = [
     { value: 'sans', label: 'Standard', css: 'var(--font-sans)' },
-    { value: 'script', label: 'Manuscrite', css: 'var(--font-script)' },
+    { value: 'script', label: 'Manuscrite (Dancing Script)', css: 'var(--font-script)' },
     { value: 'lora', label: 'Serif (Lora)', css: 'var(--font-lora)' },
+    { value: 'playfair', label: 'Élégante (Playfair Display)', css: 'var(--font-playfair)' },
+    { value: 'montserrat', label: 'Moderne (Montserrat)', css: 'var(--font-montserrat)' },
+    { value: 'poppins', label: 'Arrondie (Poppins)', css: 'var(--font-poppins)' },
+    { value: 'oswald', label: 'Condensée (Oswald)', css: 'var(--font-oswald)' },
+    { value: 'caveat', label: 'Manuscrite décontractée (Caveat)', css: 'var(--font-caveat)' },
+    { value: 'bebas', label: 'Affiche (Bebas Neue)', css: 'var(--font-bebas)' },
+    { value: 'roboto-mono', label: 'Monospace (Roboto Mono)', css: 'var(--font-roboto-mono)' },
+    { value: 'raleway', label: 'Fine (Raleway)', css: 'var(--font-raleway)' },
     { value: 'admin-accent', label: 'Accent du site', css: 'var(--font-admin-sans)' },
+];
+
+export const UNDERLINE_STYLE_OPTIONS = [
+    { value: 'solid', label: 'Trait plein' },
+    { value: 'double', label: 'Double trait' },
+    { value: 'dotted', label: 'Pointillés' },
+    { value: 'dashed', label: 'Tirets' },
+    { value: 'wavy', label: 'Vague' },
 ];
 
 export const TEXT_TRANSFORM_OPTIONS = [
@@ -36,6 +52,7 @@ export function textStyleToCss(style) {
         fontWeight: style.bold ? 700 : undefined,
         fontStyle: style.italic ? 'italic' : undefined,
         textDecorationLine: decorations.length > 0 ? decorations.join(' ') : undefined,
+        textDecorationStyle: style.underline ? style.underline_style || 'solid' : undefined,
         textAlign: style.align || undefined,
         fontSize: style.font_size ? `${style.font_size}px` : undefined,
         color: style.color || undefined,

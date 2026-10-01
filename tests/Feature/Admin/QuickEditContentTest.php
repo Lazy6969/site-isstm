@@ -170,6 +170,38 @@ it('saves a whitelisted formatting style alongside the text value', function () 
     ]);
 });
 
+it('saves an underline shape and one of the newer font choices', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['underline' => true, 'underline_style' => 'wavy', 'font' => 'playfair'],
+        ])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBe([
+        'underline' => true,
+        'underline_style' => 'wavy',
+        'font' => 'playfair',
+    ]);
+});
+
+it('rejects an unknown underline shape or font', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['underline_style' => 'squiggly', 'font' => 'comic-sans'],
+        ])
+        ->assertSessionHasErrors(['style.underline_style', 'style.font']);
+});
+
 it('rejects a style with a value outside the whitelisted options', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     SiteContent::factory()->create(['content_key' => 'mission_contenu']);

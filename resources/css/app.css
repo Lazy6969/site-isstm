@@ -32,6 +32,16 @@
     --color-community-accent: var(--color-isstm-gold);
     --font-script: 'Dancing Script', cursive;
     --font-lora: 'Lora', serif;
+    /* Additional quick-edit text fonts (see lib/textStyle.js) — all loaded
+       unconditionally via the Google Fonts <link> in app.blade.php. */
+    --font-playfair: 'Playfair Display', Georgia, serif;
+    --font-montserrat: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-poppins: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    --font-oswald: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+    --font-caveat: 'Caveat', cursive;
+    --font-bebas: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+    --font-roboto-mono: 'Roboto Mono', ui-monospace, 'SFMono-Regular', monospace;
+    --font-raleway: 'Raleway', ui-sans-serif, system-ui, sans-serif;
 
     --color-background: #ffffff;
     --color-foreground: #0f172a;
@@ -207,5 +217,28 @@ html[data-community-accent='amber'] { --color-community-accent: #d97706; }
 @media (prefers-reduced-motion: reduce) {
     .partenaires-track {
         animation: none;
+    }
+}
+
+/* Twinkling sparkles behind the hero title/subtitle (see Hero.jsx). */
+.hero-sparkle {
+    animation: hero-sparkle-twinkle 2.6s ease-in-out infinite;
+}
+
+@keyframes hero-sparkle-twinkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.4) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(20deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-sparkle {
+        animation: none;
+        opacity: 0.6;
     }
 }

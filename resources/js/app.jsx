@@ -1,6 +1,8 @@
 import '../css/app.css';
+import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp, usePage } from '@inertiajs/react';
+import { Settings } from 'lucide-react';
 import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
 import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
@@ -33,20 +35,61 @@ const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/noti
 // CommunityHeader (the espace étudiant's own header) renders its own inline
 // FloatingAccountButton at the end of its nav — this global floating copy
 // would otherwise show up a second time on top of it.
+//
+// Collapsed into a single logo button, bottom-left, matching
+// ScrollProgressRobot's size/corner on the opposite side — clicking it
+// reveals the quick-edit pencil and account avatar instead of showing both
+// permanently. Shown on mobile too (bottom-20 clears MobileTabBar/
+// CommunityMobileTabBar's fixed bottom nav, same offset ScrollProgressRobot
+// already uses on the opposite corner) — mobile's own tab bar has an account
+// tab, but no equivalent for the quick-edit pencil.
 function FloatingAccountGroup() {
     const { props, url } = usePage();
     const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
+    const [open, setOpen] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (!open) {
+            return;
+        }
+
+        function onClickOutside(e) {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        }
+
+        document.addEventListener('mousedown', onClickOutside);
+        return () => document.removeEventListener('mousedown', onClickOutside);
+    }, [open]);
 
     // Both children render nothing for a signed-out visitor, which left this
-    // container as an empty pill pinned to the middle-left of every page.
+    // container as an empty pill pinned to the corner of every page.
     if (inCommunitySpace || ! props.auth?.user) {
         return null;
     }
 
     return (
-        <div className="fixed top-1/2 left-5 z-[60] hidden -translate-y-1/2 flex-col items-center gap-3 rounded-full bg-white/40 p-2 shadow-lg ring-1 ring-white/60 backdrop-blur-md md:flex dark:bg-slate-900/40 dark:ring-white/10">
-            <QuickEditToggle />
-            <FloatingAccountButton />
+        <div ref={containerRef} className="fixed bottom-20 left-5 z-[60] flex flex-col items-center gap-3 md:bottom-5">
+            <div
+                className={`flex flex-col items-center gap-3 rounded-full bg-white/40 p-2 shadow-lg ring-1 ring-white/60 backdrop-blur-md transition-all duration-200 dark:bg-slate-900/40 dark:ring-white/10 ${
+                    open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'
+                }`}
+            >
+                <QuickEditToggle />
+                <FloatingAccountButton />
+            </div>
+            <button
+                type="button"
+                onClick={() => setOpen((current) => !current)}
+                aria-expanded={open}
+                aria-label={open ? 'Fermer le menu rapide' : 'Ouvrir le menu rapide'}
+                title={open ? 'Fermer le menu rapide' : 'Ouvrir le menu rapide'}
+                className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-isstm-navy shadow-lg ring-1 ring-black/5 backdrop-blur-md transition hover:scale-105 dark:bg-slate-900/90 dark:text-white dark:ring-white/10"
+            >
+                <Settings className="h-6 w-6" aria-hidden="true" />
+            </button>
         </div>
     );
 }
@@ -66,14 +109,10 @@ createInertiaApp({
                 <QuickEditProvider>
                     <LogoutConfirmProvider>
                         {/*
-                            Mobile-hidden: at md-/narrow widths the page content spans
-                            almost the full viewport width (only px-6 side padding), so
-                            this fixed-left-5 group would sit directly on top of section
-                            text (e.g. Mission/Vision's paragraph) instead of in a free
-                            margin. md+ layouts keep a wide unused gutter outside the
-                            centered max-w-* containers, where it never overlaps content.
-                            Mobile already has equivalent access via MobileTabBar's
-                            account tab and (for admins) AdminHeader's inline pencil.
+                            Shown at every width (see FloatingAccountGroup) — now that it's
+                            a single collapsed corner button instead of an always-open pill,
+                            it no longer sits on top of page content at narrow widths the way
+                            an expanded group would.
                         */}
                         <FloatingAccountGroup />
                         <ScrollProgressRobot />

@@ -19,11 +19,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
  */
 export default function SitePrimaryColorPicker() {
     const { canEdit, active } = useQuickEdit();
-    const { sitePrimaryColor } = usePage().props;
+    const { props: pageProps, url } = usePage();
+    const { sitePrimaryColor } = pageProps;
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [customColor, setCustomColor] = useState(sitePrimaryColor?.resolvedHex ?? '#003366');
 
-    if (!canEdit || !active || !sitePrimaryColor) {
+    // Quick edit mode can stay "on" (it's a persisted toggle) while an admin
+    // navigates into /console — the console already has its own full Apparence
+    // settings page, so this floating shortcut has no business showing up there.
+    if (!canEdit || !active || !sitePrimaryColor || url.startsWith('/console')) {
         return null;
     }
 
@@ -53,7 +58,9 @@ export default function SitePrimaryColorPicker() {
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="fixed bottom-20 left-5 z-40 hidden items-center gap-2 rounded-full bg-amber-400 px-4 py-2.5 text-xs font-semibold text-amber-950 shadow-lg ring-2 ring-white transition hover:scale-105 md:flex"
+                // bottom-40: stacked above SeoHead's SEO button, which is itself
+                // stacked above the Paramètre FAB (see app.jsx's FloatingAccountGroup).
+                className="fixed bottom-40 left-5 z-40 hidden items-center gap-2 rounded-full bg-amber-400 px-4 py-2.5 text-xs font-semibold text-amber-950 shadow-lg ring-2 ring-white transition hover:scale-105 md:flex"
                 aria-label="Changer la couleur principale du site"
                 title="Changer la couleur principale du site"
             >
@@ -98,6 +105,26 @@ export default function SitePrimaryColorPicker() {
                                 </button>
                             );
                         })}
+                    </div>
+
+                    <div className="mt-3 flex items-center gap-2.5 rounded-lg border border-dashed border-slate-300 p-3 dark:border-slate-600">
+                        <input
+                            type="color"
+                            value={customColor}
+                            onChange={(e) => setCustomColor(e.target.value)}
+                            disabled={saving}
+                            className="h-9 w-12 cursor-pointer rounded border border-black/10 bg-transparent p-0 disabled:cursor-not-allowed disabled:opacity-50"
+                            aria-label="Choisir une couleur personnalisée"
+                        />
+                        <span className="flex-1 text-sm text-slate-700 dark:text-slate-200">Couleur personnalisée</span>
+                        <button
+                            type="button"
+                            disabled={saving}
+                            onClick={() => pick(customColor)}
+                            className="rounded-md bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            Appliquer
+                        </button>
                     </div>
                 </DialogContent>
             </Dialog>

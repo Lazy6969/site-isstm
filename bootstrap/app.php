@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureAccessKeyActive;
 use App\Http\Middleware\EnsureIsMessagerieUser;
 use App\Http\Middleware\EnsureUserHasRole;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            CheckMaintenanceMode::class,
             SetLocale::class,
             HandleInertiaRequests::class,
         ]);

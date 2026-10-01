@@ -3,13 +3,12 @@
     $appearanceChrome = \App\AppearanceChromeColor::tryFrom(\App\Models\Setting::get('appearance.chrome', 'default')) ?? \App\AppearanceChromeColor::Default;
     $appearanceFont = \App\AppearanceFont::tryFrom(\App\Models\Setting::get('appearance.font', 'instrument-sans')) ?? \App\AppearanceFont::InstrumentSans;
     $appearanceDensity = \App\Models\Setting::get('appearance.density', 'normal');
-    $sitePrimary = \App\SitePrimaryColor::tryFrom(\App\Models\Setting::get('appearance.site_primary', 'navy')) ?? \App\SitePrimaryColor::Navy;
     $siteAccent = \App\SiteAccentColor::tryFrom(\App\Models\Setting::get('appearance.site_accent', 'gold')) ?? \App\SiteAccentColor::Gold;
     $siteMenu = \App\SiteMenuColor::tryFrom(\App\Models\Setting::get('appearance.site_menu', 'default')) ?? \App\SiteMenuColor::Default;
     $siteFooter = \App\SiteFooterColor::tryFrom(\App\Models\Setting::get('appearance.site_footer', 'default')) ?? \App\SiteFooterColor::Default;
     [$accentLight, $accentForegroundLight, $accentDark, $accentForegroundDark] = $appearancePalette->colors();
     [$chromeLight, $chromeDark] = $appearanceChrome->colors();
-    [$sitePrimaryColor, $sitePrimaryDark] = $sitePrimary->colors();
+    [$sitePrimaryColor, $sitePrimaryDark] = \App\SitePrimaryColor::resolve(\App\Models\Setting::get('appearance.site_primary', 'navy'));
     [$siteMenuColor, $siteMenuText] = $siteMenu->colors();
     [$siteFooterColor, $siteFooterText] = $siteFooter->colors();
     $googleFontsFamily = $appearanceFont->googleFontsFamily();
@@ -25,7 +24,10 @@
     <meta name="theme-color" content="{{ $sitePrimaryColor }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+    {{-- Quick-edit text styling's font choices (see lib/textStyle.js) — every
+         one of them loads unconditionally on every page, by design: a saved
+         choice must always render, so nothing here is loaded on demand. --}}
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Lora:ital,wght@0,500;1,500&family=Playfair+Display:wght@600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600&family=Oswald:wght@400;600&family=Caveat:wght@600;700&family=Bebas+Neue&family=Roboto+Mono:wght@400;600&family=Raleway:wght@400;600&display=swap" rel="stylesheet">
     @if ($googleFontsFamily)
         <link href="https://fonts.googleapis.com/css2?family={{ $googleFontsFamily }}&display=swap" rel="stylesheet">
     @endif

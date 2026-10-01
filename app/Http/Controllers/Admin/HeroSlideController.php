@@ -40,7 +40,7 @@ class HeroSlideController extends Controller
     {
         $validated = $request->validate([
             'display_order' => ['nullable', 'integer'],
-            'media' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp,gif,mp4,mov,webm', 'max:20480'],
+            'media' => ['nullable', 'file', 'mimes:jpeg,jpg,png,webp,gif,mp4,mov,webm', 'max:102400'],
         ]);
 
         if ($request->hasFile('media')) {

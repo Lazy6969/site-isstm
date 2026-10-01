@@ -57,10 +57,19 @@ class AppearanceSettingsController extends Controller
             'chrome' => ['sometimes', Rule::enum(AppearanceChromeColor::class)],
             'font' => ['sometimes', Rule::enum(AppearanceFont::class)],
             'density' => ['sometimes', Rule::in(['compact', 'normal', 'comfortable'])],
-            'sitePrimary' => ['sometimes', Rule::enum(SitePrimaryColor::class)],
+            // A preset key (Rule::enum) OR a custom "#rrggbb" picked via the
+            // native color-wheel input (see SitePrimaryColor::resolve()).
+            'sitePrimary' => ['sometimes', function ($attribute, $value, $fail) {
+                if (SitePrimaryColor::tryFrom($value) === null && preg_match('/^#[0-9a-f]{6}$/i', $value) !== 1) {
+                    $fail('La couleur principale est invalide.');
+                }
+            }],
             'siteAccent' => ['sometimes', Rule::enum(SiteAccentColor::class)],
             'siteMenu' => ['sometimes', Rule::enum(SiteMenuColor::class)],
             'siteFooter' => ['sometimes', Rule::enum(SiteFooterColor::class)],
+            // Overrides the homepage hero's sparkle color (see Hero.jsx); null
+            // resets it to automatically follow sitePrimary.
+            'heroSparkleColor' => ['sometimes', 'nullable', 'regex:/^#[0-9a-f]{6}$/i'],
         ]);
 
         $map = [
@@ -72,11 +81,12 @@ class AppearanceSettingsController extends Controller
             'siteAccent' => 'appearance.site_accent',
             'siteMenu' => 'appearance.site_menu',
             'siteFooter' => 'appearance.site_footer',
+            'heroSparkleColor' => 'appearance.hero_sparkle_color',
         ];
 
         foreach ($map as $field => $settingKey) {
             if (array_key_exists($field, $validated)) {
-                Setting::set($settingKey, $validated[$field]);
+                Setting::set($settingKey, $validated[$field] ?? '');
             }
         }
 

@@ -23,7 +23,9 @@ class StoreHeroSlideRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'media' => ['required', 'file', 'mimes:jpeg,jpg,png,webp,gif,mp4,mov,webm', 'max:20480'],
+            // 100MB (102400 KB): matches public/.user.ini's upload_max_filesize —
+            // a ~60s smartphone video easily runs 40-90MB, well past the old 20MB cap.
+            'media' => ['required', 'file', 'mimes:jpeg,jpg,png,webp,gif,mp4,mov,webm', 'max:102400'],
             'display_order' => ['nullable', 'integer'],
         ];
     }

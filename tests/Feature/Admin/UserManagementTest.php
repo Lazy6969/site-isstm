@@ -2,6 +2,8 @@
 
 use App\Models\User;
 use App\Role;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 it('forbids a non-privileged user from listing users', function () {
     $etudiant = User::factory()->role(Role::Etudiant)->create();
@@ -50,4 +52,55 @@ it('forbids a user from deactivating their own account', function () {
     $admin = User::factory()->role(Role::Admin)->create();
 
     $this->actingAs($admin)->post("/console/users/{$admin->id}/toggle-active")->assertForbidden();
+});
+
+it('lets the super admin edit another user\'s name, email, phone and photo', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+    $target = User::factory()->create(['name' => 'Ancien Nom', 'email' => 'ancien@example.com']);
+
+    $this->actingAs($admin)->post("/console/users/{$target->id}/profile", [
+        'name' => 'Nouveau Nom',
+        'email' => 'nouveau@example.com',
+        'phone' => '0340000000',
+        'avatar' => UploadedFile::fake()->image('photo.jpg'),
+    ])->assertRedirect();
+
+    $target->refresh();
+    expect($target->name)->toBe('Nouveau Nom');
+    expect($target->email)->toBe('nouveau@example.com');
+    expect($target->phone)->toBe('0340000000');
+    Storage::disk('public')->assertExists($target->avatar_path);
+});
+
+it('rejects an email already used by another account', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    User::factory()->create(['email' => 'taken@example.com']);
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)->post("/console/users/{$target->id}/profile", [
+        'name' => $target->name,
+        'email' => 'taken@example.com',
+    ])->assertSessionHasErrors('email');
+});
+
+it('rejects a non-image file as an avatar', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)->post("/console/users/{$target->id}/profile", [
+        'name' => $target->name,
+        'email' => $target->email,
+        'avatar' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
+    ])->assertSessionHasErrors('avatar');
+});
+
+it('forbids a non-privileged user from editing another user\'s profile', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($etudiant)->post("/console/users/{$target->id}/profile", [
+        'name' => 'Hacked Name',
+        'email' => $target->email,
+    ])->assertForbidden();
 });

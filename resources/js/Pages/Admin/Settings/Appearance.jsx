@@ -56,7 +56,7 @@ function QuickNav({ activeId }) {
  * by the *_default entries of SiteMenuColor/SiteFooterColor, which don't have
  * a fixed color (they inherit the primary color instead).
  */
-function ColorSwatchGrid({ options, value, onChange, checkColorClass = 'text-white' }) {
+function ColorSwatchGrid({ options, value, onChange, checkColorClass = 'text-white', trailing }) {
     return (
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {options.map((color) => {
@@ -84,7 +84,35 @@ function ColorSwatchGrid({ options, value, onChange, checkColorClass = 'text-whi
                     </button>
                 );
             })}
+            {trailing}
         </div>
+    );
+}
+
+/** Native color-wheel/RGB picker tile — lets the admin pick any hex instead of a fixed preset. */
+function CustomColorSwatch({ value, onChange }) {
+    const isCustom = typeof value === 'string' && value.startsWith('#');
+
+    return (
+        <label
+            className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
+                isCustom ? 'border-admin-accent bg-admin-hover' : 'border-admin-border hover:bg-admin-hover'
+            }`}
+        >
+            <span
+                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
+                style={{ background: isCustom ? value : 'conic-gradient(red, yellow, lime, cyan, blue, magenta, red)' }}
+            >
+                {isCustom && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
+            </span>
+            <span className="text-admin-text">Personnalisée{isCustom ? ` (${value})` : ''}</span>
+            <input
+                type="color"
+                value={isCustom ? value : '#000000'}
+                onChange={(e) => onChange(e.target.value)}
+                className="sr-only"
+            />
+        </label>
     );
 }
 
@@ -147,6 +175,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                                 options={sitePrimaries}
                                 value={form.data.sitePrimary}
                                 onChange={(value) => form.setData('sitePrimary', value)}
+                                trailing={<CustomColorSwatch value={form.data.sitePrimary} onChange={(value) => form.setData('sitePrimary', value)} />}
                             />
                         </div>
                         <div>

@@ -24,6 +24,7 @@ import {
     GalleryHorizontal,
     KeyRound,
     Trash2,
+    TriangleAlert,
 } from 'lucide-react';
 
 const navGroups = [
@@ -75,7 +76,10 @@ const navGroups = [
     },
     {
         label: 'Configuration',
-        items: [{ href: '/console/settings/appearance', label: 'Apparence', icon: Palette, permission: 'settings.manage' }],
+        items: [
+            { href: '/console/settings/appearance', label: 'Apparence', icon: Palette, permission: 'settings.manage' },
+            { href: '/console/settings/maintenance', label: 'Maintenance', icon: TriangleAlert, permission: 'settings.manage' },
+        ],
     },
 ];
 
