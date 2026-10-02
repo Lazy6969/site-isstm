@@ -311,16 +311,22 @@ export default function Create({ filieres, draft, initialStep }) {
         if (blocked.fields.length > 0) {
             showError(blockedMessage(blocked));
             focusField(blocked.fields[0]);
-
             return;
         }
 
+        // Advancing only happens in onSuccess, never right after firing the
+        // request: post()/patch() are async, so calling goTo() unconditionally
+        // right here would move the candidate to the next step before the
+        // account/draft actually exists server-side — a fast click could then
+        // skip saving that step's data entirely (draftId still null at that
+        // point). The `draft` effect above still covers the one case this
+        // can't: a full browser reload (new asset version) wiping local state
+        // mid-request.
         if (step === 'identite' && !draftId) {
-            // Advancing is handled by the `draft` effect above, so it happens
-            // on a full reload too — not just when this callback runs.
             post('/preinscription/compte', {
                 preserveState: true,
                 preserveScroll: true,
+                onSuccess: () => goTo(STEPS[currentIndex + 1].key),
                 onError: (serverErrors) => {
                     if (serverErrors.email) {
                         showError(
@@ -331,7 +337,7 @@ export default function Create({ filieres, draft, initialStep }) {
                         return;
                     }
 
-                    showError('Impossible de créer votre compte. Vérifiez les champs indiqués.');
+                    reportServerErrors(serverErrors);
                 },
             });
             return;
@@ -341,11 +347,34 @@ export default function Create({ filieres, draft, initialStep }) {
             router.patch(`/preinscription/${draftId}/brouillon`, draftPayload(), {
                 preserveScroll: true,
                 preserveState: true,
-                onError: () => showError("Votre progression n'a pas pu être enregistrée. Vérifiez votre connexion et réessayez."),
+                onSuccess: () => goTo(STEPS[currentIndex + 1].key),
+                onError: (serverErrors) => {
+                    if (Object.keys(serverErrors).length > 0) {
+                        reportServerErrors(serverErrors);
+                        return;
+                    }
+
+                    showError("Votre progression n'a pas pu être enregistrée. Vérifiez votre connexion et réessayez.");
+                },
             });
         }
+    }
 
-        goTo(STEPS[currentIndex + 1].key);
+    /**
+     * Surfaces the server's own validation messages instead of a generic
+     * "something's wrong" — without this, a field the client-side check lets
+     * through (e.g. a future-dated date_naissance, only caught server-side by
+     * `before:today`) blocked the wizard with no visible explanation.
+     */
+    function reportServerErrors(serverErrors) {
+        const fields = Object.keys(serverErrors);
+        if (fields.length === 0) {
+            showError('Impossible de créer votre compte. Vérifiez les champs indiqués.');
+            return;
+        }
+
+        showError(fields.map((field) => `${labelOf(field)} : ${serverErrors[field]}`).join('\n'));
+        focusField(fields[0]);
     }
 
     function saveAndLeave() {
@@ -807,7 +836,7 @@ export default function Create({ filieres, draft, initialStep }) {
                         <h2 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
                             {dialog.title ?? (dialog.type === 'success' ? 'Succès' : 'Une erreur est survenue')}
                         </h2>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{dialog.message}</p>
+                        <p className="mt-2 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{dialog.message}</p>
                         <button
                             type="button"
                             onClick={closeDialog}
