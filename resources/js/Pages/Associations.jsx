@@ -139,7 +139,7 @@ export default function Associations() {
 
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="associations_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <Link

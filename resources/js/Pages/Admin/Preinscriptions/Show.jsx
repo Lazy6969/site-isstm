@@ -119,21 +119,44 @@ export default function Show({ preinscription }) {
 
                 <div className="rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-4 text-sm font-semibold text-admin-text">{t('preinscriptions_admin.pieces', 'Pièces jointes')}</h2>
-                    <div className="space-y-2">
-                        {DOCUMENTS.map(([key, label]) =>
-                            preinscription[key] ? (
-                                <a
-                                    key={key}
-                                    href={`/storage/${preinscription[key]}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="flex items-center gap-2 rounded-lg border border-admin-border px-3 py-2 text-sm text-admin-text transition hover:bg-admin-hover"
-                                >
-                                    <FileText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                                    {label}
-                                </a>
-                            ) : null,
-                        )}
+                    <div className="grid grid-cols-2 gap-3">
+                        {DOCUMENTS.map(([key, label]) => {
+                            const path = preinscription[key];
+                            if (!path) {
+                                return (
+                                    <div key={key} className="flex flex-col items-center gap-1.5">
+                                        <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-admin-border text-xs text-admin-muted">
+                                            {t('preinscriptions_admin.non_fourni', 'Non fourni')}
+                                        </div>
+                                        <p className="text-center text-xs text-admin-muted">{label}</p>
+                                    </div>
+                                );
+                            }
+
+                            const url = `/storage/${path}`;
+                            const isPdf = /\.pdf$/i.test(path);
+
+                            return (
+                                <div key={key} className="flex flex-col items-center gap-1.5">
+                                    {isPdf ? (
+                                        <a
+                                            href={url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-lg border border-admin-border bg-admin-hover text-admin-text transition hover:brightness-95"
+                                        >
+                                            <FileText className="h-6 w-6" aria-hidden="true" />
+                                            <span className="text-xs font-medium">{t('preinscriptions_admin.voir_pdf', 'Voir le PDF')}</span>
+                                        </a>
+                                    ) : (
+                                        <a href={url} target="_blank" rel="noreferrer" className="block h-24 w-full overflow-hidden rounded-lg border border-admin-border">
+                                            <img src={url} alt={label} className="h-full w-full object-cover" />
+                                        </a>
+                                    )}
+                                    <p className="text-center text-xs text-admin-muted">{label}</p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

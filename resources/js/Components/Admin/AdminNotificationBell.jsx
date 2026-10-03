@@ -21,6 +21,8 @@ function notificationText(notification) {
     switch (notification.type) {
         case 'nouvelle_preinscription':
             return `Nouvelle préinscription de ${notification.candidate_name ?? 'un candidat'}`;
+        case 'nouvelle_reactivation':
+            return `Demande de réactivation de ${notification.candidate_name ?? 'un ancien étudiant'}`;
         default:
             return notification.actor?.name ? `${notification.actor.name} a une activité à signaler` : 'Nouvelle notification';
     }

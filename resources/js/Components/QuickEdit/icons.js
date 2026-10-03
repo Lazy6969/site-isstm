@@ -27,6 +27,10 @@ import {
     Server,
     Sparkles,
     Wrench,
+    IdCard,
+    Repeat,
+    RotateCcw,
+    UserCheck,
 } from 'lucide-react';
 
 /**
@@ -63,6 +67,10 @@ export const ICONS = {
     Server,
     Sparkles,
     Wrench,
+    IdCard,
+    Repeat,
+    RotateCcw,
+    UserCheck,
 };
 
 export function getIcon(name) {

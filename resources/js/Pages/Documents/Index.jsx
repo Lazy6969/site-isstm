@@ -29,7 +29,7 @@ export default function Index({ documents }) {
             <Head title="Documents administratifs" />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="documents_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">

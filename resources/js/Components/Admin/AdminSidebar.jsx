@@ -25,6 +25,7 @@ import {
     KeyRound,
     Trash2,
     TriangleAlert,
+    RotateCcw,
 } from 'lucide-react';
 
 const navGroups = [
@@ -37,7 +38,10 @@ const navGroups = [
     },
     {
         label: 'Admissions',
-        items: [{ href: '/console/preinscriptions', label: 'Préinscriptions', icon: UserPlus, permission: 'preinscriptions.manage' }],
+        items: [
+            { href: '/console/preinscriptions', label: 'Préinscriptions', icon: UserPlus, permission: 'preinscriptions.manage' },
+            { href: '/console/reactivations', label: 'Réactivations', icon: RotateCcw, permission: 'reactivations.manage' },
+        ],
     },
     {
         label: 'Scolarité',

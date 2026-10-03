@@ -38,4 +38,8 @@ enum SiteIcon: string
     case Server = 'Server';
     case Sparkles = 'Sparkles';
     case Wrench = 'Wrench';
+    case IdCard = 'IdCard';
+    case Repeat = 'Repeat';
+    case RotateCcw = 'RotateCcw';
+    case UserCheck = 'UserCheck';
 }

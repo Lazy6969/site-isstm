@@ -59,7 +59,7 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
     if (m.deleted_at) {
         return (
             <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                <p className="max-w-xs rounded-2xl border border-dashed border-slate-200 px-3.5 py-2 text-xs italic text-slate-400 dark:border-slate-700 dark:text-slate-500">
+                <p className="max-w-[75%] rounded-2xl border border-dashed border-slate-200 px-3.5 py-2 text-xs italic break-words text-slate-400 dark:border-slate-700 dark:text-slate-500">
                     {t('messages.message_supprime', 'Ce message a été supprimé.')}
                 </p>
             </div>
@@ -68,7 +68,7 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
 
     return (
         <div className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-xs">
+            <div className="max-w-[75%]">
                 {m.reply_to && (
                     <div className={`mb-1 rounded-lg border-l-2 border-community-accent bg-slate-50 px-2 py-1 text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-400 ${isOwn ? 'text-right' : ''}`}>
                         <span className="font-medium">{m.reply_to.sender_name}</span> · {m.reply_to.body ?? t('messages.message_supprime_court', 'message supprimé')}
@@ -102,7 +102,7 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                     ) : (
                         <>
                             {m.body && (
-                                <p className={`rounded-2xl px-3.5 py-2 text-sm ${isOwn ? 'bg-isstm-navy text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
+                                <p className={`min-w-0 rounded-2xl px-3.5 py-2 text-sm break-all ${isOwn ? 'bg-isstm-navy text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
                                     {linkifyParts(m.body).map((part) =>
                                         part.url ? (
                                             <a key={part.key} href={part.url} target="_blank" rel="noopener" className="underline">

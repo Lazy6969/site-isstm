@@ -6,9 +6,11 @@ const RADIUS = 24;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // Pages where this widget stays hidden: the admin console (its own chrome,
-// not the public site) and every step of the inscription flow (the candidate
-// is meant to focus on the form, not on how far down the page they've scrolled).
-const HIDDEN_PREFIXES = ['/console', '/preinscription', '/reinscription', '/inscription', '/rejoindre', '/mon-dossier'];
+// not the public site) and the actual multi-step wizards (the candidate is
+// meant to focus on the form, not on how far down the page they've scrolled).
+// /rejoindre and /inscription are plain scrollable landing/info pages, not a
+// wizard step, so the robot stays visible there.
+const HIDDEN_PREFIXES = ['/console', '/preinscription', '/reinscription', '/mon-dossier'];
 
 function isHidden(url) {
     return HIDDEN_PREFIXES.some((prefix) => url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`));

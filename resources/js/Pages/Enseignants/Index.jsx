@@ -173,7 +173,7 @@ export default function Index({ teachers }) {
             <Head title="Enseignants" />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="enseignants_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
@@ -194,9 +194,10 @@ export default function Index({ teachers }) {
             </div>
 
             <main className="mx-auto max-w-6xl px-6 py-12">
-                {/* One row: category, a divider, department, a divider, then the layout switch —
-                    scrolls horizontally on narrow screens instead of wrapping onto a second line. */}
-                <div className="mb-8 flex items-center gap-2 overflow-x-auto pb-2">
+                {/* Category, a divider, department, a divider, then the layout switch — wraps onto
+                    further lines on narrow screens so every filter stays visible without needing
+                    to discover a horizontal scroll; from sm: up it's a single scrollable row. */}
+                <div className="mb-8 flex flex-wrap items-center gap-2 sm:flex-nowrap sm:overflow-x-auto sm:pb-2">
                     <FilterPill active={filter === 'all'} onClick={() => setFilter('all')}>
                         {t('enseignants.tous', 'Tous')}
                     </FilterPill>

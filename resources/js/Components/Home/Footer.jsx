@@ -69,7 +69,7 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="bg-isstm-footer text-isstm-footer-text/70">
+        <footer className="bg-isstm-footer text-isstm-footer-text/70 max-md:pb-16">
             <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-6 py-14 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
                     <h4 className="text-sm font-semibold uppercase tracking-wide text-isstm-footer-text">

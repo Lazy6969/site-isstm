@@ -3,6 +3,7 @@
 use App\Models\Candidat;
 use App\Models\Filiere;
 use App\Models\User;
+use App\Notifications\PreinscriptionReceived;
 use App\Notifications\PreinscriptionSubmitted;
 use App\Notifications\QueuedResetPassword;
 use App\Notifications\QueuedVerifyEmail;
@@ -78,7 +79,7 @@ it('renders the preinscription form with filieres', function () {
     );
 });
 
-it('creates a candidate account in a Brouillon dossier, logs the candidate in, and e-mails a password-setup link', function () {
+it('creates a candidate account in a Brouillon dossier and logs the candidate in, without e-mailing anything yet', function () {
     Notification::fake();
 
     $response = $this->post('/preinscription/compte', validAccountPayload());
@@ -93,7 +94,10 @@ it('creates a candidate account in a Brouillon dossier, logs the candidate in, a
     expect($preinscription)->not->toBeNull();
     expect($preinscription->status)->toBe(PreinscriptionStatus::Brouillon);
 
-    Notification::assertSentTo($user, QueuedResetPassword::class);
+    // Nothing is e-mailed until the dossier is actually submitted (see the
+    // submit() test below) — a candidate who abandons the wizard here should
+    // never receive anything.
+    Notification::assertNothingSent();
 });
 
 it('saves the whole identité step, not just the account fields, when the account is created', function () {
@@ -204,7 +208,7 @@ it("forbids another candidate from saving a draft on someone else's dossier", fu
         ->assertForbidden();
 });
 
-it('submits a complete dossier, generates a dossier number, logs the candidate in, and sends a verification e-mail', function () {
+it('submits a complete dossier, generates a dossier number, logs the candidate in, and e-mails only a "received" notification', function () {
     Storage::fake('public');
     Notification::fake();
     $filiere = Filiere::factory()->create();
@@ -222,8 +226,22 @@ it('submits a complete dossier, generates a dossier number, logs the candidate i
 
     $user = $preinscription->user;
     expect(Auth::id())->toBe($user->id);
-    expect($user->hasVerifiedEmail())->toBeFalse();
-    Notification::assertSentTo($user, QueuedVerifyEmail::class);
+    // No password-setup link yet — that only arrives once the dossier is
+    // approved (see PreinscriptionAccepted / PreinscriptionApprovalTest).
+    Notification::assertSentTo($user, PreinscriptionReceived::class);
+    Notification::assertNotSentTo($user, QueuedVerifyEmail::class);
+    Notification::assertNotSentTo($user, QueuedResetPassword::class);
+});
+
+it('sends the candidate straight to their dossier after submitting, not a verification detour', function () {
+    Storage::fake('public');
+    $filiere = Filiere::factory()->create();
+
+    $this->post('/preinscription/compte', validAccountPayload());
+    $preinscription = Candidat::firstWhere('email', 'jean.rakoto@example.com');
+
+    $this->post("/preinscription/{$preinscription->id}/soumettre", validDossierPayload(['filiere_id' => $filiere->id]))
+        ->assertRedirect(route('preinscription.dossier'));
 });
 
 it("doesn't require re-uploading a file already saved by an earlier draft", function () {
@@ -304,10 +322,11 @@ it('requires a guest to log in before viewing the dossier', function () {
     $this->get('/mon-dossier')->assertRedirect('/login');
 });
 
-it('redirects an unverified candidate to the verification notice instead of the dossier', function () {
+it('lets an unverified candidate view their own dossier — no e-mail verification is required for this', function () {
     $user = User::factory()->unverified()->create();
+    Candidat::factory()->create(['user_id' => $user->id, 'status' => PreinscriptionStatus::Soumis]);
 
-    $this->actingAs($user)->get('/mon-dossier')->assertRedirect(route('verification.notice'));
+    $this->actingAs($user)->get('/mon-dossier')->assertOk();
 });
 
 it('shows the dossier status to a verified candidate', function () {

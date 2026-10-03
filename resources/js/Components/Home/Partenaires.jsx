@@ -32,7 +32,7 @@ export default function Partenaires({ partenaires }) {
                             target="_blank"
                             rel="noopener"
                             title={partenaire.nom}
-                            className="flex h-20 w-40 flex-shrink-0 items-center justify-center grayscale opacity-75 transition hover:scale-105 hover:opacity-100 hover:grayscale-0"
+                            className="flex h-20 w-40 flex-shrink-0 items-center justify-center grayscale opacity-75 transition duration-300 hover:scale-110 hover:opacity-100 hover:grayscale-0"
                         >
                             <img src={`/${partenaire.logo_path}`} alt={partenaire.nom} className="max-h-full max-w-full object-contain" loading="lazy" />
                         </a>

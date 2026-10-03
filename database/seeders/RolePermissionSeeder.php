@@ -28,6 +28,7 @@ class RolePermissionSeeder extends Seeder
     private const PERMISSIONS = [
         'dashboard.view',
         'preinscriptions.manage',
+        'reactivations.manage',
         'etudiants.view', 'etudiants.create', 'etudiants.edit', 'etudiants.delete',
         'inscriptions.view', 'inscriptions.create', 'inscriptions.edit', 'inscriptions.delete',
         'classes.view', 'classes.create', 'classes.edit', 'classes.delete',
@@ -69,6 +70,7 @@ class RolePermissionSeeder extends Seeder
         SpatieRole::findByName('scolarite')->syncPermissions([
             'dashboard.view',
             'preinscriptions.manage',
+            'reactivations.manage',
             'etudiants.view', 'etudiants.create', 'etudiants.edit', 'etudiants.delete',
             'inscriptions.view', 'inscriptions.create', 'inscriptions.edit', 'inscriptions.delete',
             'classes.view', 'classes.create', 'classes.edit', 'classes.delete',

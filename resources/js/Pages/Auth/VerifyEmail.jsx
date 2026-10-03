@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { CheckCircle2, MailCheck } from 'lucide-react';
+import { CheckCircle2, ClipboardList, Globe, MailCheck } from 'lucide-react';
 import { useState } from 'react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import { useTranslations } from '../../lib/useTranslations';
@@ -38,20 +38,33 @@ export default function VerifyEmail({ status }) {
                     </p>
                 )}
 
+                <div className="mt-6 flex w-full flex-col gap-2.5">
+                    <Link
+                        href="/mon-dossier"
+                        className="flex items-center justify-center gap-2 rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                    >
+                        <ClipboardList className="h-4 w-4" aria-hidden="true" />
+                        {t('auth.suivre_dossier', 'Suivre mon dossier')}
+                    </Link>
+                    <Link
+                        href="/"
+                        className="flex items-center justify-center gap-2 rounded-full border border-slate-300 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+                    >
+                        <Globe className="h-4 w-4" aria-hidden="true" />
+                        {t('auth.voir_le_site', 'Voir le site')}
+                    </Link>
+                </div>
+
                 <button
                     type="button"
                     onClick={resend}
                     disabled={sending}
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                    className="mt-4 text-sm font-medium text-isstm-navy hover:underline disabled:opacity-60 dark:text-isstm-gold"
                 >
                     {sending
                         ? t('auth.envoi_en_cours', 'Envoi en cours…')
                         : t('auth.renvoyer_email_verification', "Renvoyer l'e-mail de vérification")}
                 </button>
-
-                <Link href="/login" className="mt-4 text-sm font-medium text-isstm-navy hover:underline dark:text-isstm-gold">
-                    {t('auth.retour_connexion', 'Retour à la connexion')}
-                </Link>
             </div>
         </AuthLayout>
     );

@@ -336,7 +336,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                             {opening && <MessageThreadSkeleton />}
 
                             {!opening && (
-                                <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                                <div className="flex-1 space-y-3 overflow-y-auto p-4 pr-6">
                                     {isGroup
                                         ? visibleMessages.map((m) => (
                                               <GroupMessageBubble key={m.id} message={m} isOwn={m.sender_id === auth.user.id} />
@@ -405,9 +405,13 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                                     className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                 />
-                                <button disabled={processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                                <button
+                                    disabled={processing}
+                                    aria-label={t('communaute.envoyer', 'Envoyer')}
+                                    className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-isstm-navy px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:px-4"
+                                >
                                     <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                                    {t('communaute.envoyer', 'Envoyer')}
+                                    <span className="hidden sm:inline">{t('communaute.envoyer', 'Envoyer')}</span>
                                 </button>
                             </form>
                         </>

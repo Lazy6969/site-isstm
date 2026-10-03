@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePreinscriptionDraftRequest;
 use App\Models\Candidat;
 use App\Models\Filiere;
 use App\Models\User;
+use App\Notifications\PreinscriptionReceived;
 use App\Notifications\PreinscriptionSubmitted;
 use App\PreinscriptionStatus;
 use App\Role;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -72,10 +72,12 @@ class PreinscriptionController extends Controller
      * First step of the wizard: creates the candidate's account and opens a
      * Brouillon dossier so the rest of the wizard has something to save
      * progress against. The account gets an unusable random password — the
-     * candidate never types one — and a "set your password" e-mail (Laravel's
-     * own password-reset link) is sent right away so they can access their
-     * account whenever they like. Logs the candidate in immediately so the
-     * wizard itself never requires a password.
+     * candidate never types one. No e-mail goes out here on purpose: a
+     * candidate who abandons the wizard before finishing all 4 steps should
+     * never receive anything — see submit() below, where both the
+     * password-setup link and the verification e-mail fire together once the
+     * dossier is actually complete. Logs the candidate in immediately so the
+     * wizard itself never requires a password in the meantime.
      */
     public function storeAccount(StorePreinscriptionAccountRequest $request): RedirectResponse
     {
@@ -109,16 +111,6 @@ class PreinscriptionController extends Controller
         }
 
         Auth::login($preinscription->user);
-
-        // Password::sendResetLink() sends via User::sendPasswordResetNotification(),
-        // which is queued (see QueuedResetPassword) — real SMTP delivery took
-        // several seconds in testing, and sending it inline made every click on
-        // "Continuer" look frozen.
-        try {
-            Password::sendResetLink(['email' => $preinscription->email]);
-        } catch (Throwable $e) {
-            report($e);
-        }
 
         // Explicit target rather than back(): back() resolves from the
         // request's Referer header for Inertia/XHR visits, which is fragile
@@ -182,9 +174,11 @@ class PreinscriptionController extends Controller
 
         $user = $preinscription->user;
 
-        // Queued (see QueuedVerifyEmail) for the same reason as storeAccount().
+        // The only e-mail the candidate gets at this point — see
+        // PreinscriptionReceived's own docblock for why no password-setup
+        // link goes out here (that's PreinscriptionAccepted's job, later).
         try {
-            $user->sendEmailVerificationNotification();
+            $user->notify(new PreinscriptionReceived($preinscription));
         } catch (Throwable $e) {
             report($e);
         }
@@ -195,11 +189,11 @@ class PreinscriptionController extends Controller
             report($e);
         }
 
-        // A brand-new candidate account is never verified yet — send them straight to
-        // the "check your inbox" page instead of /mon-dossier, which the `verified`
-        // middleware would otherwise bounce them away from anyway.
-        return redirect()->route('verification.notice')
-            ->with('status', 'Votre dossier a bien été envoyé et enregistré. Vérifiez votre boîte mail pour activer votre compte et suivre votre dossier.');
+        // Straight to the dossier itself — no verification detour: the
+        // candidate is already logged in (storeAccount() did that), and
+        // /mon-dossier no longer requires a verified e-mail (see routes/web.php).
+        return redirect()->route('preinscription.dossier')
+            ->with('status', 'Votre dossier a bien été envoyé et enregistré. Un e-mail de confirmation vient de vous être envoyé.');
     }
 
     public function dossier(Request $request): Response

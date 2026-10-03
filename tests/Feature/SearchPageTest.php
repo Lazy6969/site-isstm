@@ -66,29 +66,11 @@ it('tolerates search phrases with punctuation and SQL-special characters', funct
         ->assertInertia(fn ($page) => $page->component('Search/Index'));
 });
 
-it('does not search posts or people for a guest', function () {
-    Post::factory()->create(['body' => 'Réunion informatique demain']);
-
-    $this->get('/recherche?q=informatique')->assertInertia(fn ($page) => $page
-        ->component('Search/Index')
-        ->missing('results.publications')
-        ->missing('results.personnes')
-    );
-});
-
-it('searches posts and people for a community member only', function () {
+it('never searches posts or people, even for a logged-in community member', function () {
     $etudiant = User::factory()->role(Role::Etudiant)->create(['name' => 'Jean Informatique']);
     Post::factory()->create(['body' => 'Réunion informatique demain']);
 
     $this->actingAs($etudiant)->get('/recherche?q=informatique')->assertInertia(fn ($page) => $page
-        ->component('Search/Index')
-        ->has('results.publications', 1)
-        ->has('results.personnes', 1)
-    );
-
-    $outsider = User::factory()->create(['role' => Role::User]);
-
-    $this->actingAs($outsider)->get('/recherche?q=informatique')->assertInertia(fn ($page) => $page
         ->component('Search/Index')
         ->missing('results.publications')
         ->missing('results.personnes')

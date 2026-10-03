@@ -75,7 +75,7 @@ export default function Header() {
                     <BrandTitle />
                 </a>
 
-                <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
+                <NavigationMenu className="hidden min-w-0 justify-self-center lg:flex">
                     <NavigationMenuList className="gap-2">
                         <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
                         <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
@@ -123,7 +123,7 @@ export default function Header() {
                 </NavigationMenu>
 
                 <div className="flex items-center gap-2 justify-self-end sm:gap-3">
-                    <div className="hidden items-center gap-3 md:flex">
+                    <div className="hidden items-center gap-3 lg:flex">
                         <DarkModeToggle />
                         <LanguageSwitcher />
                         {user && (user.is_messagerie || isCommunityMember) && (
@@ -138,7 +138,7 @@ export default function Header() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2 md:hidden">
+                    <div className="flex items-center gap-2 lg:hidden">
                         <HeaderSearchButton />
                         <MobileMenuButton />
                     </div>

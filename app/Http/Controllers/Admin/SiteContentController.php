@@ -42,6 +42,7 @@ class SiteContentController extends Controller
         'statut' => 'Histoire — Statut et pédagogie',
         'offre' => 'Histoire — Offre de formation',
         'bourse' => 'Bourses',
+        'bibliotheque' => 'Bibliothèque',
         'mentions' => 'Mentions légales',
         'confidentialite' => 'Confidentialité',
         'associations' => 'Association des étudiants',

@@ -62,7 +62,7 @@ export default function SiteHeader() {
                     <BrandTitle />
                 </Link>
 
-                <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
+                <NavigationMenu className="hidden min-w-0 justify-self-center lg:flex">
                     <NavigationMenuList>
                         <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
                         <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
@@ -110,7 +110,7 @@ export default function SiteHeader() {
                 </NavigationMenu>
 
                 <div className="flex items-center gap-2 justify-self-end sm:gap-3">
-                    <div className="hidden items-center gap-3 md:flex">
+                    <div className="hidden items-center gap-3 lg:flex">
                         <DarkModeToggle />
                         <LanguageSwitcher />
 
@@ -126,7 +126,7 @@ export default function SiteHeader() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2 md:hidden">
+                    <div className="flex items-center gap-2 lg:hidden">
                         <HeaderSearchButton />
                         <MobileMenuButton />
                     </div>

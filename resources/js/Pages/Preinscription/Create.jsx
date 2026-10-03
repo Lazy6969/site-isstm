@@ -1,5 +1,5 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, CalendarClock, Check, CheckCircle2, ClipboardCheck, GraduationCap, IdCard, Mail, Save, Send, Users, Wallet, XCircle } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CalendarClock, Check, CheckCircle2, ClipboardCheck, Eye, FileText, GraduationCap, IdCard, Mail, Save, Send, Users, Wallet, XCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
@@ -8,6 +8,7 @@ import TextField from '../../Components/Form/TextField';
 import SelectField from '../../Components/Form/SelectField';
 import FileInput from '../../Components/Form/FileInput';
 import { Card } from '../../Components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../Components/ui/dialog';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { countries, mentionsBacc, nationalites, seriesBacc } from '../../Components/Preinscription/countries';
@@ -108,6 +109,45 @@ function labelOf(field) {
     return FIELD_LABELS[field] ?? field;
 }
 
+const MIN_AGE = 14;
+const MAX_AGE = 100;
+
+/**
+ * Catches an impossible date_naissance (today, in the future, or an age
+ * nobody applying to university would realistically have) right when the
+ * candidate types it, instead of only after a round trip to the server
+ * (which only enforces "before today", not a sane age range).
+ */
+function dateNaissanceError(value) {
+    if (!value) {
+        return null;
+    }
+
+    const birthDate = new Date(value);
+    if (Number.isNaN(birthDate.getTime())) {
+        return null;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (birthDate >= today) {
+        return "La date de naissance ne peut pas être aujourd'hui ou dans le futur.";
+    }
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const hadBirthdayThisYear = today.getMonth() > birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    if (!hadBirthdayThisYear) {
+        age -= 1;
+    }
+
+    if (age < MIN_AGE || age > MAX_AGE) {
+        return `L'âge correspondant à cette date (${age} ans) semble incorrect. Vérifiez la date de naissance.`;
+    }
+
+    return null;
+}
+
 /**
  * Brings a field into view and focuses it. Every input carries its field name
  * as `id`; the civilité/genre radios are addressed by `name` instead, since
@@ -132,10 +172,12 @@ function RadioGroup({ name, options, value, onChange, error, autoComplete }) {
                     <label
                         key={opt.value}
                         htmlFor={`${name}-${opt.value}`}
-                        className={`flex cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm transition ${
-                            value === opt.value
-                                ? 'border-isstm-navy bg-isstm-navy/5 font-semibold text-isstm-navy dark:border-isstm-gold dark:bg-isstm-gold/10 dark:text-isstm-gold'
-                                : 'border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
+                        className={`flex items-center justify-center rounded-lg border px-3 py-2 text-sm transition ${
+                            opt.disabled
+                                ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-600'
+                                : value === opt.value
+                                  ? 'cursor-pointer border-isstm-navy bg-isstm-navy/5 font-semibold text-isstm-navy dark:border-isstm-gold dark:bg-isstm-gold/10 dark:text-isstm-gold'
+                                  : 'cursor-pointer border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
                         }`}
                     >
                         <input
@@ -144,6 +186,7 @@ function RadioGroup({ name, options, value, onChange, error, autoComplete }) {
                             name={name}
                             value={opt.value}
                             checked={value === opt.value}
+                            disabled={opt.disabled}
                             onChange={() => onChange(opt.value)}
                             autoComplete={autoComplete}
                             className="sr-only"
@@ -157,6 +200,65 @@ function RadioGroup({ name, options, value, onChange, error, autoComplete }) {
     );
 }
 
+function SummaryField({ label, value }) {
+    return (
+        <div>
+            <p className="text-xs text-slate-400">{label}</p>
+            <p className="font-medium text-slate-700 dark:text-slate-200">{value || '—'}</p>
+        </div>
+    );
+}
+
+/**
+ * One uploaded piece, shown as an actual image thumbnail (or a "voir le PDF"
+ * tile for non-image files) — the small text-only "Fichier déjà envoyé ✓"
+ * on the form itself never let the candidate actually check what they sent.
+ * Prefers a freshly-picked File (not uploaded yet) over the already-saved
+ * path, so the preview always reflects what will actually be submitted.
+ */
+function FilePreviewThumb({ label, file, existingPath }) {
+    const url = useMemo(() => {
+        if (file) return URL.createObjectURL(file);
+        if (existingPath) return `/storage/${existingPath}`;
+        return null;
+    }, [file, existingPath]);
+
+    useEffect(() => {
+        return () => {
+            if (file && url) URL.revokeObjectURL(url);
+        };
+    }, [file, url]);
+
+    const isPdf = file ? file.type === 'application/pdf' : /\.pdf$/i.test(existingPath ?? '');
+
+    return (
+        <div className="flex flex-col items-center gap-1.5">
+            {url ? (
+                isPdf ? (
+                    <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-lg border border-slate-200 bg-slate-50 text-isstm-navy transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                        <FileText className="h-6 w-6" aria-hidden="true" />
+                        <span className="text-xs font-medium">Voir le PDF</span>
+                    </a>
+                ) : (
+                    <a href={url} target="_blank" rel="noreferrer" className="block h-24 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                        <img src={url} alt={label} className="h-full w-full object-cover" />
+                    </a>
+                )
+            ) : (
+                <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-500">
+                    Non fourni
+                </div>
+            )}
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400">{label}</p>
+        </div>
+    );
+}
+
 export default function Create({ filieres, draft, initialStep }) {
     const { content, flash } = usePage().props;
     const { t } = useTranslations();
@@ -164,6 +266,7 @@ export default function Create({ filieres, draft, initialStep }) {
     const [step, setStep] = useState(initialStep);
     const [consent, setConsent] = useState(false);
     const [consentError, setConsentError] = useState('');
+    const [summaryOpen, setSummaryOpen] = useState(false);
     // A single pop-up surfaces every outcome the candidate needs to see —
     // success (green) and failure (red) alike — instead of some messages
     // (like a flashed `status`) being silently dropped while only errors got shown.
@@ -196,6 +299,24 @@ export default function Create({ filieres, draft, initialStep }) {
     useEffect(() => {
         if (flash?.error) showError(flash.error);
     }, [flash?.error]);
+
+    // Belt-and-braces alongside storeAccount's own onError below: this reacts
+    // directly to useForm's own `errors` state (the same state that already
+    // drives the red text under each field) instead of relying on the post()
+    // call's onError callback argument — so the popup still shows even if
+    // something about that specific visit stops onError from firing as
+    // expected. Guarded to !draftId since the account's not created yet is
+    // the only moment this particular conflict can happen.
+    useEffect(() => {
+        if (errors.email && !draftId) {
+            showError(
+                "Cette adresse e-mail est déjà associée à un compte. Utilisez une autre adresse, ou connectez-vous si ce dossier est déjà le vôtre.",
+                'Adresse e-mail déjà utilisée',
+            );
+            focusField('email');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [errors.email]);
 
     // The dossier exists as soon as the account is created, so advancing is
     // driven by the `draft` prop rather than only by the create call's own
@@ -235,6 +356,19 @@ export default function Create({ filieres, draft, initialStep }) {
         return (e) => setData(field, e.target.files[0] ?? null);
     }
 
+    // Civilité and genre always agree in practice (M. implies Masculin, Mme/
+    // Mlle implies Féminin) — picking a civilité sets the matching genre
+    // directly, rather than leaving the candidate to also click a second,
+    // now-redundant button (the mismatched option is grayed out in RadioGroup
+    // above to make the link visible, not just silently auto-corrected).
+    function onCiviliteChange(value) {
+        setData((current) => ({
+            ...current,
+            civilite: value,
+            sexe: value === 'M' ? 'M' : value === 'Mme' || value === 'Mlle' ? 'F' : current.sexe,
+        }));
+    }
+
     function goTo(target) {
         setStep(target);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -259,6 +393,11 @@ export default function Create({ filieres, draft, initialStep }) {
             const required = ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse'];
             for (const field of required) {
                 if (!data[field]) missing[field] = 'Ce champ est requis.';
+            }
+
+            if (!missing.date_naissance) {
+                const dateError = dateNaissanceError(data.date_naissance);
+                if (dateError) missing.date_naissance = dateError;
             }
         } else if (targetStep === 'famille') {
             if (!data.contact_parents && !data.repondant_telephone) {
@@ -427,7 +566,7 @@ export default function Create({ filieres, draft, initialStep }) {
             <Head title="Préinscription" />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-8 text-white sm:py-10">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
                 <BannerBackground contentKey="preinscription_banniere_image_path" />
                 <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-6 px-6 sm:flex-row sm:items-end sm:justify-between">
                     <div>
@@ -552,7 +691,7 @@ export default function Create({ filieres, draft, initialStep }) {
                                                 name="civilite"
                                                 autoComplete="honorific-prefix"
                                                 value={data.civilite}
-                                                onChange={(v) => setData('civilite', v)}
+                                                onChange={onCiviliteChange}
                                                 error={errors.civilite}
                                                 options={[
                                                     { value: 'M', label: 'M.' },
@@ -572,8 +711,8 @@ export default function Create({ filieres, draft, initialStep }) {
                                                 onChange={(v) => setData('sexe', v)}
                                                 error={errors.sexe}
                                                 options={[
-                                                    { value: 'M', label: 'Masculin' },
-                                                    { value: 'F', label: 'Féminin' },
+                                                    { value: 'M', label: 'Masculin', disabled: data.civilite === 'Mme' || data.civilite === 'Mlle' },
+                                                    { value: 'F', label: 'Féminin', disabled: data.civilite === 'M' },
                                                 ]}
                                             />
                                         </div>
@@ -767,6 +906,14 @@ export default function Create({ filieres, draft, initialStep }) {
                                                 </p>
                                             </div>
                                         </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSummaryOpen(true)}
+                                            className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-isstm-navy hover:underline dark:text-isstm-gold"
+                                        >
+                                            <Eye className="h-4 w-4" aria-hidden="true" />
+                                            Voir le résumé complet du dossier
+                                        </button>
                                     </div>
 
                                     <label htmlFor="consent" className="mt-6 flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -810,6 +957,69 @@ export default function Create({ filieres, draft, initialStep }) {
             </main>
 
             <Footer />
+
+            <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+                <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Résumé complet du dossier</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="space-y-6">
+                        <section>
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Identité</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Civilité" value={data.civilite} />
+                                <SummaryField label="Genre" value={data.sexe === 'M' ? 'Masculin' : data.sexe === 'F' ? 'Féminin' : ''} />
+                                <SummaryField label="Prénom(s)" value={data.prenoms} />
+                                <SummaryField label="Nom" value={data.nom} />
+                                <SummaryField label="Date de naissance" value={data.date_naissance} />
+                                <SummaryField label="Lieu de naissance" value={data.lieu_naissance} />
+                                <SummaryField label="Nationalité" value={data.nationalite} />
+                                <SummaryField label="Pays de résidence" value={data.pays} />
+                                <SummaryField label="CIN ou passeport" value={data.cin} />
+                                <SummaryField label="Téléphone" value={data.telephone} />
+                                <SummaryField label="E-mail" value={data.email} />
+                                <SummaryField label="Adresse" value={data.adresse} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Famille et répondant</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Nom du père" value={data.nom_pere} />
+                                <SummaryField label="Nom de la mère" value={data.nom_mere} />
+                                <SummaryField label="Téléphone des parents" value={data.contact_parents} />
+                                <SummaryField label="Répondant" value={data.repondant_nom} />
+                                <SummaryField label="Lien avec le répondant" value={data.repondant_lien} />
+                                <SummaryField label="Téléphone du répondant" value={data.repondant_telephone} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Parcours bac et filière</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Année d'obtention du bac" value={data.annee_bacc} />
+                                <SummaryField label="Série du bac" value={data.serie_bacc === 'AUTRE' ? data.serie_bacc_autre : data.serie_bacc} />
+                                <SummaryField label="Mention" value={data.mention_bacc} />
+                                <SummaryField label="Situation" value={data.code_redoublement === 'R' ? 'Redoublant(e)' : data.code_redoublement === 'N' ? 'Nouveau bachelier' : ''} />
+                                <SummaryField label="Filière souhaitée" value={selectedFiliere?.nom} />
+                                <SummaryField label="Niveau" value={data.niveau} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Pièces jointes</h3>
+                            <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
+                                <FilePreviewThumb label="Photo d'identité" file={data.photo} existingPath={draft?.photo_path} />
+                                <FilePreviewThumb label="CIN recto" file={data.cin_recto} existingPath={draft?.cin_recto_path} />
+                                <FilePreviewThumb label="CIN verso" file={data.cin_verso} existingPath={draft?.cin_verso_path} />
+                                <FilePreviewThumb label="Diplôme/attestation" file={data.diplome_attestation} existingPath={draft?.diplome_attestation_path} />
+                                <FilePreviewThumb label="Relevé de notes" file={data.releve_bacc} existingPath={draft?.releve_bacc_path} />
+                            </div>
+                        </section>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {dialog && (
                 <div

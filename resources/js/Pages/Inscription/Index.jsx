@@ -86,7 +86,7 @@ export default function Index({ content }) {
 
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white">
+            <div className="relative overflow-hidden bg-isstm-navy py-16 text-white sm:py-20">
                 <BannerBackground contentKey="inscription_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <BackButton />

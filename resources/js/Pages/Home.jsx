@@ -6,6 +6,7 @@ import Director from '../Components/Home/Director';
 import MissionVision from '../Components/Home/MissionVision';
 import Filieres from '../Components/Home/Filieres';
 import Actualites from '../Components/Home/Actualites';
+import RejoignezNous from '../Components/Home/RejoignezNous';
 import Testimonials from '../Components/Home/Testimonials';
 import Partenaires from '../Components/Home/Partenaires';
 import Contact from '../Components/Home/Contact';
@@ -37,6 +38,9 @@ export default function Home({ content, heroSlides, heroSparkleColor, testimonia
             </SectionVisibility>
             <SectionVisibility section="actualites" label="Actualités" hidden={hiddenSections.includes('actualites')}>
                 <Actualites articles={actualites} />
+            </SectionVisibility>
+            <SectionVisibility section="rejoignez_nous" label="Rejoignez-nous" hidden={hiddenSections.includes('rejoignez_nous')}>
+                <RejoignezNous />
             </SectionVisibility>
             <SectionVisibility section="testimonials" label="Témoignages" hidden={hiddenSections.includes('testimonials')}>
                 <Testimonials testimonials={testimonials} />

@@ -258,15 +258,15 @@ export default function PostCard({ post, highlightCommentId = null }) {
 
     return (
         <Card className="p-5">
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                    <Link href={`/profil/${post.user.id}`}>
+            <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Link href={`/profil/${post.user.id}`} className="flex-shrink-0">
                         <Avatar className="h-10 w-10">
                             <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                             <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                         </Avatar>
                     </Link>
-                    <div>
+                    <div className="min-w-0">
                         <p className="font-semibold text-slate-800 dark:text-slate-100">
                             <Link href={`/profil/${post.user.id}`} className="hover:text-isstm-navy">
                                 {post.user.name}
@@ -314,7 +314,7 @@ export default function PostCard({ post, highlightCommentId = null }) {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-shrink-0 items-center gap-1.5">
                     {post.is_pinned && (
                         <Badge variant="gold">
                             <Pin className="h-3 w-3" aria-hidden="true" />

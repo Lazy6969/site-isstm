@@ -91,7 +91,7 @@ export default function Dossier({ content, filieres, inscription, suggestedType 
             <Head title="Réinscription" />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-8 text-white sm:py-10">
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
                 <BannerBackground contentKey="reinscription_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-5xl px-6">
                     <BackButton />

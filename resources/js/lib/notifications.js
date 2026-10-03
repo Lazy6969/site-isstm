@@ -28,6 +28,8 @@ export function notificationLink(notification) {
             return notification.preinscription_id
                 ? `/console/preinscriptions/${notification.preinscription_id}`
                 : '/console/preinscriptions';
+        case 'nouvelle_reactivation':
+            return '/console/reactivations';
         default:
             return '/notifications';
     }

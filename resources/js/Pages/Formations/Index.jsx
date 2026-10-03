@@ -1,11 +1,12 @@
-import { usePage } from '@inertiajs/react';
-import { FlaskConical, GraduationCap } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, FlaskConical, GraduationCap } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
 import { imageStyleToCss } from '../../lib/imageStyle';
+import { useTranslations } from '../../lib/useTranslations';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { Card } from '../../Components/ui/card';
 
@@ -46,6 +47,7 @@ const laboratoires = [
 ];
 
 export default function Index() {
+    const { t } = useTranslations();
     const { content, contentStyles } = usePage().props;
 
     return (
@@ -57,7 +59,7 @@ export default function Index() {
             />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="formations_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-5xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
@@ -140,6 +142,30 @@ export default function Index() {
                             <li key={item}>{item}</li>
                         ))}
                     </ul>
+                </Card>
+
+                <Card className="p-6">
+                    <h2 className="flex items-center gap-2 text-lg font-semibold text-isstm-navy dark:text-white">
+                        <BookOpen className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
+                        {t('nav.bibliotheque', 'Bibliothèque')}
+                    </h2>
+                    <EditableText
+                        as="p"
+                        contentKey="bibliotheque_texte_inspirant"
+                        className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                    >
+                        {content.bibliotheque_texte_inspirant ??
+                            t(
+                                'bibliotheque.texte_inspirant',
+                                "Explorez, apprenez, découvrez et construisez votre avenir : la bibliothèque universitaire vous ouvre les portes d'un vaste univers de connaissances, de ressources et de références pour accompagner chaque étudiant dans son parcours académique, stimuler sa curiosité et favoriser la réussite de ses projets.",
+                            )}
+                    </EditableText>
+                    <Link
+                        href="/bibliotheque"
+                        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-isstm-navy hover:underline dark:text-white"
+                    >
+                        {t('bibliotheque.acceder', 'Accéder à la bibliothèque')}
+                    </Link>
                 </Card>
             </main>
 

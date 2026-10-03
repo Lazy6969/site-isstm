@@ -16,7 +16,7 @@ export default function Index({ blocs }) {
             <Head title="Campus" />
             <SiteHeader />
 
-            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="campus_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <Link href="/vie-etudiante" className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline">

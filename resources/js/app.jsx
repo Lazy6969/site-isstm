@@ -65,8 +65,10 @@ function FloatingAccountGroup() {
     }, [open]);
 
     // Both children render nothing for a signed-out visitor, which left this
-    // container as an empty pill pinned to the corner of every page.
-    if (inCommunitySpace || ! props.auth?.user) {
+    // container as an empty pill pinned to the corner of every page. Hidden
+    // inside /console too — AdminHeader already has its own profile menu and
+    // inline pencil there, same reasoning as QuickEditToggle/SitePrimaryColorPicker.
+    if (inCommunitySpace || url.startsWith('/console') || ! props.auth?.user) {
         return null;
     }
 

@@ -22,6 +22,7 @@ import {
     BarChart3,
     Wallet,
     Archive,
+    Link2,
 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import StatCard from '../../../Components/Admin/StatCard';
@@ -37,6 +38,7 @@ const typeMeta = {
     text: { label: 'Texte', icon: Type, variant: 'default' },
     icon: { label: 'Icône', icon: Shapes, variant: 'gold' },
     image: { label: 'Image', icon: ImageIcon, variant: 'success' },
+    url: { label: 'Lien', icon: Link2, variant: 'default' },
 };
 
 // Ordered by specificity — the first matching keyword wins, so "Accueil —
@@ -129,7 +131,7 @@ function InlineEditPanel({ editing, onClose, icons }) {
         if (!content) return;
         if (content.type === 'text') {
             form.setData({ key: content.content_key, value: content[`content_value_${locale}`] ?? '', file: null, locale });
-        } else if (content.type === 'icon') {
+        } else if (content.type === 'icon' || content.type === 'url') {
             form.setData({ key: content.content_key, value: content.content_value_fr, file: null, locale: null });
         } else {
             form.setData({ key: content.content_key, value: '', file: null, locale: null });
@@ -241,6 +243,28 @@ function InlineEditPanel({ editing, onClose, icons }) {
                     </div>
                 </form>
             )}
+
+            {content.type === 'url' && (
+                <form onSubmit={submit} className="space-y-3">
+                    <Input
+                        type="url"
+                        placeholder="https://..."
+                        value={form.data.value}
+                        onChange={(e) => form.setData('value', e.target.value)}
+                        autoFocus
+                    />
+                    {form.errors.value && <p className="text-sm text-red-500">{form.errors.value}</p>}
+                    <p className="text-xs text-admin-muted">Laissez vide pour désactiver le bouton qui utilise ce lien.</p>
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                            Annuler
+                        </Button>
+                        <Button type="submit" disabled={form.processing} className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90">
+                            Enregistrer
+                        </Button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 }
@@ -338,6 +362,18 @@ function ContentCard({ content, onEdit }) {
                     >
                         <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                         Remplacer l'image
+                    </Button>
+                </div>
+            )}
+
+            {content.type === 'url' && (
+                <div className="flex flex-1 items-center justify-between gap-2 rounded-lg bg-admin-hover px-3 py-3">
+                    <span className="min-w-0 flex-1 truncate text-sm text-admin-text-secondary">{content.content_value_fr || 'Aucun lien défini'}</span>
+                    <Button
+                        onClick={() => onEdit(content, null)}
+                        className="h-8 flex-shrink-0 bg-admin-card px-2.5 text-admin-text-secondary shadow-none hover:bg-admin-accent hover:text-admin-accent-foreground"
+                    >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                     </Button>
                 </div>
             )}
