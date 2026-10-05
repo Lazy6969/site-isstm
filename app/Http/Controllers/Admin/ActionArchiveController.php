@@ -305,9 +305,19 @@ class ActionArchiveController extends Controller
     private function restoreDeleted(Model $model, array $change): ?string
     {
         $table = $model->getTable();
+        $existing = DB::table($table)->where($model->getKeyName(), $change['id'])->first();
 
-        if (DB::table($table)->where($model->getKeyName(), $change['id'])->exists()) {
-            return 'Cet élément existe déjà.';
+        if ($existing !== null) {
+            $deletedAtColumn = method_exists($model, 'getDeletedAtColumn') ? $model->getDeletedAtColumn() : null;
+
+            if ($deletedAtColumn === null || ((array) $existing)[$deletedAtColumn] === null) {
+                return 'Cet élément existe déjà.';
+            }
+
+            DB::table($table)->where($model->getKeyName(), $change['id'])->update([$deletedAtColumn => null]);
+            $this->recorder->note('created', $model::class, $change['id'], $change['label'], []);
+
+            return null;
         }
 
         DB::table($table)->insert($change['attributes'] ?? []);

@@ -21,6 +21,7 @@ import {
     BarChart3,
     Wallet,
     Archive,
+    Link2,
     ChevronDown,
     ExternalLink,
     Monitor,
@@ -43,6 +44,7 @@ function useTypeMeta() {
         text: { label: t('admin.contenu.type_text', 'Texte'), icon: Type, variant: 'default' },
         icon: { label: t('admin.contenu.type_icon', 'Icône'), icon: Shapes, variant: 'gold' },
         image: { label: t('admin.contenu.type_image', 'Image'), icon: ImageIcon, variant: 'success' },
+        url: { label: t('admin.contenu.type_url', 'Lien'), icon: Link2, variant: 'default' },
     };
 }
 
@@ -380,7 +382,7 @@ function InlineEditPanel({ editing, onClose, icons }) {
         if (!content) return;
         if (content.type === 'text') {
             form.setData({ key: content.content_key, value: content[`content_value_${locale}`] ?? '', file: null, locale });
-        } else if (content.type === 'icon') {
+        } else if (content.type === 'icon' || content.type === 'url') {
             form.setData({ key: content.content_key, value: content.content_value_fr, file: null, locale: null });
         } else {
             form.setData({ key: content.content_key, value: '', file: null, locale: null });
@@ -492,6 +494,28 @@ function InlineEditPanel({ editing, onClose, icons }) {
                     </div>
                 </form>
             )}
+
+            {content.type === 'url' && (
+                <form onSubmit={submit} className="space-y-3">
+                    <Input
+                        type="url"
+                        placeholder="https://..."
+                        value={form.data.value}
+                        onChange={(e) => form.setData('value', e.target.value)}
+                        autoFocus
+                    />
+                    {form.errors.value && <p className="text-sm text-red-500">{form.errors.value}</p>}
+                    <p className="text-xs text-admin-muted">{t('admin.contenu.url_hint', 'Laissez vide pour désactiver le bouton qui utilise ce lien.')}</p>
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                            {t('admin.common.cancel', 'Annuler')}
+                        </Button>
+                        <Button type="submit" disabled={form.processing} className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90">
+                            {t('admin.common.save', 'Enregistrer')}
+                        </Button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 }
@@ -510,6 +534,7 @@ const TYPE_TINT = {
     text: 'bg-sky-500/15 text-sky-500',
     icon: 'bg-amber-500/15 text-amber-500',
     image: 'bg-emerald-500/15 text-emerald-500',
+    url: 'bg-violet-500/15 text-violet-500',
 };
 
 /**
@@ -563,6 +588,7 @@ function ContentRow({ content, onEdit, onHover, isEditing }) {
                     {content.type === 'text' && <p className="mt-1 line-clamp-2 text-sm leading-snug text-admin-text-secondary">{truncate(content.content_value_fr, 160)}</p>}
                     {content.type === 'icon' && <p className="mt-1 text-sm text-admin-text-secondary">{content.content_value_fr}</p>}
                     {content.type === 'image' && <p className="mt-1 truncate text-sm text-admin-text-secondary">{content.content_value_fr.split('/').pop()}</p>}
+                    {content.type === 'url' && <p className="mt-1 truncate text-sm text-admin-text-secondary">{content.content_value_fr || t('admin.contenu.url_empty', 'Aucun lien défini')}</p>}
                     <p className="mt-1 truncate font-mono text-[0.65rem] text-admin-muted" title={content.content_key}>
                         {content.content_key}
                     </p>

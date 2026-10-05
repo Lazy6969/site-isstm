@@ -108,9 +108,10 @@ class EvenementController extends Controller
         return back()->with('status', 'Événement rejeté.');
     }
 
+    // Soft-deleted — the image stays on disk until the admin permanently
+    // deletes the event from the Corbeille (see Admin\TrashController).
     public function destroy(Evenement $evenement): RedirectResponse
     {
-        $this->deleteUploadedImage($evenement->image_path, 'evenements');
         $evenement->delete();
 
         return back()->with('status', 'Événement supprimé.');

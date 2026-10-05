@@ -75,4 +75,34 @@ enum SitePrimaryColor: string
             self::cases(),
         );
     }
+
+    /**
+     * Resolves a stored `appearance.site_primary` value into [primary, dark] —
+     * either one of this enum's fixed pairs, or, when the admin picked a
+     * custom color via the native color-wheel picker (stored as a raw
+     * "#rrggbb" string instead of an enum key), that hex plus a programmatically
+     * darkened variant for --color-isstm-navy-dark.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function resolve(?string $value): array
+    {
+        if ($value !== null && preg_match('/^#[0-9a-f]{6}$/i', $value) === 1) {
+            return [$value, self::darken($value, 0.4)];
+        }
+
+        return (self::tryFrom($value ?? '') ?? self::Navy)->colors();
+    }
+
+    private static function darken(string $hex, float $amount): string
+    {
+        [$r, $g, $b] = sscanf($hex, '#%02x%02x%02x');
+
+        return sprintf(
+            '#%02x%02x%02x',
+            (int) round($r * (1 - $amount)),
+            (int) round($g * (1 - $amount)),
+            (int) round($b * (1 - $amount)),
+        );
+    }
 }

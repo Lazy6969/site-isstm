@@ -54,6 +54,7 @@ class QuickEditController extends Controller
             SiteContentType::Image => $request->hasFile('file') ? $this->storeImage($request, $content) : $content->content_value_fr,
             SiteContentType::Text => strip_tags($request->validated('value')),
             SiteContentType::Icon => $request->validated('value'),
+            SiteContentType::Url => (string) $request->validated('value'),
         };
 
         if (in_array($content->type, [SiteContentType::Text, SiteContentType::Image], true)) {

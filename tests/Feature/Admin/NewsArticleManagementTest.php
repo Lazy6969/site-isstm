@@ -78,7 +78,7 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes an article and its uploaded image', function () {
+it('soft-deletes an article, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $article = NewsArticle::factory()->create(['image_path' => 'storage/news/old.jpg']);
@@ -87,7 +87,8 @@ it('deletes an article and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/actualites/{$article->id}")->assertRedirect();
 
     expect(NewsArticle::find($article->id))->toBeNull();
-    Storage::disk('public')->assertMissing('news/old.jpg');
+    expect(NewsArticle::onlyTrashed()->find($article->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('news/old.jpg');
 });
 
 it('shows draft and published articles to the admin, unlike the public page', function () {

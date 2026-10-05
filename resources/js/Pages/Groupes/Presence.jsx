@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { Printer } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Printer } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Card } from '../../Components/ui/card';
@@ -37,6 +37,11 @@ export default function Presence({ group, canMark, students, sessions }) {
                     .printable-presence { position: absolute; left: 0; top: 0; width: 100%; }
                 }
             `}</style>
+
+            <Link href={`/groupes/${group.id}`} className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('groupes.retour_groupe', 'Retour au groupe')}
+            </Link>
 
             <div className="grid gap-6 lg:grid-cols-2">
                 {canMark && (

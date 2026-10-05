@@ -126,6 +126,8 @@ class NotificationController extends Controller
                 'comment_id' => $notification->data['comment_id'] ?? null,
                 'friend_request_id' => $notification->data['friend_request_id'] ?? null,
                 'conversation_id' => $notification->data['conversation_id'] ?? null,
+                'preinscription_id' => $notification->data['preinscription_id'] ?? null,
+                'candidate_name' => $notification->data['candidate_name'] ?? null,
             ];
         });
     }

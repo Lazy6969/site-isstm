@@ -89,6 +89,90 @@ it('rejects an invalid palette, chrome color, font, density, site primary, site 
     ])->assertSessionHasErrors(['palette', 'chrome', 'font', 'density', 'sitePrimary', 'siteAccent', 'siteMenu', 'siteFooter']);
 });
 
+it('updates only the site primary color without resetting the other appearance settings', function () {
+    // Mirrors what the public-site quick color picker submits (see
+    // SitePrimaryColorPicker.jsx) — it only ever sends `sitePrimary`.
+    $admin = User::factory()->role(Role::Admin)->create();
+    Setting::set('appearance.font', 'inter');
+    Setting::set('appearance.chrome', 'black');
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'sitePrimary' => 'burgundy',
+    ])->assertRedirect();
+
+    expect(Setting::get('appearance.site_primary'))->toBe('burgundy');
+    expect(Setting::get('appearance.font'))->toBe('inter');
+    expect(Setting::get('appearance.chrome'))->toBe('black');
+});
+
+it('rejects an invalid site primary color on a partial update', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'sitePrimary' => 'neon',
+    ])->assertSessionHasErrors(['sitePrimary']);
+});
+
+it('lets the super admin pick a custom hex site primary color via the color-wheel picker', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'sitePrimary' => '#1a2b3c',
+    ])->assertRedirect();
+
+    expect(Setting::get('appearance.site_primary'))->toBe('#1a2b3c');
+});
+
+it('rejects a malformed custom hex site primary color', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'sitePrimary' => '#zzzzzz',
+    ])->assertSessionHasErrors(['sitePrimary']);
+});
+
+it('lets the super admin set and clear a custom hero sparkle color', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'heroSparkleColor' => '#ff00ff',
+    ])->assertRedirect();
+    expect(Setting::get('appearance.hero_sparkle_color'))->toBe('#ff00ff');
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'heroSparkleColor' => null,
+    ])->assertRedirect();
+    expect(Setting::get('appearance.hero_sparkle_color'))->toBe('');
+});
+
+it('rejects a malformed hero sparkle color', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->put('/console/settings/appearance', [
+        'heroSparkleColor' => 'not-a-color',
+    ])->assertSessionHasErrors(['heroSparkleColor']);
+});
+
+it('shares the current site primary color and its options on every page', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Setting::set('appearance.site_primary', 'violet');
+
+    $this->actingAs($admin)->get('/historique')->assertInertia(fn ($page) => $page
+        ->where('sitePrimaryColor.current', 'violet')
+        ->has('sitePrimaryColor.options', 12)
+    );
+});
+
+it('resolves a custom hex site primary color to itself in the shared prop', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Setting::set('appearance.site_primary', '#1a2b3c');
+
+    $this->actingAs($admin)->get('/historique')->assertInertia(fn ($page) => $page
+        ->where('sitePrimaryColor.current', '#1a2b3c')
+        ->where('sitePrimaryColor.resolvedHex', '#1a2b3c')
+    );
+});
+
 it('forbids a non-super-admin from updating appearance settings', function () {
     $etudiant = User::factory()->role(Role::Etudiant)->create();
 

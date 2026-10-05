@@ -8,6 +8,7 @@ import EditableImage from '../Components/QuickEdit/EditableImage';
 import SeoHead from '../Components/QuickEdit/SeoHead';
 import { useTranslations } from '../lib/useTranslations';
 import { imageStyleToBackgroundCss, imageStyleToCss } from '../lib/imageStyle';
+import BannerBackground from '../Components/QuickEdit/BannerBackground';
 
 function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, description, href }) {
     const { t } = useTranslations();
@@ -112,8 +113,9 @@ export default function VieEtudiante({ content = {} }) {
             />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
+                <BannerBackground contentKey="vie_etudiante_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="vie_etudiante_titre">
                             {content.vie_etudiante_titre}

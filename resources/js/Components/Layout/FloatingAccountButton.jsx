@@ -46,18 +46,25 @@ export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'righ
                 />
             </DropdownMenuTrigger>
             <DropdownMenuContent side={side} align={align}>
-                {hasConsoleAccess ? (
+                {hasConsoleAccess && (
                     <DropdownMenuItem asChild>
                         <Link href="/console/dashboard">{t('nav.tableau_de_bord', 'Tableau de bord admin')}</Link>
                     </DropdownMenuItem>
-                ) : (
+                )}
+                {/* A candidate (role=user, not yet admitted) has no public
+                    profile or community space to speak of — those only make
+                    sense once their dossier is approved and they become a
+                    real community member (see isCommunityMember below). */}
+                {!hasConsoleAccess && isCommunityMember && (
                     <DropdownMenuItem asChild>
                         <Link href={`/profil/${user.id}`}>{t('profil.voir_profil_public', 'Voir mon profil public')}</Link>
                     </DropdownMenuItem>
                 )}
-                <DropdownMenuItem asChild>
-                    <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
-                </DropdownMenuItem>
+                {isCommunityMember && (
+                    <DropdownMenuItem asChild>
+                        <Link href="/profil">{t('profil.modifier_profil', 'Modifier mon profil')}</Link>
+                    </DropdownMenuItem>
+                )}
                 {hasPendingPreinscription && (
                     <DropdownMenuItem asChild>
                         <Link href="/mon-dossier">{t('profil.mon_dossier', 'Mon dossier de préinscription')}</Link>

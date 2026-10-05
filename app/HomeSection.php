@@ -15,6 +15,7 @@ enum HomeSection: string
     case MissionVision = 'mission_vision';
     case Filieres = 'filieres';
     case Actualites = 'actualites';
+    case RejoignezNous = 'rejoignez_nous';
     case Testimonials = 'testimonials';
     case Partenaires = 'partenaires';
 
@@ -26,6 +27,7 @@ enum HomeSection: string
             self::MissionVision => 'Mission & Vision',
             self::Filieres => 'Filières',
             self::Actualites => 'Actualités',
+            self::RejoignezNous => 'Rejoignez-nous',
             self::Testimonials => 'Témoignages',
             self::Partenaires => 'Partenaires',
         };

@@ -5,11 +5,14 @@ namespace App\Models;
 use Database\Factories\GalleryPhotoFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GalleryPhoto extends Model
 {
     /** @use HasFactory<GalleryPhotoFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     protected $fillable = [
         'gallery_album_id',

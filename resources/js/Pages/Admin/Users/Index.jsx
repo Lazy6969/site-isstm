@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { Search, Ban, CheckCircle2 } from 'lucide-react';
+import { Search, Ban, CheckCircle2, Pencil } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Input } from '../../../Components/ui/input';
 import { Badge } from '../../../Components/ui/badge';
@@ -8,6 +8,7 @@ import { Select } from '../../../Components/ui/select';
 import { Avatar, AvatarImage, AvatarFallback } from '../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { useTranslations } from '../../../lib/useTranslations';
+import EditUserProfileDialog from '../../../Components/Admin/EditUserProfileDialog';
 
 function roleLabels(t) {
     return {
@@ -39,6 +40,7 @@ export default function Index({ users, roles }) {
     const ROLE_LABELS = roleLabels(t);
     const currentUserId = props.auth?.user?.id;
     const [search, setSearch] = useState('');
+    const [editingUser, setEditingUser] = useState(null);
 
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
@@ -110,7 +112,7 @@ export default function Index({ users, roles }) {
                                     <TableCell>
                                         <div className="flex items-center gap-3">
                                             <Avatar>
-                                                {user.avatar_path && <AvatarImage src={`/${user.avatar_path}`} alt="" />}
+                                                {user.avatar_path && <AvatarImage src={`/storage/${user.avatar_path}`} alt="" />}
                                                 <AvatarFallback>{initials(user.name)}</AvatarFallback>
                                             </Avatar>
                                             <div>
@@ -146,22 +148,31 @@ export default function Index({ users, roles }) {
                                     <TableCell className="text-sm text-admin-text-secondary">{formatDate(user.last_activity)}</TableCell>
                                     <TableCell className="text-sm text-admin-text-secondary">{formatDate(user.created_at)}</TableCell>
                                     <TableCell className="text-right">
-                                        <button
-                                            onClick={() => toggleActive(user)}
-                                            disabled={isSelf}
-                                            className="inline-flex items-center gap-1.5 rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover disabled:cursor-not-allowed disabled:opacity-40"
-                                            aria-label={
-                                                user.is_active
-                                                    ? `${t('admin.users.deactivate', 'Désactiver')} ${user.name}`
-                                                    : `${t('admin.users.reactivate', 'Réactiver')} ${user.name}`
-                                            }
-                                        >
-                                            {user.is_active ? (
-                                                <Ban className="h-4 w-4 hover:text-red-500" aria-hidden="true" />
-                                            ) : (
-                                                <CheckCircle2 className="h-4 w-4 hover:text-emerald-500" aria-hidden="true" />
-                                            )}
-                                        </button>
+                                        <div className="flex items-center justify-end gap-1">
+                                            <button
+                                                onClick={() => setEditingUser(user)}
+                                                className="inline-flex items-center gap-1.5 rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover"
+                                                aria-label={`${t('admin.users.edit_profile', 'Modifier le profil de')} ${user.name}`}
+                                            >
+                                                <Pencil className="h-4 w-4" aria-hidden="true" />
+                                            </button>
+                                            <button
+                                                onClick={() => toggleActive(user)}
+                                                disabled={isSelf}
+                                                className="inline-flex items-center gap-1.5 rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover disabled:cursor-not-allowed disabled:opacity-40"
+                                                aria-label={
+                                                    user.is_active
+                                                        ? `${t('admin.users.deactivate', 'Désactiver')} ${user.name}`
+                                                        : `${t('admin.users.reactivate', 'Réactiver')} ${user.name}`
+                                                }
+                                            >
+                                                {user.is_active ? (
+                                                    <Ban className="h-4 w-4 hover:text-red-500" aria-hidden="true" />
+                                                ) : (
+                                                    <CheckCircle2 className="h-4 w-4 hover:text-emerald-500" aria-hidden="true" />
+                                                )}
+                                            </button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             );
@@ -169,6 +180,8 @@ export default function Index({ users, roles }) {
                     </TableBody>
                 </Table>
             </div>
+
+            <EditUserProfileDialog open={editingUser !== null} onClose={() => setEditingUser(null)} user={editingUser} />
         </AdminLayout>
     );
 }

@@ -5,16 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\MediaType;
-use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostMedia;
-use App\Models\Reaction;
 use App\Models\User;
 use App\Notifications\NewPostPublished;
 use App\PostType;
-use App\ReactionType;
 use App\Role;
 use App\Services\ConversationListBuilder;
+use App\Services\PostPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -23,14 +21,21 @@ use Inertia\Response;
 
 class PostController extends Controller
 {
+    public function __construct(private readonly PostPresenter $presenter) {}
+
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $friendIds = $user->friends()->pluck('id');
 
         $posts = Post::query()
             ->whereDoesntHave('hiddenBy', fn ($query) => $query->where('users.id', $user->id))
             ->whereNull('archived_at')
-            ->with($this->eagerLoad())
+            ->where(fn ($query) => $query
+                ->where('visibility', 'public')
+                ->orWhere('user_id', $user->id)
+                ->orWhere(fn ($friendsOnly) => $friendsOnly->where('visibility', 'amis')->whereIn('user_id', $friendIds)))
+            ->with($this->presenter->eagerLoad())
             ->withCount('viewedBy')
             ->orderByRaw('pinned_at is null')
             ->orderByDesc('pinned_at')
@@ -38,24 +43,29 @@ class PostController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $posts->getCollection()->transform(fn (Post $post) => $this->presentPost($post, $user));
+        $posts->getCollection()->transform(fn (Post $post) => $this->presenter->present($post, $user));
 
         return Inertia::render('Communaute/Index', [
             'posts' => $posts,
             'canPublish' => $user->hasLegacyRole(Role::Etudiant, Role::Admin, Role::Enseignant),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
+            'friends' => $user->friends()->map(fn (User $friend) => [
+                'id' => $friend->id,
+                'name' => $friend->name,
+                'avatar_path' => $friend->avatar_path,
+            ])->values(),
             'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(10)->values(),
         ]);
     }
 
     public function show(Request $request, Post $post): Response
     {
-        $post->load($this->eagerLoad());
+        $post->load($this->presenter->eagerLoad());
         $post->viewedBy()->syncWithoutDetaching([$request->user()->id]);
         $post->loadCount('viewedBy');
 
         return Inertia::render('Communaute/Show', [
-            'post' => $this->presentPost($post, $request->user()),
+            'post' => $this->presenter->present($post, $request->user()),
         ]);
     }
 
@@ -64,13 +74,13 @@ class PostController extends Controller
         $user = $request->user();
 
         $posts = $user->savedPosts()
-            ->with($this->eagerLoad())
+            ->with($this->presenter->eagerLoad())
             ->withCount('viewedBy')
             ->latest('post_saves.created_at')
             ->paginate(10)
             ->withQueryString();
 
-        $posts->getCollection()->transform(fn (Post $post) => $this->presentPost($post, $user));
+        $posts->getCollection()->transform(fn (Post $post) => $this->presenter->present($post, $user));
 
         return Inertia::render('Communaute/Enregistres', [
             'posts' => $posts,
@@ -84,13 +94,13 @@ class PostController extends Controller
         $posts = Post::query()
             ->where('user_id', $user->id)
             ->whereNotNull('archived_at')
-            ->with($this->eagerLoad())
+            ->with($this->presenter->eagerLoad())
             ->withCount('viewedBy')
             ->latest('archived_at')
             ->paginate(10)
             ->withQueryString();
 
-        $posts->getCollection()->transform(fn (Post $post) => $this->presentPost($post, $user));
+        $posts->getCollection()->transform(fn (Post $post) => $this->presenter->present($post, $user));
 
         return Inertia::render('Communaute/Archives', [
             'posts' => $posts,
@@ -99,12 +109,20 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request): RedirectResponse
     {
+        $user = $request->user();
+
         $post = Post::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'shared_post_id' => $request->validated('shared_post_id'),
             'type' => $request->validated('type'),
             'body' => $request->validated('body'),
+            'visibility' => $request->validated('visibility') ?? 'public',
+            'mood' => $request->validated('mood'),
+            'location' => $request->validated('location'),
         ]);
+
+        $friendIds = $user->friends()->pluck('id');
+        $post->taggedUsers()->sync(collect($request->validated('tagged_user_ids', []))->intersect($friendIds));
 
         foreach ($request->file('media', []) as $order => $file) {
             $mediaType = MediaType::fromMimeType($file->getMimeType());
@@ -148,82 +166,5 @@ class PostController extends Controller
         $post->delete();
 
         return back()->with('status', 'Publication supprimée.');
-    }
-
-    /**
-     * @return array<int|string, mixed>
-     */
-    private function eagerLoad(): array
-    {
-        return [
-            'user',
-            'media',
-            'reactions',
-            'savedBy',
-            'sharedPost.user',
-            'sharedPost.media',
-            'sharedPost.reactions',
-            'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user', 'replies.replies.user'])->oldest(),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function presentPost(Post $post, User $viewer, bool $nested = false): array
-    {
-        $reactionCounts = $post->reactions->countBy(fn (Reaction $reaction) => $reaction->type->value);
-        $myReaction = $post->reactions->firstWhere('user_id', $viewer->id);
-
-        return [
-            'id' => $post->id,
-            'type' => $post->type->value,
-            'type_label' => $post->type->label(),
-            'body' => $post->body,
-            'created_at' => $post->created_at,
-            'edited_at' => $post->edited_at,
-            'comments_disabled' => $post->comments_disabled,
-            'views_count' => $nested ? 0 : ($post->viewed_by_count ?? 0),
-            'is_pinned' => $post->pinned_at !== null,
-            'is_archived' => $post->archived_at !== null,
-            'user' => [
-                'id' => $post->user->id,
-                'name' => $post->user->name,
-                'avatar_path' => $post->user->avatar_path,
-                'role_label' => $post->user->role->label(),
-            ],
-            'can_manage' => ! $nested && ($viewer->hasLegacyRole(Role::Admin) || $post->user_id === $viewer->id),
-            'media' => $post->media->map(fn (PostMedia $media) => [
-                'id' => $media->id,
-                'path' => $media->path,
-                'type' => $media->type->value,
-            ]),
-            'reactions' => collect(ReactionType::cases())
-                ->mapWithKeys(fn (ReactionType $type) => [$type->value => $reactionCounts->get($type->value, 0)]),
-            'my_reaction' => $myReaction?->type->value,
-            'is_saved' => ! $nested && $post->savedBy->contains('id', $viewer->id),
-            'shared_post' => ! $nested && $post->sharedPost ? $this->presentPost($post->sharedPost, $viewer, nested: true) : null,
-            'comments' => $nested ? [] : $post->comments->map(fn (Comment $comment) => $this->presentComment($comment, $viewer)),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function presentComment(Comment $comment, User $viewer): array
-    {
-        return [
-            'id' => $comment->id,
-            'body' => $comment->body,
-            'created_at' => $comment->created_at,
-            'edited_at' => $comment->edited_at,
-            'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $comment->user_id === $viewer->id,
-            'user' => [
-                'id' => $comment->user->id,
-                'name' => $comment->user->name,
-                'avatar_path' => $comment->user->avatar_path,
-            ],
-            'replies' => $comment->replies->map(fn (Comment $reply) => $this->presentComment($reply, $viewer)),
-        ];
     }
 }

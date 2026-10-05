@@ -60,7 +60,7 @@ it('replaces the uploaded logo and deletes the previous one, but never a bundled
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes a partenaire and its uploaded logo', function () {
+it('soft-deletes a partenaire, keeping its logo until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $partenaire = Partenaire::factory()->create(['logo_path' => 'storage/partenaires/old.jpg']);
@@ -69,7 +69,8 @@ it('deletes a partenaire and its uploaded logo', function () {
     $this->actingAs($admin)->delete("/console/partenaires/{$partenaire->id}")->assertRedirect();
 
     expect(Partenaire::find($partenaire->id))->toBeNull();
-    Storage::disk('public')->assertMissing('partenaires/old.jpg');
+    expect(Partenaire::onlyTrashed()->find($partenaire->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('partenaires/old.jpg');
 });
 
 it('shows all partenaires to the admin', function () {

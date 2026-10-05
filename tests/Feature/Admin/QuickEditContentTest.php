@@ -170,6 +170,38 @@ it('saves a whitelisted formatting style alongside the text value', function () 
     ]);
 });
 
+it('saves an underline shape and one of the newer font choices', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['underline' => true, 'underline_style' => 'wavy', 'font' => 'playfair'],
+        ])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBe([
+        'underline' => true,
+        'underline_style' => 'wavy',
+        'font' => 'playfair',
+    ]);
+});
+
+it('rejects an unknown underline shape or font', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'mission_contenu']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'mission_contenu',
+            'value' => 'Nouveau texte',
+            'style' => ['underline_style' => 'squiggly', 'font' => 'comic-sans'],
+        ])
+        ->assertSessionHasErrors(['style.underline_style', 'style.font']);
+});
+
 it('rejects a style with a value outside the whitelisted options', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     SiteContent::factory()->create(['content_key' => 'mission_contenu']);
@@ -394,4 +426,107 @@ it('rejects an image style with a value outside the whitelisted options', functi
     $this->actingAs($admin)
         ->post('/console/content/update', ['key' => 'mission_image_path', 'style' => ['filter' => 'rainbow']])
         ->assertSessionHasErrors('style.filter');
+});
+
+it('lets a super admin set a url value and syncs it across every locale, with no translation', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'bibliotheque_lien',
+        'type' => SiteContentType::Url,
+        'content_value_fr' => '',
+        'content_value_en' => '',
+        'content_value_mg' => '',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'bibliotheque_lien', 'value' => 'https://bibliotheque.example.com'])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('https://bibliotheque.example.com');
+    expect($content->content_value_en)->toBe('https://bibliotheque.example.com');
+    expect($content->content_value_mg)->toBe('https://bibliotheque.example.com');
+});
+
+it('lets a super admin clear a url value back to empty', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'bibliotheque_lien',
+        'type' => SiteContentType::Url,
+        'content_value_fr' => 'https://ancien-lien.example.com',
+        'content_value_en' => 'https://ancien-lien.example.com',
+        'content_value_mg' => 'https://ancien-lien.example.com',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'bibliotheque_lien', 'value' => ''])
+        ->assertRedirect();
+
+    expect($content->refresh()->content_value_fr)->toBe('');
+});
+
+it('forbids a user without quick-edit.text from setting a url value', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+    SiteContent::factory()->create(['content_key' => 'bibliotheque_lien', 'type' => SiteContentType::Url]);
+
+    $this->actingAs($etudiant)
+        ->post('/console/content/update', ['key' => 'bibliotheque_lien', 'value' => 'https://bibliotheque.example.com'])
+        ->assertForbidden();
+});
+
+it('lets a super admin set a valid GPS coordinate pair on a _coords key', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'contact_carte_principale_coords',
+        'type' => SiteContentType::Url,
+        'content_value_fr' => '-15.702528,46.353861',
+        'content_value_en' => '-15.702528,46.353861',
+        'content_value_mg' => '-15.702528,46.353861',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'contact_carte_principale_coords', 'value' => '-15.71,46.32'])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toBe('-15.71,46.32');
+    expect($content->content_value_en)->toBe('-15.71,46.32');
+    expect($content->content_value_mg)->toBe('-15.71,46.32');
+});
+
+it('rejects a malformed value on a _coords key', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'contact_carte_principale_coords', 'type' => SiteContentType::Url]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'contact_carte_principale_coords', 'value' => 'not-a-coordinate'])
+        ->assertSessionHasErrors('value');
+});
+
+it('saves a parcours card style (icon and blur)', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'rejoindre_parcours_1']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'rejoindre_parcours_1',
+            'value' => 'Préinscription',
+            'style' => ['icon' => 'IdCard', 'blur' => 'lg'],
+        ])
+        ->assertRedirect();
+
+    expect($content->refresh()->style)->toBe(['icon' => 'IdCard', 'blur' => 'lg']);
+});
+
+it('rejects a parcours card style outside the whitelisted options', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'rejoindre_parcours_1']);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', [
+            'key' => 'rejoindre_parcours_1',
+            'value' => 'Préinscription',
+            'style' => ['blur' => 'extreme', 'icon' => 'NotAnIcon'],
+        ])
+        ->assertSessionHasErrors(['style.blur', 'style.icon']);
 });

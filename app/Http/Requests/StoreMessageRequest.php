@@ -2,11 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ValidatesAttachmentMimes;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreMessageRequest extends FormRequest
 {
+    use ValidatesAttachmentMimes;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -25,7 +28,7 @@ class StoreMessageRequest extends FormRequest
         return [
             'body' => ['required_without:attachments', 'nullable', 'string', 'max:5000'],
             'attachments' => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf,ogg,mp3,wav,m4a,weba'],
+            'attachments.*' => ['file', 'max:10240', 'mimes:'.$this->attachmentMimes()],
             'reply_to_id' => ['nullable', 'integer', 'exists:messages,id'],
         ];
     }

@@ -10,101 +10,88 @@ use App\Models\Evenement;
 use App\Models\Filiere;
 use App\Models\GalleryAlbum;
 use App\Models\NewsArticle;
-use App\Models\Post;
 use App\Models\Teacher;
-use App\Models\User;
 use App\NewsStatus;
-use App\Role;
+use App\Support\Search\TokenSearch;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SearchController extends Controller
 {
+    /**
+     * Site content only — filières, enseignants, actualités, campus, galerie,
+     * événements, documents. Never publications or comptes: those live on
+     * their own `/communaute/recherche` endpoint (CommunitySearchController),
+     * so the public site search and the community search never mix, no
+     * matter who's asking.
+     */
     public function index(Request $request): Response
     {
         $term = trim((string) $request->string('q'));
+        $tokens = TokenSearch::tokenize($term);
         $results = [];
 
-        if ($term !== '') {
-            $like = '%'.$term.'%';
-
+        if ($tokens !== []) {
             $results['filieres'] = Filiere::query()
-                ->where('nom_fr', 'like', $like)
-                ->orWhere('description_fr', 'like', $like)
+                ->select(['slug', 'nom_fr as title', 'mention as subtitle'])
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['nom_fr', 'code', 'mention', 'description_fr', 'debouches_fr']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'nom_fr', ['code', 'mention', 'description_fr', 'debouches_fr']))
                 ->limit(5)
-                ->get(['slug', 'nom_fr as title', 'mention as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => "/filieres/{$item->slug}"]);
 
             $results['enseignants'] = Teacher::query()
-                ->where('name', 'like', $like)
-                ->orWhere('specialty_fr', 'like', $like)
+                ->select(['name as title', 'specialty_fr as subtitle'])
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['name', 'specialty_fr', 'description_fr', 'departement']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'name', ['specialty_fr', 'description_fr', 'departement']))
                 ->limit(5)
-                ->get(['name as title', 'specialty_fr as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => '/enseignants']);
 
             $results['actualites'] = NewsArticle::query()
+                ->select(['slug', 'title', 'excerpt as subtitle'])
                 ->where('status', NewsStatus::Publie)
-                ->where(fn ($query) => $query->where('title', 'like', $like)->orWhere('excerpt', 'like', $like))
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'excerpt', 'content', 'author']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['excerpt', 'content', 'author']))
                 ->limit(5)
-                ->get(['slug', 'title', 'excerpt as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => "/actualites/{$item->slug}"]);
 
             $results['campus'] = CampusBloc::query()
-                ->where('nom', 'like', $like)
-                ->orWhere('signification', 'like', $like)
+                ->select(['bloc_key', 'nom as title', 'signification as subtitle'])
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['nom', 'signification', 'slogan', 'fondateurs', 'objectifs', 'activites']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'nom', ['signification', 'slogan', 'fondateurs', 'objectifs', 'activites']))
                 ->limit(5)
-                ->get(['bloc_key', 'nom as title', 'signification as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => "/campus/{$item->bloc_key}"]);
 
             $results['galerie'] = GalleryAlbum::query()
+                ->select(['slug', 'title', 'location as subtitle'])
                 ->where('status', GalleryStatus::Publie)
-                ->where(fn ($query) => $query->where('title', 'like', $like)->orWhere('description', 'like', $like))
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'description', 'location', 'author']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['description', 'location', 'author']))
                 ->limit(5)
-                ->get(['slug', 'title', 'location as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => "/galerie/{$item->slug}"]);
 
             $results['evenements'] = Evenement::query()
+                ->select(['titre as title', 'lieu as subtitle'])
                 ->where('status', EvenementStatus::Publie)
-                ->where(fn ($query) => $query->where('titre', 'like', $like)->orWhere('description', 'like', $like))
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['titre', 'description', 'lieu', 'categorie']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'titre', ['description', 'lieu', 'categorie']))
                 ->limit(5)
-                ->get(['titre as title', 'lieu as subtitle'])
+                ->get()
                 ->map(fn ($item) => [...$item->toArray(), 'url' => '/evenements']);
 
             $results['documents'] = Document::query()
-                ->where('title', 'like', $like)
+                ->select(['title', 'category as subtitle', 'file_path'])
+                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'category']))
+                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['category']))
                 ->limit(5)
-                ->get(['title', 'category as subtitle', 'file_path'])
+                ->get()
                 ->map(fn ($item) => ['title' => $item->title, 'subtitle' => $item->subtitle, 'url' => "/{$item->file_path}"]);
-
-            // Fil communautaire — réservé aux membres de la communauté (admin/enseignant/étudiant),
-            // pour ne jamais faire fuiter des publications ou des comptes vers une recherche publique.
-            $user = $request->user();
-            if ($user && in_array($user->role, [Role::Admin, Role::Enseignant, Role::Etudiant], true)) {
-                $results['publications'] = Post::query()
-                    ->where('body', 'like', $like)
-                    ->with('user:id,name')
-                    ->latest()
-                    ->limit(5)
-                    ->get()
-                    ->map(fn (Post $post) => [
-                        'title' => Str::limit($post->body, 80),
-                        'subtitle' => $post->user?->name,
-                        'url' => '/communaute',
-                    ]);
-
-                $results['personnes'] = User::query()
-                    ->where('name', 'like', $like)
-                    ->whereIn('role', [Role::Admin, Role::Enseignant, Role::Etudiant])
-                    ->limit(5)
-                    ->get(['id', 'name', 'role'])
-                    ->map(fn (User $person) => [
-                        'title' => $person->name,
-                        'subtitle' => $person->role->label(),
-                        'url' => "/profil/{$person->id}",
-                    ]);
-            }
         }
 
         return Inertia::render('Search/Index', [

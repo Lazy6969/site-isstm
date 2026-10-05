@@ -25,7 +25,7 @@ import {
     ExternalLink,
     Inbox,
 } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import AdminLayout from '../../Components/Layout/AdminLayout';
 import StatCard from '../../Components/Admin/StatCard';
 import ChartCard from '../../Components/Admin/ChartCard';
@@ -133,6 +133,7 @@ export default function Dashboard({
     etudiantsParNiveau,
     etudiantsParFiliere,
     activiteRecente,
+    dossiersParType = [],
 }) {
     const { t } = useTranslations();
     const permissions = usePage().props.auth?.permissions ?? [];
@@ -229,6 +230,23 @@ export default function Dashboard({
                                     dot={{ r: 3, fill: 'var(--color-admin-chart-1)', strokeWidth: 0 }}
                                 />
                             </AreaChart>
+                        </ResponsiveContainer>
+                    </ChartCard>
+
+                    <ChartCard
+                        title={t('admin.dashboard.dossiers_par_type_title', 'Dossiers par type')}
+                        description={t('admin.dashboard.dossiers_par_type_desc', 'Préinscriptions, réinscriptions et redoublants — état actuel')}
+                    >
+                        <ResponsiveContainer width="100%" height={240}>
+                            <BarChart data={dossiersParType} margin={{ left: -20, right: 10, top: 10 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-admin-border)" vertical={false} />
+                                <XAxis dataKey="type" tick={axisTick} axisLine={{ stroke: 'var(--color-admin-border)' }} tickLine={false} />
+                                <YAxis allowDecimals={false} tick={axisTick} axisLine={false} tickLine={false} width={30} />
+                                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'var(--color-admin-hover)' }} />
+                                <Bar dataKey="en_cours" name={t('admin.dashboard.dossiers_en_cours', 'En cours')} stackId="dossiers" fill="var(--color-admin-chart-2)" />
+                                <Bar dataKey="valide" name={t('admin.dashboard.dossiers_valide', 'Validé')} stackId="dossiers" fill="var(--color-admin-chart-3)" />
+                                <Bar dataKey="refuse" name={t('admin.dashboard.dossiers_refuse', 'Refusé')} stackId="dossiers" fill="var(--color-admin-chart-5)" radius={[4, 4, 0, 0]} />
+                            </BarChart>
                         </ResponsiveContainer>
                     </ChartCard>
 

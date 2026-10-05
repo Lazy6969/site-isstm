@@ -7,12 +7,13 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select } from '../ui/select';
-import { ALIGN_OPTIONS, FONT_OPTIONS, TEXT_TRANSFORM_OPTIONS } from '../../lib/textStyle';
+import { ALIGN_OPTIONS, FONT_OPTIONS, TEXT_TRANSFORM_OPTIONS, UNDERLINE_STYLE_OPTIONS } from '../../lib/textStyle';
 
 const DEFAULT_STYLE = {
     bold: false,
     italic: false,
     underline: false,
+    underline_style: 'solid',
     strikethrough: false,
     align: 'left',
     font_size: '',
@@ -35,7 +36,10 @@ function toStylePayload(style) {
     const payload = {};
     if (style.bold) payload.bold = true;
     if (style.italic) payload.italic = true;
-    if (style.underline) payload.underline = true;
+    if (style.underline) {
+        payload.underline = true;
+        if (style.underline_style !== DEFAULT_STYLE.underline_style) payload.underline_style = style.underline_style;
+    }
     if (style.strikethrough) payload.strikethrough = true;
     if (style.align !== DEFAULT_STYLE.align) payload.align = style.align;
     if (style.font_size !== '') payload.font_size = Number(style.font_size);
@@ -179,6 +183,22 @@ export default function EditTextDialog({ open, onClose, contentKey, initialValue
                                     ))}
                                 </Select>
                             </div>
+                            {style.underline && (
+                                <div className="space-y-1">
+                                    <Label htmlFor="qe-underline-style">Forme du soulignement</Label>
+                                    <Select
+                                        id="qe-underline-style"
+                                        value={style.underline_style}
+                                        onChange={(e) => patchStyle({ underline_style: e.target.value })}
+                                    >
+                                        {UNDERLINE_STYLE_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </div>
+                            )}
                             <div className="space-y-1">
                                 <Label htmlFor="qe-font-size">Taille (px)</Label>
                                 <Input

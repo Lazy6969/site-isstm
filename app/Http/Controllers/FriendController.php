@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\FriendRequestStatus;
+use App\Models\Candidat;
 use App\Models\FriendRequest;
-use App\Models\Preinscription;
 use App\Models\User;
 use App\Notifications\FriendRequestAccepted;
 use App\Notifications\FriendRequestReceived;
@@ -119,7 +119,7 @@ class FriendController extends Controller
      */
     private function presentUser(User $candidate, User $viewer): array
     {
-        $preinscription = $candidate->role === Role::Etudiant ? $candidate->approvedPreinscription()?->load('filiere') : null;
+        $preinscription = $candidate->role === Role::Etudiant ? $candidate->approvedCandidat()?->load('filiere') : null;
         $friendRequest = $viewer->friendshipWith($candidate);
 
         return [
@@ -161,12 +161,12 @@ class FriendController extends Controller
             ->push($user->id)
             ->unique();
 
-        $filiereId = $user->approvedPreinscription()?->filiere_id;
+        $filiereId = $user->approvedCandidat()?->filiere_id;
 
         $suggestions = new Collection;
 
         if ($filiereId !== null) {
-            $sameFiliereUserIds = Preinscription::query()
+            $sameFiliereUserIds = Candidat::query()
                 ->where('filiere_id', $filiereId)
                 ->where('status', PreinscriptionStatus::Accepte)
                 ->whereNotNull('user_id')

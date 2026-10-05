@@ -24,6 +24,12 @@ export function notificationLink(notification) {
                 : `/communaute/${notification.post_id}`;
         case 'nouvelle_publication':
             return notification.post_id ? `/communaute/${notification.post_id}` : '/communaute';
+        case 'nouvelle_preinscription':
+            return notification.preinscription_id
+                ? `/console/preinscriptions/${notification.preinscription_id}`
+                : '/console/preinscriptions';
+        case 'nouvelle_reactivation':
+            return '/console/reactivations';
         default:
             return '/notifications';
     }

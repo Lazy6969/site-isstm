@@ -93,6 +93,32 @@ function SwatchPicker({ options, value, onChange, dark = false }) {
     );
 }
 
+/** Native color-wheel/RGB picker tile — lets the admin pick any hex instead of a fixed preset. */
+function CustomColorSwatch({ value, onChange }) {
+    const { t } = useTranslations();
+    const isCustom = typeof value === 'string' && value.startsWith('#');
+
+    return (
+        <label
+            className={`mt-2.5 flex w-fit cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition ${
+                isCustom ? 'border-admin-accent bg-admin-hover' : 'border-admin-border hover:bg-admin-hover'
+            }`}
+        >
+            <span
+                className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-black/10"
+                style={{ background: isCustom ? value : 'conic-gradient(red, yellow, lime, cyan, blue, magenta, red)' }}
+            >
+                {isCustom && <Check className="h-3.5 w-3.5 text-white mix-blend-difference" aria-hidden="true" />}
+            </span>
+            <span className="text-admin-text">
+                {t('admin.appearance.custom_color', 'Personnalisée')}
+                {isCustom ? ` (${value})` : ''}
+            </span>
+            <input type="color" value={isCustom ? value : '#000000'} onChange={(e) => onChange(e.target.value)} className="sr-only" />
+        </label>
+    );
+}
+
 function Card({ id, refCallback, icon: Icon, title, description, children }) {
     return (
         <section id={id} ref={refCallback} className="admin-card scroll-mt-32 p-5">
@@ -321,6 +347,7 @@ export default function Appearance({ settings, palettes, chromes, fonts, sitePri
                                     <div key={key}>
                                         <p className="mb-2.5 text-sm font-medium text-admin-text">{label}</p>
                                         <SwatchPicker options={options} value={form.data[key]} onChange={(value) => form.setData(key, value)} dark={dark} />
+                                        {key === 'sitePrimary' && <CustomColorSwatch value={form.data.sitePrimary} onChange={(value) => form.setData('sitePrimary', value)} />}
                                     </div>
                                 ))}
                             </div>

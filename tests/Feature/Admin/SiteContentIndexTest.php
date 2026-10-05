@@ -33,3 +33,13 @@ it('groups an unrecognized key prefix under Autres', function () {
         ->has('groups.Autres', 1)
     );
 });
+
+it('groups every bibliotheque_ key, including the url-typed link, under Bibliothèque', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'bibliotheque_titre']);
+    SiteContent::factory()->create(['content_key' => 'bibliotheque_lien', 'type' => SiteContentType::Url]);
+
+    $this->actingAs($admin)->get('/console/contenu')->assertInertia(fn ($page) => $page
+        ->has('groups.Bibliothèque', 2)
+    );
+});

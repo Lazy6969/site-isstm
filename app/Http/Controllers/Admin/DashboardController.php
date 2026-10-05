@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Candidat;
 use App\Models\Classe;
 use App\Models\Etudiant;
 use App\Models\Filiere;
@@ -10,7 +11,6 @@ use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
-use App\Models\Preinscription;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use App\NewsStatus;
@@ -30,7 +30,7 @@ class DashboardController extends Controller
             'stats' => [
                 'etudiants' => Etudiant::count(),
                 'classes' => Classe::count(),
-                'preinscriptions_en_attente' => Preinscription::where('status', PreinscriptionStatus::Soumis)->count(),
+                'preinscriptions_en_attente' => Candidat::where('status', PreinscriptionStatus::Soumis)->count(),
                 'inscriptions_validees' => Inscription::where('statut', StatutInscription::Validee)->count(),
             ],
             'contentStats' => [
@@ -46,7 +46,7 @@ class DashboardController extends Controller
             'trends' => [
                 'etudiants' => $this->monthlyTrend(Etudiant::query(), 'created_at'),
                 'classes' => $this->monthlyTrend(Classe::query(), 'created_at'),
-                'preinscriptions_en_attente' => $this->monthlyTrend(Preinscription::query(), 'created_at'),
+                'preinscriptions_en_attente' => $this->monthlyTrend(Candidat::query(), 'created_at'),
                 'inscriptions_validees' => $this->monthlyTrend(Inscription::where('statut', StatutInscription::Validee), 'created_at'),
                 'filieres' => $this->monthlyTrend(Filiere::query(), 'created_at'),
                 'enseignants' => $this->monthlyTrend(Teacher::query(), 'created_at'),
@@ -59,7 +59,42 @@ class DashboardController extends Controller
             'etudiantsParNiveau' => $this->etudiantsParNiveau(),
             'etudiantsParFiliere' => $this->etudiantsParFiliere(),
             'activiteRecente' => $this->activiteRecente(),
+            'dossiersParType' => $this->dossiersParType(),
         ]);
+    }
+
+    /**
+     * Préinscription/Réinscription/Redoublant dossiers grouped into 3 buckets
+     * — en cours (brouillon through à compléter), validé, refusé — for the
+     * "Dossiers par type" chart.
+     *
+     * @return array<int, array{type: string, en_cours: int, valide: int, refuse: int}>
+     */
+    private function dossiersParType(): array
+    {
+        $enCoursPreinscription = ['brouillon', 'en_attente', 'en_cours_examen', 'a_completer'];
+        $enCoursInscription = ['brouillon', 'en_attente', 'en_cours_examen', 'a_completer'];
+
+        return [
+            [
+                'type' => 'Préinscription',
+                'en_cours' => Candidat::whereIn('status', $enCoursPreinscription)->count(),
+                'valide' => Candidat::where('status', PreinscriptionStatus::Accepte)->count(),
+                'refuse' => Candidat::where('status', PreinscriptionStatus::Refuse)->count(),
+            ],
+            [
+                'type' => 'Réinscription',
+                'en_cours' => Inscription::where('type', 'reinscription')->whereIn('statut', $enCoursInscription)->count(),
+                'valide' => Inscription::where('type', 'reinscription')->where('statut', StatutInscription::Validee)->count(),
+                'refuse' => Inscription::where('type', 'reinscription')->where('statut', StatutInscription::Annulee)->count(),
+            ],
+            [
+                'type' => 'Redoublant',
+                'en_cours' => Inscription::where('type', 'redoublement')->whereIn('statut', $enCoursInscription)->count(),
+                'valide' => Inscription::where('type', 'redoublement')->where('statut', StatutInscription::Validee)->count(),
+                'refuse' => Inscription::where('type', 'redoublement')->where('statut', StatutInscription::Annulee)->count(),
+            ],
+        ];
     }
 
     private const MOIS_ABREGES = [
@@ -76,13 +111,13 @@ class DashboardController extends Controller
     {
         $depuis = now()->subMonths(5)->startOfMonth();
 
-        $preinscriptions = Preinscription::where('created_at', '>=', $depuis)->get(['created_at']);
+        $preinscriptions = Candidat::where('created_at', '>=', $depuis)->get(['created_at']);
 
         return collect(range(5, 0))
             ->map(fn (int $i) => now()->subMonths($i)->startOfMonth())
             ->map(fn (Carbon $mois) => [
                 'mois' => self::MOIS_ABREGES[(int) $mois->format('n')].' '.$mois->format('Y'),
-                'total' => $preinscriptions->filter(fn (Preinscription $p) => $p->created_at->isSameMonth($mois))->count(),
+                'total' => $preinscriptions->filter(fn (Candidat $p) => $p->created_at->isSameMonth($mois))->count(),
             ])
             ->all();
     }
@@ -145,7 +180,7 @@ class DashboardController extends Controller
      */
     private function activiteRecente(): array
     {
-        $preinscriptions = Preinscription::latest()->take(5)->get()->map(fn (Preinscription $p) => [
+        $preinscriptions = Candidat::latest()->take(5)->get()->map(fn (Candidat $p) => [
             'type' => 'preinscription',
             'label' => 'Nouvelle préinscription',
             'subject' => trim("{$p->nom} {$p->prenoms}"),

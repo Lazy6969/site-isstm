@@ -29,7 +29,7 @@ export default function MobileTabBar() {
 
     const accountTab = user
         ? { href: '/profil', label: t('nav.compte', 'Compte'), icon: User }
-        : { href: '/preinscription', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
+        : { href: '/rejoindre', label: t('vie_etudiante.sinscrire', "S'inscrire"), icon: LogIn };
 
     const moreLinks = [
         ...getVieEtudianteLinks(t),
@@ -42,7 +42,7 @@ export default function MobileTabBar() {
     return (
         <>
             <nav
-                className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom,0px)] text-isstm-navy shadow-[0_-2px_10px_rgba(0,0,0,0.06)] md:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom,0px)] text-isstm-navy shadow-[0_-2px_10px_rgba(0,0,0,0.06)] lg:hidden dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                 aria-label="Navigation mobile"
             >
                 <Link href="/" className="flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium">
@@ -76,7 +76,7 @@ export default function MobileTabBar() {
             </nav>
 
             <Sheet open={etablissementOpen} onOpenChange={setEtablissementOpen}>
-                <SheetContent side="bottom" className="md:hidden">
+                <SheetContent side="bottom" className="lg:hidden">
                     <SheetTitle>{t('nav.etablissement', 'Établissement')}</SheetTitle>
                     <nav className="mt-4 flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                         {etablissementLinks.map((item) => (
@@ -94,7 +94,7 @@ export default function MobileTabBar() {
             </Sheet>
 
             <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-                <SheetContent side="bottom" className="md:hidden">
+                <SheetContent side="bottom" className="lg:hidden">
                     <SheetTitle>{t('nav.plus', 'Plus')}</SheetTitle>
                     <nav className="mt-4 flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                         {moreLinks.map((item) => (

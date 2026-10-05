@@ -33,9 +33,10 @@ class GalleryPhotoController extends Controller
         return back()->with('status', 'Photo(s) ajoutée(s).');
     }
 
+    // Soft-deleted — the file stays on disk until the admin permanently
+    // deletes the photo from the Corbeille (see Admin\TrashController).
     public function destroy(GalleryPhoto $photo): RedirectResponse
     {
-        $this->deleteUploadedImage($photo->image_path, 'galerie');
         $photo->delete();
 
         return back()->with('status', 'Photo supprimée.');

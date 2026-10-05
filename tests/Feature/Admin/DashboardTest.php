@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Candidat;
 use App\Models\Classe;
 use App\Models\Etudiant;
 use App\Models\Filiere;
@@ -7,7 +8,6 @@ use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
-use App\Models\Preinscription;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use App\Models\User;
@@ -26,7 +26,7 @@ it('shows aggregate stats to an admin', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $classe = Classe::factory()->create();
     $etudiants = Etudiant::factory()->count(2)->create(['classe_id' => $classe->id]);
-    Preinscription::factory()->create(['status' => PreinscriptionStatus::Soumis]);
+    Candidat::factory()->create(['status' => PreinscriptionStatus::Soumis]);
     Inscription::factory()->create([
         'etudiant_id' => $etudiants->first()->id,
         'classe_id' => $classe->id,
@@ -90,7 +90,7 @@ it('aggregates chart and activity data for an admin', function () {
     $filiere = Filiere::factory()->create(['nom_fr' => 'Informatique']);
     $classe = Classe::factory()->create(['filiere_id' => $filiere->id, 'niveau' => 'L1']);
     $etudiant = Etudiant::factory()->create(['classe_id' => $classe->id, 'created_at' => now()->subMinutes(10)]);
-    Preinscription::factory()->create(['created_at' => now()]);
+    Candidat::factory()->create(['created_at' => now()]);
 
     $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
         ->component('Admin/Dashboard')

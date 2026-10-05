@@ -68,7 +68,7 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes a filiere and its uploaded image', function () {
+it('soft-deletes a filiere, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $filiere = Filiere::factory()->create(['image_path' => 'storage/filieres/old.jpg']);
@@ -77,7 +77,8 @@ it('deletes a filiere and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/filieres/{$filiere->id}")->assertRedirect();
 
     expect(Filiere::find($filiere->id))->toBeNull();
-    Storage::disk('public')->assertMissing('filieres/old.jpg');
+    expect(Filiere::onlyTrashed()->find($filiere->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('filieres/old.jpg');
 });
 
 it('shows all filieres to the admin ordered by display order', function () {

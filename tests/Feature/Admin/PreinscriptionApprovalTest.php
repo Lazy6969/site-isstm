@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Candidat;
 use App\Models\Etudiant;
-use App\Models\Preinscription;
 use App\Models\User;
 use App\Notifications\PreinscriptionAccepted;
 use App\Notifications\PreinscriptionRefused;
@@ -17,8 +17,8 @@ it('forbids a non-admin from viewing pending preinscriptions', function () {
 
 it('lists only pending preinscriptions for an admin', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    Preinscription::factory()->create(['nom' => 'EnAttente', 'status' => PreinscriptionStatus::Soumis]);
-    Preinscription::factory()->create(['nom' => 'DejaApprouve', 'status' => PreinscriptionStatus::Accepte]);
+    Candidat::factory()->create(['nom' => 'EnAttente', 'status' => PreinscriptionStatus::Soumis]);
+    Candidat::factory()->create(['nom' => 'DejaApprouve', 'status' => PreinscriptionStatus::Accepte]);
 
     $this->actingAs($admin)->get('/console/preinscriptions')->assertInertia(fn ($page) => $page
         ->component('Admin/Preinscriptions/Index')
@@ -29,7 +29,7 @@ it('lists only pending preinscriptions for an admin', function () {
 
 it('marks a preinscription as reviewed the first time an admin opens its detail page', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    $preinscription = Preinscription::factory()->create(['status' => PreinscriptionStatus::Soumis]);
+    $preinscription = Candidat::factory()->create(['status' => PreinscriptionStatus::Soumis]);
 
     expect($preinscription->reviewed_at)->toBeNull();
 
@@ -43,7 +43,7 @@ it('creates a student record and activates the existing account when an admin ap
     Notification::fake();
     $admin = User::factory()->role(Role::Admin)->create();
     $candidate = User::factory()->create(['name' => 'Jean RAKOTO', 'email' => 'jean.rakoto@example.com', 'role' => Role::User]);
-    $preinscription = Preinscription::factory()->create([
+    $preinscription = Candidat::factory()->create([
         'user_id' => $candidate->id,
         'status' => PreinscriptionStatus::Soumis,
     ]);
@@ -59,17 +59,30 @@ it('creates a student record and activates the existing account when an admin ap
     expect($candidate->role)->toBe(Role::Etudiant);
     expect($candidate->hasRole('etudiant'))->toBeTrue();
 
+    // The approval is what opens the étudiant space, so the account has to be
+    // usable from that point — active, and past the `verified` middleware.
+    expect($candidate->is_active)->toBeTrue();
+    expect($candidate->hasVerifiedEmail())->toBeTrue();
+
     $etudiant = Etudiant::firstWhere('user_id', $candidate->id);
     expect($etudiant)->not->toBeNull();
     expect($etudiant->matricule)->toMatch('/^ISSTM-\d{4}-\d{5}$/');
-    expect($etudiant->preinscription_id)->toBe($preinscription->id);
+    expect($etudiant->candidat_id)->toBe($preinscription->id);
+
+    // The candidate's identity is copied onto the étudiant record itself so
+    // the admin screens don't have to reach through preinscription for it.
+    expect($etudiant->nom)->toBe($preinscription->nom);
+    expect($etudiant->prenoms)->toBe($preinscription->prenoms);
+    expect($etudiant->date_naissance->toDateString())->toBe($preinscription->date_naissance->toDateString());
+    expect($etudiant->telephone)->toBe($preinscription->telephone);
+    expect($etudiant->adresse)->toBe($preinscription->adresse);
 
     Notification::assertSentTo($candidate, PreinscriptionAccepted::class);
 });
 
 it('refuses to approve a preinscription twice', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    $preinscription = Preinscription::factory()->create(['status' => PreinscriptionStatus::Accepte]);
+    $preinscription = Candidat::factory()->create(['status' => PreinscriptionStatus::Accepte]);
 
     $this->actingAs($admin)
         ->post("/console/preinscriptions/{$preinscription->id}/approve")
@@ -80,7 +93,7 @@ it('refuses a preinscription with an optional motif and notifies the candidate',
     Notification::fake();
     $admin = User::factory()->role(Role::Admin)->create();
     $candidate = User::factory()->create();
-    $preinscription = Preinscription::factory()->create([
+    $preinscription = Candidat::factory()->create([
         'user_id' => $candidate->id,
         'status' => PreinscriptionStatus::Soumis,
     ]);
@@ -98,7 +111,7 @@ it('refuses a preinscription with an optional motif and notifies the candidate',
 
 it('refuses to decide a preinscription twice', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    $preinscription = Preinscription::factory()->create(['status' => PreinscriptionStatus::Refuse]);
+    $preinscription = Candidat::factory()->create(['status' => PreinscriptionStatus::Refuse]);
 
     $this->actingAs($admin)
         ->post("/console/preinscriptions/{$preinscription->id}/approve")

@@ -15,9 +15,15 @@ Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.
     Route::get('etudiants/{etudiant}', [EtudiantController::class, 'show'])->middleware('can:etudiants.view')->name('etudiants.show');
     Route::post('etudiants', [EtudiantController::class, 'store'])->middleware('can:etudiants.create')->name('etudiants.store');
     Route::put('etudiants/{etudiant}', [EtudiantController::class, 'update'])->middleware('can:etudiants.edit')->name('etudiants.update');
+    Route::delete('etudiants/{etudiant}', [EtudiantController::class, 'destroy'])->middleware('can:etudiants.delete')->name('etudiants.destroy');
 
     Route::get('inscriptions', [InscriptionController::class, 'index'])->middleware('can:inscriptions.view')->name('inscriptions.index');
+    Route::get('inscriptions/export', [InscriptionController::class, 'export'])->middleware('can:inscriptions.view')->name('inscriptions.export');
     Route::post('inscriptions', [InscriptionController::class, 'store'])->middleware('can:inscriptions.create')->name('inscriptions.store');
+    Route::get('inscriptions/{inscription}', [InscriptionController::class, 'show'])->middleware('can:inscriptions.view')->name('inscriptions.show');
     Route::put('inscriptions/{inscription}', [InscriptionController::class, 'update'])->middleware('can:inscriptions.edit')->name('inscriptions.update');
     Route::delete('inscriptions/{inscription}', [InscriptionController::class, 'destroy'])->middleware('can:inscriptions.delete')->name('inscriptions.destroy');
+    Route::post('inscriptions/{inscription}/demander-correction', [InscriptionController::class, 'requestCorrection'])->middleware('can:inscriptions.edit')->name('inscriptions.request-correction');
+    Route::post('inscriptions/{inscription}/approuver', [InscriptionController::class, 'approve'])->middleware('can:inscriptions.edit')->name('inscriptions.approve');
+    Route::post('inscriptions/{inscription}/refuser', [InscriptionController::class, 'refuse'])->middleware('can:inscriptions.edit')->name('inscriptions.refuse');
 });

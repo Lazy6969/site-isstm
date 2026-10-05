@@ -88,5 +88,43 @@ it('shows the public profile\'s friends count, posts and photos', function () {
             ->where('postsCount', 1)
             ->has('posts.data', 1)
             ->has('photos', 1)
+            ->has('friendsPreview', 1)
         );
+});
+
+it('saves the extended profile fields (work, education, hometown, social handles)', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->patch('/profil', [
+        'name' => $user->name,
+        'email' => $user->email,
+        'profession' => 'Développeuse',
+        'employer' => 'ISSTM Mahajanga',
+        'education' => 'ISSTM',
+        'hometown' => 'Moramanga',
+        'instagram_handle' => 'moncompte',
+    ]);
+
+    $response->assertSessionHasNoErrors();
+    expect($user->fresh())
+        ->profession->toBe('Développeuse')
+        ->employer->toBe('ISSTM Mahajanga')
+        ->education->toBe('ISSTM')
+        ->hometown->toBe('Moramanga')
+        ->instagram_handle->toBe('moncompte');
+});
+
+it('hides a friends-only post from a profile visitor who is not a friend', function () {
+    $owner = User::factory()->create();
+    $friend = User::factory()->create();
+    $stranger = User::factory()->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $owner->id, 'recipient_id' => $friend->id]);
+
+    Post::factory()->for($owner)->create(['visibility' => 'amis', 'body' => 'Réservé aux amis']);
+
+    // Guest first: actingAs() persists across requests within a single test,
+    // so an unauthenticated assertion must run before any actingAs() call.
+    $this->get("/profil/{$owner->id}")->assertInertia(fn ($page) => $page->has('posts.data', 0));
+    $this->actingAs($stranger)->get("/profil/{$owner->id}")->assertInertia(fn ($page) => $page->has('posts.data', 0));
+    $this->actingAs($friend)->get("/profil/{$owner->id}")->assertInertia(fn ($page) => $page->has('posts.data', 1));
 });

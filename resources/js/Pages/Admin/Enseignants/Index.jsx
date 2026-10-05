@@ -13,6 +13,7 @@ const PAGE_SIZE = 10;
 const emptyForm = {
     name: '',
     category: 'permanent',
+    departement: '',
     specialty_fr: '',
     specialty_en: '',
     specialty_mg: '',
@@ -25,6 +26,7 @@ const emptyForm = {
 };
 
 const FIELD_KEYS = Object.keys(emptyForm).filter((key) => key !== 'photo');
+const departementOptions = ['STI', 'STGC', 'STNPA'];
 const locales = [
     { key: 'fr', label: 'FR' },
     { key: 'en', label: 'EN' },
@@ -156,6 +158,18 @@ function TeacherPanel({ editing, onClose }) {
                         <option value="vacataire">{t('admin.enseignants.category_vacataire', 'Enseignant vacataire')}</option>
                     </Select>
                     {form.errors.category && <p className="mt-1 text-xs text-red-500">{form.errors.category}</p>}
+                </div>
+                <div className="col-span-2">
+                    <Label htmlFor="departement">{t('admin.enseignants.departement', 'Département')}</Label>
+                    <Select id="departement" value={form.data.departement} onChange={(e) => form.setData('departement', e.target.value)} className="mt-1.5">
+                        <option value="">{t('admin.enseignants.departement_none', '— Aucun —')}</option>
+                        {departementOptions.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </Select>
+                    {form.errors.departement && <p className="mt-1 text-xs text-red-500">{form.errors.departement}</p>}
                 </div>
             </div>
 
@@ -379,6 +393,7 @@ export default function Index({ teachers }) {
                                     </th>
                                     <SortHeader label={t('admin.common.name', 'Nom')} field="name" sort={sort} onSort={toggleSort} />
                                     <SortHeader label={t('admin.common.category', 'Catégorie')} field="category" sort={sort} onSort={toggleSort} />
+                                    <SortHeader label={t('admin.enseignants.departement', 'Département')} field="departement" sort={sort} onSort={toggleSort} />
                                     <SortHeader label={t('admin.enseignants.specialty', 'Spécialité')} field="specialty_fr" sort={sort} onSort={toggleSort} />
                                     <SortHeader label={t('admin.common.order', 'Ordre')} field="display_order" sort={sort} onSort={toggleSort} />
                                     <th className="w-24 px-3 py-3" />
@@ -387,7 +402,7 @@ export default function Index({ teachers }) {
                             <tbody>
                                 {rows.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="py-14 text-center">
+                                        <td colSpan={7} className="py-14 text-center">
                                             <div className="flex flex-col items-center gap-3">
                                                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-accent/15 text-admin-accent">
                                                     <GraduationCap className="h-6 w-6" aria-hidden="true" />
@@ -432,6 +447,7 @@ export default function Index({ teachers }) {
                                                         {categoryLabels[teacher.category] ?? teacher.category}
                                                     </span>
                                                 </td>
+                                                <td className="px-3 py-3 text-admin-text-secondary">{teacher.departement || '—'}</td>
                                                 <td className="max-w-[220px] truncate px-3 py-3 text-admin-text-secondary">{teacher.specialty_fr || '—'}</td>
                                                 <td className="px-3 py-3 tabular-nums text-admin-text-secondary">{teacher.display_order ?? '—'}</td>
                                                 <td className="px-3 py-3">
@@ -461,7 +477,7 @@ export default function Index({ teachers }) {
                                             {confirmId === teacher.id && (
                                                 <tr className="border-b border-admin-border/60 bg-red-500/5">
                                                     <td />
-                                                    <td colSpan={5} className="px-3 py-3">
+                                                    <td colSpan={6} className="px-3 py-3">
                                                         <div className="animate-in fade-in-0 flex flex-wrap items-center justify-between gap-3 duration-150">
                                                             <p className="text-sm text-admin-text">{t('admin.enseignants.confirm_delete', "Supprimer l'enseignant « :name » ?").replace(':name', teacher.name)}</p>
                                                             <div className="flex gap-2">

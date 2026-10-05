@@ -7,7 +7,7 @@ import MobileTabBar from './MobileTabBar';
 import MobileMenuButton from './MobileMenuButton';
 import BrandTitle from './BrandTitle';
 import DarkModeToggle from './DarkModeToggle';
-import { getEtablissementLinks, getVieEtudianteLinks, getCommunauteLinks } from './headerNavLinks';
+import { getEtablissementLinks, getVieEtudianteLinks } from './headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
 import { useTranslations } from '../../lib/useTranslations';
 import {
@@ -62,7 +62,7 @@ export default function SiteHeader() {
                     <BrandTitle />
                 </Link>
 
-                <NavigationMenu className="hidden min-w-0 justify-self-center md:flex">
+                <NavigationMenu className="hidden min-w-0 justify-self-center lg:flex">
                     <NavigationMenuList>
                         <NavDropdown label={t('nav.etablissement', 'Établissement')} items={getEtablissementLinks(t)} />
                         <NavDropdown label={t('nav.vie_etudiante', 'Vie étudiante')} items={getVieEtudianteLinks(t)} />
@@ -82,7 +82,7 @@ export default function SiteHeader() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink asChild>
-                                <Link href="/preinscription" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                <Link href="/rejoindre" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
                                     {t('nav.inscription', 'Inscription')}
                                 </Link>
                             </NavigationMenuLink>
@@ -94,7 +94,15 @@ export default function SiteHeader() {
                                 </Link>
                             </NavigationMenuLink>
                         </NavigationMenuItem>
-                        {isCommunityMember && <NavDropdown label={t('communaute.titre', 'Communauté')} items={getCommunauteLinks(t)} />}
+                        {isCommunityMember && (
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild>
+                                    <Link href="/communaute" className="inline-flex items-center rounded-md px-3 py-2 text-sm font-medium hover:text-isstm-gold">
+                                        {t('nav.fil_communautaire', 'Fil communautaire')}
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        )}
                         <NavigationMenuItem>
                             <HeaderSearchButton variant="labelled" />
                         </NavigationMenuItem>
@@ -102,7 +110,7 @@ export default function SiteHeader() {
                 </NavigationMenu>
 
                 <div className="flex items-center gap-2 justify-self-end sm:gap-3">
-                    <div className="hidden items-center gap-3 md:flex">
+                    <div className="hidden items-center gap-3 lg:flex">
                         <DarkModeToggle />
                         <LanguageSwitcher />
 
@@ -118,7 +126,7 @@ export default function SiteHeader() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2 md:hidden">
+                    <div className="flex items-center gap-2 lg:hidden">
                         <HeaderSearchButton />
                         <MobileMenuButton />
                     </div>

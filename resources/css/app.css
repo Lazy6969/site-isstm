@@ -12,6 +12,9 @@
     --color-isstm-navy: #003366;
     --color-isstm-navy-dark: #001f3f;
     --color-isstm-gold: #d4a017;
+    /* Accent of the teacher cards' own layout (see Enseignants/Index.jsx) —
+       a token rather than a literal so the colour stays changeable in one place. */
+    --color-isstm-red: #dc143c;
     /* Header/nav bar background — separate token from isstm-navy so it can be
        overridden independently (see SiteMenuColor); defaults to following it. */
     --color-isstm-menu: var(--color-isstm-navy);
@@ -29,6 +32,16 @@
     --color-community-accent: var(--color-isstm-gold);
     --font-script: 'Dancing Script', cursive;
     --font-lora: 'Lora', serif;
+    /* Additional quick-edit text fonts (see lib/textStyle.js) — all loaded
+       unconditionally via the Google Fonts <link> in app.blade.php. */
+    --font-playfair: 'Playfair Display', Georgia, serif;
+    --font-montserrat: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-poppins: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    --font-oswald: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+    --font-caveat: 'Caveat', cursive;
+    --font-bebas: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+    --font-roboto-mono: 'Roboto Mono', ui-monospace, 'SFMono-Regular', monospace;
+    --font-raleway: 'Raleway', ui-sans-serif, system-ui, sans-serif;
 
     --color-background: #ffffff;
     --color-foreground: #0f172a;
@@ -122,12 +135,6 @@
     --color-admin-chart-6: #5b606c;
 }
 
-@media (max-width: 767px) {
-    body {
-        padding-bottom: 4rem;
-    }
-}
-
 /* Admin table density (/console/settings/appearance) — the [data-density]
    attribute is set on <html> by AdminLayout from the shared Inertia prop. */
 html[data-density='compact'] {
@@ -140,25 +147,40 @@ html[data-density='comfortable'] {
     --admin-density-head-h: 3.25rem;
 }
 
-/* Espace étudiant personal accent colors (see useAccentColor.js / Settings/Index.jsx). */
+/* Espace étudiant personal accent colors (see useAccentColor.js / Settings/Index.jsx).
+   Picking one also overrides isstm-navy/-dark, but only inside .community-shell: this
+   is what repaints the headings/links/buttons there (they're isstm-navy, not merely
+   community-accent) — left alone ("gold"/default), the community keeps following the
+   site's own admin-chosen color, same as every other content key on the page. */
 html[data-community-accent='emerald'] { --color-community-accent: #10b981; }
 html[data-community-accent='blue'] { --color-community-accent: #2563eb; }
 html[data-community-accent='rose'] { --color-community-accent: #e11d48; }
 html[data-community-accent='violet'] { --color-community-accent: #7c3aed; }
 html[data-community-accent='amber'] { --color-community-accent: #d97706; }
 
-/* Espace étudiant visual identity (indigo→violet gradient, soft lavender
-   canvas), inspired by github.com/Lazy6969/Mirindra_Funding — scoped to
+html[data-community-accent='emerald'] .community-shell { --color-isstm-navy: #10b981; --color-isstm-navy-dark: #047857; }
+html[data-community-accent='blue'] .community-shell { --color-isstm-navy: #2563eb; --color-isstm-navy-dark: #1e3a8a; }
+html[data-community-accent='rose'] .community-shell { --color-isstm-navy: #e11d48; --color-isstm-navy-dark: #9f1239; }
+html[data-community-accent='violet'] .community-shell { --color-isstm-navy: #7c3aed; --color-isstm-navy-dark: #5b21b6; }
+html[data-community-accent='amber'] .community-shell { --color-isstm-navy: #d97706; --color-isstm-navy-dark: #92400e; }
+
+/* Espace étudiant visual identity (gradient header, soft tinted canvas),
+   inspired by github.com/Lazy6969/Mirindra_Funding — scoped to
    .community-shell (AppLayout's root) via CSS custom-property overrides so
    every existing isstm-navy/isstm-gold utility class in the community pages
    (Card titles, badges, buttons, borders…) repaints automatically without
    editing each component, while the public site and admin console keep
-   their own navy/gold identity untouched outside this subtree. */
+   their own navy/gold identity untouched outside this subtree.
+   Unlike the first version of this rule, isstm-navy/-dark/isstm-gold are no
+   longer hardcoded to a fixed purple/pink here — left undeclared, they
+   inherit whatever :root already resolved from the admin's own "Couleur
+   principale"/"Couleur d'accent" pick (see app.blade.php), so changing that
+   setting re-themes the community area the same way it re-themes the rest
+   of the site, buttons included. --gradient-community and the hover glow
+   below read those same inherited variables instead of a literal hex, for
+   the same reason. */
 .community-shell {
-    --color-isstm-navy: #667eea;
-    --color-isstm-navy-dark: #764ba2;
-    --color-isstm-gold: #f093fb;
-    --gradient-community: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-community: linear-gradient(135deg, var(--color-isstm-navy) 0%, var(--color-isstm-navy-dark) 100%);
     background: linear-gradient(135deg, #f5f7fa 0%, #e6e9f5 100%);
 }
 .dark .community-shell {
@@ -170,7 +192,7 @@ html[data-community-accent='amber'] { --color-community-accent: #d97706; }
 }
 .community-shell :is(.rounded-2xl.border, .rounded-3xl.border):hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px -12px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--color-isstm-navy) 35%, transparent);
 }
 
 @keyframes story-progress {
@@ -226,4 +248,51 @@ html[data-community-accent='amber'] { --color-community-accent: #d97706; }
     border-radius: 1rem;
     background-color: color-mix(in srgb, var(--color-admin-card) 92%, transparent);
     backdrop-filter: blur(6px);
+}
+
+/* Twinkling sparkles behind the hero title/subtitle (see Hero.jsx). */
+.hero-sparkle {
+    animation: hero-sparkle-twinkle 2.6s ease-in-out infinite;
+}
+
+@keyframes hero-sparkle-twinkle {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.4) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1) rotate(20deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-sparkle {
+        animation: none;
+        opacity: 0.6;
+    }
+}
+
+/* Per-letter reveal (see LetterRevealText.jsx) — each character fades/slides
+   in with its own animation-delay set inline, so this single rule staggers
+   the whole phrase. */
+.letter-reveal {
+    opacity: 0;
+    transform: translateY(0.4em);
+    animation: letter-reveal-in 0.5s ease forwards;
+}
+
+@keyframes letter-reveal-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .letter-reveal {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
 }

@@ -1,49 +1,53 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, Check, ClipboardCheck, GraduationCap, IdCard, Send, Users } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, CalendarClock, Check, CheckCircle2, ClipboardCheck, Eye, FileText, GraduationCap, IdCard, Mail, Save, Send, Users, Wallet, XCircle } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
+import BackButton from '../../Components/Layout/BackButton';
 import Footer from '../../Components/Home/Footer';
 import TextField from '../../Components/Form/TextField';
 import SelectField from '../../Components/Form/SelectField';
+import FileInput from '../../Components/Form/FileInput';
 import { Card } from '../../Components/ui/card';
-import CandidateSidebar from '../../Components/Preinscription/CandidateSidebar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../Components/ui/dialog';
+import EditableText from '../../Components/QuickEdit/EditableText';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { countries, mentionsBacc, nationalites, seriesBacc } from '../../Components/Preinscription/countries';
 import { useTranslations } from '../../lib/useTranslations';
 
-const emptyForm = {
-    civilite: '',
-    sexe: '',
-    prenoms: '',
-    nom: '',
-    date_naissance: '',
-    lieu_naissance: '',
-    nationalite: '',
-    pays: '',
-    cin: '',
-    email: '',
-    telephone: '',
-    adresse: '',
-    password: '',
-    password_confirmation: '',
-    nom_pere: '',
-    nom_mere: '',
-    contact_parents: '',
-    repondant_nom: '',
-    repondant_lien: '',
-    repondant_telephone: '',
-    annee_bacc: '',
-    serie_bacc: '',
-    serie_bacc_autre: '',
-    mention_bacc: '',
-    code_redoublement: '',
-    filiere_id: '',
-    niveau: '',
-    photo: null,
-    cin_recto: null,
-    cin_verso: null,
-    diplome_attestation: null,
-    releve_bacc: null,
-};
+function draftToForm(draft) {
+    return {
+        civilite: draft?.civilite ?? '',
+        sexe: draft?.sexe ?? '',
+        prenoms: draft?.prenoms ?? '',
+        nom: draft?.nom ?? '',
+        date_naissance: draft?.date_naissance ?? '',
+        lieu_naissance: draft?.lieu_naissance ?? '',
+        nationalite: draft?.nationalite ?? '',
+        pays: draft?.pays ?? '',
+        cin: draft?.cin ?? '',
+        email: draft?.email ?? '',
+        telephone: draft?.telephone ?? '',
+        adresse: draft?.adresse ?? '',
+        nom_pere: draft?.nom_pere ?? '',
+        nom_mere: draft?.nom_mere ?? '',
+        contact_parents: draft?.contact_parents ?? '',
+        repondant_nom: draft?.repondant_nom ?? '',
+        repondant_lien: draft?.repondant_lien ?? '',
+        repondant_telephone: draft?.repondant_telephone ?? '',
+        annee_bacc: draft?.annee_bacc ?? '',
+        serie_bacc: draft?.serie_bacc ?? '',
+        serie_bacc_autre: draft?.serie_bacc_autre ?? '',
+        mention_bacc: draft?.mention_bacc ?? '',
+        code_redoublement: draft?.code_redoublement ?? '',
+        filiere_id: draft?.filiere_id ? String(draft.filiere_id) : '',
+        niveau: draft?.niveau ?? '',
+        photo: null,
+        cin_recto: null,
+        cin_verso: null,
+        diplome_attestation: null,
+        releve_bacc: null,
+    };
+}
 
 const STEPS = [
     { key: 'identite', label: 'Identité', icon: IdCard },
@@ -55,7 +59,7 @@ const STEPS = [
 // Every field the server can reject must be listed here, otherwise an error on a
 // missing field leaves the candidate on a step where nothing looks wrong.
 const STEP_FIELDS = {
-    identite: ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'cin', 'email', 'telephone', 'adresse', 'password', 'password_confirmation'],
+    identite: ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'cin', 'email', 'telephone', 'adresse'],
     famille: ['nom_pere', 'nom_mere', 'contact_parents', 'repondant_nom', 'repondant_lien', 'repondant_telephone'],
     formation: ['annee_bacc', 'serie_bacc', 'serie_bacc_autre', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau'],
     validation: ['photo', 'cin_recto', 'cin_verso', 'diplome_attestation', 'releve_bacc'],
@@ -65,25 +69,126 @@ function stepOfField(field) {
     return STEPS.find((s) => STEP_FIELDS[s.key].includes(field)) ?? STEPS[0];
 }
 
-function RadioGroup({ name, options, value, onChange, error }) {
+// Used to name the offending fields when a step blocks. Without these, a
+// blocked "Continuer" could only show an anonymous "Ce champ est requis."
+// under one input — easy to miss when it sits below the fold.
+const FIELD_LABELS = {
+    civilite: 'Civilité',
+    sexe: 'Genre',
+    prenoms: 'Prénom(s)',
+    nom: 'Nom',
+    date_naissance: 'Date de naissance',
+    lieu_naissance: 'Lieu de naissance',
+    nationalite: 'Nationalité',
+    pays: 'Pays de résidence',
+    cin: 'CIN ou passeport',
+    email: 'Adresse e-mail',
+    telephone: 'Téléphone du candidat',
+    adresse: 'Adresse complète',
+    nom_pere: 'Nom complet du père',
+    nom_mere: 'Nom complet de la mère',
+    contact_parents: 'Téléphone des parents',
+    repondant_nom: 'Nom complet du répondant',
+    repondant_lien: 'Lien avec le candidat',
+    repondant_telephone: 'Téléphone du répondant',
+    annee_bacc: 'Année d’obtention du bac',
+    serie_bacc: 'Série du bac',
+    serie_bacc_autre: 'Précisez la série',
+    mention_bacc: 'Mention',
+    code_redoublement: 'Situation',
+    filiere_id: 'Filière souhaitée',
+    niveau: 'Niveau',
+    photo: 'Photo d’identité',
+    cin_recto: 'CIN recto',
+    cin_verso: 'CIN verso',
+    diplome_attestation: 'Diplôme ou attestation',
+    releve_bacc: 'Relevé de notes',
+};
+
+function labelOf(field) {
+    return FIELD_LABELS[field] ?? field;
+}
+
+const MIN_AGE = 14;
+const MAX_AGE = 100;
+
+/**
+ * Catches an impossible date_naissance (today, in the future, or an age
+ * nobody applying to university would realistically have) right when the
+ * candidate types it, instead of only after a round trip to the server
+ * (which only enforces "before today", not a sane age range).
+ */
+function dateNaissanceError(value) {
+    if (!value) {
+        return null;
+    }
+
+    const birthDate = new Date(value);
+    if (Number.isNaN(birthDate.getTime())) {
+        return null;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (birthDate >= today) {
+        return "La date de naissance ne peut pas être aujourd'hui ou dans le futur.";
+    }
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const hadBirthdayThisYear = today.getMonth() > birthDate.getMonth() || (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+    if (!hadBirthdayThisYear) {
+        age -= 1;
+    }
+
+    if (age < MIN_AGE || age > MAX_AGE) {
+        return `L'âge correspondant à cette date (${age} ans) semble incorrect. Vérifiez la date de naissance.`;
+    }
+
+    return null;
+}
+
+/**
+ * Brings a field into view and focuses it. Every input carries its field name
+ * as `id`; the civilité/genre radios are addressed by `name` instead, since
+ * each of their options owns a distinct id.
+ */
+function focusField(field) {
+    const element = document.getElementById(field) ?? document.querySelector(`[name="${field}"]`);
+
+    if (!element) {
+        return;
+    }
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    element.focus({ preventScroll: true });
+}
+
+function RadioGroup({ name, options, value, onChange, error, autoComplete }) {
     return (
         <div>
             <div className="grid grid-cols-3 gap-2">
                 {options.map((opt) => (
                     <label
                         key={opt.value}
-                        className={`flex cursor-pointer items-center justify-center rounded-lg border px-3 py-2 text-sm transition ${
-                            value === opt.value
-                                ? 'border-isstm-navy bg-isstm-navy/5 font-semibold text-isstm-navy dark:border-isstm-gold dark:bg-isstm-gold/10 dark:text-isstm-gold'
-                                : 'border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
+                        htmlFor={`${name}-${opt.value}`}
+                        className={`flex items-center justify-center rounded-lg border px-3 py-2 text-sm transition ${
+                            opt.disabled
+                                ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-600'
+                                : value === opt.value
+                                  ? 'cursor-pointer border-isstm-navy bg-isstm-navy/5 font-semibold text-isstm-navy dark:border-isstm-gold dark:bg-isstm-gold/10 dark:text-isstm-gold'
+                                  : 'cursor-pointer border-slate-300 text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800'
                         }`}
                     >
                         <input
+                            id={`${name}-${opt.value}`}
                             type="radio"
                             name={name}
                             value={opt.value}
                             checked={value === opt.value}
+                            disabled={opt.disabled}
                             onChange={() => onChange(opt.value)}
+                            autoComplete={autoComplete}
                             className="sr-only"
                         />
                         {opt.label}
@@ -95,62 +200,153 @@ function RadioGroup({ name, options, value, onChange, error }) {
     );
 }
 
-function PasswordChecklist({ password }) {
-    const rules = [
-        { label: '8 caractères minimum', met: password.length >= 8 },
-        { label: 'Une majuscule', met: /[A-Z]/.test(password) },
-        { label: 'Une minuscule', met: /[a-z]/.test(password) },
-        { label: 'Un chiffre', met: /[0-9]/.test(password) },
-    ];
-
-    return (
-        <ul className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-1">
-            {rules.map((rule) => (
-                <li
-                    key={rule.label}
-                    className={`flex items-center gap-1.5 text-xs ${rule.met ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}
-                >
-                    <span className={`flex h-3.5 w-3.5 flex-shrink-0 items-center justify-center rounded-full ${rule.met ? 'bg-emerald-100 dark:bg-emerald-500/20' : 'bg-slate-100 dark:bg-slate-700'}`}>
-                        {rule.met && <Check className="h-2.5 w-2.5" aria-hidden="true" />}
-                    </span>
-                    {rule.label}
-                </li>
-            ))}
-        </ul>
-    );
-}
-
-function FileInput({ id, label, file, onChange, error }) {
+function SummaryField({ label, value }) {
     return (
         <div>
-            <label htmlFor={id} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                {label} <span className="text-red-500">*</span>
-            </label>
-            <label
-                htmlFor={id}
-                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700/60"
-            >
-                <span className="rounded-md bg-isstm-navy px-3 py-1.5 text-xs font-semibold text-white">Choisir un fichier</span>
-                <span className="min-w-0 flex-1 truncate text-right text-xs text-slate-500 dark:text-slate-400">
-                    {file ? file.name : 'Aucun fichier n’a été sélectionné'}
-                </span>
-                <input id={id} type="file" accept="image/*,.pdf" onChange={onChange} className="sr-only" />
-            </label>
-            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+            <p className="text-xs text-slate-400">{label}</p>
+            <p className="font-medium text-slate-700 dark:text-slate-200">{value || '—'}</p>
         </div>
     );
 }
 
-export default function Create({ filieres }) {
+/**
+ * One uploaded piece, shown as an actual image thumbnail (or a "voir le PDF"
+ * tile for non-image files) — the small text-only "Fichier déjà envoyé ✓"
+ * on the form itself never let the candidate actually check what they sent.
+ * Prefers a freshly-picked File (not uploaded yet) over the already-saved
+ * path, so the preview always reflects what will actually be submitted.
+ */
+function FilePreviewThumb({ label, file, existingPath }) {
+    const url = useMemo(() => {
+        if (file) return URL.createObjectURL(file);
+        if (existingPath) return `/storage/${existingPath}`;
+        return null;
+    }, [file, existingPath]);
+
+    useEffect(() => {
+        return () => {
+            if (file && url) URL.revokeObjectURL(url);
+        };
+    }, [file, url]);
+
+    const isPdf = file ? file.type === 'application/pdf' : /\.pdf$/i.test(existingPath ?? '');
+
+    return (
+        <div className="flex flex-col items-center gap-1.5">
+            {url ? (
+                isPdf ? (
+                    <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-lg border border-slate-200 bg-slate-50 text-isstm-navy transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    >
+                        <FileText className="h-6 w-6" aria-hidden="true" />
+                        <span className="text-xs font-medium">Voir le PDF</span>
+                    </a>
+                ) : (
+                    <a href={url} target="_blank" rel="noreferrer" className="block h-24 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                        <img src={url} alt={label} className="h-full w-full object-cover" />
+                    </a>
+                )
+            ) : (
+                <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-500">
+                    Non fourni
+                </div>
+            )}
+            <p className="text-center text-xs text-slate-500 dark:text-slate-400">{label}</p>
+        </div>
+    );
+}
+
+export default function Create({ filieres, draft, initialStep }) {
     const { content, flash } = usePage().props;
     const { t } = useTranslations();
-    const [step, setStep] = useState('identite');
+    const [draftId, setDraftId] = useState(draft?.id ?? null);
+    const [step, setStep] = useState(initialStep);
     const [consent, setConsent] = useState(false);
     const [consentError, setConsentError] = useState('');
-    const { data, setData, post, processing, errors, setError, clearErrors } = useForm(emptyForm);
+    const [summaryOpen, setSummaryOpen] = useState(false);
+    // A single pop-up surfaces every outcome the candidate needs to see —
+    // success (green) and failure (red) alike — instead of some messages
+    // (like a flashed `status`) being silently dropped while only errors got shown.
+    const [dialog, setDialog] = useState(null); // { type: 'success' | 'error', title?: string, message: string, onClose?: () => void }
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm(draftToForm(draft));
+
+    function showError(message, title) {
+        setDialog({ type: 'error', title, message });
+    }
+
+    function showSuccess(message, onClose) {
+        setDialog({ type: 'success', message, onClose });
+    }
+
+    function closeDialog() {
+        dialog?.onClose?.();
+        setDialog(null);
+    }
+
+    // A failed submit (catch block in the controller) comes back as a full
+    // page redirect with a flashed `error`, not an Inertia form error — catch
+    // it here so it gets the same visible pop-up as a validation failure.
+    //
+    // Deliberately NOT watching `flash?.status` here: the server flashes
+    // "Brouillon enregistré." on every /brouillon save, including the silent
+    // autosave fired on each "Continuer" between steps — reacting to it would
+    // pop up that message after every single step. Only the explicit
+    // "Enregistrer le brouillon et continuer plus tard" action shows a success
+    // pop-up, via its own direct showSuccess() call in saveAndLeave().
+    useEffect(() => {
+        if (flash?.error) showError(flash.error);
+    }, [flash?.error]);
+
+    // Belt-and-braces alongside storeAccount's own onError below: this reacts
+    // directly to useForm's own `errors` state (the same state that already
+    // drives the red text under each field) instead of relying on the post()
+    // call's onError callback argument — so the popup still shows even if
+    // something about that specific visit stops onError from firing as
+    // expected. Guarded to !draftId since the account's not created yet is
+    // the only moment this particular conflict can happen.
+    useEffect(() => {
+        if (errors.email && !draftId) {
+            showError(
+                "Cette adresse e-mail est déjà associée à un compte. Utilisez une autre adresse, ou connectez-vous si ce dossier est déjà le vôtre.",
+                'Adresse e-mail déjà utilisée',
+            );
+            focusField('email');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [errors.email]);
+
+    // The dossier exists as soon as the account is created, so advancing is
+    // driven by the `draft` prop rather than only by the create call's own
+    // success callback: whichever way the page got here — Inertia visit, or a
+    // full reload after the assets changed — the candidate lands on the step
+    // after Identité instead of being dropped back onto it.
+    useEffect(() => {
+        if (draft?.id && draft.id !== draftId) {
+            setDraftId(draft.id);
+        }
+
+        if (draft?.id && step === 'identite') {
+            goTo('famille');
+        }
+    }, [draft?.id]);
+
+    const dateLimite = content?.inscription_date_limite
+        ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+        : null;
 
     const selectedFiliere = useMemo(() => filieres.find((f) => String(f.id) === String(data.filiere_id)), [filieres, data.filiere_id]);
     const niveaux = useMemo(() => (selectedFiliere?.niveaux ? selectedFiliere.niveaux.split(',') : []), [selectedFiliere]);
+
+    const existingFiles = {
+        photo: draft?.photo_path ? 'Fichier déjà envoyé ✓' : null,
+        cin_recto: draft?.cin_recto_path ? 'Fichier déjà envoyé ✓' : null,
+        cin_verso: draft?.cin_verso_path ? 'Fichier déjà envoyé ✓' : null,
+        diplome_attestation: draft?.diplome_attestation_path ? 'Fichier déjà envoyé ✓' : null,
+        releve_bacc: draft?.releve_bacc_path ? 'Fichier déjà envoyé ✓' : null,
+    };
 
     function set(field) {
         return (e) => setData(field, e.target.value);
@@ -160,31 +356,56 @@ export default function Create({ filieres }) {
         return (e) => setData(field, e.target.files[0] ?? null);
     }
 
+    // Civilité and genre always agree in practice (M. implies Masculin, Mme/
+    // Mlle implies Féminin) — picking a civilité sets the matching genre
+    // directly, rather than leaving the candidate to also click a second,
+    // now-redundant button (the mismatched option is grayed out in RadioGroup
+    // above to make the link visible, not just silently auto-corrected).
+    function onCiviliteChange(value) {
+        setData((current) => ({
+            ...current,
+            civilite: value,
+            sexe: value === 'M' ? 'M' : value === 'Mme' || value === 'Mlle' ? 'F' : current.sexe,
+        }));
+    }
+
     function goTo(target) {
         setStep(target);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function next() {
-        const currentIndex = STEPS.findIndex((s) => s.key === step);
-        const fields = STEP_FIELDS[step];
+    /**
+     * Marks up whatever the step is still missing and reports it, rather than
+     * only returning a boolean: the caller needs the field names to tell the
+     * candidate what to fix and where to look.
+     *
+     * Facultative fields (cin, série "Autre" unless selected, parent details
+     * beyond the one required phone number) are never reported, so they never
+     * hold up navigation. The server re-validates everything on final submit.
+     *
+     * @returns {{fields: string[], message: string|null}}
+     */
+    function validateStep(targetStep) {
         const missing = {};
+        let customMessage = null;
 
-        if (step === 'identite') {
-            for (const field of ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse', 'password']) {
+        if (targetStep === 'identite') {
+            const required = ['civilite', 'sexe', 'prenoms', 'nom', 'date_naissance', 'lieu_naissance', 'nationalite', 'pays', 'email', 'telephone', 'adresse'];
+            for (const field of required) {
                 if (!data[field]) missing[field] = 'Ce champ est requis.';
             }
-            if (data.password && (data.password.length < 8 || !/[A-Z]/.test(data.password) || !/[a-z]/.test(data.password) || !/[0-9]/.test(data.password))) {
-                missing.password = 'Le mot de passe doit respecter les 4 conditions ci-dessous.';
+
+            if (!missing.date_naissance) {
+                const dateError = dateNaissanceError(data.date_naissance);
+                if (dateError) missing.date_naissance = dateError;
             }
-            if (data.password && data.password !== data.password_confirmation) {
-                missing.password_confirmation = 'La confirmation ne correspond pas au mot de passe.';
-            }
-        } else if (step === 'famille') {
+        } else if (targetStep === 'famille') {
             if (!data.contact_parents && !data.repondant_telephone) {
-                missing.contact_parents = 'Indiquez au moins un numéro joignable (parents ou répondant).';
+                customMessage = 'Indiquez au moins un numéro joignable : téléphone des parents ou téléphone du répondant.';
+                missing.contact_parents = customMessage;
+                missing.repondant_telephone = customMessage;
             }
-        } else if (step === 'formation') {
+        } else if (targetStep === 'formation') {
             for (const field of ['annee_bacc', 'serie_bacc', 'mention_bacc', 'code_redoublement', 'filiere_id', 'niveau']) {
                 if (!data[field]) missing[field] = 'Ce champ est requis.';
             }
@@ -193,26 +414,130 @@ export default function Create({ filieres }) {
             }
         }
 
-        for (const field of fields) clearErrors(field);
+        for (const field of STEP_FIELDS[targetStep]) clearErrors(field);
         for (const [field, message] of Object.entries(missing)) setError(field, message);
 
-        // Client-side checks are a hint, not a gate: the server is the source of
-        // truth for validation (it re-checks everything on submit and routes back
-        // to the first step with an error). Never trap a candidate on a step they
-        // can't get past because of a client-only edge case.
-        goTo(STEPS[currentIndex + 1].key);
+        return { fields: Object.keys(missing), message: customMessage };
+    }
+
+    /**
+     * Turns the blocked fields into one sentence naming them — the candidate
+     * should never have to hunt for which input stopped them.
+     */
+    function blockedMessage({ fields, message }) {
+        if (message) {
+            return message;
+        }
+
+        if (fields.length === 1) {
+            return `Le champ « ${labelOf(fields[0])} » doit être rempli pour continuer.`;
+        }
+
+        return `${fields.length} champs doivent être remplis pour continuer : ${fields.map(labelOf).join(', ')}.`;
+    }
+
+    function draftPayload() {
+        const { nom, prenoms, civilite, sexe, email, ...rest } = data;
+        return rest;
+    }
+
+    function next() {
+        const currentIndex = STEPS.findIndex((s) => s.key === step);
+        const blocked = validateStep(step);
+
+        // Never fail silently: a blocked step used to return here with nothing
+        // but a small red line under one input, which read as a dead button.
+        if (blocked.fields.length > 0) {
+            showError(blockedMessage(blocked));
+            focusField(blocked.fields[0]);
+            return;
+        }
+
+        // Advancing only happens in onSuccess, never right after firing the
+        // request: post()/patch() are async, so calling goTo() unconditionally
+        // right here would move the candidate to the next step before the
+        // account/draft actually exists server-side — a fast click could then
+        // skip saving that step's data entirely (draftId still null at that
+        // point). The `draft` effect above still covers the one case this
+        // can't: a full browser reload (new asset version) wiping local state
+        // mid-request.
+        if (step === 'identite' && !draftId) {
+            post('/preinscription/compte', {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => goTo(STEPS[currentIndex + 1].key),
+                onError: (serverErrors) => {
+                    if (serverErrors.email) {
+                        showError(
+                            "Cette adresse e-mail est déjà associée à un compte. Utilisez une autre adresse, ou connectez-vous si ce dossier est déjà le vôtre.",
+                            'Adresse e-mail déjà utilisée',
+                        );
+                        focusField('email');
+                        return;
+                    }
+
+                    reportServerErrors(serverErrors);
+                },
+            });
+            return;
+        }
+
+        if (draftId) {
+            router.patch(`/preinscription/${draftId}/brouillon`, draftPayload(), {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => goTo(STEPS[currentIndex + 1].key),
+                onError: (serverErrors) => {
+                    if (Object.keys(serverErrors).length > 0) {
+                        reportServerErrors(serverErrors);
+                        return;
+                    }
+
+                    showError("Votre progression n'a pas pu être enregistrée. Vérifiez votre connexion et réessayez.");
+                },
+            });
+        }
+    }
+
+    /**
+     * Surfaces the server's own validation messages instead of a generic
+     * "something's wrong" — without this, a field the client-side check lets
+     * through (e.g. a future-dated date_naissance, only caught server-side by
+     * `before:today`) blocked the wizard with no visible explanation.
+     */
+    function reportServerErrors(serverErrors) {
+        const fields = Object.keys(serverErrors);
+        if (fields.length === 0) {
+            showError('Impossible de créer votre compte. Vérifiez les champs indiqués.');
+            return;
+        }
+
+        showError(fields.map((field) => `${labelOf(field)} : ${serverErrors[field]}`).join('\n'));
+        focusField(fields[0]);
+    }
+
+    function saveAndLeave() {
+        if (!draftId) return;
+        router.patch(`/preinscription/${draftId}/brouillon`, draftPayload(), {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => showSuccess('Brouillon enregistré. Vous pouvez le reprendre à tout moment depuis « Mon dossier ».', () => router.visit('/mon-dossier')),
+            onError: () => showError("Votre brouillon n'a pas pu être enregistré. Réessayez."),
+        });
     }
 
     function submit(e) {
         e.preventDefault();
 
         if (!consent) {
-            setConsentError('Vous devez accepter le traitement de vos données pour envoyer votre dossier.');
+            const message = 'Vous devez accepter le traitement de vos données pour envoyer votre dossier.';
+            setConsentError(message);
+            showError(message);
             return;
         }
         setConsentError('');
 
-        post('/preinscription', {
+        post(`/preinscription/${draftId}/soumettre`, {
             forceFormData: true,
             onError: (serverErrors) => {
                 const errorFields = Object.keys(serverErrors);
@@ -221,7 +546,15 @@ export default function Create({ filieres }) {
                 // Jump to whichever step owns the *first* rejected field, so the
                 // candidate always lands somewhere the error is actually visible —
                 // never stuck on the last step looking at a form with no visible errors.
-                goTo(stepOfField(errorFields[0]).key);
+                const target = stepOfField(errorFields[0]);
+                goTo(target.key);
+
+                showError(
+                    `À corriger à l’étape « ${target.label} » avant l’envoi : ${errorFields.map(labelOf).join(', ')}.`,
+                );
+
+                // The step only just changed, so the input isn't in the DOM yet.
+                setTimeout(() => focusField(errorFields[0]), 0);
             },
         });
     }
@@ -233,30 +566,72 @@ export default function Create({ filieres }) {
             <Head title="Préinscription" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-8 text-white sm:py-10">
-                <div className="mx-auto max-w-5xl px-6">
-                    <h1 className="text-2xl font-bold sm:text-3xl">
-                        {t('preinscription.titre', 'Votre dossier d’inscription')}
-                    </h1>
-                    <p className="mt-2 text-white/80">
-                        {t('preinscription.soustitre_form', 'Les champs avec un astérisque sont obligatoires. Vos données sont enregistrées uniquement après l’envoi final.')}
-                    </p>
+            <div className="relative overflow-hidden bg-isstm-navy py-10 text-white sm:py-14">
+                <BannerBackground contentKey="preinscription_banniere_image_path" />
+                <div className="relative z-10 mx-auto flex max-w-5xl flex-col gap-6 px-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <BackButton />
+                        <h1 className="text-2xl font-bold sm:text-3xl">
+                            <EditableText as="span" contentKey="preinscription_titre">
+                                {content.preinscription_titre ?? t('preinscription.titre', 'Votre dossier d’inscription')}
+                            </EditableText>
+                        </h1>
+                        <p className="mt-2 text-white/80">
+                            {draftId ? (
+                                <EditableText as="span" contentKey="preinscription_soustitre_brouillon">
+                                    {content.preinscription_soustitre_brouillon ??
+                                        t(
+                                            'preinscription.soustitre_brouillon',
+                                            'Votre progression est enregistrée à chaque étape. Vous pouvez reprendre ce dossier plus tard depuis « Mon dossier ».',
+                                        )}
+                                </EditableText>
+                            ) : (
+                                <EditableText as="span" contentKey="preinscription_soustitre">
+                                    {content.preinscription_soustitre ??
+                                        t('preinscription.soustitre_form', 'Les champs avec un astérisque sont obligatoires. Créez votre compte candidat pour commencer.')}
+                                </EditableText>
+                            )}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col items-start gap-3 sm:items-end">
+                        {dateLimite && (
+                            <p className="flex items-center gap-2 text-sm text-white/80">
+                                <CalendarClock className="h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
+                                {t('preinscription.cloture', 'Clôture des dépôts')} : <strong className="text-white">{dateLimite}</strong>
+                            </p>
+                        )}
+                        <a
+                            href="/inscription"
+                            className="flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                        >
+                            <Wallet className="h-4 w-4" aria-hidden="true" />
+                            {t('preinscription.voir_frais', 'Voir les frais')}
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <main className="mx-auto max-w-5xl px-6 py-10">
-                {flash?.error && (
-                    <p className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/15 dark:text-red-400">
-                        <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                        {flash.error}
+                {dialog && (
+                    <p
+                        className={`mb-6 flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium ${
+                            dialog.type === 'success'
+                                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400'
+                                : 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400'
+                        }`}
+                    >
+                        {dialog.type === 'success' ? (
+                            <CheckCircle2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        ) : (
+                            <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                        )}
+                        {dialog.message}
                     </p>
                 )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-                    <CandidateSidebar content={content} />
-
-                    <div>
-                        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+                <div>
+                        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
                             {STEPS.map((s, index) => {
                                 const Icon = s.icon;
                                 const done = index < currentStepIndex;
@@ -286,6 +661,19 @@ export default function Create({ filieres }) {
                             })}
                         </div>
 
+                        {draftId && (
+                            <div className="mb-6 flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={saveAndLeave}
+                                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-isstm-navy dark:text-slate-400 dark:hover:text-white"
+                                >
+                                    <Save className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('preinscription.enregistrer_quitter', 'Enregistrer le brouillon et continuer plus tard')}
+                                </button>
+                            </div>
+                        )}
+
                         <form onSubmit={submit} encType="multipart/form-data">
                             {step === 'identite' && (
                                 <Card className="p-6">
@@ -301,8 +689,9 @@ export default function Create({ filieres }) {
                                             </label>
                                             <RadioGroup
                                                 name="civilite"
+                                                autoComplete="honorific-prefix"
                                                 value={data.civilite}
-                                                onChange={(v) => setData('civilite', v)}
+                                                onChange={onCiviliteChange}
                                                 error={errors.civilite}
                                                 options={[
                                                     { value: 'M', label: 'M.' },
@@ -317,34 +706,35 @@ export default function Create({ filieres }) {
                                             </label>
                                             <RadioGroup
                                                 name="sexe"
+                                                autoComplete="sex"
                                                 value={data.sexe}
                                                 onChange={(v) => setData('sexe', v)}
                                                 error={errors.sexe}
                                                 options={[
-                                                    { value: 'M', label: 'Masculin' },
-                                                    { value: 'F', label: 'Féminin' },
+                                                    { value: 'M', label: 'Masculin', disabled: data.civilite === 'Mme' || data.civilite === 'Mlle' },
+                                                    { value: 'F', label: 'Féminin', disabled: data.civilite === 'M' },
                                                 ]}
                                             />
                                         </div>
 
-                                        <TextField id="prenoms" label="Prénom(s)" value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required />
-                                        <TextField id="nom" label="Nom" value={data.nom} onChange={set('nom')} error={errors.nom} required />
-                                        <TextField id="date_naissance" label="Date de naissance" type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} required />
-                                        <TextField id="lieu_naissance" label="Lieu de naissance" value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} required />
+                                        <TextField id="prenoms" name="prenoms" autoComplete="given-name" label="Prénom(s)" value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required disabled={!!draftId} />
+                                        <TextField id="nom" name="nom" autoComplete="family-name" label="Nom" value={data.nom} onChange={set('nom')} error={errors.nom} required disabled={!!draftId} />
+                                        <TextField id="date_naissance" name="date_naissance" autoComplete="bday" label="Date de naissance" type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} required />
+                                        <TextField id="lieu_naissance" name="lieu_naissance" autoComplete="off" label="Lieu de naissance" value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} required />
 
-                                        <SelectField id="nationalite" label="Nationalité" value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite} required>
+                                        <SelectField id="nationalite" name="nationalite" autoComplete="off" label="Nationalité" value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite} required>
                                             <option value="" disabled>Choisir…</option>
                                             {nationalites.map((n) => <option key={n} value={n}>{n}</option>)}
                                         </SelectField>
-                                        <SelectField id="pays" label="Pays de résidence" value={data.pays} onChange={set('pays')} error={errors.pays} required>
+                                        <SelectField id="pays" name="pays" autoComplete="country-name" label="Pays de résidence" value={data.pays} onChange={set('pays')} error={errors.pays} required>
                                             <option value="" disabled>Choisir…</option>
                                             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
                                         </SelectField>
 
-                                        <TextField id="cin" label="CIN ou passeport (facultatif)" value={data.cin} onChange={set('cin')} error={errors.cin} />
-                                        <TextField id="telephone" label="Téléphone du candidat" value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
+                                        <TextField id="cin" name="cin" autoComplete="off" label="CIN ou passeport (facultatif)" value={data.cin} onChange={set('cin')} error={errors.cin} />
+                                        <TextField id="telephone" name="telephone" autoComplete="tel" label="Téléphone du candidat" value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
 
-                                        <TextField id="email" label="Adresse e-mail" type="email" value={data.email} onChange={set('email')} error={errors.email} required className="sm:col-span-2" />
+                                        <TextField id="email" name="email" autoComplete="email" label="Adresse e-mail" type="email" value={data.email} onChange={set('email')} error={errors.email} required disabled={!!draftId} className="sm:col-span-2" />
 
                                         <div className="sm:col-span-2">
                                             <label htmlFor="adresse" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -352,6 +742,8 @@ export default function Create({ filieres }) {
                                             </label>
                                             <textarea
                                                 id="adresse"
+                                                name="adresse"
+                                                autoComplete="street-address"
                                                 value={data.adresse}
                                                 onChange={set('adresse')}
                                                 rows={3}
@@ -361,23 +753,16 @@ export default function Create({ filieres }) {
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-700">
-                                        <h3 className="mb-1 font-semibold text-isstm-navy dark:text-white">Votre compte candidat</h3>
-                                        <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                                            Ce mot de passe vous permettra de suivre votre dossier en ligne après vérification de votre e-mail.
+                                    {!draftId && (
+                                        <p className="mt-6 flex items-start gap-2 rounded-lg bg-isstm-navy/5 px-3.5 py-3 text-sm text-isstm-navy dark:bg-white/5 dark:text-white">
+                                            <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
+                                            Un e-mail vous sera envoyé à cette adresse pour définir votre mot de passe et accéder à votre espace candidat.
                                         </p>
-                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                            <div>
-                                                <TextField id="password" type="password" label="Mot de passe" value={data.password} onChange={set('password')} error={errors.password} required />
-                                                <PasswordChecklist password={data.password} />
-                                            </div>
-                                            <TextField id="password_confirmation" type="password" label="Confirmer le mot de passe" value={data.password_confirmation} onChange={set('password_confirmation')} error={errors.password_confirmation} required />
-                                        </div>
-                                    </div>
+                                    )}
 
                                     <div className="mt-6 flex justify-end">
-                                        <button type="button" onClick={next} className="rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110">
-                                            Continuer →
+                                        <button type="button" disabled={processing} onClick={next} className="rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
+                                            {processing ? 'Création du compte…' : 'Continuer →'}
                                         </button>
                                     </div>
                                 </Card>
@@ -395,9 +780,9 @@ export default function Create({ filieres }) {
                                     </p>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <TextField id="nom_pere" label="Nom complet du père" value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
-                                        <TextField id="nom_mere" label="Nom complet de la mère" value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
-                                        <TextField id="contact_parents" label="Téléphone des parents" value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} className="sm:col-span-2" />
+                                        <TextField id="nom_pere" name="nom_pere" autoComplete="off" label="Nom complet du père" value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
+                                        <TextField id="nom_mere" name="nom_mere" autoComplete="off" label="Nom complet de la mère" value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
+                                        <TextField id="contact_parents" name="contact_parents" autoComplete="tel" label="Téléphone des parents" value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} className="sm:col-span-2" />
                                     </div>
 
                                     <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-700">
@@ -405,9 +790,9 @@ export default function Create({ filieres }) {
                                             Tuteur ou répondant <span className="text-slate-400">(si différent des parents)</span>
                                         </p>
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                            <TextField id="repondant_nom" label="Nom complet" value={data.repondant_nom} onChange={set('repondant_nom')} error={errors.repondant_nom} />
-                                            <TextField id="repondant_lien" label="Lien avec le candidat" placeholder="Ex. oncle, tante, répondant légal" value={data.repondant_lien} onChange={set('repondant_lien')} error={errors.repondant_lien} />
-                                            <TextField id="repondant_telephone" label="Téléphone du répondant" value={data.repondant_telephone} onChange={set('repondant_telephone')} error={errors.repondant_telephone} className="sm:col-span-2" />
+                                            <TextField id="repondant_nom" name="repondant_nom" autoComplete="off" label="Nom complet" value={data.repondant_nom} onChange={set('repondant_nom')} error={errors.repondant_nom} />
+                                            <TextField id="repondant_lien" name="repondant_lien" autoComplete="off" label="Lien avec le candidat" placeholder="Ex. oncle, tante, répondant légal" value={data.repondant_lien} onChange={set('repondant_lien')} error={errors.repondant_lien} />
+                                            <TextField id="repondant_telephone" name="repondant_telephone" autoComplete="tel" label="Téléphone du répondant" value={data.repondant_telephone} onChange={set('repondant_telephone')} error={errors.repondant_telephone} className="sm:col-span-2" />
                                         </div>
                                     </div>
 
@@ -431,25 +816,27 @@ export default function Create({ filieres }) {
                                     </h2>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <TextField id="annee_bacc" label="Année d'obtention du bac" value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
-                                        <SelectField id="serie_bacc" label="Série du bac" value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
+                                        <TextField id="annee_bacc" name="annee_bacc" autoComplete="off" label="Année d'obtention du bac" value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
+                                        <SelectField id="serie_bacc" name="serie_bacc" autoComplete="off" label="Série du bac" value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
                                             <option value="" disabled>Choisir…</option>
                                             {seriesBacc.map((s) => <option key={s} value={s}>{s}</option>)}
                                         </SelectField>
                                         {data.serie_bacc === 'AUTRE' && (
-                                            <TextField id="serie_bacc_autre" label="Précisez la série" value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} required />
+                                            <TextField id="serie_bacc_autre" name="serie_bacc_autre" autoComplete="off" label="Précisez la série" value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} required />
                                         )}
-                                        <SelectField id="mention_bacc" label="Mention" value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc} required>
+                                        <SelectField id="mention_bacc" name="mention_bacc" autoComplete="off" label="Mention" value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc} required>
                                             <option value="" disabled>Choisir…</option>
                                             {mentionsBacc.map((m) => <option key={m} value={m}>{m}</option>)}
                                         </SelectField>
-                                        <SelectField id="code_redoublement" label="Situation" value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement} required>
+                                        <SelectField id="code_redoublement" name="code_redoublement" autoComplete="off" label="Situation" value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement} required>
                                             <option value="" disabled>Choisir…</option>
                                             <option value="N">Nouveau bachelier</option>
                                             <option value="R">Redoublant(e)</option>
                                         </SelectField>
                                         <SelectField
                                             id="filiere_id"
+                                            name="filiere_id"
+                                            autoComplete="off"
                                             label="Filière souhaitée"
                                             value={data.filiere_id}
                                             onChange={(e) => { setData('filiere_id', e.target.value); setData('niveau', ''); }}
@@ -459,7 +846,7 @@ export default function Create({ filieres }) {
                                             <option value="" disabled>Choisir…</option>
                                             {filieres.map((f) => <option key={f.id} value={f.id}>{f.nom}</option>)}
                                         </SelectField>
-                                        <SelectField id="niveau" label="Niveau" value={data.niveau} onChange={set('niveau')} error={errors.niveau} required disabled={niveaux.length === 0}>
+                                        <SelectField id="niveau" name="niveau" autoComplete="off" label="Niveau" value={data.niveau} onChange={set('niveau')} error={errors.niveau} required disabled={niveaux.length === 0}>
                                             <option value="" disabled>
                                                 {niveaux.length ? 'Choisir…' : "Choisissez d'abord une filière"}
                                             </option>
@@ -487,11 +874,11 @@ export default function Create({ filieres }) {
                                     </h2>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <FileInput id="photo" label="Photo d'identité" file={data.photo} onChange={onFileChange('photo')} error={errors.photo} />
-                                        <FileInput id="cin_recto" label="CIN recto" file={data.cin_recto} onChange={onFileChange('cin_recto')} error={errors.cin_recto} />
-                                        <FileInput id="cin_verso" label="CIN verso" file={data.cin_verso} onChange={onFileChange('cin_verso')} error={errors.cin_verso} />
-                                        <FileInput id="diplome_attestation" label="Diplôme ou attestation" file={data.diplome_attestation} onChange={onFileChange('diplome_attestation')} error={errors.diplome_attestation} />
-                                        <FileInput id="releve_bacc" label="Relevé de notes" file={data.releve_bacc} onChange={onFileChange('releve_bacc')} error={errors.releve_bacc} />
+                                        <FileInput id="photo" label="Photo d'identité" file={data.photo} existingLabel={existingFiles.photo} onChange={onFileChange('photo')} error={errors.photo} />
+                                        <FileInput id="cin_recto" label="CIN recto" file={data.cin_recto} existingLabel={existingFiles.cin_recto} onChange={onFileChange('cin_recto')} error={errors.cin_recto} />
+                                        <FileInput id="cin_verso" label="CIN verso" file={data.cin_verso} existingLabel={existingFiles.cin_verso} onChange={onFileChange('cin_verso')} error={errors.cin_verso} />
+                                        <FileInput id="diplome_attestation" label="Diplôme ou attestation" file={data.diplome_attestation} existingLabel={existingFiles.diplome_attestation} onChange={onFileChange('diplome_attestation')} error={errors.diplome_attestation} />
+                                        <FileInput id="releve_bacc" label="Relevé de notes" file={data.releve_bacc} existingLabel={existingFiles.releve_bacc} onChange={onFileChange('releve_bacc')} error={errors.releve_bacc} />
                                     </div>
                                     <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP ou PDF (5 Mo maximum par fichier).</p>
 
@@ -519,10 +906,20 @@ export default function Create({ filieres }) {
                                                 </p>
                                             </div>
                                         </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSummaryOpen(true)}
+                                            className="mt-4 flex items-center gap-1.5 text-sm font-semibold text-isstm-navy hover:underline dark:text-isstm-gold"
+                                        >
+                                            <Eye className="h-4 w-4" aria-hidden="true" />
+                                            Voir le résumé complet du dossier
+                                        </button>
                                     </div>
 
-                                    <label className="mt-6 flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+                                    <label htmlFor="consent" className="mt-6 flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
                                         <input
+                                            id="consent"
+                                            name="consent"
                                             type="checkbox"
                                             checked={consent}
                                             onChange={(e) => {
@@ -557,10 +954,111 @@ export default function Create({ filieres }) {
                             )}
                         </form>
                     </div>
-                </div>
             </main>
 
             <Footer />
+
+            <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
+                <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Résumé complet du dossier</DialogTitle>
+                    </DialogHeader>
+
+                    <div className="space-y-6">
+                        <section>
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Identité</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Civilité" value={data.civilite} />
+                                <SummaryField label="Genre" value={data.sexe === 'M' ? 'Masculin' : data.sexe === 'F' ? 'Féminin' : ''} />
+                                <SummaryField label="Prénom(s)" value={data.prenoms} />
+                                <SummaryField label="Nom" value={data.nom} />
+                                <SummaryField label="Date de naissance" value={data.date_naissance} />
+                                <SummaryField label="Lieu de naissance" value={data.lieu_naissance} />
+                                <SummaryField label="Nationalité" value={data.nationalite} />
+                                <SummaryField label="Pays de résidence" value={data.pays} />
+                                <SummaryField label="CIN ou passeport" value={data.cin} />
+                                <SummaryField label="Téléphone" value={data.telephone} />
+                                <SummaryField label="E-mail" value={data.email} />
+                                <SummaryField label="Adresse" value={data.adresse} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Famille et répondant</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Nom du père" value={data.nom_pere} />
+                                <SummaryField label="Nom de la mère" value={data.nom_mere} />
+                                <SummaryField label="Téléphone des parents" value={data.contact_parents} />
+                                <SummaryField label="Répondant" value={data.repondant_nom} />
+                                <SummaryField label="Lien avec le répondant" value={data.repondant_lien} />
+                                <SummaryField label="Téléphone du répondant" value={data.repondant_telephone} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Parcours bac et filière</h3>
+                            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                <SummaryField label="Année d'obtention du bac" value={data.annee_bacc} />
+                                <SummaryField label="Série du bac" value={data.serie_bacc === 'AUTRE' ? data.serie_bacc_autre : data.serie_bacc} />
+                                <SummaryField label="Mention" value={data.mention_bacc} />
+                                <SummaryField label="Situation" value={data.code_redoublement === 'R' ? 'Redoublant(e)' : data.code_redoublement === 'N' ? 'Nouveau bachelier' : ''} />
+                                <SummaryField label="Filière souhaitée" value={selectedFiliere?.nom} />
+                                <SummaryField label="Niveau" value={data.niveau} />
+                            </div>
+                        </section>
+
+                        <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Pièces jointes</h3>
+                            <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
+                                <FilePreviewThumb label="Photo d'identité" file={data.photo} existingPath={draft?.photo_path} />
+                                <FilePreviewThumb label="CIN recto" file={data.cin_recto} existingPath={draft?.cin_recto_path} />
+                                <FilePreviewThumb label="CIN verso" file={data.cin_verso} existingPath={draft?.cin_verso_path} />
+                                <FilePreviewThumb label="Diplôme/attestation" file={data.diplome_attestation} existingPath={draft?.diplome_attestation_path} />
+                                <FilePreviewThumb label="Relevé de notes" file={data.releve_bacc} existingPath={draft?.releve_bacc_path} />
+                            </div>
+                        </section>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {dialog && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    onClick={closeDialog}
+                >
+                    <div
+                        className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div
+                            className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full ${
+                                dialog.type === 'success' ? 'bg-emerald-100 dark:bg-emerald-500/15' : 'bg-red-100 dark:bg-red-500/15'
+                            }`}
+                        >
+                            {dialog.type === 'success' ? (
+                                <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                            ) : (
+                                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true" />
+                            )}
+                        </div>
+                        <h2 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
+                            {dialog.title ?? (dialog.type === 'success' ? 'Succès' : 'Une erreur est survenue')}
+                        </h2>
+                        <p className="mt-2 whitespace-pre-line text-sm text-slate-600 dark:text-slate-300">{dialog.message}</p>
+                        <button
+                            type="button"
+                            onClick={closeDialog}
+                            className={`mt-5 w-full rounded-full py-2.5 text-sm font-semibold text-white transition hover:brightness-110 ${
+                                dialog.type === 'success' ? 'bg-emerald-600' : 'bg-isstm-navy'
+                            }`}
+                        >
+                            {dialog.type === 'success' ? 'OK' : 'Corriger'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

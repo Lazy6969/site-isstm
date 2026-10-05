@@ -7,6 +7,7 @@ import EditableText from '../../Components/QuickEdit/EditableText';
 import { Card } from '../../Components/ui/card';
 import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 export default function Index({ query, results }) {
     const { t } = useTranslations();
@@ -42,8 +43,9 @@ export default function Index({ query, results }) {
             <Head title="Recherche" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-3xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
+                <BannerBackground contentKey="recherche_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-3xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="recherche_titre">
                             {content.recherche_titre ?? t('nav.recherche', 'Recherche')}
@@ -55,7 +57,7 @@ export default function Index({ query, results }) {
                             value={term}
                             onChange={(e) => setTerm(e.target.value)}
                             placeholder={t('recherche.placeholder', 'Rechercher une filière, un enseignant, une actualité…')}
-                            className="w-full rounded-full border-0 px-5 py-3 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-isstm-gold"
+                            className="w-full rounded-full border border-slate-200 bg-white px-5 py-3 text-sm text-slate-900 shadow-sm transition focus:border-isstm-gold focus:outline-none focus:ring-2 focus:ring-isstm-gold"
                             autoFocus
                         />
                         <button
@@ -105,7 +107,7 @@ export default function Index({ query, results }) {
                                     <ul className="divide-y divide-slate-100 dark:divide-slate-700">
                                         {items.map((item) => (
                                             <li key={item.url + item.title}>
-                                                <Link href={item.url} className="block px-5 py-3 transition hover:bg-slate-50">
+                                                <Link href={item.url} className="block px-5 py-3 transition hover:bg-slate-50 dark:hover:bg-slate-700/50">
                                                     <p className="font-medium text-slate-700 dark:text-slate-200">{item.title}</p>
                                                     {item.subtitle && (
                                                         <p className="mt-0.5 line-clamp-1 text-sm text-slate-500 dark:text-slate-400">{item.subtitle}</p>

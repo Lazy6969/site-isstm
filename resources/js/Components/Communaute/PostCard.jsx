@@ -6,9 +6,11 @@ import {
     ChevronDown,
     ChevronUp,
     Copy,
+    Download,
     Eye,
     FileText,
     Flag,
+    Globe,
     MessageSquareOff,
     MessageSquareText,
     MoreHorizontal,
@@ -18,10 +20,12 @@ import {
     Send,
     Share2,
     Trash2,
+    Users,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import CommentItem from './CommentItem';
 import ExpandableText from './ExpandableText';
+import PostMediaLightbox from './PostMediaLightbox';
 import ReportPostDialog from './ReportPostDialog';
 import EditPostDialog from './EditPostDialog';
 import ReactionsListDialog from './ReactionsListDialog';
@@ -44,48 +48,108 @@ function formatDate(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
+const MAX_VISIBLE_MEDIA = 4;
+
 function MediaGrid({ media, compact = false }) {
+    const [lightboxIndex, setLightboxIndex] = useState(null);
+
     if (media.length === 0) return null;
 
     if (media.length === 1 && media[0].type === 'image') {
         return (
             <div className="mt-3 flex justify-center overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900">
-                <img
-                    src={`/storage/${media[0].path}`}
-                    alt=""
-                    className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
-                />
+                <a href={`/storage/${media[0].path}`} download>
+                    <img
+                        src={`/storage/${media[0].path}`}
+                        alt=""
+                        className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+                    />
+                </a>
             </div>
         );
     }
 
+    // A photo album past 4 images shows only the first 4, with a "+N" counter
+    // over the last tile (Facebook's grid pattern) — everything beyond that
+    // is reachable via PostMediaLightbox, not shown in the feed itself. Mixed
+    // media (video/pdf alongside images) keeps the old unlimited grid, since
+    // overlaying a counter on a video player's controls would look broken.
+    const allImages = media.every((m) => m.type === 'image');
+    const hasOverflow = allImages && !compact && media.length > MAX_VISIBLE_MEDIA;
+    const visibleMedia = hasOverflow ? media.slice(0, MAX_VISIBLE_MEDIA) : media;
+    const hiddenCount = media.length - MAX_VISIBLE_MEDIA;
+
     return (
-        <div className={`mt-3 grid gap-2 ${media.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-            {media.map((m) => (
-                <div key={m.id} className={`overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900 ${media.length > 1 ? 'aspect-square' : ''}`}>
-                    {m.type === 'image' && (
-                        <img
-                            src={`/storage/${m.path}`}
-                            alt=""
-                            className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}`}
-                        />
-                    )}
-                    {m.type === 'video' && (
-                        <video
-                            src={`/storage/${m.path}`}
-                            controls
-                            className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-72' : 'max-h-[600px]'}`}
-                        />
-                    )}
-                    {m.type === 'pdf' && (
-                        <a href={`/storage/${m.path}`} target="_blank" rel="noopener" className="flex items-center gap-2 p-4 text-sm font-medium text-isstm-navy hover:underline">
-                            <FileText className="h-4 w-4" aria-hidden="true" />
-                            Voir le document
-                        </a>
-                    )}
-                </div>
-            ))}
-        </div>
+        <>
+            <div className={`mt-3 grid gap-2 ${visibleMedia.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {visibleMedia.map((m, i) => {
+                    const isOverflowTile = hasOverflow && i === MAX_VISIBLE_MEDIA - 1;
+
+                    return (
+                        <div
+                            key={m.id}
+                            className={`relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900 ${visibleMedia.length > 1 ? 'aspect-square' : ''}`}
+                        >
+                            {m.type === 'image' && (hasOverflow ? (
+                                <button type="button" onClick={() => setLightboxIndex(i)} className="block h-full w-full">
+                                    <img src={`/storage/${m.path}`} alt="" className="h-full w-full object-cover" />
+                                    {isOverflowTile && (
+                                        <span className="absolute inset-0 flex items-center justify-center bg-black/55 text-2xl font-bold text-white">
+                                            +{hiddenCount}
+                                        </span>
+                                    )}
+                                </button>
+                            ) : (
+                                <a href={`/storage/${m.path}`} download className="block h-full w-full">
+                                    <img
+                                        src={`/storage/${m.path}`}
+                                        alt=""
+                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}`}
+                                    />
+                                </a>
+                            ))}
+                            {m.type === 'video' && (
+                                <div className="relative">
+                                    <video
+                                        src={`/storage/${m.path}`}
+                                        controls
+                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-72' : 'max-h-[600px]'}`}
+                                    />
+                                    <a
+                                        href={`/storage/${m.path}`}
+                                        download
+                                        className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white"
+                                        aria-label="Télécharger la vidéo"
+                                    >
+                                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                                    </a>
+                                </div>
+                            )}
+                            {m.type === 'pdf' && (
+                                <div className="flex items-center gap-2 p-4 text-sm font-medium text-isstm-navy">
+                                    <FileText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                                    <a href={`/storage/${m.path}`} target="_blank" rel="noopener" className="hover:underline">
+                                        Voir le document
+                                    </a>
+                                    <a href={`/storage/${m.path}`} download className="ml-auto flex-shrink-0" aria-label="Télécharger le document">
+                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+
+            {hasOverflow && lightboxIndex !== null && (
+                <PostMediaLightbox
+                    images={media}
+                    index={lightboxIndex}
+                    onClose={() => setLightboxIndex(null)}
+                    onNavigate={setLightboxIndex}
+                />
+            )}
+        </>
     );
 }
 
@@ -194,21 +258,53 @@ export default function PostCard({ post, highlightCommentId = null }) {
 
     return (
         <Card className="p-5">
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                    <Link href={`/profil/${post.user.id}`}>
+            <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Link href={`/profil/${post.user.id}`} className="flex-shrink-0">
                         <Avatar className="h-10 w-10">
                             <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                             <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                         </Avatar>
                     </Link>
-                    <div>
-                        <Link href={`/profil/${post.user.id}`} className="font-semibold text-slate-800 hover:text-isstm-navy dark:text-slate-100">
-                            {post.user.name}
-                        </Link>
+                    <div className="min-w-0">
+                        <p className="font-semibold text-slate-800 dark:text-slate-100">
+                            <Link href={`/profil/${post.user.id}`} className="hover:text-isstm-navy">
+                                {post.user.name}
+                            </Link>
+                            {post.mood && <span className="font-normal"> {t('communaute.se_sent', 'se sent')} {post.mood}</span>}
+                            {post.tagged_users?.length > 0 && (
+                                <span className="font-normal">
+                                    {' '}
+                                    {t('communaute.avec', 'avec')}{' '}
+                                    {post.tagged_users.map((u, i) => (
+                                        <span key={u.id}>
+                                            <Link href={`/profil/${u.id}`} className="font-semibold hover:text-isstm-navy">
+                                                {u.name}
+                                            </Link>
+                                            {i < post.tagged_users.length - 1 ? ', ' : ''}
+                                        </span>
+                                    ))}
+                                </span>
+                            )}
+                            {post.location && (
+                                <span className="font-normal">
+                                    {' '}
+                                    {t('communaute.a', 'à')} <span className="font-semibold">{post.location}</span>
+                                </span>
+                            )}
+                        </p>
                         <p className="flex items-center gap-1 text-xs text-slate-400">
                             {post.user.role_label} · {formatDate(post.created_at)}
                             {post.edited_at && ` · ${t('communaute.modifie', 'Modifié')}`}
+                            {post.visibility === 'amis' ? (
+                                <Users className="ml-1 h-3 w-3" aria-hidden="true">
+                                    <title>{t('communaute.visibilite_amis', 'Amis')}</title>
+                                </Users>
+                            ) : (
+                                <Globe className="ml-1 h-3 w-3" aria-hidden="true">
+                                    <title>{t('communaute.visibilite_public', 'Public')}</title>
+                                </Globe>
+                            )}
                             {post.views_count > 0 && (
                                 <span className="ml-1 flex items-center gap-0.5">
                                     <Eye className="h-3 w-3" aria-hidden="true" />
@@ -218,7 +314,7 @@ export default function PostCard({ post, highlightCommentId = null }) {
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-shrink-0 items-center gap-1.5">
                     {post.is_pinned && (
                         <Badge variant="gold">
                             <Pin className="h-3 w-3" aria-hidden="true" />

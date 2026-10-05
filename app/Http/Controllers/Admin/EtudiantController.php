@@ -34,7 +34,7 @@ class EtudiantController extends Controller
 
     public function show(Etudiant $etudiant): Response
     {
-        $etudiant->load(['user', 'classe.filiere', 'preinscription', 'inscriptions.classe']);
+        $etudiant->load(['user', 'classe.filiere', 'candidat', 'inscriptions.classe']);
 
         return Inertia::render('Admin/Scolarite/Etudiants/Show', [
             'etudiant' => $etudiant,
@@ -54,10 +54,30 @@ class EtudiantController extends Controller
             'classe_id' => ['nullable', 'exists:classes,id'],
             'matricule' => ['required', 'string', 'max:50', Rule::unique('etudiants', 'matricule')->ignore($etudiant->id)],
             'statut' => ['required', Rule::enum(StatutEtudiant::class)],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'adresse' => ['nullable', 'string', 'max:255'],
         ]);
 
         $etudiant->update($validated);
 
         return back()->with('status', "Dossier de {$etudiant->user->name} mis à jour.");
+    }
+
+    /**
+     * Deletes the student's whole account, not just the dossier — every foreign
+     * key that touches `users` cascades from there (etudiant, inscriptions,
+     * posts, messages, friend requests, notifications, etc.), so the account
+     * stops working and none of their data survives. This is deliberately not
+     * a soft delete: there's no other path in the app to reach a "removed"
+     * student, and an admin choosing this action means it for good.
+     */
+    public function destroy(Etudiant $etudiant): RedirectResponse
+    {
+        $user = $etudiant->user;
+        $name = $user->name;
+
+        $user->delete();
+
+        return redirect()->route('admin.scolarite.etudiants.index')->with('status', "Le compte de {$name} et toutes ses données ont été supprimés.");
     }
 }

@@ -84,9 +84,10 @@ class FiliereController extends Controller
         return back()->with('status', 'Filière mise à jour.');
     }
 
+    // Soft-deleted — the image stays on disk until the admin permanently
+    // deletes the filière from the Corbeille (see Admin\TrashController).
     public function destroy(Filiere $filiere): RedirectResponse
     {
-        $this->deleteUploadedImage($filiere->image_path, 'filieres');
         $filiere->delete();
 
         return back()->with('status', 'Filière supprimée.');

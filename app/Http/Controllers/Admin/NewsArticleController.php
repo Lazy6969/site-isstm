@@ -133,9 +133,10 @@ class NewsArticleController extends Controller
         return back()->with('status', 'Article rejeté.');
     }
 
+    // Soft-deleted — the image stays on disk until the admin permanently
+    // deletes the article from the Corbeille (see Admin\TrashController).
     public function destroy(NewsArticle $article): RedirectResponse
     {
-        $this->deleteUploadedImage($article->image_path, 'news');
         $article->delete();
 
         return back()->with('status', 'Article supprimé.');

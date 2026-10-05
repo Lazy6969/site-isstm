@@ -7,6 +7,7 @@ use App\Http\Controllers\ClassGroupMemberController;
 use App\Http\Controllers\ClassGroupMessageController;
 use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommunitySearchController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DashboardController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HistoriqueController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\InscriptionDossierController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\MessageForwardController;
@@ -37,6 +39,7 @@ use App\Http\Controllers\PostReportController;
 use App\Http\Controllers\PostSaveController;
 use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\ReactivationRequestController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
@@ -62,6 +65,7 @@ Route::inertia('bourse', 'Bourse')->name('bourse');
 Route::inertia('vie-etudiante', 'VieEtudiante')->name('vie-etudiante');
 Route::inertia('associations', 'Associations')->name('associations');
 Route::inertia('formations', 'Formations/Index')->name('formations');
+Route::inertia('bibliotheque', 'Bibliotheque/Accueil')->name('bibliotheque');
 
 Route::get('campus', [CampusController::class, 'index'])->name('campus.index');
 Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('campus.show');
@@ -85,11 +89,25 @@ Route::get('galerie', [GalleryController::class, 'index'])->name('galerie.index'
 Route::get('galerie/{album:slug}', [GalleryController::class, 'show'])->name('galerie.show');
 
 Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
+// /communaute/recherche (publications et comptes uniquement) vit avec le
+// reste des routes de la communauté plus bas, dans le groupe auth+role.
 
 Route::get('inscription', [InscriptionController::class, 'index'])->name('inscription');
+Route::inertia('rejoindre', 'Rejoindre')->name('rejoindre');
+Route::get('ancien-etudiant', [ReactivationRequestController::class, 'create'])->name('reactivation.create');
+Route::post('ancien-etudiant', [ReactivationRequestController::class, 'store'])->middleware('throttle:10,1')->name('reactivation.store');
 Route::get('preinscription', [PreinscriptionController::class, 'create'])->name('preinscription.create');
-Route::post('preinscription', [PreinscriptionController::class, 'store'])->name('preinscription.store');
-Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth', 'verified'])->name('preinscription.dossier');
+Route::post('preinscription/compte', [PreinscriptionController::class, 'storeAccount'])->middleware('throttle:10,1')->name('preinscription.store-account');
+Route::patch('preinscription/{preinscription}/brouillon', [PreinscriptionController::class, 'saveDraft'])->middleware(['auth', 'throttle:20,1'])->name('preinscription.save-draft');
+Route::post('preinscription/{preinscription}/soumettre', [PreinscriptionController::class, 'submit'])->middleware(['auth', 'throttle:10,1'])->name('preinscription.submit');
+// No longer 'verified': no verification e-mail goes out at submission time
+// anymore (see PreinscriptionController::submit()) — the candidate reaches
+// here straight from their own already-logged-in session.
+Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth'])->name('preinscription.dossier');
+
+Route::get('reinscription', [InscriptionDossierController::class, 'create'])->middleware(['auth', 'role:etudiant', 'verified'])->name('inscription-dossier.create');
+Route::patch('reinscription/{inscription}/brouillon', [InscriptionDossierController::class, 'saveDraft'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:20,1'])->name('inscription-dossier.save-draft');
+Route::post('reinscription/{inscription}/soumettre', [InscriptionDossierController::class, 'submit'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:10,1'])->name('inscription-dossier.submit');
 
 Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
@@ -115,6 +133,7 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
     Route::get('communaute/enregistres', [PostController::class, 'saved'])->name('posts.saved');
     Route::get('communaute/archives', [PostController::class, 'archives'])->name('posts.archives');
+    Route::get('communaute/recherche', [CommunitySearchController::class, 'index'])->name('community-search');
     Route::get('communaute/{post}', [PostController::class, 'show'])->name('posts.show');
     Route::patch('communaute/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
@@ -149,7 +168,11 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('groupes', [ClassGroupController::class, 'index'])->name('class-groups.index');
     Route::post('groupes', [ClassGroupController::class, 'store'])->name('class-groups.store');
     Route::post('groupes/rejoindre', [ClassGroupController::class, 'join'])->name('class-groups.join');
+    Route::get('groupes/archives', [ClassGroupController::class, 'archives'])->name('class-groups.archives');
     Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->name('class-groups.show');
+    Route::delete('groupes/{group}', [ClassGroupController::class, 'destroy'])->name('class-groups.destroy');
+    Route::post('groupes/{group}/archiver', [ClassGroupController::class, 'archive'])->name('class-groups.archive');
+    Route::post('groupes/{group}/membres', [ClassGroupController::class, 'addMembers'])->name('class-groups.members.add');
     Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->name('class-groups.messages.store');
     Route::delete('groupes/messages/{message}', [ClassGroupMessageController::class, 'destroy'])->name('class-groups.messages.destroy');
     Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->name('class-groups.announcements.store');

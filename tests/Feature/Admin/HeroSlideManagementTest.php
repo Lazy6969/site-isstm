@@ -41,6 +41,28 @@ it('lets an admin add a video hero slide and detects the media type from the fil
     Storage::disk('public')->assertExists(str($slide->image_path)->after('storage/')->toString());
 });
 
+it('accepts a video well past the old 20MB cap, sized like a real ~60s clip', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/accueil', [
+        // 60_000 KB ≈ 58.6MB — comfortably past the old max:20480 rule,
+        // comfortably under the new max:102400 (100MB) one.
+        'media' => UploadedFile::fake()->create('clip-60s.mp4', 60_000, 'video/mp4'),
+    ])->assertRedirect()->assertSessionDoesntHaveErrors('media');
+
+    expect(HeroSlide::latest('id')->first()->media_type)->toBe('video');
+});
+
+it('still rejects a video past the new 100MB cap', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/accueil', [
+        'media' => UploadedFile::fake()->create('clip-huge.mp4', 110_000, 'video/mp4'),
+    ])->assertSessionHasErrors('media');
+});
+
 it('lets an admin update a hero slide order without touching its image when none is uploaded', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $slide = HeroSlide::factory()->create(['image_path' => 'images/slide1.jpg', 'display_order' => 1]);
@@ -84,7 +106,7 @@ it('switches a hero slide from image to video when replaced with a video upload'
     expect($slide->refresh()->media_type)->toBe('video');
 });
 
-it('deletes a hero slide and its uploaded image', function () {
+it('soft-deletes a hero slide, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $slide = HeroSlide::factory()->create(['image_path' => 'storage/hero/old.jpg']);
@@ -93,7 +115,8 @@ it('deletes a hero slide and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/accueil/{$slide->id}")->assertRedirect();
 
     expect(HeroSlide::find($slide->id))->toBeNull();
-    Storage::disk('public')->assertMissing('hero/old.jpg');
+    expect(HeroSlide::onlyTrashed()->find($slide->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('hero/old.jpg');
 });
 
 it('shows all hero slides to the admin', function () {

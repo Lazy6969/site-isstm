@@ -75,7 +75,7 @@ it('replaces the uploaded image and deletes the previous one, but never a bundle
     Storage::disk('public')->assertMissing($firstPath);
 });
 
-it('deletes an evenement and its uploaded image', function () {
+it('soft-deletes an evenement, keeping its image until it is purged from the Corbeille', function () {
     Storage::fake('public');
     $admin = User::factory()->role(Role::Admin)->create();
     $evenement = Evenement::factory()->create(['image_path' => 'storage/evenements/old.jpg']);
@@ -84,7 +84,8 @@ it('deletes an evenement and its uploaded image', function () {
     $this->actingAs($admin)->delete("/console/evenements/{$evenement->id}")->assertRedirect();
 
     expect(Evenement::find($evenement->id))->toBeNull();
-    Storage::disk('public')->assertMissing('evenements/old.jpg');
+    expect(Evenement::onlyTrashed()->find($evenement->id))->not->toBeNull();
+    Storage::disk('public')->assertExists('evenements/old.jpg');
 });
 
 it('lists all evenements for the admin, including past ones', function () {

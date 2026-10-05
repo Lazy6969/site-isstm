@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\PostType;
+use App\PostVisibility;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,9 @@ class Post extends Model
         'shared_post_id',
         'type',
         'body',
+        'visibility',
+        'mood',
+        'location',
         'comments_disabled',
         'archived_at',
         'pinned_at',
@@ -30,6 +34,7 @@ class Post extends Model
     {
         return [
             'type' => PostType::class,
+            'visibility' => PostVisibility::class,
             'comments_disabled' => 'boolean',
             'archived_at' => 'datetime',
             'pinned_at' => 'datetime',
@@ -80,5 +85,10 @@ class Post extends Model
     public function viewedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'post_views');
+    }
+
+    public function taggedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'post_tags');
     }
 }

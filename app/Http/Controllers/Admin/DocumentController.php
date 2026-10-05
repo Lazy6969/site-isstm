@@ -52,9 +52,10 @@ class DocumentController extends Controller
         return back()->with('status', 'Document mis à jour.');
     }
 
+    // Soft-deleted — the file stays on disk until the admin permanently
+    // deletes the document from the Corbeille (see Admin\TrashController).
     public function destroy(Document $document): RedirectResponse
     {
-        $this->deleteUploadedFile($document->file_path);
         $document->delete();
 
         return back()->with('status', 'Document supprimé.');

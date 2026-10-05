@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -15,8 +16,9 @@ export default function Index({ blocs }) {
             <Head title="Campus" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-6xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
+                <BannerBackground contentKey="campus_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-6xl px-6">
                     <Link href="/vie-etudiante" className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white hover:underline">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                         {t('nav.vie_etudiante', 'Vie étudiante')}
@@ -27,11 +29,17 @@ export default function Index({ blocs }) {
                         </EditableText>
                     </h1>
                     <p className="mt-2 max-w-2xl text-white/80">
-                        {t('campus.soustitre', "L'université est un melting-pot culturel :")} {blocs.length}{' '}
-                        {t(
-                            'campus.soustitre_suite',
-                            'associations régionales, appelées « blocs », représentent la diversité et la solidarité des étudiants venus de toute Madagascar.',
-                        )}
+                        <EditableText as="span" contentKey="campus_soustitre">
+                            {content.campus_soustitre ?? t('campus.soustitre', "L'université est un melting-pot culturel :")}
+                        </EditableText>{' '}
+                        {blocs.length}{' '}
+                        <EditableText as="span" contentKey="campus_soustitre_suite">
+                            {content.campus_soustitre_suite ??
+                                t(
+                                    'campus.soustitre_suite',
+                                    'associations régionales, appelées « blocs », représentent la diversité et la solidarité des étudiants venus de toute Madagascar.',
+                                )}
+                        </EditableText>
                     </p>
                 </div>
             </div>

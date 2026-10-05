@@ -5,11 +5,14 @@ namespace App\Models;
 use Database\Factories\TestimonialFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Testimonial extends Model
 {
     /** @use HasFactory<TestimonialFactory> */
     use HasFactory;
+
+    use SoftDeletes;
 
     protected $fillable = [
         'author_name',

@@ -29,6 +29,10 @@ class SiteContentController extends Controller
         'stat' => 'Accueil — Statistiques',
         'contact' => 'Contact',
         'inscription' => 'Inscription',
+        'preinscription' => 'Préinscription',
+        'reinscription' => 'Réinscription',
+        'dossier' => 'Suivi de dossier',
+        'rejoindre' => 'Rejoindre l\'ISSTM',
         'frais' => 'Frais de scolarité',
         'localisation' => 'Localisation',
         'histoire' => 'Histoire — Introduction',
@@ -38,6 +42,7 @@ class SiteContentController extends Controller
         'statut' => 'Histoire — Statut et pédagogie',
         'offre' => 'Histoire — Offre de formation',
         'bourse' => 'Bourses',
+        'bibliotheque' => 'Bibliothèque',
         'mentions' => 'Mentions légales',
         'confidentialite' => 'Confidentialité',
         'associations' => 'Association des étudiants',
@@ -55,6 +60,7 @@ class SiteContentController extends Controller
         'parcours' => 'Organigramme & parcours',
         'preinscription' => 'Préinscription (page)',
         'recherche' => 'Recherche (page)',
+        'enseignants' => 'Enseignants',
         'vie' => 'Vie étudiante',
     ];
 

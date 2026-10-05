@@ -423,6 +423,16 @@ class HomeContentSeeder extends Seeder
             'directeur_bouton' => ['Lire la suite', 'Read more', 'Hamaky bebe kokoa'],
             'accueil_filieres_bouton' => ['Toutes les filières', 'All Programs', 'Sampana rehetra'],
             'accueil_actualites_bouton' => ['Toutes les actualités', 'All News', 'Vaovao rehetra'],
+            'accueil_rejoindre_bouton' => ['Rejoignez-nous', 'Join us', 'Miditra miaraka aminay'],
+
+            // Bannière "Rejoignez-nous" (entre Actualités et Témoignages)
+            'accueil_rejoindre_eyebrow' => ['Admissions ouvertes', 'Admissions open', 'Misokatra ny fidirana'],
+            'accueil_rejoindre_titre' => [
+                "Rejoignez l'ISSTM et construisez votre avenir",
+                'Join ISSTM and build your future',
+                "Miditra ao amin'ny ISSTM ka manorena ny hoavinao",
+            ],
+            'accueil_rejoindre_image_path' => ['images/accueil-rejoindre.png', 'images/accueil-rejoindre.png', 'images/accueil-rejoindre.png'],
 
             // Style des cartes (valeur non affichée — seule la colonne `style` compte, voir lib/cardStyle.js)
             'accueil_filieres_carte' => ['Style des cartes filières', 'Programs card style', 'Endrika kaoty sampana'],
@@ -507,12 +517,104 @@ class HomeContentSeeder extends Seeder
                 'Taratasy sy antontan-taratasy azo alaina.',
             ],
             'campus_titre' => ['La Vie au Campus', 'Campus Life', 'Ny fiainana eny Campus'],
-            'preinscription_titre' => ['Préinscription en ligne', 'Online Pre-registration', 'Fisoratana anarana mialoha an-tserasera'],
-            'preinscription_soustitre' => [
-                "Remplissez ce formulaire pour déposer votre candidature à l'ISSTM.",
-                'Fill out this form to submit your application to ISSTM.',
-                "Fenoy ity taratasy ity mba handraisana ny fangatahanao ao amin'ny ISSTM.",
+            'campus_soustitre' => [
+                "L'université est un melting-pot culturel :",
+                'The university is a cultural melting pot:',
+                'Fitambaran\'ny kolontsaina samihafa ny oniversite :',
             ],
+            'campus_soustitre_suite' => [
+                'associations régionales, appelées « blocs », représentent la diversité et la solidarité des étudiants venus de toute Madagascar.',
+                'regional associations, called "blocs", represent the diversity and solidarity of students from all over Madagascar.',
+                'fikambanana isam-paritra, antsoina hoe « bloc », maneho ny fahasamihafan\'ny sy ny firaisan-kinan\'ny mpianatra avy manerana an\'i Madagasikara.',
+            ],
+            // Banner for the préinscription wizard itself (Preinscription/Create.jsx)
+            // — renamed from its earlier, now-unused wording to match what the
+            // page actually shows today, so wiring it to EditableText doesn't
+            // silently change the visible text.
+            'preinscription_titre' => ["Votre dossier d'inscription", 'Your application file', 'Ny antontan-taratasinao fisoratana anarana'],
+            'preinscription_soustitre' => [
+                'Les champs avec un astérisque sont obligatoires. Créez votre compte candidat pour commencer.',
+                'Fields marked with an asterisk are required. Create your candidate account to get started.',
+                'Ilaina ny saha misy kisarisary *. Mamorona ny kaontinao mpilatsaka hanombohana.',
+            ],
+            'preinscription_soustitre_brouillon' => [
+                'Votre progression est enregistrée à chaque étape. Vous pouvez reprendre ce dossier plus tard depuis « Mon dossier ».',
+                'Your progress is saved at every step. You can resume this file later from "My file".',
+                'Voatahiry ny fandrosoanao amin\'ny dingana tsirairay. Azonao atao ny mamerina ity antontan-taratasy ity avy amin\'ny « Ny antontan-taratasiko ».',
+            ],
+            'dossier_titre' => ['Suivi de mon dossier', 'Application tracking', 'Fanaraha-maso ny antontan-taratasiko'],
+            'reinscription_titre' => ['Réinscription et redoublement', 'Re-enrollment and repeat year', 'Fanoratana indray sy famerenana taona'],
+            'reinscription_soustitre' => [
+                "Étudiant déjà inscrit ? Soumettez votre dossier de réinscription ou de redoublement pour l'année en cours.",
+                'Already an enrolled student? Submit your re-enrollment or repeat-year file for the current year.',
+                "Efa mpianatra voasoratra anarana ? Alefaso ny antontan-taratasinao fanoratana indray na famerenana taona ho an'ny taona ankehitriny.",
+            ],
+            'inscription_titre' => ['Inscription — Année', 'Enrollment — Year', 'Fisoratana anarana — Taona'],
+            'inscription_soustitre' => [
+                'Frais de scolarité, dates et modalités de dépôt.',
+                'Tuition fees, deadlines and submission details.',
+                'Saram-pianarana, daty ary fomba fandraisana.',
+            ],
+            'enseignants_titre' => ['Corps enseignant', 'Teaching Staff', 'Mpampianatra'],
+            'enseignants_soustitre' => [
+                'Une équipe pédagogique permanente et vacataire au service de la réussite des étudiants.',
+                'A permanent and part-time teaching team dedicated to student success.',
+                "Ekipa mpampianatra tsy tapaka sy vonjimaika manolo-tena ho an'ny fahombiazan'ny mpianatra.",
+            ],
+            'rejoindre_titre' => ["Rejoindre l'ISSTM", 'Join ISSTM', 'Miditra ao amin\'ny ISSTM'],
+            'rejoindre_soustitre' => [
+                'Choisissez le parcours qui correspond à votre situation.',
+                'Choose the path that matches your situation.',
+                "Safidio ny lalana mifanaraka amin'ny toe-javatra misy anao.",
+            ],
+            'rejoindre_accroche' => [
+                'Votre avenir commence ici',
+                'Your future starts here',
+                'Manomboka eto ny hoavinao',
+            ],
+            'rejoindre_hero_image_path' => ['images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg'],
+
+            // The 3 floating parcours cards on the "Rejoindre" hero — label
+            // text only here; icon/blur/position/size live in the `style`
+            // column (see HeroParcoursCards.jsx), set by dragging/resizing
+            // the card itself or via EditParcoursCardDialog, not seeded.
+            'rejoindre_parcours_1' => ['Préinscription', 'Pre-registration', 'Fisoratana anarana mialoha'],
+            // Was "Réinscription" — now the merged "Ancien étudiant" card
+            // (see HeroParcoursCards.jsx); kept the same key so any style an
+            // admin already set (position/size/blur) for this slot carries over.
+            'rejoindre_parcours_2' => ['Ancien étudiant', 'Former student', 'Mpianatra taloha'],
+            'rejoindre_parcours_3' => ['Redoublant', 'Repeating student', 'Famerenana taona'],
+
+            // Optional photo behind each page's navy title banner — empty by
+            // default (plain navy, as every banner already looked), uploaded
+            // by an admin via the quick-edit pencil. `_image_path` marks them
+            // as SiteContentType::Image in the loop below, same as any other
+            // quick-edit image.
+            'actualites_banniere_image_path' => ['', '', ''],
+            'associations_banniere_image_path' => ['', '', ''],
+            'bourse_banniere_image_path' => ['', '', ''],
+            'directeur_banniere_image_path' => ['', '', ''],
+            'documents_banniere_image_path' => ['', '', ''],
+            'enseignants_banniere_image_path' => ['', '', ''],
+            'equipe_banniere_image_path' => ['', '', ''],
+            'evenements_banniere_image_path' => ['', '', ''],
+            'filieres_banniere_image_path' => ['', '', ''],
+            'formations_banniere_image_path' => ['', '', ''],
+            'galerie_banniere_image_path' => ['', '', ''],
+            'parcours_banniere_image_path' => ['', '', ''],
+            'recherche_banniere_image_path' => ['', '', ''],
+            'vie_etudiante_banniere_image_path' => ['', '', ''],
+            'campus_banniere_image_path' => ['', '', ''],
+            'histoire_banniere_image_path' => ['', '', ''],
+            'contact_banniere_image_path' => ['', '', ''],
+            'rejoindre_banniere_image_path' => ['', '', ''],
+            'preinscription_banniere_image_path' => ['', '', ''],
+            'dossier_banniere_image_path' => ['', '', ''],
+            'reinscription_banniere_image_path' => ['', '', ''],
+            // Already had a real photo, hardcoded — seeded with it so wiring it
+            // up to EditableImage doesn't blank the banner out on first load.
+            'inscription_banniere_image_path' => ['images/portal_campus_1.jpg', 'images/portal_campus_1.jpg', 'images/portal_campus_1.jpg'],
+
             'contact_titre' => ['Contactez-nous', 'Contact us', 'Mifandraisa aminay'],
             'contact_soustitre' => [
                 'Une question sur les formations, les inscriptions ou la vie étudiante ? Notre équipe vous répond avec plaisir.',
@@ -932,6 +1034,76 @@ class HomeContentSeeder extends Seeder
             'vie_etudiante_assoc_slide1_image_path' => ['images/portal_assoc_4.jpg', 'images/portal_assoc_4.jpg', 'images/portal_assoc_4.jpg'],
             'vie_etudiante_assoc_slide2_image_path' => ['images/portal_assoc_5.jpg', 'images/portal_assoc_5.jpg', 'images/portal_assoc_5.jpg'],
             'vie_etudiante_assoc_slide3_image_path' => ['images/portal_assoc_6.jpg', 'images/portal_assoc_6.jpg', 'images/portal_assoc_6.jpg'],
+
+            'bibliotheque_titre' => ['Bibliothèque', 'Library', 'Tranombokisa'],
+            'bibliotheque_soustitre' => [
+                "Canevas de mémoire, mémoires et projets d'anciens étudiants, et tout le fonds documentaire de l'ISSTM.",
+                "Thesis templates, alumni theses and projects, and the ISSTM's entire documentary collection.",
+                "Maodely fanoratana tahirin-kevitra, tahirin-kevitra sy tetikasan'ny mpianatra taloha, ary ny tahiry an-tsoratra rehetra an'ny ISSTM.",
+            ],
+            'bibliotheque_intro_texte' => [
+                "La bibliothèque de l'ISSTM met à disposition les canevas de mémoire officiels, les mémoires et projets d'anciens étudiants, ainsi que l'ensemble du fonds documentaire de l'établissement.",
+                "ISSTM's library provides official thesis templates, alumni theses and projects, as well as the institution's entire documentary collection.",
+                "Ny tranombokin'ny ISSTM manome ny maodely fanoratana tahirin-kevitra ofisialy, ny tahirin-kevitra sy tetikasan'ny mpianatra taloha, ary ny tahiry an-tsoratra rehetra an'ny sekoly.",
+            ],
+            'bibliotheque_intro_image_path' => ['images/campus/etudiant1.png', 'images/campus/etudiant1.png', 'images/campus/etudiant1.png'],
+            'bibliotheque_banniere_image_path' => ['', '', ''],
+
+            'bibliotheque_seo_titre' => ['Bibliothèque', 'Library', 'Tranombokisa'],
+            'bibliotheque_seo_description' => [
+                "Canevas de mémoire, mémoires et projets d'anciens étudiants, et tout le fonds documentaire de l'ISSTM Mahajanga.",
+                "Thesis templates, alumni theses and projects, and ISSTM Mahajanga's entire documentary collection.",
+                "Maodely fanoratana tahirin-kevitra, tahirin-kevitra sy tetikasan'ny mpianatra taloha, ary ny tahiry an-tsoratra rehetra an'ny ISSTM Mahajanga.",
+            ],
+
+            // Photos de l'inauguration de la bibliothèque numérique (10 avril
+            // 2024) — chaque diapositive a sa propre image et sa propre
+            // légende, éditables indépendamment via le crayon admin.
+            'bibliotheque_slide1_image_path' => ['images/bibliotheque/slide1.jpg', 'images/bibliotheque/slide1.jpg', 'images/bibliotheque/slide1.jpg'],
+            'bibliotheque_slide1_texte' => [
+                "Bibliothèque numérique de l'ISSTM, en partenariat avec Peace Corps Madagascar — inaugurée le 10 avril 2024.",
+                "ISSTM's digital library, in partnership with Peace Corps Madagascar — inaugurated on April 10, 2024.",
+                "Tranombokim-barotra an'ny ISSTM, miara-miasa amin'ny Peace Corps Madagasikara — natokana tamin'ny 10 aprily 2024.",
+            ],
+            'bibliotheque_slide2_image_path' => ['images/bibliotheque/slide2.jpg', 'images/bibliotheque/slide2.jpg', 'images/bibliotheque/slide2.jpg'],
+            'bibliotheque_slide2_texte' => [
+                "Les mentions de l'ISSTM : Génies Civils, Technologies Industrielles, et Sciences et Techniques du Numérique et Physiques Appliquées.",
+                "ISSTM's fields of study: Civil Engineering, Industrial Technologies, and Digital Science & Applied Physics.",
+                "Ireo sampana ao amin'ny ISSTM: Jeny Sivily, Teknolojia Indostrialy, ary Siansa sy Teknika Nomerika sy Fizika Ampiharina.",
+            ],
+            'bibliotheque_slide3_image_path' => ['images/bibliotheque/slide3.jpg', 'images/bibliotheque/slide3.jpg', 'images/bibliotheque/slide3.jpg'],
+            'bibliotheque_slide3_texte' => [
+                "La bibliothèque numérique s'étend aussi à l'École des Langues et Civilisations Internationales (ELCI).",
+                'The digital library also extends to the School of International Languages and Civilizations (ELCI).',
+                "Mitatra hatrany amin'ny Sekolin'ny Fiteny sy Sivilizasiona Iraisam-pirenena (ELCI) koa ny tranombokim-barotra.",
+            ],
+            'bibliotheque_slide4_image_path' => ['images/bibliotheque/slide4.jpg', 'images/bibliotheque/slide4.jpg', 'images/bibliotheque/slide4.jpg'],
+            'bibliotheque_slide4_texte' => [
+                'La salle informatique de la bibliothèque numérique, équipée pour la consultation en ligne.',
+                "The digital library's computer room, equipped for online consultation.",
+                "Ny efitrano informatika an'ny tranombokim-barotra, voaomana hijerena an-tserasera.",
+            ],
+            'bibliotheque_slide5_image_path' => ['images/bibliotheque/slide5.jpg', 'images/bibliotheque/slide5.jpg', 'images/bibliotheque/slide5.jpg'],
+            'bibliotheque_slide5_texte' => [
+                'Inauguration officielle de la bibliothèque numérique, le 10 avril 2024.',
+                'Official inauguration of the digital library, on April 10, 2024.',
+                "Fanokanana ofisialy ny tranombokim-barotra, tamin'ny 10 aprily 2024.",
+            ],
+            'bibliotheque_slide6_image_path' => ['images/bibliotheque/slide6.jpg', 'images/bibliotheque/slide6.jpg', 'images/bibliotheque/slide6.jpg'],
+            'bibliotheque_slide6_texte' => [
+                "Un espace de travail numérique au service des étudiants de l'ISSTM.",
+                "A digital workspace serving ISSTM's students.",
+                "Toerana fiasana nomerika ho an'ny mpianatry ny ISSTM.",
+            ],
+
+            // Shared between Bibliotheque/Accueil.jsx and Formations/Index.jsx
+            // — one content key, edited once, since it's the same sentence in
+            // both places.
+            'bibliotheque_texte_inspirant' => [
+                "Explorez, apprenez, découvrez et construisez votre avenir : la bibliothèque universitaire vous ouvre les portes d'un vaste univers de connaissances, de ressources et de références pour accompagner chaque étudiant dans son parcours académique, stimuler sa curiosité et favoriser la réussite de ses projets.",
+                'Explore, learn, discover and build your future: the university library opens the doors to a vast universe of knowledge, resources and references to support every student on their academic journey, spark their curiosity and help their projects succeed.',
+                "Mijerena, mianatra, mahita ary manorina ny hoavinao: ny tranombokim-pianarana manokatra varavarana ho an'ny tontolo malalaky ny fahalalana, ny loharanon-kevitra ary ny marimaritra iraisana, mba hanampy ny mpianatra tsirairay amin'ny lalam-piofanany, hamporisika ny faniriany hianatra ary hanampy ny fahombiazan'ny tetikasany.",
+            ],
         ];
 
         // Keys ending in _image_path hold an uploaded image, not translated
@@ -947,6 +1119,27 @@ class HomeContentSeeder extends Seeder
 
             SiteContent::updateOrCreate(['content_key' => $key], $attributes);
         }
+
+        // The library's external link — a SiteContentType::Url, not Text: it
+        // must never go through the french-to-en/mg machine translation that
+        // a Text edit triggers (see QuickEditController), and is shared
+        // across every locale like an icon or image value.
+        SiteContent::updateOrCreate(
+            ['content_key' => 'bibliotheque_lien'],
+            ['type' => SiteContentType::Url, 'content_value_fr' => '', 'content_value_en' => '', 'content_value_mg' => ''],
+        );
+
+        // The two campus maps' GPS coordinates — also a SiteContentType::Url
+        // (see above): a "latitude,longitude" pair must never be mangled by
+        // machine translation either, and stays identical across locales.
+        SiteContent::updateOrCreate(
+            ['content_key' => 'contact_carte_principale_coords'],
+            ['type' => SiteContentType::Url, 'content_value_fr' => '-15.702528,46.353861', 'content_value_en' => '-15.702528,46.353861', 'content_value_mg' => '-15.702528,46.353861'],
+        );
+        SiteContent::updateOrCreate(
+            ['content_key' => 'contact_carte_annexe_coords'],
+            ['type' => SiteContentType::Url, 'content_value_fr' => '-15.72335804693739,46.31172101165267', 'content_value_en' => '-15.72335804693739,46.31172101165267', 'content_value_mg' => '-15.72335804693739,46.31172101165267'],
+        );
     }
 
     private function seedHeroSlides(): void

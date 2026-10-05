@@ -43,27 +43,52 @@ class AppearanceSettingsController extends Controller
         ]);
     }
 
+    /**
+     * Every field is optional here (not just on the full settings form): the
+     * quick site-color picker fixed on the public site (see
+     * SitePrimaryColorPicker.jsx) submits only `sitePrimary` and must never
+     * reset the other appearance settings to their enum defaults by doing so.
+     * Only fields actually present in the request are persisted.
+     */
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'palette' => ['required', Rule::enum(AppearancePalette::class)],
-            'chrome' => ['required', Rule::enum(AppearanceChromeColor::class)],
-            'font' => ['required', Rule::enum(AppearanceFont::class)],
-            'density' => ['required', Rule::in(['compact', 'normal', 'comfortable'])],
-            'sitePrimary' => ['required', Rule::enum(SitePrimaryColor::class)],
-            'siteAccent' => ['required', Rule::enum(SiteAccentColor::class)],
-            'siteMenu' => ['required', Rule::enum(SiteMenuColor::class)],
-            'siteFooter' => ['required', Rule::enum(SiteFooterColor::class)],
+            'palette' => ['sometimes', Rule::enum(AppearancePalette::class)],
+            'chrome' => ['sometimes', Rule::enum(AppearanceChromeColor::class)],
+            'font' => ['sometimes', Rule::enum(AppearanceFont::class)],
+            'density' => ['sometimes', Rule::in(['compact', 'normal', 'comfortable'])],
+            // A preset key (Rule::enum) OR a custom "#rrggbb" picked via the
+            // native color-wheel input (see SitePrimaryColor::resolve()).
+            'sitePrimary' => ['sometimes', function ($attribute, $value, $fail) {
+                if (SitePrimaryColor::tryFrom($value) === null && preg_match('/^#[0-9a-f]{6}$/i', $value) !== 1) {
+                    $fail('La couleur principale est invalide.');
+                }
+            }],
+            'siteAccent' => ['sometimes', Rule::enum(SiteAccentColor::class)],
+            'siteMenu' => ['sometimes', Rule::enum(SiteMenuColor::class)],
+            'siteFooter' => ['sometimes', Rule::enum(SiteFooterColor::class)],
+            // Overrides the homepage hero's sparkle color (see Hero.jsx); null
+            // resets it to automatically follow sitePrimary.
+            'heroSparkleColor' => ['sometimes', 'nullable', 'regex:/^#[0-9a-f]{6}$/i'],
         ]);
 
-        Setting::set('appearance.palette', $validated['palette']);
-        Setting::set('appearance.chrome', $validated['chrome']);
-        Setting::set('appearance.font', $validated['font']);
-        Setting::set('appearance.density', $validated['density']);
-        Setting::set('appearance.site_primary', $validated['sitePrimary']);
-        Setting::set('appearance.site_accent', $validated['siteAccent']);
-        Setting::set('appearance.site_menu', $validated['siteMenu']);
-        Setting::set('appearance.site_footer', $validated['siteFooter']);
+        $map = [
+            'palette' => 'appearance.palette',
+            'chrome' => 'appearance.chrome',
+            'font' => 'appearance.font',
+            'density' => 'appearance.density',
+            'sitePrimary' => 'appearance.site_primary',
+            'siteAccent' => 'appearance.site_accent',
+            'siteMenu' => 'appearance.site_menu',
+            'siteFooter' => 'appearance.site_footer',
+            'heroSparkleColor' => 'appearance.hero_sparkle_color',
+        ];
+
+        foreach ($map as $field => $settingKey) {
+            if (array_key_exists($field, $validated)) {
+                Setting::set($settingKey, $validated[$field] ?? '');
+            }
+        }
 
         ActivityLog::record('appearance_updated', "Apparence de l'administration modifiée", null, $validated);
 

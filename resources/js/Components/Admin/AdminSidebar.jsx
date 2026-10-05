@@ -25,6 +25,9 @@ import {
     GalleryHorizontal,
     ChevronDown,
     Menu,
+    Trash2,
+    TriangleAlert,
+    RotateCcw,
 } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -40,7 +43,10 @@ function buildNavGroups(t) {
         },
         {
             label: t('admin.nav.group_admissions', 'Admissions'),
-            items: [{ href: '/console/preinscriptions', label: t('admin.nav.preinscriptions', 'Préinscriptions'), icon: UserPlus, permission: 'preinscriptions.manage' }],
+            items: [
+                { href: '/console/preinscriptions', label: t('admin.nav.preinscriptions', 'Préinscriptions'), icon: UserPlus, permission: 'preinscriptions.manage' },
+                { href: '/console/reactivations', label: t('admin.nav.reactivations', 'Réactivations'), icon: RotateCcw, permission: 'reactivations.manage' },
+            ],
         },
         {
             label: t('admin.nav.group_scolarite', 'Scolarité'),
@@ -73,6 +79,7 @@ function buildNavGroups(t) {
                 { href: '/console/archives', label: t('admin.nav.archives', 'Archives des actions'), icon: Archive, permission: 'activity-log.view' },
                 { href: '/console/roles', label: t('admin.nav.roles', 'Rôles'), icon: ShieldCheck, permission: 'roles.view' },
                 { href: '/console/activity-log', label: t('admin.nav.activity_log', "Journal d'activité"), icon: History, permission: 'activity-log.view' },
+                { href: '/console/corbeille', label: t('admin.nav.corbeille', 'Corbeille'), icon: Trash2, permission: 'dashboard.view' },
             ],
         },
         {
@@ -80,6 +87,7 @@ function buildNavGroups(t) {
             items: [
                 { href: '/console/settings/appearance', label: t('admin.nav.apparence', 'Apparence'), icon: Palette, permission: 'settings.manage' },
                 { href: '/console/statistiques', label: t('admin.nav.statistics', 'Statistiques'), icon: BarChart3, permission: 'statistics.view' },
+                { href: '/console/settings/maintenance', label: t('admin.nav.maintenance', 'Maintenance'), icon: TriangleAlert, permission: 'settings.manage' },
             ],
         },
     ];

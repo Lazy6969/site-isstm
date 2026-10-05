@@ -115,15 +115,13 @@ class GalleryAlbumController extends Controller
         return back()->with('status', 'Album rejeté.');
     }
 
+    // Soft-deleted — the cover and photo files stay on disk until the admin
+    // permanently deletes the album from the Corbeille (see Admin\TrashController).
+    // Its photos are soft-deleted along with it (DB cascadeOnDelete only fires
+    // on a real delete), and restored together with it from the Corbeille.
     public function destroy(GalleryAlbum $album): RedirectResponse
     {
-        $album->loadMissing('photos');
-
-        $this->deleteUploadedImage($album->cover_image, 'galerie');
-        foreach ($album->photos as $photo) {
-            $this->deleteUploadedImage($photo->image_path, 'galerie');
-        }
-
+        $album->photos()->delete();
         $album->delete();
 
         return back()->with('status', 'Album supprimé.');

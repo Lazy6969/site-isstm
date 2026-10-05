@@ -7,4 +7,5 @@ Route::middleware(['auth'])->prefix('console/users')->name('admin.users.')->grou
     Route::get('/', [UserController::class, 'index'])->middleware('can:users.view')->name('index');
     Route::put('{user}/role', [UserController::class, 'updateRole'])->middleware('can:users.edit')->name('update-role');
     Route::post('{user}/toggle-active', [UserController::class, 'toggleActive'])->middleware('can:users.edit')->name('toggle-active');
+    Route::post('{user}/profile', [UserController::class, 'updateProfile'])->middleware('can:users.edit')->name('update-profile');
 });

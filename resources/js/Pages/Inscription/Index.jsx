@@ -1,11 +1,13 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, FileSignature, MapPin, Wallet } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
+import BackButton from '../../Components/Layout/BackButton';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { imageStyleToCss } from '../../lib/imageStyle';
 
 function FeeTable({ title, rows }) {
@@ -84,16 +86,14 @@ export default function Index({ content }) {
 
             <SiteHeader />
 
-            <div
-                className="relative bg-isstm-navy bg-cover bg-center py-14 text-white"
-                style={{
-                    backgroundImage:
-                        "linear-gradient(to bottom, rgba(0,51,102,0.85), rgba(0,31,63,0.9)), url('/images/portal_campus_1.jpg')",
-                }}
-            >
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-16 text-white sm:py-20">
+                <BannerBackground contentKey="inscription_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
+                    <BackButton />
                     <h1 className="text-2xl font-bold sm:text-3xl">
-                        {t('inscription.titre', 'Inscription — Année')}{' '}
+                        <EditableText as="span" contentKey="inscription_titre">
+                            {content.inscription_titre ?? t('inscription.titre', 'Inscription — Année')}
+                        </EditableText>{' '}
                         <EditableText
                             as="span"
                             contentKey="inscription_annee_universitaire"
@@ -103,14 +103,14 @@ export default function Index({ content }) {
                     </h1>
 
                     <p className="mt-2 text-white/80">
-                        {t(
-                            'inscription.soustitre',
-                            'Frais de scolarité, dates et modalités de dépôt.',
-                        )}
+                        <EditableText as="span" contentKey="inscription_soustitre">
+                            {content.inscription_soustitre ??
+                                t('inscription.soustitre', 'Frais de scolarité, dates et modalités de dépôt.')}
+                        </EditableText>
                     </p>
 
                     <Link
-                        href="/preinscription"
+                        href="/rejoindre"
                         className="mt-5 flex w-fit items-center gap-2 rounded-full bg-isstm-gold px-6 py-2.5 text-sm font-semibold text-isstm-navy-dark transition hover:brightness-110"
                     >
                         <FileSignature
@@ -120,7 +120,7 @@ export default function Index({ content }) {
 
                         {t(
                             'inscription.preinscription_cta',
-                            'Faire ma préinscription en ligne',
+                            'Rejoindre ISSTM',
                         )}
                     </Link>
                 </div>

@@ -1,8 +1,9 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { FileText, Paperclip, Search, Send, X } from 'lucide-react';
+import { Paperclip, Search, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import AttachmentPreview from '../../Components/Messages/AttachmentPreview';
 import { Card } from '../../Components/ui/card';
 import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
@@ -193,7 +194,7 @@ export default function Index({ others: initialOthers, messages: initialMessages
                     </Card>
                 ) : (
                     <Card className="flex h-[60vh] flex-col overflow-hidden">
-                        <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                        <div className="flex-1 space-y-3 overflow-y-auto p-4 pr-6">
                             {messages.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                             {messages.map((m) => {
                                 const isMine = m.sender_id === auth.user.id;
@@ -209,18 +210,9 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                                     </span>
                                                 )}
                                             </div>
-                                            {m.body && <p className="text-sm text-slate-700 dark:text-slate-200">{m.body}</p>}
+                                            {m.body && <p className="text-sm break-all text-slate-700 dark:text-slate-200">{m.body}</p>}
                                             {m.attachments.map((a) => (
-                                                <a key={a.id} href={`/storage/${a.path}`} target="_blank" rel="noopener" className="mt-1 block">
-                                                    {a.file_type === 'image' ? (
-                                                        <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
-                                                    ) : (
-                                                        <span className="flex items-center gap-1 text-xs font-medium text-isstm-navy dark:text-white underline">
-                                                            <FileText className="h-3.5 w-3.5" aria-hidden="true" />
-                                                            {a.original_name}
-                                                        </span>
-                                                    )}
-                                                </a>
+                                                <AttachmentPreview key={a.id} attachment={a} />
                                             ))}
                                             <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100">
                                                 <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
@@ -251,9 +243,13 @@ export default function Index({ others: initialOthers, messages: initialMessages
                                 placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                                 className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                             />
-                            <button disabled={processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                            <button
+                                disabled={processing}
+                                aria-label={t('communaute.envoyer', 'Envoyer')}
+                                className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:px-4"
+                            >
                                 <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                                {t('communaute.envoyer', 'Envoyer')}
+                                <span className="hidden sm:inline">{t('communaute.envoyer', 'Envoyer')}</span>
                             </button>
                         </form>
                     </Card>

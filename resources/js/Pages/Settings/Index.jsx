@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Check, LogOut, Moon, Sun, User } from 'lucide-react';
+import { ArrowLeft, Check, LogOut, Moon, Save, Sun, User } from 'lucide-react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Card } from '../../Components/ui/card';
 import LanguageSwitcher from '../../Components/Layout/LanguageSwitcher';
@@ -7,6 +7,7 @@ import { useTranslations } from '../../lib/useTranslations';
 import { useDarkMode } from '../../lib/useDarkMode';
 import { ACCENT_COLORS, useAccentColor } from '../../lib/useAccentColor';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
+import { useToast } from '../../lib/useToast';
 
 const ROLE_LABELS = {
     admin: 'Administrateur',
@@ -17,18 +18,34 @@ const ROLE_LABELS = {
 };
 
 export default function Index() {
-    const { auth } = usePage().props;
+    const { auth, sitePrimaryColor } = usePage().props;
     const { t } = useTranslations();
     const user = auth?.user;
     const [dark, setDark] = useDarkMode();
     const [accent, setAccent] = useAccentColor();
     const { requestLogout } = useLogoutConfirm();
+    const { toast } = useToast();
+
+    // "Par défaut" means "follow the site's own color", so its swatch shows
+    // that color rather than a fixed hex — everything here already applies
+    // instantly (see useDarkMode.js/useAccentColor.js); this just confirms it.
+    const accentColors = ACCENT_COLORS.map((color) =>
+        color.value === 'gold' ? { ...color, hex: sitePrimaryColor?.resolvedHex ?? color.hex } : color,
+    );
+
+    function save() {
+        toast(t('parametres.preferences_enregistrees', 'Préférences enregistrées.'));
+    }
 
     return (
         <AppLayout title={t('parametres.titre', 'Paramètres')}>
             <Head title="Paramètres" />
 
             <div className="mx-auto max-w-2xl">
+            <Link href="/communaute" className="mb-4 flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white">
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                {t('communaute.retour_fil', 'Retour au fil')}
+            </Link>
             <Card className="flex items-center gap-4 p-5">
                 <img
                     src={user?.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
@@ -72,7 +89,7 @@ export default function Index() {
                 <div className="pt-4">
                     <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">{t('parametres.couleur_accent', "Couleur d'accent")}</p>
                     <div className="flex flex-wrap gap-3">
-                        {ACCENT_COLORS.map((color) => (
+                        {accentColors.map((color) => (
                             <button
                                 key={color.value}
                                 type="button"
@@ -94,6 +111,15 @@ export default function Index() {
                 <span className="text-sm font-semibold text-isstm-navy dark:text-white">{t('parametres.langue', "Langue de l'application")}</span>
                 <LanguageSwitcher className="!border-slate-200 !text-isstm-navy hover:!border-community-accent hover:!text-community-accent dark:!border-slate-600 dark:!text-white" />
             </Card>
+
+            <button
+                type="button"
+                onClick={save}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-community-accent p-4 text-sm font-semibold text-white transition hover:brightness-110"
+            >
+                <Save className="h-4 w-4" aria-hidden="true" />
+                {t('parametres.enregistrer', 'Enregistrer')}
+            </button>
 
             <button
                 type="button"

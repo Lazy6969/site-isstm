@@ -16,16 +16,34 @@ class Etudiant extends Model
 
     protected $fillable = [
         'user_id',
-        'preinscription_id',
+        'candidat_id',
         'classe_id',
         'matricule',
         'statut',
+        'nom',
+        'prenoms',
+        'civilite',
+        'sexe',
+        'date_naissance',
+        'lieu_naissance',
+        'cin',
+        'nationalite',
+        'pays',
+        'adresse',
+        'telephone',
+        'nom_pere',
+        'nom_mere',
+        'contact_parents',
+        'repondant_nom',
+        'repondant_lien',
+        'repondant_telephone',
     ];
 
     protected function casts(): array
     {
         return [
             'statut' => StatutEtudiant::class,
+            'date_naissance' => 'date',
         ];
     }
 
@@ -34,9 +52,9 @@ class Etudiant extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function preinscription(): BelongsTo
+    public function candidat(): BelongsTo
     {
-        return $this->belongsTo(Preinscription::class);
+        return $this->belongsTo(Candidat::class);
     }
 
     public function classe(): BelongsTo

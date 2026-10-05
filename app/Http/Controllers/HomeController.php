@@ -7,6 +7,7 @@ use App\Models\Filiere;
 use App\Models\HeroSlide;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
+use App\Models\Setting;
 use App\Models\Testimonial;
 use App\NewsStatus;
 use Inertia\Inertia;
@@ -21,6 +22,10 @@ class HomeController extends Controller
         return Inertia::render('Home', [
             'hiddenSections' => SectionVisibilityController::hidden(),
             'heroSlides' => HeroSlide::orderBy('display_order')->get(['image_path', 'media_type']),
+            // Overrides the hero sparkles' color independently of the site
+            // primary color — set via Hero.jsx's own quick-edit pencil. Empty
+            // string (unset) means "automatically follow the site primary".
+            'heroSparkleColor' => Setting::get('appearance.hero_sparkle_color', '') ?: null,
             'testimonials' => Testimonial::orderBy('display_order')
                 ->get(['author_name', 'program', 'image_path', 'quote_fr', 'quote_en', 'quote_mg'])
                 ->map(fn (Testimonial $item) => [

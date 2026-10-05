@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, FileText, Images, Link2, Paperclip, Search, Send, Settings2, Users, Video as VideoIcon, X } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Images, Link2, Paperclip, Search, Send, Settings2, Users, Video as VideoIcon, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import MessageBubble from '../../Components/Messages/MessageBubble';
@@ -336,7 +336,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                             {opening && <MessageThreadSkeleton />}
 
                             {!opening && (
-                                <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                                <div className="flex-1 space-y-3 overflow-y-auto p-4 pr-6">
                                     {isGroup
                                         ? visibleMessages.map((m) => (
                                               <GroupMessageBubble key={m.id} message={m} isOwn={m.sender_id === auth.user.id} />
@@ -405,9 +405,13 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     placeholder={t('groupes.ecrire_message', 'Écrire un message…')}
                                     className="flex-1 rounded-full border border-slate-300 px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                                 />
-                                <button disabled={processing} className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                                <button
+                                    disabled={processing}
+                                    aria-label={t('communaute.envoyer', 'Envoyer')}
+                                    className="flex flex-shrink-0 items-center gap-1.5 rounded-full bg-isstm-navy px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:px-4"
+                                >
                                     <Send className="h-3.5 w-3.5" aria-hidden="true" />
-                                    {t('communaute.envoyer', 'Envoyer')}
+                                    <span className="hidden sm:inline">{t('communaute.envoyer', 'Envoyer')}</span>
                                 </button>
                             </form>
                         </>
@@ -454,7 +458,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                             {mediaTab === 'images' && (
                                 <div className="grid grid-cols-3 gap-2">
                                     {mediaByTab.images.map((m) => (
-                                        <a key={m.id} href={`/storage/${m.path}`} target="_blank" rel="noopener">
+                                        <a key={m.id} href={`/storage/${m.path}`} download={m.original_name}>
                                             <img src={`/storage/${m.path}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
                                         </a>
                                     ))}
@@ -467,8 +471,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                                         <a
                                             key={m.id}
                                             href={`/storage/${m.path}`}
-                                            target="_blank"
-                                            rel="noopener"
+                                            download={m.original_name}
                                             className="flex items-center gap-2.5 rounded-lg bg-slate-50 p-2 text-xs dark:bg-slate-900"
                                         >
                                             {mediaTab === 'videos' ? (
@@ -477,6 +480,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                                                 <FileText className="h-6 w-6 flex-shrink-0 text-slate-400" aria-hidden="true" />
                                             )}
                                             <span className="min-w-0 flex-1 truncate text-slate-600 dark:text-slate-300">{m.original_name}</span>
+                                            <Download className="h-3.5 w-3.5 flex-shrink-0 text-slate-400" aria-hidden="true" />
                                         </a>
                                     ))}
                                 </div>

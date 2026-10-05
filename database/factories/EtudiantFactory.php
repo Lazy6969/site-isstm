@@ -23,7 +23,7 @@ class EtudiantFactory extends Factory
     {
         return [
             'user_id' => User::factory()->role(Role::Etudiant),
-            'preinscription_id' => null,
+            'candidat_id' => null,
             'classe_id' => Classe::factory(),
             'matricule' => strtoupper(fake()->unique()->bothify('ISSTM-####-???')),
             'statut' => StatutEtudiant::Actif,

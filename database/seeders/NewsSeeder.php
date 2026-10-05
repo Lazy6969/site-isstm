@@ -98,6 +98,32 @@ class NewsSeeder extends Seeder
                 'views' => 3,
                 'published_at' => '2025-11-05 11:00:00',
             ],
+            [
+                'title' => "Journée culturelle de l'ISSTM 2026 (brouillon)",
+                'slug' => 'journee-culturelle-isstm-2026',
+                'excerpt' => 'Préparatifs en cours pour la journée culturelle annuelle.',
+                'content' => 'Article en cours de rédaction sur la journée culturelle à venir.',
+                'image_path' => 'images/slide3.jpg',
+                'category' => 'culture',
+                'author' => 'Service Communication ISSTM',
+                'status' => 'brouillon',
+                'is_featured' => false,
+                'views' => 1,
+                'published_at' => null,
+            ],
+            [
+                'title' => 'Sortant 2025',
+                'slug' => 'sortant-2025',
+                'excerpt' => '109 Étudiants sont sortis lors de cet évènement mémorable',
+                'content' => 'Test articles',
+                'image_path' => null,
+                'category' => 'evenements',
+                'author' => 'Dr Philibert',
+                'status' => 'publie',
+                'is_featured' => false,
+                'views' => 11,
+                'published_at' => '2025-11-11 01:29:00',
+            ],
         ];
 
         foreach ($articles as $article) {

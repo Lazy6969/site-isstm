@@ -9,6 +9,7 @@ import EditableImage from '../../Components/QuickEdit/EditableImage';
 import EditableCardStyle from '../../Components/QuickEdit/EditableCardStyle';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import { cardContainerStyle } from '../../lib/cardStyle';
+import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 const team = [
     { key: 'equipe_membre_1', featured: true, hasHighlight: true, iconDefault: 'Crown' },
@@ -26,8 +27,9 @@ export default function Index() {
             <Head title="Notre Équipe" />
             <SiteHeader />
 
-            <div className="bg-isstm-navy py-10 text-white sm:py-14">
-                <div className="mx-auto max-w-4xl px-6">
+            <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
+                <BannerBackground contentKey="equipe_banniere_image_path" />
+                <div className="relative z-10 mx-auto max-w-4xl px-6">
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="equipe_titre">
                             {content.equipe_titre}

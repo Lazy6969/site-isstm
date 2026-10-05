@@ -43,3 +43,13 @@ it('exposes hidden sections to the homepage so visitors never see them', functio
         ->where('hiddenSections', ['partenaires'])
     );
 });
+
+it('lets a super admin hide the "Rejoignez-nous" banner', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)
+        ->post('/console/sections/toggle', ['section' => 'rejoignez_nous'])
+        ->assertRedirect();
+
+    expect(SectionVisibilityController::hidden())->toBe(['rejoignez_nous']);
+});

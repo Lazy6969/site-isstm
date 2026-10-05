@@ -9,6 +9,7 @@ use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\ClassGroupMessage;
+use App\Models\User;
 use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,32 +25,54 @@ class ClassGroupController extends Controller
         $memberships = ClassGroupMember::query()
             ->where('user_id', $user->id)
             ->where('is_banned', false)
+            ->whereHas('classGroup', fn ($query) => $query->whereNull('archived_at'))
             ->with(['classGroup.teacher', 'classGroup.filiere'])
             ->get();
 
-        $groups = $memberships->map(function (ClassGroupMember $membership) use ($user) {
-            $group = $membership->classGroup;
-
-            return [
-                'id' => $group->id,
-                'name' => $group->name,
-                'type' => $group->type->value,
-                'type_label' => $group->type->label(),
-                'annee' => $group->annee,
-                'niveau' => $group->niveau,
-                'filiere' => $group->filiere?->nom_fr,
-                'teacher_name' => $group->teacher->name,
-                'role_in_group' => $membership->role_in_group->value,
-                'is_delegate' => $membership->is_delegate,
-                'join_code' => $membership->role_in_group === GroupMemberRole::Enseignant ? $group->join_code : null,
-                'unread_count' => $group->unreadCountFor($user, $membership->last_read_at),
-            ];
-        });
-
         return Inertia::render('Groupes/Index', [
-            'groups' => $groups,
+            'groups' => $memberships->map(fn (ClassGroupMember $membership) => $this->presentGroup($membership, $user)),
             'canCreate' => $user->hasLegacyRole(Role::Etudiant, Role::Enseignant, Role::Admin),
         ]);
+    }
+
+    public function archives(Request $request): Response
+    {
+        $user = $request->user();
+
+        $memberships = ClassGroupMember::query()
+            ->where('user_id', $user->id)
+            ->where('is_banned', false)
+            ->whereHas('classGroup', fn ($query) => $query->whereNotNull('archived_at'))
+            ->with(['classGroup.teacher', 'classGroup.filiere'])
+            ->get();
+
+        return Inertia::render('Groupes/Archives', [
+            'groups' => $memberships->map(fn (ClassGroupMember $membership) => $this->presentGroup($membership, $user)),
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function presentGroup(ClassGroupMember $membership, User $user): array
+    {
+        $group = $membership->classGroup;
+
+        return [
+            'id' => $group->id,
+            'name' => $group->name,
+            'type' => $group->type->value,
+            'type_label' => $group->type->label(),
+            'annee' => $group->annee,
+            'niveau' => $group->niveau,
+            'filiere' => $group->filiere?->nom_fr,
+            'teacher_name' => $group->teacher->name,
+            'role_in_group' => $membership->role_in_group->value,
+            'is_delegate' => $membership->is_delegate,
+            'can_moderate' => $membership->canModerate(),
+            'join_code' => $membership->role_in_group === GroupMemberRole::Enseignant ? $group->join_code : null,
+            'unread_count' => $group->unreadCountFor($user, $membership->last_read_at),
+        ];
     }
 
     public function store(StoreClassGroupRequest $request): RedirectResponse
@@ -107,6 +130,8 @@ class ClassGroupController extends Controller
                 'filiere' => $group->filiere?->nom_fr,
                 'teacher_id' => $group->teacher_id,
                 'join_code' => $membership->role_in_group === GroupMemberRole::Enseignant ? $group->join_code : null,
+                'has_presence' => $group->hasPresenceFeature(),
+                'is_archived' => $group->archived_at !== null,
             ],
             'membership' => [
                 'role_in_group' => $membership->role_in_group->value,
@@ -114,6 +139,12 @@ class ClassGroupController extends Controller
                 'can_moderate' => $membership->canModerate(),
                 'can_download_presence' => $membership->canDownloadPresence(),
             ],
+            'friendsNotInGroup' => $membership->canModerate()
+                ? $user->friends()
+                    ->reject(fn (User $friend) => $group->memberFor($friend) !== null)
+                    ->map(fn (User $friend) => ['id' => $friend->id, 'name' => $friend->name, 'avatar_path' => $friend->avatar_path])
+                    ->values()
+                : [],
             'members' => $group->members->map(fn (ClassGroupMember $m) => [
                 'id' => $m->id,
                 'user_id' => $m->user_id,
@@ -159,6 +190,53 @@ class ClassGroupController extends Controller
                     'teacher_name' => $a->teacher->name,
                 ]),
         ]);
+    }
+
+    public function addMembers(Request $request, ClassGroup $group): RedirectResponse
+    {
+        $user = $request->user();
+        $membership = $group->memberFor($user);
+        abort_if($membership === null || ! $membership->canModerate(), 403);
+
+        $data = $request->validate([
+            'user_ids' => ['required', 'array', 'min:1'],
+            'user_ids.*' => ['integer'],
+        ]);
+
+        $friendIds = $user->friends()->pluck('id');
+        $toAdd = collect($data['user_ids'])
+            ->intersect($friendIds)
+            ->reject(fn ($id) => $group->memberFor(User::find($id)) !== null);
+
+        foreach ($toAdd as $friendId) {
+            $group->members()->create([
+                'user_id' => $friendId,
+                'role_in_group' => GroupMemberRole::Etudiant,
+                'last_read_at' => null,
+            ]);
+        }
+
+        return back()->with('status', $toAdd->count() > 1 ? "{$toAdd->count()} amis ajoutés au groupe." : 'Ami ajouté au groupe.');
+    }
+
+    public function archive(Request $request, ClassGroup $group): RedirectResponse
+    {
+        $membership = $group->memberFor($request->user());
+        abort_if($membership === null || ! $membership->canModerate(), 403);
+
+        $group->update(['archived_at' => $group->archived_at === null ? now() : null]);
+
+        return back()->with('status', $group->archived_at !== null ? 'Groupe archivé.' : 'Groupe désarchivé.');
+    }
+
+    public function destroy(Request $request, ClassGroup $group): RedirectResponse
+    {
+        $membership = $group->memberFor($request->user());
+        abort_if($membership === null || ! $membership->canModerate(), 403);
+
+        $group->delete();
+
+        return redirect()->route('class-groups.index')->with('status', 'Groupe supprimé.');
     }
 
     private function generateJoinCode(): string

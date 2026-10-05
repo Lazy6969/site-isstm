@@ -20,9 +20,16 @@ export default function Edit({ user }) {
         birth_date: user.birth_date ?? '',
         city: user.city ?? '',
         interests: user.interests ?? '',
+        profession: user.profession ?? '',
+        employer: user.employer ?? '',
+        education: user.education ?? '',
+        hometown: user.hometown ?? '',
         facebook_url: user.facebook_url ?? '',
         linkedin_url: user.linkedin_url ?? '',
         personal_website: user.personal_website ?? '',
+        instagram_handle: user.instagram_handle ?? '',
+        snapchat_handle: user.snapchat_handle ?? '',
+        tiktok_handle: user.tiktok_handle ?? '',
         avatar: null,
         cover: null,
     });
@@ -128,10 +135,34 @@ export default function Edit({ user }) {
                             {errors.bio && <p className="mt-1 text-sm text-red-600">{errors.bio}</p>}
                         </div>
 
-                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                            <TextField id="facebook_url" label="Facebook" value={data.facebook_url} onChange={(e) => setData('facebook_url', e.target.value)} error={errors.facebook_url} />
-                            <TextField id="linkedin_url" label="LinkedIn" value={data.linkedin_url} onChange={(e) => setData('linkedin_url', e.target.value)} error={errors.linkedin_url} />
-                            <TextField id="personal_website" label={t('profil.site_web', 'Site web')} value={data.personal_website} onChange={(e) => setData('personal_website', e.target.value)} error={errors.personal_website} />
+                        <div>
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">
+                                {t('profil.experience_professionnelle', 'Expérience professionnelle')}
+                            </h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <TextField id="profession" label={t('profil.profession', 'Profession')} value={data.profession} onChange={(e) => setData('profession', e.target.value)} error={errors.profession} />
+                                <TextField id="employer" label={t('profil.employeur', 'Employeur / description')} value={data.employer} onChange={(e) => setData('employer', e.target.value)} error={errors.employer} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">{t('profil.formation', 'Formation')}</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                <TextField id="education" label={t('profil.etablissement', 'Établissement')} value={data.education} onChange={(e) => setData('education', e.target.value)} error={errors.education} />
+                                <TextField id="hometown" label={t('profil.ville_origine', "Ville d'origine")} value={data.hometown} onChange={(e) => setData('hometown', e.target.value)} error={errors.hometown} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">{t('profil.coordonnees', 'Coordonnées')}</h3>
+                            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+                                <TextField id="facebook_url" label="Facebook" value={data.facebook_url} onChange={(e) => setData('facebook_url', e.target.value)} error={errors.facebook_url} />
+                                <TextField id="linkedin_url" label="LinkedIn" value={data.linkedin_url} onChange={(e) => setData('linkedin_url', e.target.value)} error={errors.linkedin_url} />
+                                <TextField id="personal_website" label={t('profil.site_web', 'Site web')} value={data.personal_website} onChange={(e) => setData('personal_website', e.target.value)} error={errors.personal_website} />
+                                <TextField id="instagram_handle" label="Instagram" value={data.instagram_handle} onChange={(e) => setData('instagram_handle', e.target.value)} error={errors.instagram_handle} />
+                                <TextField id="snapchat_handle" label="Snapchat" value={data.snapchat_handle} onChange={(e) => setData('snapchat_handle', e.target.value)} error={errors.snapchat_handle} />
+                                <TextField id="tiktok_handle" label="TikTok" value={data.tiktok_handle} onChange={(e) => setData('tiktok_handle', e.target.value)} error={errors.tiktok_handle} />
+                            </div>
                         </div>
 
                         <button

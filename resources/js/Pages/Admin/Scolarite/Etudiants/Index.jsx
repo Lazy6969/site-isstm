@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useForm } from '@inertiajs/react';
-import { Plus, Eye } from 'lucide-react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { Plus, Eye, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
@@ -47,6 +47,16 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
     function submit(e) {
         e.preventDefault();
         form.post('/console/scolarite/etudiants', { onSuccess: () => setOpen(false), preserveScroll: true });
+    }
+
+    function destroy(etudiant) {
+        if (
+            !confirm(
+                `Supprimer définitivement le compte de ${etudiant.user?.name} ? Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages...) seront effacées. Cette action est irréversible.`,
+            )
+        )
+            return;
+        router.delete(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
     }
 
     return (
@@ -110,6 +120,14 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                                     >
                                         <Eye className="h-4 w-4" aria-hidden="true" />
                                     </Link>
+                                    <button
+                                        type="button"
+                                        onClick={() => destroy(etudiant)}
+                                        className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-600"
+                                        aria-label={`Supprimer le compte de ${etudiant.user?.name}`}
+                                    >
+                                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                    </button>
                                 </TableCell>
                             </TableRow>
                         ))}

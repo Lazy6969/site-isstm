@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Search, Bell, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
+import { Menu, Search, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
 import AdminProfilePanel from './AdminProfilePanel';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
+import AdminNotificationBell from './AdminNotificationBell';
 import { useQuickEdit } from '../../lib/useQuickEdit';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 import { useTranslations } from '../../lib/useTranslations';
@@ -161,29 +162,7 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
                     </Tooltip>
                 )}
 
-                <DropdownMenu>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <DropdownMenuTrigger
-                                className="relative flex h-9 w-9 items-center justify-center rounded-full text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text focus:outline-none"
-                                aria-label={t('admin.header.notifications', 'Notifications')}
-                            >
-                                <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-admin-accent px-1 text-[0.6rem] font-bold leading-none text-admin-accent-foreground">
-                                        {unreadCount > 9 ? "9+" : unreadCount}
-                                    </span>
-                                )}
-                            </DropdownMenuTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent>{t('admin.header.notifications', 'Notifications')}</TooltipContent>
-                    </Tooltip>
-                    <DropdownMenuContent className="w-72 bg-admin-card text-admin-text">
-                        <p className="px-3 py-2 text-sm font-semibold text-admin-text">{t('admin.header.notifications', 'Notifications')}</p>
-                        <DropdownMenuSeparator className="bg-admin-border" />
-                        <p className="px-3 py-6 text-center text-sm text-admin-muted">{t('admin.header.no_notifications', 'Aucune notification pour le moment.')}</p>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <AdminNotificationBell />
 
                 {user && (
                     <DropdownMenu modal={false}>

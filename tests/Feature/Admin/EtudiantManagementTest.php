@@ -2,6 +2,7 @@
 
 use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Models\Inscription;
 use App\Models\User;
 use App\Role;
 use App\StatutEtudiant;
@@ -63,9 +64,47 @@ it('lets an admin update a dossier étudiant', function () {
         'classe_id' => $nouvelleClasse->id,
         'matricule' => $etudiant->matricule,
         'statut' => StatutEtudiant::Suspendu->value,
+        'telephone' => '0341112233',
+        'adresse' => 'Nouvelle adresse, Mahajanga',
     ])->assertRedirect();
 
     $etudiant->refresh();
     expect($etudiant->classe_id)->toBe($nouvelleClasse->id);
     expect($etudiant->statut)->toBe(StatutEtudiant::Suspendu);
+    expect($etudiant->telephone)->toBe('0341112233');
+    expect($etudiant->adresse)->toBe('Nouvelle adresse, Mahajanga');
+});
+
+it('lets an admin delete a student account entirely, wiping the dossier and its inscriptions', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $etudiant = Etudiant::factory()->create();
+    $inscription = Inscription::factory()->for($etudiant)->create();
+    $userId = $etudiant->user_id;
+
+    $this->actingAs($admin)->delete("/console/scolarite/etudiants/{$etudiant->id}")
+        ->assertRedirect('/console/scolarite/etudiants');
+
+    expect(User::find($userId))->toBeNull();
+    expect(Etudiant::find($etudiant->id))->toBeNull();
+    expect(Inscription::find($inscription->id))->toBeNull();
+});
+
+it('blocks login once a student account has been deleted', function () {
+    $etudiant = Etudiant::factory()->create();
+    $email = $etudiant->user->email;
+
+    $etudiant->user->delete();
+
+    $this->post('/login', ['email' => $email, 'password' => 'password'])
+        ->assertSessionHasErrors('email');
+    $this->assertGuest();
+});
+
+it('forbids a non-admin from deleting a dossier étudiant', function () {
+    $etudiant = Etudiant::factory()->create();
+    $other = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($other)->delete("/console/scolarite/etudiants/{$etudiant->id}")->assertForbidden();
+
+    expect(Etudiant::find($etudiant->id))->not->toBeNull();
 });

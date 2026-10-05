@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Comment;
+use App\Models\FriendRequest;
 use App\Models\Post;
 use App\Models\Reaction;
 use App\Models\User;
@@ -169,4 +170,39 @@ it('forbids editing someone elses comment', function () {
     $other = User::factory()->role(Role::Etudiant)->create();
 
     $this->actingAs($other)->patch("/commentaires/{$comment->id}", ['body' => 'Piraté'])->assertForbidden();
+});
+
+it('saves the mood, location and tagged friends of a new post', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $stranger = User::factory()->role(Role::Etudiant)->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $author->id, 'recipient_id' => $friend->id]);
+
+    $this->actingAs($author)->post('/communaute', [
+        'type' => 'autre',
+        'body' => 'Journée parfaite',
+        'visibility' => 'amis',
+        'mood' => '😊 Heureux(se)',
+        'location' => 'Mahajanga, Madagascar',
+        'tagged_user_ids' => [$friend->id, $stranger->id],
+    ])->assertRedirect();
+
+    $post = Post::query()->sole();
+    expect($post->visibility->value)->toBe('amis');
+    expect($post->mood)->toBe('😊 Heureux(se)');
+    expect($post->location)->toBe('Mahajanga, Madagascar');
+    expect($post->taggedUsers->pluck('id')->all())->toBe([$friend->id]);
+});
+
+it('hides a friends-only post from someone who is not a friend, but shows it to a friend', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $stranger = User::factory()->role(Role::Etudiant)->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $author->id, 'recipient_id' => $friend->id]);
+
+    Post::factory()->for($author)->create(['visibility' => 'amis', 'body' => 'Réservé aux amis']);
+
+    $this->actingAs($stranger)->get('/communaute')->assertInertia(fn ($page) => $page->has('posts.data', 0));
+    $this->actingAs($friend)->get('/communaute')->assertInertia(fn ($page) => $page->has('posts.data', 1));
+    $this->actingAs($author)->get('/communaute')->assertInertia(fn ($page) => $page->has('posts.data', 1));
 });

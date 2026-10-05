@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\ActivityLog;
-use App\Models\Preinscription;
+use App\Models\Candidat;
 use App\Models\User;
 use App\Role;
 
@@ -28,7 +28,7 @@ it('records a role change in the activity log', function () {
 
 it('records a preinscription approval in the activity log', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    $preinscription = Preinscription::factory()->create();
+    $preinscription = Candidat::factory()->create();
 
     $this->actingAs($admin)->post("/console/preinscriptions/{$preinscription->id}/approve");
 

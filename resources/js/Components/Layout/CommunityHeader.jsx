@@ -76,18 +76,18 @@ export default function CommunityHeader() {
                         <LanguageSwitcher />
                     </div>
 
-                    <HeaderSearchButton />
+                    <HeaderSearchButton href="/communaute/recherche" />
                     <NotificationBell />
                     <FloatingAccountButton size="h-9 w-9" side="bottom" align="end" />
                 </div>
             </div>
 
             <Sheet open={open} onOpenChange={setOpen}>
-                <SheetContent
-                    side="bottom"
-                    className="max-h-[85vh]"
-                    style={{ '--color-isstm-navy': '#667eea', '--color-isstm-gold': '#f093fb' }}
-                >
+                {/* Portaled to document.body (outside .community-shell), so isstm-navy/
+                    isstm-gold here already resolve to :root's admin-chosen colors — no
+                    override needed, and none is wanted now that .community-shell itself
+                    follows those same colors instead of a hardcoded purple/pink. */}
+                <SheetContent side="bottom" className="max-h-[85vh]">
                     <SheetTitle>{t('nav.menu', 'Menu')}</SheetTitle>
                     <nav className="mt-4 flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
                         {navItems.map((item) => (

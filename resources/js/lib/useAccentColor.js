@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * The 'gold' entry's `hex` is only a fallback preview — Settings/Index.jsx
+ * replaces it with the site's actual current primary color (sitePrimaryColor
+ * prop) when rendering the swatch, since "default" now means "whatever the
+ * admin picked", not a fixed color.
+ */
 export const ACCENT_COLORS = [
-    { value: 'gold', label: 'Violet (défaut)', hex: '#f093fb' },
+    { value: 'gold', label: 'Par défaut', hex: '#f093fb' },
     { value: 'emerald', label: 'Émeraude', hex: '#10b981' },
     { value: 'blue', label: 'Bleu', hex: '#2563eb' },
     { value: 'rose', label: 'Rose', hex: '#e11d48' },
