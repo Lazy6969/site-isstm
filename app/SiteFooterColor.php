@@ -20,6 +20,12 @@ enum SiteFooterColor: string
     case Violet = 'violet';
     case Amber = 'amber';
     case Rose = 'rose';
+    case Indigo = 'indigo';
+    case Teal = 'teal';
+    case Crimson = 'crimson';
+    case Orange = 'orange';
+    case Pink = 'pink';
+    case Brown = 'brown';
 
     public function label(): string
     {
@@ -33,6 +39,12 @@ enum SiteFooterColor: string
             self::Violet => 'Violet',
             self::Amber => 'Ambre',
             self::Rose => 'Rose',
+            self::Indigo => 'Indigo',
+            self::Teal => 'Sarcelle',
+            self::Crimson => 'Cramoisi',
+            self::Orange => 'Orange',
+            self::Pink => 'Rose bonbon',
+            self::Brown => 'Brun',
         };
     }
 
@@ -54,6 +66,12 @@ enum SiteFooterColor: string
             self::Violet => ['#2e1065', '#ffffff'],
             self::Amber => ['#451a03', '#ffffff'],
             self::Rose => ['#4c0519', '#ffffff'],
+            self::Indigo => ['#1e1b4b', '#ffffff'],
+            self::Teal => ['#042f2e', '#ffffff'],
+            self::Crimson => ['#3f0d12', '#ffffff'],
+            self::Orange => ['#431407', '#ffffff'],
+            self::Pink => ['#500724', '#ffffff'],
+            self::Brown => ['#2b1407', '#ffffff'],
         };
     }
 

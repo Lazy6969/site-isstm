@@ -43,7 +43,6 @@ class RolePermissionSeeder extends Seeder
         'documents.view', 'documents.create', 'documents.edit', 'documents.delete',
         'users.view', 'users.edit',
         'roles.view', 'roles.edit',
-        'access-keys.manage',
         'activity-log.view',
         'settings.manage',
         'statistics.view',
@@ -73,6 +72,14 @@ class RolePermissionSeeder extends Seeder
             'inscriptions.view', 'inscriptions.create', 'inscriptions.edit', 'inscriptions.delete',
             'classes.view', 'classes.create', 'classes.edit', 'classes.delete',
         ]);
+
+        // Every staff role must at least be able to open the admin dashboard,
+        // otherwise its accounts get a 403 on their very first admin page.
+        // Additive on purpose: it never removes what the Super Admin granted
+        // from the Roles screen.
+        foreach (['enseignant', 'responsable-materiel'] as $role) {
+            SpatieRole::findByName($role)->givePermissionTo('dashboard.view');
+        }
 
         $this->backfillExistingUsers();
     }

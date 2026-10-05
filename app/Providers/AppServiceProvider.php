@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\ActionArchiveRecorder;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -19,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(ActionArchiveRecorder::class);
     }
 
     /**
@@ -27,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->app->make(ActionArchiveRecorder::class)->listen();
+
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(Str::transliterate(
                 Str::lower((string) $request->string('email')).'|'.$request->ip()

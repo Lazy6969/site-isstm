@@ -47,18 +47,18 @@
        the accent/accent-foreground pairs below are the "default" entry of
        AppearancePalette and are overridden inline by app.blade.php per the
        Super Admin's choice at /console/settings/appearance. */
-    --color-admin-bg: #f7f8fc;
+    --color-admin-bg: #f6f6f8;
     --color-admin-surface: #ffffff;
     --color-admin-card: #ffffff;
     /* Sidebar + header only — kept distinct from --color-admin-surface so form
        inputs (which also use bg-admin-surface) stay neutral white. */
     --color-admin-chrome: #eef2ff;
-    --color-admin-border: #eceef4;
+    --color-admin-border: #e6e7ec;
     --color-admin-text: #101828;
     --color-admin-text-secondary: #475467;
     --color-admin-muted: #98a2b3;
-    --color-admin-hover: #f2f4f9;
-    --color-admin-accent: #4f46e5;
+    --color-admin-hover: #f0f1f5;
+    --color-admin-accent: #e11d3f;
     --color-admin-accent-foreground: #ffffff;
 
     /* Text/hover for content sitting directly on --color-admin-chrome. Default
@@ -72,12 +72,12 @@
 
     /* Categorical chart series — validated palette (see dataviz skill,
        references/palette.md), used verbatim and unreordered. */
-    --color-admin-chart-1: #2a78d6;
-    --color-admin-chart-2: #eb6834;
-    --color-admin-chart-3: #1baf7a;
-    --color-admin-chart-4: #eda100;
-    --color-admin-chart-5: #e87ba4;
-    --color-admin-chart-6: #008300;
+    --color-admin-chart-1: #e11d3f;
+    --color-admin-chart-2: #a5203a;
+    --color-admin-chart-3: #6b2a3c;
+    --color-admin-chart-4: #8b909c;
+    --color-admin-chart-5: #f07386;
+    --color-admin-chart-6: #4b505c;
 
     /* Overridable by the Super Admin from /console/settings/appearance
        (see app.blade.php, which injects the chosen values as inline overrides). */
@@ -97,16 +97,16 @@
     --color-accent: #1e293b;
     --color-accent-foreground: #f8fafc;
 
-    --color-admin-bg: #0b0e14;
-    --color-admin-surface: #10141d;
-    --color-admin-card: #131826;
-    --color-admin-chrome: #141a30;
-    --color-admin-border: #232838;
-    --color-admin-text: #f2f4f8;
-    --color-admin-text-secondary: #a2a9bc;
-    --color-admin-muted: #6b7284;
-    --color-admin-hover: #1a2032;
-    --color-admin-accent: #6366f1;
+    --color-admin-bg: #07090d;
+    --color-admin-surface: #0c0f15;
+    --color-admin-card: #0e1118;
+    --color-admin-chrome: #0b0d12;
+    --color-admin-border: #1c202a;
+    --color-admin-text: #f4f5f7;
+    --color-admin-text-secondary: #b3b9c6;
+    --color-admin-muted: #7b8291;
+    --color-admin-hover: #161a24;
+    --color-admin-accent: #f0223f;
     --color-admin-accent-foreground: #ffffff;
 
     --color-admin-chrome-text: var(--color-admin-text);
@@ -114,12 +114,12 @@
     --color-admin-chrome-muted: var(--color-admin-muted);
     --color-admin-chrome-hover: var(--color-admin-hover);
 
-    --color-admin-chart-1: #3987e5;
-    --color-admin-chart-2: #d95926;
-    --color-admin-chart-3: #199e70;
-    --color-admin-chart-4: #c98500;
-    --color-admin-chart-5: #d55181;
-    --color-admin-chart-6: #008300;
+    --color-admin-chart-1: #f0223f;
+    --color-admin-chart-2: #b81d3a;
+    --color-admin-chart-3: #7d2a40;
+    --color-admin-chart-4: #8b909c;
+    --color-admin-chart-5: #e0566c;
+    --color-admin-chart-6: #5b606c;
 }
 
 @media (max-width: 767px) {
@@ -205,4 +205,25 @@ html[data-community-accent='amber'] { --color-community-accent: #d97706; }
     .partenaires-track {
         animation: none;
     }
+}
+
+/* Admin shell — dark canvas with soft crimson glows (top-right corner and
+   behind the sidebar footer), matching the ISSTM console mockup. */
+.admin-shell {
+    background-color: var(--color-admin-bg);
+    background-image:
+        radial-gradient(60rem 22rem at 105% -6%, color-mix(in srgb, var(--color-admin-accent) 38%, transparent), transparent 70%),
+        radial-gradient(38rem 26rem at -4% 108%, color-mix(in srgb, var(--color-admin-accent) 22%, transparent), transparent 70%);
+    background-attachment: fixed;
+}
+
+.admin-sidebar-glow {
+    background-image: radial-gradient(22rem 16rem at 0% 100%, color-mix(in srgb, var(--color-admin-accent) 28%, transparent), transparent 70%);
+}
+
+.admin-card {
+    border: 1px solid var(--color-admin-border);
+    border-radius: 1rem;
+    background-color: color-mix(in srgb, var(--color-admin-card) 92%, transparent);
+    backdrop-filter: blur(6px);
 }

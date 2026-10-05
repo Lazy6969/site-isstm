@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Role;
+use App\RoleHome;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,11 +30,10 @@ class AuthenticatedSessionController extends Controller
         // user and 403, even though refreshing that same page works fine.
         $request->session()->save();
 
-        // A student's home base is the community feed, not the public homepage —
-        // the rest of the site stays one click away via AppLayout's "Voir le site" link.
-        $default = $request->user()->role === Role::Etudiant ? route('posts.index') : route('home');
-
-        return redirect()->intended($default);
+        // One login form for everyone: each kind of account lands on its own
+        // page (see RoleHome), unless it was heading somewhere else when the
+        // login screen interrupted it.
+        return redirect()->intended(RoleHome::for($request->user()));
     }
 
     public function destroy(Request $request): RedirectResponse

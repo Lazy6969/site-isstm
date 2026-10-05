@@ -17,6 +17,12 @@ enum SitePrimaryColor: string
     case Burgundy = 'burgundy';
     case Charcoal = 'charcoal';
     case Violet = 'violet';
+    case Teal = 'teal';
+    case Crimson = 'crimson';
+    case Indigo = 'indigo';
+    case Forest = 'forest';
+    case Brown = 'brown';
+    case Steel = 'steel';
 
     public function label(): string
     {
@@ -27,6 +33,12 @@ enum SitePrimaryColor: string
             self::Burgundy => 'Bordeaux',
             self::Charcoal => 'Anthracite',
             self::Violet => 'Violet profond',
+            self::Teal => 'Sarcelle profonde',
+            self::Crimson => 'Cramoisi',
+            self::Indigo => 'Indigo',
+            self::Forest => 'Vert forêt',
+            self::Brown => 'Brun',
+            self::Steel => 'Bleu acier',
         };
     }
 
@@ -44,6 +56,12 @@ enum SitePrimaryColor: string
             self::Burgundy => ['#7f1d1d', '#450a0a'],
             self::Charcoal => ['#1f2937', '#0f172a'],
             self::Violet => ['#4c1d95', '#2e1065'],
+            self::Teal => ['#115e59', '#042f2e'],
+            self::Crimson => ['#9f1239', '#500724'],
+            self::Indigo => ['#312e81', '#1e1b4b'],
+            self::Forest => ['#14532d', '#052e16'],
+            self::Brown => ['#78350f', '#451a03'],
+            self::Steel => ['#334155', '#1e293b'],
         };
     }
 

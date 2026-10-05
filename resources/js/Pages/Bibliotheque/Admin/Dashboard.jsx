@@ -15,7 +15,7 @@ export default function Dashboard({ stats }) {
 
     return (
         <BiblioAdminLayout title={t('bibliotheque_admin.dashboard_titre', 'Tableau de bord — Bibliothèque')}>
-            <Head title="Bibliothèque — Tableau de bord" />
+            <Head title={t('bibliotheque_admin.head_dashboard', 'Bibliothèque — Tableau de bord')} />
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {tiles.map((tile) => (

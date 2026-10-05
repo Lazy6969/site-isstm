@@ -21,6 +21,12 @@ enum SiteMenuColor: string
     case Violet = 'violet';
     case Amber = 'amber';
     case Rose = 'rose';
+    case Indigo = 'indigo';
+    case Teal = 'teal';
+    case Crimson = 'crimson';
+    case Orange = 'orange';
+    case Pink = 'pink';
+    case Brown = 'brown';
 
     public function label(): string
     {
@@ -34,6 +40,12 @@ enum SiteMenuColor: string
             self::Violet => 'Violet',
             self::Amber => 'Ambre',
             self::Rose => 'Rose',
+            self::Indigo => 'Indigo',
+            self::Teal => 'Sarcelle',
+            self::Crimson => 'Cramoisi',
+            self::Orange => 'Orange',
+            self::Pink => 'Rose bonbon',
+            self::Brown => 'Brun',
         };
     }
 
@@ -55,6 +67,12 @@ enum SiteMenuColor: string
             self::Violet => ['#6d28d9', '#ffffff'],
             self::Amber => ['#b45309', '#ffffff'],
             self::Rose => ['#be123c', '#ffffff'],
+            self::Indigo => ['#4338ca', '#ffffff'],
+            self::Teal => ['#0f766e', '#ffffff'],
+            self::Crimson => ['#9f1239', '#ffffff'],
+            self::Orange => ['#c2410c', '#ffffff'],
+            self::Pink => ['#be185d', '#ffffff'],
+            self::Brown => ['#78350f', '#ffffff'],
         };
     }
 

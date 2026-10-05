@@ -29,7 +29,12 @@ class EnsureUserHasRole
 
         $allowed = array_map(fn (string $role) => Role::from($role), $roles);
 
-        abort_unless($user->hasLegacyRole(...$allowed), 403);
+        // An account can carry the role either in the legacy `users.role`
+        // column or as its Spatie counterpart (staff accounts are created
+        // with the latter only) — both count.
+        $spatieRoles = array_values(array_filter(array_map(fn (Role $role) => $role->spatieRole(), $allowed)));
+
+        abort_unless($user->hasLegacyRole(...$allowed) || $user->hasAnyRole($spatieRoles), 403);
 
         return $next($request);
     }

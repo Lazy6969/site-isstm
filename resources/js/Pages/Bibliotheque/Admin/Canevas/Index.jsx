@@ -30,7 +30,7 @@ export default function Index({ canevas, annees }) {
 
     return (
         <BiblioAdminLayout title={t('bibliotheque.canevas_titre', 'Canevas de mémoire')}>
-            <Head title="Bibliothèque — Canevas" />
+            <Head title={t('bibliotheque_admin.head_canevas', 'Bibliothèque — Canevas')} />
 
             <Card className="mb-8 p-5">
                 <form onSubmit={submit}>
@@ -51,8 +51,8 @@ export default function Index({ canevas, annees }) {
                             onChange={(e) => setData('niveau', e.target.value)}
                             className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
-                            <option value="Licence">Licence</option>
-                            <option value="Master">Master</option>
+                            <option value="Licence">{t('bibliotheque_admin.niveau_licence', 'Licence')}</option>
+                            <option value="Master">{t('bibliotheque_admin.niveau_master', 'Master')}</option>
                         </select>
                         <select
                             value={data.annee_id}

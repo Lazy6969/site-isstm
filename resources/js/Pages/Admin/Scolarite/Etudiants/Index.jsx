@@ -10,6 +10,7 @@ import { Badge } from '../../../../Components/ui/badge';
 import { Avatar, AvatarFallback } from '../../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
+import { useTranslations } from '../../../../lib/useTranslations';
 
 const statutVariants = {
     actif: 'success',
@@ -25,7 +26,15 @@ const statutLabels = {
     abandon: 'Abandon',
 };
 
+const statutI18nKeys = {
+    actif: 'admin.common.active',
+    suspendu: 'admin.etudiants.statut_suspendu',
+    diplome: 'admin.etudiants.statut_diplome',
+    abandon: 'admin.etudiants.statut_abandon',
+};
+
 export default function Index({ etudiants, classes, eligibleUsers }) {
+    const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const form = useForm({ user_id: '', classe_id: '', matricule: '' });
 
@@ -41,12 +50,14 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
     }
 
     return (
-        <AdminLayout title="Étudiants">
+        <AdminLayout title={t('admin.etudiants.title', 'Étudiants')}>
             <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm text-admin-text-secondary">{etudiants.length} étudiant(s)</p>
+                <p className="text-sm text-admin-text-secondary">
+                    {etudiants.length} {t('admin.etudiants.count_suffix', 'étudiant(s)')}
+                </p>
                 <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Nouveau dossier
+                    {t('admin.etudiants.new_dossier', 'Nouveau dossier')}
                 </Button>
             </div>
 
@@ -54,18 +65,18 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Étudiant</TableHead>
-                            <TableHead>Matricule</TableHead>
-                            <TableHead>Classe</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t('admin.etudiants.col_etudiant', 'Étudiant')}</TableHead>
+                            <TableHead>{t('admin.etudiants.matricule', 'Matricule')}</TableHead>
+                            <TableHead>{t('admin.etudiants.col_classe', 'Classe')}</TableHead>
+                            <TableHead>{t('admin.common.status', 'Statut')}</TableHead>
+                            <TableHead className="text-right">{t('admin.common.actions', 'Actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {etudiants.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={5} className="py-8 text-center text-admin-muted">
-                                    Aucun dossier étudiant pour le moment.
+                                    {t('admin.etudiants.empty', 'Aucun dossier étudiant pour le moment.')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -87,13 +98,15 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                                 <TableCell>{etudiant.matricule}</TableCell>
                                 <TableCell>{etudiant.classe ? `${etudiant.classe.nom} (${etudiant.classe.annee})` : '—'}</TableCell>
                                 <TableCell>
-                                    <Badge variant={statutVariants[etudiant.statut]}>{statutLabels[etudiant.statut]}</Badge>
+                                    <Badge variant={statutVariants[etudiant.statut]}>
+                                        {t(statutI18nKeys[etudiant.statut], statutLabels[etudiant.statut])}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <Link
                                         href={`/console/scolarite/etudiants/${etudiant.id}`}
                                         className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                                        aria-label={`Voir le dossier de ${etudiant.user?.name}`}
+                                        aria-label={`${t('admin.etudiants.view_dossier_aria', 'Voir le dossier de')} ${etudiant.user?.name}`}
                                     >
                                         <Eye className="h-4 w-4" aria-hidden="true" />
                                     </Link>
@@ -107,18 +120,18 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Nouveau dossier étudiant</DialogTitle>
+                        <DialogTitle>{t('admin.etudiants.new_dossier_title', 'Nouveau dossier étudiant')}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
                         <div>
-                            <Label htmlFor="user_id">Compte étudiant</Label>
+                            <Label htmlFor="user_id">{t('admin.etudiants.compte_etudiant', 'Compte étudiant')}</Label>
                             <Select
                                 id="user_id"
                                 value={form.data.user_id}
                                 onChange={(e) => form.setData('user_id', e.target.value)}
                                 className="mt-1.5"
                             >
-                                <option value="">Sélectionner...</option>
+                                <option value="">{t('admin.etudiants.select_placeholder', 'Sélectionner...')}</option>
                                 {eligibleUsers.map((u) => (
                                     <option key={u.id} value={u.id}>
                                         {u.name} ({u.email})
@@ -127,15 +140,17 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                             </Select>
                             {eligibleUsers.length === 0 && (
                                 <p className="mt-1 text-xs text-admin-muted">
-                                    Tous les comptes étudiants ont déjà un dossier, ou aucun n'a encore été créé (via l'approbation d'une
-                                    préinscription).
+                                    {t(
+                                        'admin.etudiants.hint_no_eligible',
+                                        "Tous les comptes étudiants ont déjà un dossier, ou aucun n'a encore été créé (via l'approbation d'une préinscription).",
+                                    )}
                                 </p>
                             )}
                             {form.errors.user_id && <p className="mt-1 text-sm text-red-500">{form.errors.user_id}</p>}
                         </div>
 
                         <div>
-                            <Label htmlFor="matricule">Matricule</Label>
+                            <Label htmlFor="matricule">{t('admin.etudiants.matricule', 'Matricule')}</Label>
                             <Input
                                 id="matricule"
                                 value={form.data.matricule}
@@ -146,14 +161,14 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                         </div>
 
                         <div>
-                            <Label htmlFor="classe_id">Classe (optionnel)</Label>
+                            <Label htmlFor="classe_id">{t('admin.etudiants.classe_optionnelle', 'Classe (optionnel)')}</Label>
                             <Select
                                 id="classe_id"
                                 value={form.data.classe_id}
                                 onChange={(e) => form.setData('classe_id', e.target.value)}
                                 className="mt-1.5"
                             >
-                                <option value="">Aucune</option>
+                                <option value="">{t('admin.etudiants.aucune', 'Aucune')}</option>
                                 {classes.map((c) => (
                                     <option key={c.id} value={c.id}>
                                         {c.nom} ({c.niveau}, {c.annee})
@@ -169,14 +184,14 @@ export default function Index({ etudiants, classes, eligibleUsers }) {
                                 onClick={() => setOpen(false)}
                                 className="bg-admin-hover text-admin-text hover:bg-admin-hover/70"
                             >
-                                Annuler
+                                {t('admin.common.cancel', 'Annuler')}
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={form.processing}
                                 className="bg-admin-text text-admin-bg hover:bg-admin-text/90"
                             >
-                                Créer le dossier
+                                {t('admin.etudiants.creer_dossier', 'Créer le dossier')}
                             </Button>
                         </DialogFooter>
                     </form>

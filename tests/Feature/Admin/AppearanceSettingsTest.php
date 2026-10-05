@@ -23,13 +23,13 @@ it('lets the super admin view appearance settings with sensible defaults', funct
         ->where('settings.siteAccent', 'gold')
         ->where('settings.siteMenu', 'default')
         ->where('settings.siteFooter', 'default')
-        ->has('palettes', 7)
-        ->has('chromes', 12)
+        ->has('palettes', 14)
+        ->has('chromes', 18)
         ->has('fonts', 8)
-        ->has('sitePrimaries', 6)
-        ->has('siteAccents', 6)
-        ->has('siteMenus', 9)
-        ->has('siteFooters', 9)
+        ->has('sitePrimaries', 12)
+        ->has('siteAccents', 12)
+        ->has('siteMenus', 15)
+        ->has('siteFooters', 15)
     );
 });
 

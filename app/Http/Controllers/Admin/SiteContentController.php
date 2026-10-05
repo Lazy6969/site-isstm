@@ -41,6 +41,21 @@ class SiteContentController extends Controller
         'mentions' => 'Mentions légales',
         'confidentialite' => 'Confidentialité',
         'associations' => 'Association des étudiants',
+        'accueil' => 'Accueil — Général',
+        'actualites' => 'Actualités (page)',
+        'campus' => 'Vie étudiante — Campus',
+        'documents' => 'Documents',
+        'equipe' => 'Équipe du site (crédits)',
+        'evenements' => 'Événements (page)',
+        'filieres' => 'Filières (page)',
+        'footer' => 'Pied de page',
+        'formations' => 'Formations',
+        'galerie' => 'Galerie (page)',
+        'historique' => 'Historique — Parcours',
+        'parcours' => 'Organigramme & parcours',
+        'preinscription' => 'Préinscription (page)',
+        'recherche' => 'Recherche (page)',
+        'vie' => 'Vie étudiante',
     ];
 
     public function index(): Response

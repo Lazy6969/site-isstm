@@ -35,7 +35,9 @@ function FloatingAccountGroup() {
     const { url } = usePage();
     const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
 
-    if (inCommunitySpace) {
+    // Both buttons hide themselves inside /console (the admin header has its own),
+    // which would leave this empty rounded container floating over the sidebar.
+    if (inCommunitySpace || url.startsWith('/console')) {
         return null;
     }
 
