@@ -57,23 +57,35 @@ function MediaGrid({ media, compact = false }) {
 
     if (media.length === 1 && media[0].type === 'image') {
         return (
-            <div className="mt-3 flex justify-center overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900">
-                <a href={`/storage/${media[0].path}`} download>
-                    <img
-                        src={`/storage/${media[0].path}`}
-                        alt=""
-                        className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+            <>
+                <div className="mt-3 flex justify-center overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900">
+                    <button type="button" onClick={() => setLightboxIndex(0)} className="block">
+                        <img
+                            src={`/storage/${media[0].path}`}
+                            alt=""
+                            className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+                        />
+                    </button>
+                </div>
+                {lightboxIndex !== null && (
+                    <PostMediaLightbox
+                        images={media}
+                        index={lightboxIndex}
+                        onClose={() => setLightboxIndex(null)}
+                        onNavigate={setLightboxIndex}
                     />
-                </a>
-            </div>
+                )}
+            </>
         );
     }
 
     // A photo album past 4 images shows only the first 4, with a "+N" counter
     // over the last tile (Facebook's grid pattern) — everything beyond that
-    // is reachable via PostMediaLightbox, not shown in the feed itself. Mixed
-    // media (video/pdf alongside images) keeps the old unlimited grid, since
-    // overlaying a counter on a video player's controls would look broken.
+    // is reachable via PostMediaLightbox. Every pure-image grid (2-4 photos,
+    // with overflow or not, compact shared-post preview or not) opens the
+    // same fullscreen lightbox on click. Mixed media (video/pdf alongside
+    // images) keeps the old plain download links, since overlaying a click
+    // handler on a video player's controls would look broken.
     const allImages = media.every((m) => m.type === 'image');
     const hasOverflow = allImages && !compact && media.length > MAX_VISIBLE_MEDIA;
     const visibleMedia = hasOverflow ? media.slice(0, MAX_VISIBLE_MEDIA) : media;
@@ -90,7 +102,7 @@ function MediaGrid({ media, compact = false }) {
                             key={m.id}
                             className={`relative overflow-hidden rounded-xl bg-slate-50 dark:bg-slate-900 ${visibleMedia.length > 1 ? 'aspect-square' : ''}`}
                         >
-                            {m.type === 'image' && (hasOverflow ? (
+                            {m.type === 'image' && (allImages ? (
                                 <button type="button" onClick={() => setLightboxIndex(i)} className="block h-full w-full">
                                     <img src={`/storage/${m.path}`} alt="" className="h-full w-full object-cover" />
                                     {isOverflowTile && (
@@ -141,7 +153,7 @@ function MediaGrid({ media, compact = false }) {
                 })}
             </div>
 
-            {hasOverflow && lightboxIndex !== null && (
+            {allImages && lightboxIndex !== null && (
                 <PostMediaLightbox
                     images={media}
                     index={lightboxIndex}

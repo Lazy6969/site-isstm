@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Camera, Search } from 'lucide-react';
+import { Camera, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -12,6 +12,8 @@ import { Card, CardContent } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
+
+const ALBUMS_PER_PAGE = 20;
 
 function formatDate(value) {
     if (!value) return null;
@@ -26,6 +28,7 @@ export default function Index({ albums }) {
     const [quickAddOpen, setQuickAddOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [view, setView] = useState('grid');
+    const [page, setPage] = useState(1);
 
     const filtered = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -34,6 +37,15 @@ export default function Index({ albums }) {
             (album) => album.title.toLowerCase().includes(query) || (album.location ?? '').toLowerCase().includes(query),
         );
     }, [albums, search]);
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ALBUMS_PER_PAGE));
+    const currentPage = Math.min(page, totalPages);
+    const paginated = filtered.slice((currentPage - 1) * ALBUMS_PER_PAGE, currentPage * ALBUMS_PER_PAGE);
+
+    function updateSearch(value) {
+        setSearch(value);
+        setPage(1);
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -63,7 +75,7 @@ export default function Index({ albums }) {
                         <input
                             type="search"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => updateSearch(e.target.value)}
                             placeholder={t('galerie.rechercher', 'Rechercher dans la galerie...')}
                             className="w-full rounded-lg border border-slate-200 bg-white py-2 pr-3 pl-9 text-sm text-slate-700 placeholder:text-slate-400 focus:border-isstm-gold focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                         />
@@ -77,7 +89,7 @@ export default function Index({ albums }) {
                     </p>
                 ) : (
                     <div className={view === 'grid' ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'flex flex-col gap-4'}>
-                        {filtered.map((album) =>
+                        {paginated.map((album) =>
                             view === 'grid' ? (
                                 <Link key={album.slug} href={`/galerie/${album.slug}`} className="group block">
                                     <Card className="overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
@@ -127,6 +139,46 @@ export default function Index({ albums }) {
                             ),
                         )}
                     </div>
+                )}
+
+                {totalPages > 1 && (
+                    <nav className="mt-10 flex items-center justify-center gap-1.5" aria-label="Pagination">
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            aria-label={t('galerie.page_precedente', 'Page précédente')}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700"
+                        >
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                            <button
+                                key={n}
+                                type="button"
+                                onClick={() => setPage(n)}
+                                aria-current={n === currentPage ? 'page' : undefined}
+                                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition ${
+                                    n === currentPage
+                                        ? 'bg-isstm-navy text-white'
+                                        : 'text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                {n}
+                            </button>
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            aria-label={t('galerie.page_suivante', 'Page suivante')}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700"
+                        >
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                    </nav>
                 )}
             </main>
 

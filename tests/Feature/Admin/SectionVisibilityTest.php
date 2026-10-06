@@ -53,3 +53,13 @@ it('lets a super admin hide the "Rejoignez-nous" banner', function () {
 
     expect(SectionVisibilityController::hidden())->toBe(['rejoignez_nous']);
 });
+
+it('lets a super admin hide the dossier-tracking banner', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)
+        ->post('/console/sections/toggle', ['section' => 'dossier_tracking'])
+        ->assertRedirect();
+
+    expect(SectionVisibilityController::hidden())->toBe(['dossier_tracking']);
+});

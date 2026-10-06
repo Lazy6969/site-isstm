@@ -2,15 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AccountReactivationRejected extends Notification implements ShouldQueue
+class AccountReactivationRejected extends Notification
 {
-    use Queueable;
-
     public function __construct(public ?string $motif = null) {}
 
     /**

@@ -31,6 +31,7 @@ import {
     Repeat,
     RotateCcw,
     UserCheck,
+    Search,
 } from 'lucide-react';
 
 /**
@@ -71,6 +72,7 @@ export const ICONS = {
     Repeat,
     RotateCcw,
     UserCheck,
+    Search,
 };
 
 export function getIcon(name) {

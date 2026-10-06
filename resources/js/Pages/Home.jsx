@@ -5,6 +5,7 @@ import Stats from '../Components/Home/Stats';
 import Director from '../Components/Home/Director';
 import MissionVision from '../Components/Home/MissionVision';
 import Filieres from '../Components/Home/Filieres';
+import DossierTrackingBanner from '../Components/Home/DossierTrackingBanner';
 import Actualites from '../Components/Home/Actualites';
 import RejoignezNous from '../Components/Home/RejoignezNous';
 import Testimonials from '../Components/Home/Testimonials';
@@ -35,6 +36,9 @@ export default function Home({ content, heroSlides, heroSparkleColor, testimonia
             </SectionVisibility>
             <SectionVisibility section="filieres" label="Filières" hidden={hiddenSections.includes('filieres')}>
                 <Filieres filieres={filieres} />
+            </SectionVisibility>
+            <SectionVisibility section="dossier_tracking" label="Suivi de dossier" hidden={hiddenSections.includes('dossier_tracking')}>
+                <DossierTrackingBanner />
             </SectionVisibility>
             <SectionVisibility section="actualites" label="Actualités" hidden={hiddenSections.includes('actualites')}>
                 <Actualites articles={actualites} />

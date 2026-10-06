@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\ReactivationRequest;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\ReactivationRequested;
 use App\ReactivationStatus;
+use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,8 +20,20 @@ class ReactivationRequestController extends Controller
 {
     private const GENERIC_STATUS = "Si un compte existe pour cette adresse, votre demande a été transmise à la scolarité. Vous recevrez un e-mail dès qu'elle sera traitée.";
 
-    public function create(): Response
+    public function create(): Response|RedirectResponse
     {
+        // Already an active student account: there is nothing to reactivate.
+        if (Auth::user()?->role === Role::Etudiant && Auth::user()->is_active) {
+            return redirect()->route('rejoindre')->with('status', 'Vous êtes déjà inscrit(e) en tant qu’étudiant.');
+        }
+
+        if (Setting::get('inscriptions.closed', 'false') === 'true') {
+            return redirect()->route('rejoindre')->with(
+                'status',
+                Setting::get('inscriptions.closed_message') ?: 'Les inscriptions sont actuellement fermées.',
+            );
+        }
+
         return Inertia::render('AncienEtudiant/Verifier');
     }
 

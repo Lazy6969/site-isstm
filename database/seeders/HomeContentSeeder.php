@@ -74,6 +74,7 @@ class HomeContentSeeder extends Seeder
             'logo_image_path' => 'images/logo-isstm.jpg',
             'bourse_lien1_logo' => 'images/partenariat/mesupres.png',
             'bourse_lien2_logo' => 'images/partenariat/tresor-public.png',
+            'bourse_lien3_logo' => 'images/logo-isstm.svg',
             'associations_logo' => 'images/aei.jpeg',
             'associations_galerie_1' => 'images/portal_assoc_4.jpg',
             'associations_galerie_2' => 'images/portal_assoc_5.jpg',
@@ -416,6 +417,13 @@ class HomeContentSeeder extends Seeder
                 'Access the Public Treasury platform',
                 "Hiditra amin'ny sehatra Trésor Public",
             ],
+            'bourse_lien3_titre' => ['Autre option de bourse', 'Other scholarship option', 'Safidy vatsim-pianarana hafa'],
+            'bourse_lien3_description' => [
+                'Cette section sera disponible dès que la scolarité y ajoutera un lien, depuis le crayon.',
+                "This section will become available once the registrar's office adds a link, from the pencil.",
+                "Ho azo jerena ity fizarana ity rehefa manampy rohy ny sampan-draharaha momba ny fianarana, amin'ny alalan'ny pensilihazo.",
+            ],
+            'bourse_lien3_bouton' => ['Accéder à la plateforme', 'Access the platform', 'Hiditra amin\'ny sehatra'],
 
             // Boutons CTA principaux (étaient hardcodés dans les fichiers de traduction)
             'accueil_hero_bouton' => ['Inscrivez-vous', 'Register', 'Misoratra anarana'],
@@ -433,6 +441,15 @@ class HomeContentSeeder extends Seeder
                 "Miditra ao amin'ny ISSTM ka manorena ny hoavinao",
             ],
             'accueil_rejoindre_image_path' => ['images/accueil-rejoindre.png', 'images/accueil-rejoindre.png', 'images/accueil-rejoindre.png'],
+
+            // Bannière "Suivi de dossier" (entre Filières et Actualités)
+            'accueil_suivi_titre' => ['Suivi de votre dossier', 'Track your application', 'Fanaraha-maso ny antontan-taratasinao'],
+            'accueil_suivi_soustitre' => [
+                'Entrez votre numéro de dossier pour connaître son état.',
+                'Enter your file number to check its status.',
+                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny toerana misy azy.",
+            ],
+            'accueil_suivi_image_path' => ['', '', ''],
 
             // Style des cartes (valeur non affichée — seule la colonne `style` compte, voir lib/cardStyle.js)
             'accueil_filieres_carte' => ['Style des cartes filières', 'Programs card style', 'Endrika kaoty sampana'],
@@ -583,7 +600,15 @@ class HomeContentSeeder extends Seeder
             // (see HeroParcoursCards.jsx); kept the same key so any style an
             // admin already set (position/size/blur) for this slot carries over.
             'rejoindre_parcours_2' => ['Ancien étudiant', 'Former student', 'Mpianatra taloha'],
-            'rejoindre_parcours_3' => ['Redoublant', 'Repeating student', 'Famerenana taona'],
+            'rejoindre_parcours_3' => ['Suivre mon dossier', 'Track my application', 'Hanaraka ny antontan-taratasiko'],
+
+            'suivi_titre' => ['Suivre mon dossier', 'Track my application', 'Hanaraka ny antontan-taratasiko'],
+            'suivi_soustitre' => [
+                'Entrez votre numéro de dossier pour connaître son état.',
+                'Enter your file number to check its status.',
+                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny toerana misy azy.",
+            ],
+            'suivi_banniere_image_path' => ['', '', ''],
 
             // Optional photo behind each page's navy title banner — empty by
             // default (plain navy, as every banner already looked), uploaded
@@ -1126,6 +1151,14 @@ class HomeContentSeeder extends Seeder
         // across every locale like an icon or image value.
         SiteContent::updateOrCreate(
             ['content_key' => 'bibliotheque_lien'],
+            ['type' => SiteContentType::Url, 'content_value_fr' => '', 'content_value_en' => '', 'content_value_mg' => ''],
+        );
+
+        // The Bourse page's 3rd (admin-added) option — its link target stays
+        // empty until a super admin sets one via the pencil (see Bourse.jsx /
+        // EditableLinkButton); same Url reasoning as bibliotheque_lien above.
+        SiteContent::updateOrCreate(
+            ['content_key' => 'bourse_lien3_href'],
             ['type' => SiteContentType::Url, 'content_value_fr' => '', 'content_value_en' => '', 'content_value_mg' => ''],
         );
 

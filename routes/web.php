@@ -13,6 +13,7 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirecteurController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DossierTrackingController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\FriendController;
@@ -96,6 +97,7 @@ Route::get('inscription', [InscriptionController::class, 'index'])->name('inscri
 Route::inertia('rejoindre', 'Rejoindre')->name('rejoindre');
 Route::get('ancien-etudiant', [ReactivationRequestController::class, 'create'])->name('reactivation.create');
 Route::post('ancien-etudiant', [ReactivationRequestController::class, 'store'])->middleware('throttle:10,1')->name('reactivation.store');
+Route::get('suivi-dossier', [DossierTrackingController::class, 'show'])->middleware('throttle:30,1')->name('dossier.suivi');
 Route::get('preinscription', [PreinscriptionController::class, 'create'])->name('preinscription.create');
 Route::post('preinscription/compte', [PreinscriptionController::class, 'storeAccount'])->middleware('throttle:10,1')->name('preinscription.store-account');
 Route::patch('preinscription/{preinscription}/brouillon', [PreinscriptionController::class, 'saveDraft'])->middleware(['auth', 'throttle:20,1'])->name('preinscription.save-draft');

@@ -39,20 +39,45 @@ class TokenSearch
      * lets "génie informatique" match a filière whose name only contains
      * "Informatique" while "Génie" only appears in its description.
      *
+     * $fuzzyColumn (typically the title/name column) also tolerates a close
+     * misspelling of a token: dropping its first or last character and
+     * matching what's left as a substring still catches a wrong leading or
+     * trailing letter ("enformatique" minus its first letter, "nformatique",
+     * is still a substring of "informatique"). Deliberately simple and
+     * portable (plain LIKE, no SOUNDEX or similar — unavailable on SQLite,
+     * which the test suite runs on) rather than full edit-distance matching.
+     * Only makes sense against a short, single-concept value — applying it
+     * to a free-text paragraph column would raise false positives, so every
+     * other column keeps exact-substring matching only.
+     *
      * @param  array<int, string>  $tokens
      * @param  array<int, string>  $columns
      */
-    public static function matchAll(Builder $query, array $tokens, array $columns): Builder
+    public static function matchAll(Builder $query, array $tokens, array $columns, ?string $fuzzyColumn = null): Builder
     {
         foreach ($tokens as $token) {
-            $query->where(function (Builder $tokenQuery) use ($columns, $token) {
+            $query->where(function (Builder $tokenQuery) use ($columns, $token, $fuzzyColumn) {
                 foreach ($columns as $column) {
                     $tokenQuery->orWhere($column, 'like', '%'.$token.'%');
+                }
+
+                if ($fuzzyColumn !== null) {
+                    static::matchFuzzy($tokenQuery, $fuzzyColumn, $token);
                 }
             });
         }
 
         return $query;
+    }
+
+    private static function matchFuzzy(Builder $query, string $column, string $token): void
+    {
+        if (mb_strlen($token) < 4) {
+            return;
+        }
+
+        $query->orWhere($column, 'like', '%'.mb_substr($token, 1).'%');
+        $query->orWhere($column, 'like', '%'.mb_substr($token, 0, -1).'%');
     }
 
     /**

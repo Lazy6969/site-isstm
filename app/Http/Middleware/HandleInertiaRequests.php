@@ -70,6 +70,14 @@ class HandleInertiaRequests extends Middleware
                 ?->candidats()
                 ->where('status', PreinscriptionStatus::Soumis)
                 ->exists() ?? false,
+            // Gates the Préinscription/Ancien étudiant entry points everywhere
+            // they're offered (see HeroParcoursCards.jsx) — set from
+            // /console/settings/inscriptions.
+            'inscriptionsClosed' => fn () => Setting::get('inscriptions.closed', 'false') === 'true',
+            'inscriptionsClosedMessage' => fn () => Setting::get(
+                'inscriptions.closed_message',
+                'Les inscriptions sont actuellement fermées.',
+            ) ?: 'Les inscriptions sont actuellement fermées.',
             // Feeds the quick site-color picker fixed on the public site (see
             // SitePrimaryColorPicker.jsx) — shared globally rather than only on
             // the admin settings page, since the picker itself is available

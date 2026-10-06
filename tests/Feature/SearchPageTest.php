@@ -49,6 +49,18 @@ it('requires every keyword to match, not just one of them', function () {
     );
 });
 
+it('tolerates a wrong leading or trailing letter in the title', function () {
+    Filiere::factory()->create(['nom_fr' => 'Informatique']);
+
+    $this->get('/recherche?q=xnformatique')->assertInertia(fn ($page) => $page
+        ->has('results.filieres', 1)
+    );
+
+    $this->get('/recherche?q=informatiquex')->assertInertia(fn ($page) => $page
+        ->has('results.filieres', 1)
+    );
+});
+
 it('ranks a title match above a description-only match', function () {
     Filiere::factory()->create(['nom_fr' => 'Réseaux', 'description_fr' => 'Rien à voir avec la cible recherchée.']);
     Filiere::factory()->create(['nom_fr' => 'Autre filière', 'description_fr' => 'Mentionne les réseaux informatiques en passant.']);

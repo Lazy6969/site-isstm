@@ -47,7 +47,11 @@
 <table role="presentation" cellpadding="0" cellspacing="0" class="inner" align="center">
 <tr><td class="header">
 <a href="{{ config('app.url') }}" style="display:inline-block;">
-<img src="{{ asset('images/logo-isstm.png') }}" alt="ISSTM Mahajanga">
+{{-- Embedded as a cid: attachment, not asset()'s absolute URL: a mail client
+     fetches a remote <img> from the public internet, so a local .test APP_URL
+     renders as a broken image in any real inbox. $message is injected
+     automatically by Mailer::send() for every notification view. --}}
+<img src="{{ $message->embed(public_path('images/logo-isstm.png')) }}" alt="ISSTM Mahajanga">
 </a>
 <div class="header-title">Institut Supérieur des Sciences et Technologies de Mahajanga</div>
 <div class="lang-row">

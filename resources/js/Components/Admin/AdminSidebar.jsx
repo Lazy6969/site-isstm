@@ -26,6 +26,7 @@ import {
     Trash2,
     TriangleAlert,
     RotateCcw,
+    DoorClosed,
 } from 'lucide-react';
 
 const navGroups = [
@@ -83,6 +84,7 @@ const navGroups = [
         items: [
             { href: '/console/settings/appearance', label: 'Apparence', icon: Palette, permission: 'settings.manage' },
             { href: '/console/settings/maintenance', label: 'Maintenance', icon: TriangleAlert, permission: 'settings.manage' },
+            { href: '/console/settings/inscriptions', label: 'Inscriptions', icon: DoorClosed, permission: 'settings.manage' },
         ],
     },
 ];

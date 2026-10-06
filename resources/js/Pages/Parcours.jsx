@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowUp, Download, FileText, Lock } from 'lucide-react';
+import { ArrowUp, Download, FileText, Lock, Upload } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -16,6 +16,7 @@ import { useTranslations } from '../lib/useTranslations';
 import { useQuickEdit } from '../lib/useQuickEdit';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableOrgPersonDialog from '../Components/QuickEdit/EditableOrgPersonDialog';
+import OrgDocumentUploadDialog from '../Components/QuickEdit/OrgDocumentUploadDialog';
 import BannerBackground from '../Components/QuickEdit/BannerBackground';
 
 const CURSUS_GRADIENTS = {
@@ -26,13 +27,15 @@ const CURSUS_GRADIENTS = {
     m2: 'from-[#8bc457] to-[#6b9e3c]',
 };
 
-export default function Parcours({ orgPeople = {} }) {
+export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
     const { auth, content } = usePage().props;
     const { t } = useTranslations();
     const { active } = useQuickEdit();
     const isLoggedIn = Boolean(auth?.user);
+    const isActive = Boolean(auth?.user?.is_active);
     const canEditOrg = active && (auth?.permissions ?? []).includes('organigramme.edit');
     const [editingPerson, setEditingPerson] = useState(null);
+    const [uploadingSlug, setUploadingSlug] = useState(null);
 
     function onEditPerson(person, title) {
         setEditingPerson({ person, title });
@@ -41,11 +44,13 @@ export default function Parcours({ orgPeople = {} }) {
     const documents = [
         {
             key: 'parcours_doc_organigramme',
+            slug: 'organigramme',
             title: content.parcours_doc_organigramme_titre,
             desc: content.parcours_doc_organigramme_desc,
         },
         {
             key: 'parcours_doc_cursus',
+            slug: 'cursus',
             title: content.parcours_doc_cursus_titre,
             desc: content.parcours_doc_cursus_desc,
         },
@@ -217,12 +222,7 @@ export default function Parcours({ orgPeople = {} }) {
                                         {doc.desc}
                                     </EditableText>
                                 </p>
-                                {isLoggedIn ? (
-                                    <p className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500">
-                                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
-                                        {t('parcours.telechargements_a_venir', 'Téléchargements à venir')}
-                                    </p>
-                                ) : (
+                                {!isLoggedIn && (
                                     <Link
                                         href="/login"
                                         className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
@@ -230,6 +230,44 @@ export default function Parcours({ orgPeople = {} }) {
                                         <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                                         {t('parcours.connexion_requise', 'Connectez-vous pour télécharger')}
                                     </Link>
+                                )}
+
+                                {isLoggedIn && !isActive && (
+                                    <p className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500">
+                                        <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {t('parcours.compte_inactif', 'Compte inactif — contactez la scolarité')}
+                                    </p>
+                                )}
+
+                                {isLoggedIn && isActive && orgDocuments[doc.slug] && (
+                                    <a
+                                        href={`/${orgDocuments[doc.slug]}`}
+                                        download
+                                        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
+                                    >
+                                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {t('parcours.telecharger', 'Télécharger')}
+                                    </a>
+                                )}
+
+                                {isLoggedIn && isActive && !orgDocuments[doc.slug] && (
+                                    <p className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-400 dark:text-slate-500">
+                                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {t('parcours.telechargements_a_venir', 'Document à venir')}
+                                    </p>
+                                )}
+
+                                {canEditOrg && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setUploadingSlug(doc.slug)}
+                                        className="mt-2 flex w-full items-center justify-center gap-1.5 text-xs font-medium text-isstm-gold hover:underline"
+                                    >
+                                        <Upload className="h-3.5 w-3.5" aria-hidden="true" />
+                                        {orgDocuments[doc.slug]
+                                            ? t('parcours.remplacer_fichier', 'Remplacer le fichier')
+                                            : t('parcours.ajouter_fichier', 'Ajouter le fichier')}
+                                    </button>
                                 )}
                             </div>
                         ))}
@@ -245,6 +283,15 @@ export default function Parcours({ orgPeople = {} }) {
                     onClose={() => setEditingPerson(null)}
                     person={editingPerson.person}
                     title={editingPerson.title}
+                />
+            )}
+
+            {uploadingSlug && (
+                <OrgDocumentUploadDialog
+                    open={uploadingSlug !== null}
+                    onClose={() => setUploadingSlug(null)}
+                    slug={uploadingSlug}
+                    title={documents.find((doc) => doc.slug === uploadingSlug)?.title}
                 />
             )}
         </div>

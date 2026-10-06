@@ -7,6 +7,7 @@ use App\Http\Requests\SubmitPreinscriptionRequest;
 use App\Http\Requests\UpdatePreinscriptionDraftRequest;
 use App\Models\Candidat;
 use App\Models\Filiere;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\PreinscriptionReceived;
 use App\Notifications\PreinscriptionSubmitted;
@@ -33,6 +34,13 @@ class PreinscriptionController extends Controller
      */
     public function create(): Response|RedirectResponse
     {
+        // Already a full student account: the form would only let them open a
+        // second, unrelated dossier. Sent back with a word on why, rather than
+        // silently handed a wizard they have no real use for.
+        if (Auth::user()?->role === Role::Etudiant) {
+            return redirect()->route('rejoindre')->with('status', 'Vous êtes déjà inscrit(e) en tant qu’étudiant.');
+        }
+
         $candidat = Auth::check()
             ? Auth::user()->candidats()->latest('created_at')->first()
             : null;
@@ -43,6 +51,17 @@ class PreinscriptionController extends Controller
         if ($candidat !== null && ! in_array($candidat->status, [PreinscriptionStatus::Brouillon, PreinscriptionStatus::ACompleter], true)) {
             return redirect()->route('preinscription.dossier')
                 ->with('status', 'Votre dossier a déjà été envoyé : il n’est plus modifiable. Vous pouvez suivre son avancement sur cette page.');
+        }
+
+        // No draft to resume and registrations are closed: a brand new
+        // candidate has nothing to open right now. Someone already mid-draft
+        // above is let through regardless, so closing registrations never
+        // strands an in-progress dossier.
+        if ($candidat === null && Setting::get('inscriptions.closed', 'false') === 'true') {
+            return redirect()->route('rejoindre')->with(
+                'status',
+                Setting::get('inscriptions.closed_message') ?: 'Les inscriptions sont actuellement fermées.',
+            );
         }
 
         return Inertia::render('Preinscription/Create', [

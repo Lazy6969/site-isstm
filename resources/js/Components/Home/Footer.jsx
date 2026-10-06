@@ -118,6 +118,7 @@ export default function Footer() {
                                 value={content.footer_logo_umg ?? 'images/partenariat/universite-mahajanga-footer.svg'}
                             />
                         </div>
+                        <span className="h-10 w-px bg-isstm-footer-text/15" aria-hidden="true" />
                         <div className="relative">
                             <a
                                 href="https://mesupres.gov.mg/"

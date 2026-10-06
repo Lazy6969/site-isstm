@@ -3,8 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\Candidat;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -14,11 +12,14 @@ use Illuminate\Notifications\Notification;
  * password exists yet (the account stays accessible through the session
  * that's already logged in). That link only comes later, in
  * PreinscriptionAccepted, once the dossier is actually approved.
+ *
+ * Sent synchronously (not ShouldQueue): this dev environment can't keep a
+ * `queue:work` process running continuously, which left queued candidate
+ * e-mails stuck undelivered — sending inline guarantees delivery without
+ * depending on a worker being up.
  */
-class PreinscriptionReceived extends Notification implements ShouldQueue
+class PreinscriptionReceived extends Notification
 {
-    use Queueable;
-
     public function __construct(public Candidat $preinscription) {}
 
     /**
@@ -31,8 +32,8 @@ class PreinscriptionReceived extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $dossierUrl = route('preinscription.dossier');
         $numero = $this->preinscription->numero_dossier;
+        $dossierUrl = route('dossier.suivi', $numero ? ['numero' => $numero] : []);
 
         return (new MailMessage)->view('emails.trilingual', [
             'sections' => [

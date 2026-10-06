@@ -29,6 +29,16 @@ class NewsController extends Controller
         $article->increment('views');
         $article->load('category:id,name_fr,icon,color');
 
-        return Inertia::render('Actualites/Show', ['article' => $article]);
+        $relatedArticles = $article->news_category_id === null
+            ? collect()
+            : NewsArticle::query()
+                ->where('news_category_id', $article->news_category_id)
+                ->where('id', '!=', $article->id)
+                ->where('status', NewsStatus::Publie)
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get(['id', 'title', 'slug', 'excerpt', 'image_path', 'published_at']);
+
+        return Inertia::render('Actualites/Show', ['article' => $article, 'relatedArticles' => $relatedArticles]);
     }
 }

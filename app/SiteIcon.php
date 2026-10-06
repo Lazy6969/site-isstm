@@ -42,4 +42,5 @@ enum SiteIcon: string
     case Repeat = 'Repeat';
     case RotateCcw = 'RotateCcw';
     case UserCheck = 'UserCheck';
+    case Search = 'Search';
 }
