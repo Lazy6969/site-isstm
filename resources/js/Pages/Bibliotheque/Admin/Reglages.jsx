@@ -45,7 +45,7 @@ export default function Reglages({ mentions, filieres, annees }) {
 
     return (
         <BiblioAdminLayout title={t('bibliotheque_admin.reglages_titre', 'Réglages — mentions, filières, années')}>
-            <Head title="Bibliothèque — Réglages" />
+            <Head title={t('bibliotheque_admin.head_reglages', 'Bibliothèque — Réglages')} />
 
             <div className="grid gap-6 lg:grid-cols-3">
                 <Card className="p-5">
@@ -104,8 +104,8 @@ export default function Reglages({ mentions, filieres, annees }) {
                             onChange={(e) => filiereForm.setData('niveau', e.target.value)}
                             className="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3 py-1.5 text-sm focus:border-isstm-navy focus:outline-none"
                         >
-                            <option value="Licence">Licence</option>
-                            <option value="Master">Master</option>
+                            <option value="Licence">{t('bibliotheque_admin.niveau_licence', 'Licence')}</option>
+                            <option value="Master">{t('bibliotheque_admin.niveau_master', 'Master')}</option>
                         </select>
                         <select
                             value={filiereForm.data.mention_id}

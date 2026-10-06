@@ -34,7 +34,7 @@ export default function Index({ memoires, filieresList, annees }) {
 
     return (
         <BiblioAdminLayout title={t('bibliotheque_admin.memoires_projets', 'Mémoires & projets')}>
-            <Head title="Bibliothèque — Mémoires" />
+            <Head title={t('bibliotheque_admin.head_memoires', 'Bibliothèque — Mémoires')} />
 
             <Card className="mb-8 p-5">
                 <form onSubmit={submit}>
@@ -69,8 +69,8 @@ export default function Index({ memoires, filieresList, annees }) {
                             onChange={(e) => setData('categorie', e.target.value)}
                             className="rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-white px-3.5 py-2 text-sm focus:border-isstm-navy focus:outline-none"
                         >
-                            <option value="Mémoire">Mémoire</option>
-                            <option value="Projet">Projet</option>
+                            <option value="Mémoire">{t('bibliotheque_admin.categorie_memoire', 'Mémoire')}</option>
+                            <option value="Projet">{t('bibliotheque_admin.categorie_projet', 'Projet')}</option>
                         </select>
                         <select
                             value={data.filiere_id}

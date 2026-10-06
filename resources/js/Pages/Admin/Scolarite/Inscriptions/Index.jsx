@@ -9,6 +9,7 @@ import { Select } from '../../../../Components/ui/select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
 import { cn } from '../../../../lib/utils';
+import { useTranslations } from '../../../../lib/useTranslations';
 
 const statutLabels = {
     brouillon: 'Brouillon',
@@ -18,10 +19,19 @@ const statutLabels = {
     validee: 'Validée',
     annulee: 'Refusée',
 };
+const statutI18nKeys = {
+    brouillon: 'admin.inscriptions.statut_brouillon',
+    en_attente: 'admin.inscriptions.statut_en_attente',
+    en_cours_examen: 'admin.inscriptions.statut_en_cours_examen',
+    a_completer: 'admin.inscriptions.statut_a_completer',
+    validee: 'admin.inscriptions.statut_validee',
+    annulee: 'admin.inscriptions.statut_annulee',
+};
 
 const typeLabels = { reinscription: 'Réinscription', redoublement: 'Redoublant' };
 
 export default function Index({ inscriptions, etudiants, classes }) {
+    const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const form = useForm({ etudiant_id: '', classe_id: '', annee: '', numero: '', date_inscription: '' });
 
@@ -41,22 +51,27 @@ export default function Index({ inscriptions, etudiants, classes }) {
     }
 
     function destroy(inscription) {
-        if (!confirm(`Supprimer cette inscription (${inscription.annee}) ?`)) return;
+        if (!confirm(`${t('admin.inscriptions.confirm_delete', 'Supprimer cette inscription')} (${inscription.annee}) ?`)) return;
         router.delete(`/console/scolarite/inscriptions/${inscription.id}`, { preserveScroll: true });
     }
 
     return (
-        <AdminLayout title="Inscriptions">
+        <AdminLayout title={t('admin.inscriptions.title', 'Inscriptions')}>
             <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm text-admin-text-secondary">{inscriptions.length} inscription(s)</p>
+                <p className="text-sm text-admin-text-secondary">
+                    {inscriptions.length} {t('admin.inscriptions.count_suffix', 'inscription(s)')}
+                </p>
                 <div className="flex gap-2">
-                    <a href="/console/scolarite/inscriptions/export" className={cn(buttonVariants(), 'border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover')}>
+                    <a
+                        href="/console/scolarite/inscriptions/export"
+                        className={cn(buttonVariants(), 'border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover')}
+                    >
                         <Download className="h-4 w-4" aria-hidden="true" />
-                        Exporter
+                        {t('admin.inscriptions.exporter', 'Exporter')}
                     </a>
                     <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                         <Plus className="h-4 w-4" aria-hidden="true" />
-                        Nouvelle inscription
+                        {t('admin.inscriptions.nouvelle', 'Nouvelle inscription')}
                     </Button>
                 </div>
             </div>
@@ -65,27 +80,27 @@ export default function Index({ inscriptions, etudiants, classes }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Étudiant</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Classe</TableHead>
-                            <TableHead>Année</TableHead>
-                            <TableHead>Numéro</TableHead>
-                            <TableHead>Statut</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t('admin.inscriptions.col_etudiant', 'Étudiant')}</TableHead>
+                            <TableHead>{t('admin.inscriptions.col_type', 'Type')}</TableHead>
+                            <TableHead>{t('admin.inscriptions.col_classe', 'Classe')}</TableHead>
+                            <TableHead>{t('admin.inscriptions.annee', 'Année')}</TableHead>
+                            <TableHead>{t('admin.inscriptions.numero', 'Numéro')}</TableHead>
+                            <TableHead>{t('admin.common.status', 'Statut')}</TableHead>
+                            <TableHead className="text-right">{t('admin.common.actions', 'Actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {inscriptions.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={7} className="py-8 text-center text-admin-muted">
-                                    Aucune inscription pour le moment.
+                                    {t('admin.inscriptions.empty', 'Aucune inscription pour le moment.')}
                                 </TableCell>
                             </TableRow>
                         )}
                         {inscriptions.map((inscription) => (
                             <TableRow key={inscription.id}>
                                 <TableCell className="font-medium">{inscription.etudiant?.user?.name}</TableCell>
-                                <TableCell>{typeLabels[inscription.type] ?? 'Saisie manuelle'}</TableCell>
+                                <TableCell>{typeLabels[inscription.type] ?? t('admin.inscriptions.saisie_manuelle', 'Saisie manuelle')}</TableCell>
                                 <TableCell>{inscription.classe?.nom ?? '—'}</TableCell>
                                 <TableCell>{inscription.annee}</TableCell>
                                 <TableCell>{inscription.numero_dossier ?? inscription.numero ?? '—'}</TableCell>
@@ -98,12 +113,12 @@ export default function Index({ inscriptions, etudiants, classes }) {
                                         >
                                             {Object.entries(statutLabels).map(([value, label]) => (
                                                 <option key={value} value={value}>
-                                                    {label}
+                                                    {t(statutI18nKeys[value], label)}
                                                 </option>
                                             ))}
                                         </Select>
                                     ) : (
-                                        <span className="text-xs font-medium text-admin-text">{statutLabels[inscription.statut]}</span>
+                                        <span className="text-xs font-medium text-admin-text">{t(statutI18nKeys[inscription.statut], statutLabels[inscription.statut])}</span>
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right">
@@ -112,7 +127,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
                                             <Link
                                                 href={`/console/scolarite/inscriptions/${inscription.id}`}
                                                 className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                                                aria-label="Examiner le dossier"
+                                                aria-label={t('admin.inscriptions.examiner_aria', 'Examiner le dossier')}
                                             >
                                                 <Eye className="h-4 w-4" aria-hidden="true" />
                                             </Link>
@@ -120,7 +135,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
                                         <button
                                             onClick={() => destroy(inscription)}
                                             className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
-                                            aria-label="Supprimer l'inscription"
+                                            aria-label={t('admin.inscriptions.supprimer_aria', "Supprimer l'inscription")}
                                         >
                                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                                         </button>
@@ -135,18 +150,18 @@ export default function Index({ inscriptions, etudiants, classes }) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Nouvelle inscription</DialogTitle>
+                        <DialogTitle>{t('admin.inscriptions.nouvelle', 'Nouvelle inscription')}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
                         <div>
-                            <Label htmlFor="etudiant_id">Étudiant</Label>
+                            <Label htmlFor="etudiant_id">{t('admin.inscriptions.col_etudiant', 'Étudiant')}</Label>
                             <Select
                                 id="etudiant_id"
                                 value={form.data.etudiant_id}
                                 onChange={(e) => form.setData('etudiant_id', e.target.value)}
                                 className="mt-1.5"
                             >
-                                <option value="">Sélectionner...</option>
+                                <option value="">{t('admin.inscriptions.select_placeholder', 'Sélectionner...')}</option>
                                 {etudiants.map((e) => (
                                     <option key={e.id} value={e.id}>
                                         {e.user?.name} ({e.matricule})
@@ -157,14 +172,14 @@ export default function Index({ inscriptions, etudiants, classes }) {
                         </div>
 
                         <div>
-                            <Label htmlFor="classe_id">Classe</Label>
+                            <Label htmlFor="classe_id">{t('admin.inscriptions.col_classe', 'Classe')}</Label>
                             <Select
                                 id="classe_id"
                                 value={form.data.classe_id}
                                 onChange={(e) => form.setData('classe_id', e.target.value)}
                                 className="mt-1.5"
                             >
-                                <option value="">Sélectionner...</option>
+                                <option value="">{t('admin.inscriptions.select_placeholder', 'Sélectionner...')}</option>
                                 {classes.map((c) => (
                                     <option key={c.id} value={c.id}>
                                         {c.nom} ({c.niveau}, {c.annee})
@@ -176,7 +191,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label htmlFor="annee">Année</Label>
+                                <Label htmlFor="annee">{t('admin.inscriptions.annee', 'Année')}</Label>
                                 <Input
                                     id="annee"
                                     value={form.data.annee}
@@ -187,7 +202,7 @@ export default function Index({ inscriptions, etudiants, classes }) {
                                 {form.errors.annee && <p className="mt-1 text-sm text-red-500">{form.errors.annee}</p>}
                             </div>
                             <div>
-                                <Label htmlFor="numero">Numéro (optionnel)</Label>
+                                <Label htmlFor="numero">{t('admin.inscriptions.numero_optionnel', 'Numéro (optionnel)')}</Label>
                                 <Input
                                     id="numero"
                                     value={form.data.numero}
@@ -198,7 +213,9 @@ export default function Index({ inscriptions, etudiants, classes }) {
                         </div>
 
                         <div>
-                            <Label htmlFor="date_inscription">Date d'inscription (optionnel)</Label>
+                            <Label htmlFor="date_inscription">
+                                {t('admin.inscriptions.date_inscription_optionnelle', "Date d'inscription (optionnel)")}
+                            </Label>
                             <Input
                                 id="date_inscription"
                                 type="date"
@@ -214,14 +231,14 @@ export default function Index({ inscriptions, etudiants, classes }) {
                                 onClick={() => setOpen(false)}
                                 className="bg-admin-hover text-admin-text hover:bg-admin-hover/70"
                             >
-                                Annuler
+                                {t('admin.common.cancel', 'Annuler')}
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={form.processing}
                                 className="bg-admin-text text-admin-bg hover:bg-admin-text/90"
                             >
-                                Créer
+                                {t('admin.common.create', 'Créer')}
                             </Button>
                         </DialogFooter>
                     </form>

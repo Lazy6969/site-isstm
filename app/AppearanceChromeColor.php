@@ -16,11 +16,17 @@ enum AppearanceChromeColor: string
     case Amber = 'amber';
     case Rose = 'rose';
     case Cyan = 'cyan';
+    case Navy = 'navy';
+    case Wine = 'wine';
+    case Forest = 'forest';
+    case Plum = 'plum';
+    case Graphite = 'graphite';
+    case Ocean = 'ocean';
 
     public function label(): string
     {
         return match ($this) {
-            self::Default => 'Défaut (indigo clair)',
+            self::Default => 'Défaut (noir ISSTM)',
             self::White => 'Blanc neutre',
             self::Black => 'Noir',
             self::Slate => 'Ardoise',
@@ -32,6 +38,12 @@ enum AppearanceChromeColor: string
             self::Amber => 'Ambre',
             self::Rose => 'Rose',
             self::Cyan => 'Cyan',
+            self::Navy => 'Bleu nuit',
+            self::Wine => 'Vin',
+            self::Forest => 'Forêt',
+            self::Plum => 'Prune',
+            self::Graphite => 'Graphite',
+            self::Ocean => 'Océan',
         };
     }
 
@@ -46,7 +58,7 @@ enum AppearanceChromeColor: string
     public function colors(): array
     {
         return match ($this) {
-            self::Default => ['#eef2ff', '#141a30'],
+            self::Default => ['#0b0d12', '#090b0f'],
             self::White => ['#ffffff', '#10141d'],
             self::Black => ['#0b0e14', '#000000'],
             self::Slate => ['#1e293b', '#0b1220'],
@@ -58,6 +70,12 @@ enum AppearanceChromeColor: string
             self::Amber => ['#fdf2e2', '#2a2013'],
             self::Rose => ['#fde8ef', '#2a1420'],
             self::Cyan => ['#e0f7fb', '#0f2226'],
+            self::Navy => ['#0f1b3d', '#0a1330'],
+            self::Wine => ['#2a0f18', '#1c0a10'],
+            self::Forest => ['#0c1f17', '#08150f'],
+            self::Plum => ['#1e1030', '#140a20'],
+            self::Graphite => ['#16181d', '#0e1013'],
+            self::Ocean => ['#0a2233', '#06151f'],
         };
     }
 
@@ -69,7 +87,7 @@ enum AppearanceChromeColor: string
     public function isDarkInLightMode(): bool
     {
         return match ($this) {
-            self::Black, self::Slate => true,
+            self::Default, self::Black, self::Slate, self::Navy, self::Wine, self::Forest, self::Plum, self::Graphite, self::Ocean => true,
             default => false,
         };
     }

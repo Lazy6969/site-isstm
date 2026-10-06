@@ -8,10 +8,12 @@ import { Label } from '../../../../Components/ui/label';
 import { Select } from '../../../../Components/ui/select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
+import { useTranslations } from '../../../../lib/useTranslations';
 
 const emptyForm = { nom: '', filiere_id: '', niveau: '', annee: '', effectif_max: '' };
 
 export default function Index({ classes, filieres }) {
+    const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const form = useForm(emptyForm);
@@ -48,17 +50,19 @@ export default function Index({ classes, filieres }) {
     }
 
     function destroy(classe) {
-        if (!confirm(`Supprimer la classe « ${classe.nom} » ?`)) return;
+        if (!confirm(`${t('admin.classes.confirm_delete', 'Supprimer la classe')} « ${classe.nom} » ?`)) return;
         router.delete(`/console/scolarite/classes/${classe.id}`, { preserveScroll: true });
     }
 
     return (
-        <AdminLayout title="Classes">
+        <AdminLayout title={t('admin.classes.title', 'Classes')}>
             <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm text-admin-text-secondary">{classes.length} classe(s)</p>
+                <p className="text-sm text-admin-text-secondary">
+                    {classes.length} {t('admin.classes.count_suffix', 'classe(s)')}
+                </p>
                 <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Nouvelle classe
+                    {t('admin.classes.nouvelle', 'Nouvelle classe')}
                 </Button>
             </div>
 
@@ -66,19 +70,19 @@ export default function Index({ classes, filieres }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Filière</TableHead>
-                            <TableHead>Niveau</TableHead>
-                            <TableHead>Année</TableHead>
-                            <TableHead>Étudiants</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t('admin.common.name', 'Nom')}</TableHead>
+                            <TableHead>{t('admin.classes.filiere', 'Filière')}</TableHead>
+                            <TableHead>{t('admin.classes.niveau', 'Niveau')}</TableHead>
+                            <TableHead>{t('admin.classes.annee', 'Année')}</TableHead>
+                            <TableHead>{t('admin.classes.etudiants', 'Étudiants')}</TableHead>
+                            <TableHead className="text-right">{t('admin.common.actions', 'Actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {classes.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
-                                    Aucune classe pour le moment.
+                                    {t('admin.classes.empty', 'Aucune classe pour le moment.')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -97,14 +101,14 @@ export default function Index({ classes, filieres }) {
                                         <button
                                             onClick={() => openEdit(classe)}
                                             className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                                            aria-label={`Modifier ${classe.nom}`}
+                                            aria-label={`${t('admin.common.edit', 'Modifier')} ${classe.nom}`}
                                         >
                                             <Pencil className="h-4 w-4" aria-hidden="true" />
                                         </button>
                                         <button
                                             onClick={() => destroy(classe)}
                                             className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
-                                            aria-label={`Supprimer ${classe.nom}`}
+                                            aria-label={`${t('admin.common.delete', 'Supprimer')} ${classe.nom}`}
                                         >
                                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                                         </button>
@@ -119,24 +123,28 @@ export default function Index({ classes, filieres }) {
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editing ? 'Modifier la classe' : 'Nouvelle classe'}</DialogTitle>
+                        <DialogTitle>
+                            {editing
+                                ? t('admin.classes.modifier_titre', 'Modifier la classe')
+                                : t('admin.classes.nouvelle', 'Nouvelle classe')}
+                        </DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
                         <div>
-                            <Label htmlFor="nom">Nom</Label>
+                            <Label htmlFor="nom">{t('admin.common.name', 'Nom')}</Label>
                             <Input id="nom" value={form.data.nom} onChange={(e) => form.setData('nom', e.target.value)} className="mt-1.5" />
                             {form.errors.nom && <p className="mt-1 text-sm text-red-500">{form.errors.nom}</p>}
                         </div>
 
                         <div>
-                            <Label htmlFor="filiere_id">Filière</Label>
+                            <Label htmlFor="filiere_id">{t('admin.classes.filiere', 'Filière')}</Label>
                             <Select
                                 id="filiere_id"
                                 value={form.data.filiere_id}
                                 onChange={(e) => form.setData('filiere_id', e.target.value)}
                                 className="mt-1.5"
                             >
-                                <option value="">Sélectionner...</option>
+                                <option value="">{t('admin.classes.select_placeholder', 'Sélectionner...')}</option>
                                 {filieres.map((f) => (
                                     <option key={f.id} value={f.id}>
                                         {f.nom_fr}
@@ -148,7 +156,7 @@ export default function Index({ classes, filieres }) {
 
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label htmlFor="niveau">Niveau</Label>
+                                <Label htmlFor="niveau">{t('admin.classes.niveau', 'Niveau')}</Label>
                                 <Input
                                     id="niveau"
                                     value={form.data.niveau}
@@ -159,7 +167,7 @@ export default function Index({ classes, filieres }) {
                                 {form.errors.niveau && <p className="mt-1 text-sm text-red-500">{form.errors.niveau}</p>}
                             </div>
                             <div>
-                                <Label htmlFor="annee">Année</Label>
+                                <Label htmlFor="annee">{t('admin.classes.annee', 'Année')}</Label>
                                 <Input
                                     id="annee"
                                     value={form.data.annee}
@@ -172,7 +180,7 @@ export default function Index({ classes, filieres }) {
                         </div>
 
                         <div>
-                            <Label htmlFor="effectif_max">Effectif maximum (optionnel)</Label>
+                            <Label htmlFor="effectif_max">{t('admin.classes.effectif_max', 'Effectif maximum (optionnel)')}</Label>
                             <Input
                                 id="effectif_max"
                                 type="number"
@@ -190,14 +198,14 @@ export default function Index({ classes, filieres }) {
                                 onClick={() => setOpen(false)}
                                 className="bg-admin-hover text-admin-text hover:bg-admin-hover/70"
                             >
-                                Annuler
+                                {t('admin.common.cancel', 'Annuler')}
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={form.processing}
                                 className="bg-admin-text text-admin-bg hover:bg-admin-text/90"
                             >
-                                {editing ? 'Enregistrer' : 'Créer'}
+                                {editing ? t('admin.common.save', 'Enregistrer') : t('admin.common.create', 'Créer')}
                             </Button>
                         </DialogFooter>
                     </form>

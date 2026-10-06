@@ -1,208 +1,303 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, Video } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ImagePlus, Pencil, Plus, Trash2, Video, X } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
-import { Button } from '../../../Components/ui/button';
-import { Input } from '../../../Components/ui/input';
-import { Label } from '../../../Components/ui/label';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
+import { useTranslations } from '../../../lib/useTranslations';
 
 const emptyForm = { media: null, display_order: 0 };
 
-export default function Index({ heroSlides }) {
-    const [open, setOpen] = useState(false);
-    const [editing, setEditing] = useState(null);
+function Media({ type, src, className = '', controls = false }) {
+    return type === 'video' ? (
+        <video src={src} muted controls={controls} className={className} />
+    ) : (
+        <img src={src} alt="" className={className} />
+    );
+}
+
+/**
+ * Inline side panel (no modal, no blocking popup) for adding or editing a
+ * slide: drop zone with live preview, order field, and clear save/cancel.
+ */
+function SlidePanel({ editing, nextOrder, onClose }) {
+    const { t } = useTranslations();
+    const form = useForm({ media: null, display_order: editing ? editing.display_order : nextOrder });
     const [preview, setPreview] = useState(null);
     const [previewType, setPreviewType] = useState(null);
-    const form = useForm(emptyForm);
+    const [dragging, setDragging] = useState(false);
+    const inputRef = useRef(null);
 
-    function openCreate() {
-        setEditing(null);
-        form.reset();
-        form.clearErrors();
-        setPreview(null);
-        setPreviewType(null);
-        setOpen(true);
-    }
+    useEffect(() => () => preview && URL.revokeObjectURL(preview), [preview]);
 
-    function openEdit(slide) {
-        setEditing(slide);
-        form.setData({ media: null, display_order: slide.display_order });
-        form.clearErrors();
-        setPreview(null);
-        setPreviewType(null);
-        setOpen(true);
-    }
-
-    function onMediaChange(e) {
-        const file = e.target.files?.[0] ?? null;
+    function pickFile(file) {
+        if (!file) return;
         form.setData('media', file);
-        setPreview(file ? URL.createObjectURL(file) : null);
-        setPreviewType(file?.type.startsWith('video/') ? 'video' : 'image');
+        setPreview(URL.createObjectURL(file));
+        setPreviewType(file.type.startsWith('video/') ? 'video' : 'image');
     }
 
     function submit(e) {
         e.preventDefault();
-        const onSuccess = () => setOpen(false);
-
+        const options = { onSuccess: onClose, preserveScroll: true, forceFormData: true };
         if (editing) {
-            form.put(`/console/accueil/${editing.id}`, { onSuccess, preserveScroll: true, forceFormData: true });
+            form.put(`/console/accueil/${editing.id}`, options);
         } else {
-            form.post('/console/accueil', { onSuccess, preserveScroll: true, forceFormData: true });
+            form.post('/console/accueil', options);
         }
-    }
-
-    function destroy(slide) {
-        if (!confirm('Supprimer cette diapositive ?')) return;
-        router.delete(`/console/accueil/${slide.id}`, { preserveScroll: true });
     }
 
     const shownType = previewType ?? editing?.media_type;
     const shownSrc = preview ?? (editing ? `/${editing.image_path}` : null);
 
     return (
-        <AdminLayout title="Images de l'accueil">
-            <div className="mb-5 flex items-center justify-between">
-                <p className="text-sm text-admin-text-secondary">{heroSlides.length} diapositive(s)</p>
-                <Button onClick={openCreate} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
+        <form
+            onSubmit={submit}
+            className="admin-card animate-in fade-in-0 slide-in-from-right-4 space-y-4 p-5 duration-300 lg:sticky lg:top-20 lg:self-start"
+        >
+            <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-admin-text">
+                    {editing ? t('admin.hero_slides.edit_slide_title', 'Modifier la diapositive') : t('admin.hero_slides.new_slide_title', 'Nouvelle diapositive')}
+                </h2>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    aria-label={t('admin.common.cancel', 'Annuler')}
+                    className="rounded-lg p-1.5 text-admin-muted transition hover:bg-admin-hover hover:text-admin-text"
+                >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+            </div>
+
+            <div
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => {
+                    e.preventDefault();
+                    setDragging(false);
+                    pickFile(e.dataTransfer.files?.[0]);
+                }}
+                onClick={() => inputRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && inputRef.current?.click()}
+                className={`group relative flex aspect-video cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-200 ${
+                    dragging ? 'scale-[1.01] border-admin-accent bg-admin-accent/10' : 'border-admin-border bg-admin-bg/40 hover:border-admin-accent/60'
+                }`}
+            >
+                {shownSrc ? (
+                    <>
+                        <Media type={shownType} src={shownSrc} className="h-full w-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                            <span className="flex items-center gap-2 rounded-lg bg-white/90 px-3 py-1.5 text-sm font-medium text-slate-900">
+                                <ImagePlus className="h-4 w-4" aria-hidden="true" />
+                                {t('admin.hero_slides.change_media', 'Changer le fichier')}
+                            </span>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex flex-col items-center gap-2 px-4 text-center">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-accent/15 text-admin-accent">
+                            <ImagePlus className="h-6 w-6" aria-hidden="true" />
+                        </span>
+                        <p className="text-sm font-medium text-admin-text">{t('admin.hero_slides.drop_here', 'Glissez un fichier ici')}</p>
+                        <p className="text-xs text-admin-muted">{t('admin.hero_slides.or_browse', 'ou cliquez pour parcourir (image ou vidéo)')}</p>
+                    </div>
+                )}
+                <input ref={inputRef} type="file" accept="image/*,video/*" onChange={(e) => pickFile(e.target.files?.[0])} className="sr-only" tabIndex={-1} />
+            </div>
+            <p className="text-xs text-admin-muted">
+                {t('admin.hero_slides.media_hint', "Une vidéo joue jusqu'à sa fin avant de passer à la diapositive suivante ; une image reste 5 secondes.")}
+            </p>
+            {form.errors.media && <p className="text-sm text-red-500">{form.errors.media}</p>}
+
+            <label className="block text-sm font-medium text-admin-text" htmlFor="display_order">
+                {t('admin.hero_slides.display_order', "Ordre d'affichage")}
+                <input
+                    id="display_order"
+                    type="number"
+                    value={form.data.display_order}
+                    onChange={(e) => form.setData('display_order', e.target.value)}
+                    className="mt-1.5 h-10 w-full rounded-lg border border-admin-border bg-admin-bg/40 px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                />
+            </label>
+
+            <div className="flex justify-end gap-2 pt-1">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="rounded-lg border border-admin-border px-4 py-2 text-sm font-medium text-admin-text-secondary transition hover:bg-admin-hover"
+                >
+                    {t('admin.common.cancel', 'Annuler')}
+                </button>
+                <button
+                    type="submit"
+                    disabled={form.processing || (!editing && !form.data.media)}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-admin-accent to-admin-accent/80 px-5 py-2 text-sm font-semibold text-admin-accent-foreground shadow-md shadow-admin-accent/25 transition hover:brightness-110 disabled:opacity-50"
+                >
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                    {editing ? t('admin.common.save', 'Enregistrer') : t('admin.common.add', 'Ajouter')}
+                </button>
+            </div>
+        </form>
+    );
+}
+
+export default function Index({ heroSlides }) {
+    const { t } = useTranslations();
+    const [panel, setPanel] = useState(null); // null | { slide: object|null }
+    const [confirmId, setConfirmId] = useState(null);
+    const nextOrder = heroSlides.reduce((max, slide) => Math.max(max, slide.display_order), -1) + 1;
+
+    function destroy(slide) {
+        router.delete(`/console/accueil/${slide.id}`, { preserveScroll: true, onSuccess: () => setConfirmId(null) });
+    }
+
+    /** Re-numbers the slides 0..n after moving one, saving only those that changed. */
+    function move(index, delta) {
+        const target = index + delta;
+        if (target < 0 || target >= heroSlides.length) return;
+        const reordered = [...heroSlides];
+        [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+        const changed = reordered.map((slide, position) => ({ slide, position })).filter(({ slide, position }) => slide.display_order !== position);
+
+        const saveNext = (queue) => {
+            if (queue.length === 0) return;
+            const [{ slide, position }, ...rest] = queue;
+            router.put(`/console/accueil/${slide.id}`, { display_order: position }, { preserveScroll: true, preserveState: true, onFinish: () => saveNext(rest) });
+        };
+        saveNext(changed);
+    }
+
+    return (
+        <AdminLayout title={t('admin.hero_slides.title', "Images de l'accueil")}>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-admin-text-secondary">
+                    {heroSlides.length} {t('admin.hero_slides.count_suffix', 'diapositive(s)')}
+                </p>
+                <button
+                    type="button"
+                    onClick={() => setPanel({ slide: null })}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-admin-accent to-admin-accent/80 px-4 py-2 text-sm font-semibold text-admin-accent-foreground shadow-md shadow-admin-accent/25 transition hover:brightness-110"
+                >
                     <Plus className="h-4 w-4" aria-hidden="true" />
-                    Ajouter une image ou vidéo
-                </Button>
+                    {t('admin.hero_slides.add_media', 'Ajouter une image ou vidéo')}
+                </button>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Aperçu</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Ordre</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {heroSlides.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="py-8 text-center text-admin-muted">
-                                    Aucune image pour le moment.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                        {heroSlides.map((slide) => (
-                            <TableRow key={slide.id}>
-                                <TableCell>
-                                    {slide.media_type === 'video' ? (
-                                        <video
-                                            src={`/${slide.image_path}`}
-                                            muted
-                                            className="h-14 w-28 rounded-lg border border-admin-border object-cover"
-                                        />
-                                    ) : (
-                                        <img
-                                            src={`/${slide.image_path}`}
-                                            alt=""
-                                            className="h-14 w-28 rounded-lg border border-admin-border object-cover"
-                                        />
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <span className="inline-flex items-center gap-1.5 text-xs text-admin-text-secondary">
-                                        {slide.media_type === 'video' && <Video className="h-3.5 w-3.5" aria-hidden="true" />}
-                                        {slide.media_type === 'video' ? 'Vidéo' : 'Image'}
-                                    </span>
-                                </TableCell>
-                                <TableCell>{slide.display_order}</TableCell>
-                                <TableCell className="text-right">
-                                    <div className="flex justify-end gap-1">
-                                        <button
-                                            onClick={() => openEdit(slide)}
-                                            className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
-                                            aria-label="Modifier cette diapositive"
-                                        >
-                                            <Pencil className="h-4 w-4" aria-hidden="true" />
-                                        </button>
-                                        <button
-                                            onClick={() => destroy(slide)}
-                                            className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-red-500"
-                                            aria-label="Supprimer cette diapositive"
-                                        >
-                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                        </button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+            <div className={`grid grid-cols-1 gap-5 ${panel ? 'lg:grid-cols-[minmax(0,1fr)_340px]' : ''}`}>
+                <div>
+                    {heroSlides.length === 0 ? (
+                        <button
+                            type="button"
+                            onClick={() => setPanel({ slide: null })}
+                            className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-admin-border py-16 text-center transition hover:border-admin-accent/60 hover:bg-admin-accent/5"
+                        >
+                            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-admin-accent/15 text-admin-accent">
+                                <ImagePlus className="h-7 w-7" aria-hidden="true" />
+                            </span>
+                            <span className="text-sm text-admin-text-secondary">{t('admin.hero_slides.empty', 'Aucune image pour le moment.')}</span>
+                        </button>
+                    ) : (
+                        <ul className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${panel ? 'xl:grid-cols-2' : 'xl:grid-cols-3'}`}>
+                            {heroSlides.map((slide, index) => {
+                                const editingThis = panel?.slide?.id === slide.id;
+                                return (
+                                    <li
+                                        key={slide.id}
+                                        className={`group admin-card relative overflow-hidden !p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-admin-accent/10 ${
+                                            editingThis ? '!border-admin-accent ring-2 ring-admin-accent/40' : 'hover:border-admin-accent/40'
+                                        }`}
+                                    >
+                                        <div className="relative aspect-video overflow-hidden bg-admin-bg">
+                                            <Media
+                                                type={slide.media_type}
+                                                src={`/${slide.image_path}`}
+                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            />
+                                            <span className="absolute left-3 top-3 flex h-7 min-w-7 items-center justify-center rounded-full bg-black/60 px-2 text-xs font-bold text-white backdrop-blur">
+                                                {index + 1}
+                                            </span>
+                                            {slide.media_type === 'video' && (
+                                                <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-medium text-white backdrop-blur">
+                                                    <Video className="h-3 w-3" aria-hidden="true" />
+                                                    {t('admin.hero_slides.video', 'Vidéo')}
+                                                </span>
+                                            )}
+
+                                            {confirmId === slide.id ? (
+                                                <div className="animate-in fade-in-0 absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/75 p-4 text-center backdrop-blur-sm duration-150">
+                                                    <p className="text-sm font-medium text-white">{t('admin.hero_slides.confirm_delete', 'Supprimer cette diapositive ?')}</p>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setConfirmId(null)}
+                                                            className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/25"
+                                                        >
+                                                            {t('admin.common.cancel', 'Annuler')}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => destroy(slide)}
+                                                            className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-red-500"
+                                                        >
+                                                            {t('admin.hero_slides.delete_confirm', 'Supprimer')}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-gradient-to-t from-black/75 to-transparent p-3 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => move(index, -1)}
+                                                            disabled={index === 0}
+                                                            aria-label={t('admin.hero_slides.move_left', 'Déplacer avant')}
+                                                            className="rounded-lg bg-white/15 p-2 text-white backdrop-blur transition hover:bg-white/30 disabled:opacity-30"
+                                                        >
+                                                            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => move(index, 1)}
+                                                            disabled={index === heroSlides.length - 1}
+                                                            aria-label={t('admin.hero_slides.move_right', 'Déplacer après')}
+                                                            className="rounded-lg bg-white/15 p-2 text-white backdrop-blur transition hover:bg-white/30 disabled:opacity-30"
+                                                        >
+                                                            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setPanel({ slide })}
+                                                            aria-label={t('admin.hero_slides.edit_slide_aria', 'Modifier cette diapositive')}
+                                                            className="rounded-lg bg-white/15 p-2 text-white backdrop-blur transition hover:bg-admin-accent"
+                                                        >
+                                                            <Pencil className="h-4 w-4" aria-hidden="true" />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setConfirmId(slide.id)}
+                                                            aria-label={t('admin.hero_slides.delete_slide_aria', 'Supprimer cette diapositive')}
+                                                            className="rounded-lg bg-white/15 p-2 text-white backdrop-blur transition hover:bg-red-600"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+                </div>
+
+                {panel && <SlidePanel key={panel.slide?.id ?? 'new'} editing={panel.slide} nextOrder={nextOrder} onClose={() => setPanel(null)} />}
             </div>
-
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{editing ? 'Modifier la diapositive' : 'Nouvelle diapositive'}</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={submit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="media">Image ou vidéo {editing ? '(optionnel)' : ''}</Label>
-                            {shownSrc &&
-                                (shownType === 'video' ? (
-                                    <video
-                                        src={shownSrc}
-                                        controls
-                                        muted
-                                        className="mt-1.5 h-40 w-full rounded-lg border border-admin-border object-cover"
-                                    />
-                                ) : (
-                                    <img
-                                        src={shownSrc}
-                                        alt=""
-                                        className="mt-1.5 h-40 w-full rounded-lg border border-admin-border object-cover"
-                                    />
-                                ))}
-                            <input
-                                id="media"
-                                type="file"
-                                accept="image/*,video/*"
-                                onChange={onMediaChange}
-                                className="mt-1.5 block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
-                            />
-                            <p className="mt-1 text-xs text-admin-muted">
-                                Une vidéo joue jusqu'à sa fin avant de passer à la diapositive suivante ; une image reste 5 secondes.
-                            </p>
-                            {form.errors.media && <p className="mt-1 text-sm text-red-500">{form.errors.media}</p>}
-                        </div>
-
-                        <div>
-                            <Label htmlFor="display_order">Ordre d'affichage</Label>
-                            <Input
-                                id="display_order"
-                                type="number"
-                                value={form.data.display_order}
-                                onChange={(e) => form.setData('display_order', e.target.value)}
-                                className="mt-1.5"
-                            />
-                        </div>
-
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                onClick={() => setOpen(false)}
-                                className="bg-admin-hover text-admin-text hover:bg-admin-hover/70"
-                            >
-                                Annuler
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={form.processing}
-                                className="bg-admin-text text-admin-bg hover:bg-admin-text/90"
-                            >
-                                {editing ? 'Enregistrer' : 'Ajouter'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
         </AdminLayout>
     );
 }

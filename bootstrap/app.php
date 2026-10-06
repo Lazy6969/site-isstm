@@ -1,12 +1,14 @@
 <?php
 
+use App\Http\Middleware\ArchiveAdminActions;
 use App\Http\Middleware\CheckMaintenanceMode;
-use App\Http\Middleware\EnsureAccessKeyActive;
+use App\Http\Middleware\EnsureArchiveUnlocked;
 use App\Http\Middleware\EnsureIsMessagerieUser;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TouchLastActivity;
+use App\RoleHome;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,13 +26,16 @@ return Application::configure(basePath: dirname(__DIR__))
             CheckMaintenanceMode::class,
             SetLocale::class,
             HandleInertiaRequests::class,
+            ArchiveAdminActions::class,
         ]);
+
+        $middleware->redirectUsersTo(fn (Request $request) => RoleHome::for($request->user()));
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
             'messagerie' => EnsureIsMessagerieUser::class,
-            'department.access' => EnsureAccessKeyActive::class,
             'activity' => TouchLastActivity::class,
+            'archive.unlocked' => EnsureArchiveUnlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -16,6 +16,12 @@ enum SiteAccentColor: string
     case Rose = 'rose';
     case Lime = 'lime';
     case Silver = 'silver';
+    case Orange = 'orange';
+    case Sky = 'sky';
+    case Mint = 'mint';
+    case Fuchsia = 'fuchsia';
+    case Coral = 'coral';
+    case Sand = 'sand';
 
     public function label(): string
     {
@@ -26,6 +32,12 @@ enum SiteAccentColor: string
             self::Rose => 'Rose vif',
             self::Lime => 'Vert citron',
             self::Silver => 'Argenté',
+            self::Orange => 'Orange',
+            self::Sky => 'Bleu ciel',
+            self::Mint => 'Menthe',
+            self::Fuchsia => 'Fuchsia',
+            self::Coral => 'Corail',
+            self::Sand => 'Sable',
         };
     }
 
@@ -38,6 +50,12 @@ enum SiteAccentColor: string
             self::Rose => '#fb7185',
             self::Lime => '#a3e635',
             self::Silver => '#cbd5e1',
+            self::Orange => '#fb923c',
+            self::Sky => '#38bdf8',
+            self::Mint => '#34d399',
+            self::Fuchsia => '#e879f9',
+            self::Coral => '#fb7f6b',
+            self::Sand => '#e7d3a7',
         };
     }
 

@@ -13,36 +13,36 @@ function formatDate(value) {
 }
 
 const FIELDS = [
-    ['civilite', 'Civilité'],
-    ['nom', 'Nom'],
-    ['prenoms', 'Prénoms'],
-    ['sexe', 'Sexe'],
-    ['date_naissance', 'Date de naissance'],
-    ['lieu_naissance', 'Lieu de naissance'],
-    ['cin', 'CIN (numéro)'],
-    ['nationalite', 'Nationalité'],
-    ['annee_bacc', 'Année du bac'],
-    ['serie_bacc', 'Série du bac'],
-    ['mention_bacc', 'Mention'],
-    ['adresse', 'Adresse'],
-    ['telephone', 'Téléphone'],
-    ['email', 'E-mail'],
-    ['pays', 'Pays'],
-    ['niveau', 'Niveau'],
-    ['nom_pere', 'Nom du père'],
-    ['nom_mere', 'Nom de la mère'],
-    ['contact_parents', 'Téléphone des parents'],
-    ['repondant_nom', 'Nom du répondant'],
-    ['repondant_lien', 'Lien avec le candidat'],
-    ['repondant_telephone', 'Téléphone du répondant'],
+    ['civilite', 'Civilité', 'preinscriptions_admin.field_civilite'],
+    ['nom', 'Nom', 'admin.common.name'],
+    ['prenoms', 'Prénoms', 'preinscriptions_admin.field_prenoms'],
+    ['sexe', 'Sexe', 'preinscriptions_admin.field_sexe'],
+    ['date_naissance', 'Date de naissance', 'preinscriptions_admin.field_date_naissance'],
+    ['lieu_naissance', 'Lieu de naissance', 'preinscriptions_admin.field_lieu_naissance'],
+    ['cin', 'CIN (numéro)', 'preinscriptions_admin.field_cin'],
+    ['nationalite', 'Nationalité', 'preinscriptions_admin.field_nationalite'],
+    ['annee_bacc', 'Année du bac', 'preinscriptions_admin.field_annee_bacc'],
+    ['serie_bacc', 'Série du bac', 'preinscriptions_admin.field_serie_bacc'],
+    ['mention_bacc', 'Mention', 'preinscriptions_admin.field_mention_bacc'],
+    ['adresse', 'Adresse', 'preinscriptions_admin.field_adresse'],
+    ['telephone', 'Téléphone', 'preinscriptions_admin.field_telephone'],
+    ['email', 'E-mail', 'admin.common.email'],
+    ['pays', 'Pays', 'preinscriptions_admin.field_pays'],
+    ['niveau', 'Niveau', 'preinscriptions_admin.field_niveau'],
+    ['nom_pere', 'Nom du père', 'preinscriptions_admin.field_nom_pere'],
+    ['nom_mere', 'Nom de la mère', 'preinscriptions_admin.field_nom_mere'],
+    ['contact_parents', 'Téléphone des parents', 'preinscriptions_admin.field_contact_parents'],
+    ['repondant_nom', 'Nom du répondant', 'preinscriptions_admin.field_repondant_nom'],
+    ['repondant_lien', 'Lien avec le candidat', 'preinscriptions_admin.field_repondant_lien'],
+    ['repondant_telephone', 'Téléphone du répondant', 'preinscriptions_admin.field_repondant_telephone'],
 ];
 
 const DOCUMENTS = [
-    ['photo_path', "Photo d'identité"],
-    ['cin_recto_path', 'CIN recto'],
-    ['cin_verso_path', 'CIN verso'],
-    ['diplome_attestation_path', 'Diplôme ou attestation'],
-    ['releve_bacc_path', 'Relevé de notes'],
+    ['photo_path', "Photo d'identité", 'preinscriptions_admin.doc_photo'],
+    ['cin_recto_path', 'CIN recto', 'preinscriptions_admin.doc_cin_recto'],
+    ['cin_verso_path', 'CIN verso', 'preinscriptions_admin.doc_cin_verso'],
+    ['diplome_attestation_path', 'Diplôme ou attestation', 'preinscriptions_admin.doc_diplome'],
+    ['releve_bacc_path', 'Relevé de notes', 'preinscriptions_admin.doc_releve'],
 ];
 
 export default function Show({ preinscription }) {
@@ -104,12 +104,12 @@ export default function Show({ preinscription }) {
                 <div className="rounded-xl border border-admin-border bg-admin-card p-5 lg:col-span-2">
                     <h2 className="mb-4 text-sm font-semibold text-admin-text">{t('preinscriptions_admin.identite', 'Identité et dossier')}</h2>
                     <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                        {FIELDS.map(([key, label]) => {
+                        {FIELDS.map(([key, label, i18nKey]) => {
                             const value = preinscription[key];
                             if (!value) return null;
                             return (
                                 <div key={key}>
-                                    <dt className="text-admin-muted">{label}</dt>
+                                    <dt className="text-admin-muted">{t(i18nKey, label)}</dt>
                                     <dd className="font-medium text-admin-text">{value}</dd>
                                 </div>
                             );
@@ -120,7 +120,8 @@ export default function Show({ preinscription }) {
                 <div className="rounded-xl border border-admin-border bg-admin-card p-5">
                     <h2 className="mb-4 text-sm font-semibold text-admin-text">{t('preinscriptions_admin.pieces', 'Pièces jointes')}</h2>
                     <div className="grid grid-cols-2 gap-3">
-                        {DOCUMENTS.map(([key, label]) => {
+                        {DOCUMENTS.map(([key, defaultLabel, i18nKey]) => {
+                            const label = t(i18nKey, defaultLabel);
                             const path = preinscription[key];
                             if (!path) {
                                 return (
@@ -186,7 +187,7 @@ export default function Show({ preinscription }) {
                                     onClick={() => setPanel(null)}
                                     className="border border-admin-border bg-transparent text-admin-text hover:bg-admin-hover"
                                 >
-                                    {t('preinscriptions_admin.annuler', 'Annuler')}
+                                    {t('admin.common.cancel', 'Annuler')}
                                 </Button>
                                 <Button onClick={refuse} disabled={processing} className="bg-red-600 text-white hover:bg-red-600/90">
                                     <UserX className="h-4 w-4" aria-hidden="true" />
