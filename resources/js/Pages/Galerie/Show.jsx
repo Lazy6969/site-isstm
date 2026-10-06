@@ -5,10 +5,17 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import { useTranslations } from '../../lib/useTranslations';
 
+const PHOTOS_PER_PAGE = 20;
+
 export default function Show({ album }) {
     const { t } = useTranslations();
     const [active, setActive] = useState(null);
+    const [page, setPage] = useState(1);
     const photos = album.photos ?? [];
+
+    const totalPages = Math.max(1, Math.ceil(photos.length / PHOTOS_PER_PAGE));
+    const currentPage = Math.min(page, totalPages);
+    const visiblePhotos = photos.slice((currentPage - 1) * PHOTOS_PER_PAGE, currentPage * PHOTOS_PER_PAGE);
 
     function showPrevious() {
         setActive((current) => (current - 1 + photos.length) % photos.length);
@@ -54,18 +61,62 @@ export default function Show({ album }) {
 
             <main className="mx-auto max-w-5xl px-6 py-12">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                    {photos.map((photo, index) => (
-                        <div key={photo.id} className="h-40 overflow-hidden rounded-xl sm:h-48">
-                            <button
-                                type="button"
-                                onClick={() => setActive(index)}
-                                className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 hover:scale-110"
-                                style={{ backgroundImage: `url('/${photo.image_path}')` }}
-                                aria-label={photo.title ?? t('galerie.voir_photo', 'Voir la photo')}
-                            />
-                        </div>
-                    ))}
+                    {visiblePhotos.map((photo, index) => {
+                        const absoluteIndex = (currentPage - 1) * PHOTOS_PER_PAGE + index;
+
+                        return (
+                            <div key={photo.id} className="h-40 overflow-hidden rounded-xl sm:h-48">
+                                <button
+                                    type="button"
+                                    onClick={() => setActive(absoluteIndex)}
+                                    className="h-full w-full scale-100 bg-cover bg-center transition-transform duration-500 hover:scale-110"
+                                    style={{ backgroundImage: `url('/${photo.image_path}')` }}
+                                    aria-label={photo.title ?? t('galerie.voir_photo', 'Voir la photo')}
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
+
+                {totalPages > 1 && (
+                    <nav className="mt-8 flex items-center justify-center gap-1.5" aria-label="Pagination">
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            aria-label={t('galerie.page_precedente', 'Page précédente')}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700"
+                        >
+                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                            <button
+                                key={n}
+                                type="button"
+                                onClick={() => setPage(n)}
+                                aria-current={n === currentPage ? 'page' : undefined}
+                                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition ${
+                                    n === currentPage
+                                        ? 'bg-isstm-navy text-white'
+                                        : 'text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'
+                                }`}
+                            >
+                                {n}
+                            </button>
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={() => setPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            aria-label={t('galerie.page_suivante', 'Page suivante')}
+                            className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-200 disabled:opacity-30 disabled:hover:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700"
+                        >
+                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                    </nav>
+                )}
             </main>
 
             {active !== null && photos[active] && (

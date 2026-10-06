@@ -18,7 +18,9 @@ use Throwable;
 
 class ReactivationRequestController extends Controller
 {
-    private const GENERIC_STATUS = "Si un compte existe pour cette adresse, votre demande a été transmise à la scolarité. Vous recevrez un e-mail dès qu'elle sera traitée.";
+    private const GENERIC_STATUS = "Votre demande a été transmise à la scolarité. Vous recevrez un e-mail dès qu'elle sera traitée.";
+
+    private const NO_ACCOUNT_STATUS = "Aucun compte n'existe pour cette adresse e-mail.";
 
     public function create(): Response|RedirectResponse
     {
@@ -38,10 +40,13 @@ class ReactivationRequestController extends Controller
     }
 
     /**
-     * Always returns the same generic message regardless of whether the
-     * email matches an account, is already active, or already has a
-     * pending request — same reasoning as the password-reset flow: never
-     * reveal account existence to an anonymous visitor.
+     * Tells an anonymous visitor plainly when no account exists for the
+     * address they entered — a deliberate exception to the usual "never
+     * reveal account existence" caution (see password-reset flow), at the
+     * site owner's request, since a former student with no account left
+     * otherwise has no way to know they should apply as a new candidate
+     * instead. Every other case (already active, already has a pending
+     * request) stays folded into the same generic "transmitted" message.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -49,7 +54,11 @@ class ReactivationRequestController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if ($user && ! $user->is_active) {
+        if (! $user) {
+            return back()->with('status', self::NO_ACCOUNT_STATUS);
+        }
+
+        if (! $user->is_active) {
             $alreadyPending = ReactivationRequest::where('user_id', $user->id)
                 ->where('status', ReactivationStatus::EnAttente)
                 ->exists();

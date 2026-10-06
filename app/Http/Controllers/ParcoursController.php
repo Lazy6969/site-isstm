@@ -11,14 +11,19 @@ use Inertia\Response;
 class ParcoursController extends Controller
 {
     /**
-     * Slugs of the two fixed downloadable documents on this page (see
-     * Admin\OrgDocumentController) — kept apart from the admin's free-form
+     * Slugs of the 6 fixed downloadable document files on this page — 3
+     * formats (pdf/word/image) for each of the 2 documents (organigramme/
+     * cursus), mirroring the legacy site's download section (see
+     * Admin\OrgDocumentController). Kept apart from the admin's free-form
      * document library (App\Models\Document, category public/etudiant),
-     * since these two slots are a fixed part of this page's layout.
+     * since these slots are a fixed part of this page's layout.
      *
      * @var array<int, string>
      */
-    private const DOCUMENT_SLUGS = ['organigramme', 'cursus'];
+    private const DOCUMENT_SLUGS = [
+        'organigramme_pdf', 'organigramme_word', 'organigramme_image',
+        'cursus_pdf', 'cursus_word', 'cursus_image',
+    ];
 
     public function index(): Response
     {

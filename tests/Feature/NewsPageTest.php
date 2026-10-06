@@ -48,9 +48,29 @@ it('shows related articles from the same category, excluding itself and drafts',
     );
 });
 
-it('shows no related articles for an uncategorized article', function () {
+it('falls back to the most recent other articles for an uncategorized article', function () {
     $article = NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => null]);
-    NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => null]);
+    $other = NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => null]);
+
+    $this->get("/actualites/{$article->slug}")->assertInertia(fn ($page) => $page
+        ->has('relatedArticles', 1)
+        ->where('relatedArticles.0.slug', $other->slug)
+    );
+});
+
+it('falls back to other articles when the article is alone in its category', function () {
+    $category = NewsCategory::create(['slug' => 'vie-etudiante', 'name_fr' => 'Vie étudiante']);
+    $article = NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => $category->id]);
+    $other = NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => null]);
+
+    $this->get("/actualites/{$article->slug}")->assertInertia(fn ($page) => $page
+        ->has('relatedArticles', 1)
+        ->where('relatedArticles.0.slug', $other->slug)
+    );
+});
+
+it('shows no related articles when no other article is published', function () {
+    $article = NewsArticle::factory()->create(['status' => 'publie', 'news_category_id' => null]);
 
     $this->get("/actualites/{$article->slug}")->assertInertia(fn ($page) => $page
         ->has('relatedArticles', 0)

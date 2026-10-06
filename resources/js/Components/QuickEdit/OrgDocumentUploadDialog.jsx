@@ -4,9 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../ui/button';
 
 /**
- * Uploads (or replaces) the fixed file behind one of the Parcours page's two
- * document slots — see Admin\OrgDocumentController. Unlike QuickAddDocumentDialog,
- * there's no title/audience to pick: the slug already fixes both.
+ * Uploads (or replaces) the fixed file behind one of the Parcours page's
+ * document format slots (pdf/word/image × organigramme/cursus) — see
+ * Admin\OrgDocumentController. Unlike QuickAddDocumentDialog, there's no
+ * title/audience to pick: the slug already fixes both.
  */
 export default function OrgDocumentUploadDialog({ open, onClose, slug, title }) {
     const form = useForm({ file: null });
@@ -37,7 +38,7 @@ export default function OrgDocumentUploadDialog({ open, onClose, slug, title }) 
                 <form onSubmit={submit} className="space-y-4">
                     <input
                         type="file"
-                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                         onChange={(e) => form.setData('file', e.target.files?.[0] ?? null)}
                         className="block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
                     />

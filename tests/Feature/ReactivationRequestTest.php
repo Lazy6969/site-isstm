@@ -36,15 +36,21 @@ it('does not create a request for an already active account', function () {
     expect(ReactivationRequest::where('user_id', $active->id)->exists())->toBeFalse();
 });
 
-it('gives the same generic message for an unknown email, to avoid leaking account existence', function () {
-    $this->post('/ancien-etudiant', ['email' => 'inconnu@example.com']);
-    $known = session('status');
+it('tells the visitor plainly when no account exists for that email', function () {
+    $this->post('/ancien-etudiant', ['email' => 'inconnu@example.com'])
+        ->assertSessionHas('status', "Aucun compte n'existe pour cette adresse e-mail.");
+});
 
+it('gives the same generic message for an active or a pending account, without distinguishing them', function () {
     User::factory()->create(['email' => 'actif2@example.com', 'is_active' => true]);
     $this->post('/ancien-etudiant', ['email' => 'actif2@example.com']);
-    $other = session('status');
+    $active = session('status');
 
-    expect($known)->toBe($other)->not->toBeNull();
+    User::factory()->create(['email' => 'inactif2@example.com', 'is_active' => false]);
+    $this->post('/ancien-etudiant', ['email' => 'inactif2@example.com']);
+    $pending = session('status');
+
+    expect($active)->toBe($pending)->not->toBeNull();
 });
 
 it('does not create a duplicate pending request for the same account', function () {

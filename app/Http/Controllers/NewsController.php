@@ -39,6 +39,20 @@ class NewsController extends Controller
                 ->limit(3)
                 ->get(['id', 'title', 'slug', 'excerpt', 'image_path', 'published_at']);
 
+        // No other article shares this one's category (or it has none at
+        // all): fall back to the most recent other published articles, so
+        // the "related articles" list is never empty as long as other
+        // articles exist — an uncategorized or lone-category article should
+        // still invite the reader onward.
+        if ($relatedArticles->isEmpty()) {
+            $relatedArticles = NewsArticle::query()
+                ->where('id', '!=', $article->id)
+                ->where('status', NewsStatus::Publie)
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get(['id', 'title', 'slug', 'excerpt', 'image_path', 'published_at']);
+        }
+
         return Inertia::render('Actualites/Show', ['article' => $article, 'relatedArticles' => $relatedArticles]);
     }
 }

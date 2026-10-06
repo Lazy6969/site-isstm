@@ -96,7 +96,7 @@ class HomeContentSeeder extends Seeder
             'footer_logo_isstm' => 'images/logo-isstm.svg',
             'footer_logo_umg' => 'images/partenariat/universite-mahajanga-footer.svg',
             'footer_logo_mesupres' => 'images/partenariat/mesupres.png',
-            'formations_offre_image' => 'images/slide1.jpg',
+            'formations_offre_image' => 'images/formations-offre.png',
             'inscription_bred_logo' => 'images/partenariat/bre.jpg',
         ];
 
