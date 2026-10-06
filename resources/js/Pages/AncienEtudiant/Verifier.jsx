@@ -1,5 +1,6 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle2, Send, UserCheck } from 'lucide-react';
+import { CheckCircle2, CircleHelp, Send, UserCheck, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
 import Footer from '../../Components/Home/Footer';
@@ -9,7 +10,14 @@ import { useTranslations } from '../../lib/useTranslations';
 export default function Verifier() {
     const { flash } = usePage().props;
     const { t } = useTranslations();
-    const { data, setData, post, processing, errors } = useForm({ email: '' });
+    const { data, setData, post, processing, errors } = useForm({ email: '', password: '' });
+    const [errorModal, setErrorModal] = useState('');
+
+    useEffect(() => {
+        if (flash?.error) {
+            setErrorModal(flash.error);
+        }
+    }, [flash?.error]);
 
     function submit(e) {
         e.preventDefault();
@@ -31,9 +39,16 @@ export default function Verifier() {
                     <p className="mt-2 max-w-2xl text-white/80">
                         {t(
                             'reactivation.soustitre',
-                            'Indiquez votre adresse e-mail pour demander la réactivation de votre compte étudiant.',
+                            'Indiquez votre adresse e-mail et votre mot de passe pour demander la réactivation de votre compte étudiant.',
                         )}
                     </p>
+                    <Link
+                        href="/aide-inscription"
+                        className="mt-4 flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-white/20"
+                    >
+                        <CircleHelp className="h-4 w-4" aria-hidden="true" />
+                        {t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
+                    </Link>
                 </div>
             </div>
 
@@ -49,7 +64,7 @@ export default function Verifier() {
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 {t(
                                     'reactivation.explication',
-                                    "Si un compte étudiant existe pour cette adresse, votre demande sera transmise à la scolarité. Vous recevrez un e-mail dès qu'elle sera examinée.",
+                                    "Indiquez l'adresse e-mail et le mot de passe de votre ancien compte étudiant pour transmettre votre demande à la scolarité. Vous recevrez un e-mail dès qu'elle sera examinée.",
                                 )}
                             </p>
                             <TextField
@@ -60,6 +75,15 @@ export default function Verifier() {
                                 onChange={(e) => setData('email', e.target.value)}
                                 error={errors.email}
                                 autoFocus
+                                required
+                            />
+                            <TextField
+                                id="password"
+                                label={t('auth.mot_de_passe', 'Mot de passe')}
+                                type="password"
+                                value={data.password}
+                                onChange={(e) => setData('password', e.target.value)}
+                                error={errors.password}
                                 required
                             />
                             <button
@@ -79,6 +103,25 @@ export default function Verifier() {
             </main>
 
             <Footer />
+
+            {errorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" onClick={() => setErrorModal('')}>
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-800" onClick={(e) => e.stopPropagation()}>
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/15">
+                            <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true" />
+                        </div>
+                        <h2 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">Compte introuvable</h2>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{errorModal}</p>
+                        <button
+                            type="button"
+                            onClick={() => setErrorModal('')}
+                            className="mt-5 w-full rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                        >
+                            Réessayer
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

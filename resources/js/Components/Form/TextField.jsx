@@ -9,7 +9,7 @@ const inputClass =
  * Labelled input. Password fields get an eye button to show / hide what was
  * typed (shown → text, hidden → password).
  */
-export default function TextField({ label, error, className = '', type, ...props }) {
+export default function TextField({ label, error, className = '', type, required, ...props }) {
     const { t } = useTranslations();
     const [revealed, setRevealed] = useState(false);
     const isPassword = type === 'password';
@@ -18,12 +18,12 @@ export default function TextField({ label, error, className = '', type, ...props
         <div className={className}>
             {label && (
                 <label htmlFor={props.id} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {label}
+                    {label} {required && <span className="text-red-500">*</span>}
                 </label>
             )}
             {isPassword ? (
                 <div className="relative">
-                    <input {...props} type={revealed ? 'text' : 'password'} className={`${inputClass} pr-11`} />
+                    <input {...props} required={required} type={revealed ? 'text' : 'password'} className={`${inputClass} pr-11`} />
                     <button
                         type="button"
                         onClick={() => setRevealed((value) => !value)}
@@ -35,7 +35,7 @@ export default function TextField({ label, error, className = '', type, ...props
                     </button>
                 </div>
             ) : (
-                <input {...props} type={type} className={inputClass} />
+                <input {...props} required={required} type={type} className={inputClass} />
             )}
             {error && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>}
         </div>

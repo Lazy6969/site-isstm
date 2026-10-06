@@ -1,5 +1,5 @@
 import { Link, router, useForm } from '@inertiajs/react';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Ban, CheckCircle2, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import { Button } from '../../../../Components/ui/button';
 import { Label } from '../../../../Components/ui/label';
@@ -55,6 +55,15 @@ export default function Show({ etudiant }) {
             return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`);
     }
+
+    function togglePause() {
+        const suspending = etudiant.statut === 'actif';
+        const verb = suspending ? 'mettre en pause' : 'réactiver';
+        if (!confirm(`Voulez-vous vraiment ${verb} le compte de ${etudiant.user.name} ?`)) return;
+        router.post(`/console/scolarite/etudiants/${etudiant.id}/pause`, {}, { preserveScroll: true });
+    }
+
+    const canTogglePause = etudiant.statut === 'actif' || etudiant.statut === 'suspendu';
 
     return (
         <AdminLayout title={`${t('admin.etudiants.dossier_titre_prefix', 'Dossier')} — ${etudiant.user.name}`}>
@@ -241,10 +250,29 @@ export default function Show({ etudiant }) {
                             >
                                 {t('admin.common.save', 'Enregistrer')}
                             </Button>
+                            {canTogglePause && (
+                                <Button
+                                    type="button"
+                                    onClick={togglePause}
+                                    className="ml-auto bg-transparent text-amber-600 hover:bg-amber-500/10"
+                                >
+                                    {etudiant.statut === 'actif' ? (
+                                        <>
+                                            <Ban className="h-4 w-4" aria-hidden="true" />
+                                            {t('admin.etudiants.mettre_en_pause', 'Mettre en pause')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                                            {t('admin.etudiants.reprendre_compte', 'Réactiver le compte')}
+                                        </>
+                                    )}
+                                </Button>
+                            )}
                             <Button
                                 type="button"
                                 onClick={destroy}
-                                className="ml-auto bg-transparent text-red-600 hover:bg-red-500/10"
+                                className={canTogglePause ? 'bg-transparent text-red-600 hover:bg-red-500/10' : 'ml-auto bg-transparent text-red-600 hover:bg-red-500/10'}
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 Supprimer le compte

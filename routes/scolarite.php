@@ -12,9 +12,11 @@ Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.
     Route::delete('classes/{classe}', [ClasseController::class, 'destroy'])->middleware('can:classes.delete')->name('classes.destroy');
 
     Route::get('etudiants', [EtudiantController::class, 'index'])->middleware('can:etudiants.view')->name('etudiants.index');
+    Route::post('etudiants/pause-tous', [EtudiantController::class, 'pauseAll'])->middleware('can:etudiants.edit')->name('etudiants.pause-all');
     Route::get('etudiants/{etudiant}', [EtudiantController::class, 'show'])->middleware('can:etudiants.view')->name('etudiants.show');
     Route::post('etudiants', [EtudiantController::class, 'store'])->middleware('can:etudiants.create')->name('etudiants.store');
     Route::put('etudiants/{etudiant}', [EtudiantController::class, 'update'])->middleware('can:etudiants.edit')->name('etudiants.update');
+    Route::post('etudiants/{etudiant}/pause', [EtudiantController::class, 'togglePause'])->middleware('can:etudiants.edit')->name('etudiants.toggle-pause');
     Route::delete('etudiants/{etudiant}', [EtudiantController::class, 'destroy'])->middleware('can:etudiants.delete')->name('etudiants.destroy');
 
     Route::get('inscriptions', [InscriptionController::class, 'index'])->middleware('can:inscriptions.view')->name('inscriptions.index');

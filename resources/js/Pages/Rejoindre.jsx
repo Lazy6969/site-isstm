@@ -1,5 +1,5 @@
-import { Head, usePage } from '@inertiajs/react';
-import { CalendarClock, Wallet } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { CalendarClock, CircleHelp, Wallet } from 'lucide-react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import BackButton from '../Components/Layout/BackButton';
 import Footer from '../Components/Home/Footer';
@@ -74,6 +74,13 @@ export default function Rejoindre() {
                                     <Wallet className="h-4 w-4" aria-hidden="true" />
                                     {t('preinscription.voir_frais', 'Voir les frais')}
                                 </a>
+                                <Link
+                                    href="/aide-inscription"
+                                    className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold transition hover:bg-white/20"
+                                >
+                                    <CircleHelp className="h-4 w-4" aria-hidden="true" />
+                                    {t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
+                                </Link>
                             </div>
                         </div>
 

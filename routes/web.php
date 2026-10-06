@@ -95,6 +95,7 @@ Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
 
 Route::get('inscription', [InscriptionController::class, 'index'])->name('inscription');
 Route::inertia('rejoindre', 'Rejoindre')->name('rejoindre');
+Route::inertia('aide-inscription', 'Aide/Inscription')->name('aide.inscription');
 Route::get('ancien-etudiant', [ReactivationRequestController::class, 'create'])->name('reactivation.create');
 Route::post('ancien-etudiant', [ReactivationRequestController::class, 'store'])->middleware('throttle:10,1')->name('reactivation.store');
 Route::get('suivi-dossier', [DossierTrackingController::class, 'show'])->middleware('throttle:30,1')->name('dossier.suivi');

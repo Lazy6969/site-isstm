@@ -18,9 +18,16 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('Auth/Login');
     }
 
+    public function suspended(): Response
+    {
+        return Inertia::render('Auth/CompteSuspendu');
+    }
+
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        if ($request->authenticate()) {
+            return redirect()->route('login.suspendu');
+        }
 
         $request->session()->regenerate();
         // Persist the regenerated session synchronously instead of relying on

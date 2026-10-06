@@ -394,6 +394,66 @@ it('rejects a non-image file for an image content key', function () {
         ->assertSessionHasErrors('file');
 });
 
+it('lets a super admin upload a replacement video and syncs the path across every locale', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create([
+        'content_key' => 'aide_inscription_video_path',
+        'type' => SiteContentType::Video,
+        'content_value_fr' => '',
+        'content_value_en' => '',
+        'content_value_mg' => '',
+    ]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'aide_inscription_video_path', 'file' => UploadedFile::fake()->create('aide.mp4', 500, 'video/mp4')])
+        ->assertRedirect();
+
+    $content->refresh();
+    expect($content->content_value_fr)->toStartWith('storage/site-content/');
+    expect($content->content_value_fr)->toBe($content->content_value_en)
+        ->and($content->content_value_fr)->toBe($content->content_value_mg);
+    Storage::disk('public')->assertExists(str($content->content_value_fr)->after('storage/'));
+});
+
+it('deletes the previous uploaded video when replaced', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+    $content = SiteContent::factory()->create(['content_key' => 'aide_inscription_video_path', 'type' => SiteContentType::Video]);
+
+    $this->actingAs($admin)->post('/console/content/update', [
+        'key' => 'aide_inscription_video_path',
+        'file' => UploadedFile::fake()->create('premiere.mp4', 500, 'video/mp4'),
+    ]);
+    $firstPath = str($content->refresh()->content_value_fr)->after('storage/')->toString();
+    Storage::disk('public')->assertExists($firstPath);
+
+    $this->actingAs($admin)->post('/console/content/update', [
+        'key' => 'aide_inscription_video_path',
+        'file' => UploadedFile::fake()->create('seconde.mp4', 500, 'video/mp4'),
+    ]);
+    Storage::disk('public')->assertMissing($firstPath);
+});
+
+it('rejects a non-video file for a video content key', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    SiteContent::factory()->create(['content_key' => 'aide_inscription_video_path', 'type' => SiteContentType::Video]);
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'aide_inscription_video_path', 'file' => UploadedFile::fake()->image('pas-une-video.jpg')])
+        ->assertSessionHasErrors('file');
+});
+
+it('forbids a user without quick-edit.image from uploading a video (shares the image permission)', function () {
+    $scolarite = User::factory()->create();
+    $scolarite->assignRole('scolarite');
+    SiteContent::factory()->create(['content_key' => 'aide_inscription_video_path', 'type' => SiteContentType::Video]);
+
+    $this->actingAs($scolarite)
+        ->post('/console/content/update', ['key' => 'aide_inscription_video_path', 'file' => UploadedFile::fake()->create('aide.mp4', 500, 'video/mp4')])
+        ->assertForbidden();
+});
+
 it('saves an image style change with no new file', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $content = SiteContent::factory()->create([

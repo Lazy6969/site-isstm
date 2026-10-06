@@ -81,3 +81,26 @@ it('refuses to decide a request twice', function () {
         ->post("/console/reactivations/{$reactivation->id}/refuser")
         ->assertStatus(409);
 });
+
+it('lets an admin delete a reactivation request, which disappears from the list but can be restored from the trash', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $reactivation = ReactivationRequest::factory()->create();
+
+    $this->actingAs($admin)
+        ->delete("/console/reactivations/{$reactivation->id}")
+        ->assertRedirect();
+
+    expect(ReactivationRequest::find($reactivation->id))->toBeNull();
+    expect(ReactivationRequest::onlyTrashed()->find($reactivation->id))->not->toBeNull();
+});
+
+it('forbids a non-admin from deleting a reactivation request', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+    $reactivation = ReactivationRequest::factory()->create();
+
+    $this->actingAs($etudiant)
+        ->delete("/console/reactivations/{$reactivation->id}")
+        ->assertForbidden();
+
+    expect(ReactivationRequest::find($reactivation->id))->not->toBeNull();
+});

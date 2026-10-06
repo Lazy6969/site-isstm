@@ -20,6 +20,7 @@ class HomeContentSeeder extends Seeder
         $this->seedSiteContent();
         $this->seedIcons();
         $this->seedImages();
+        $this->seedVideos();
         $this->seedHeroSlides();
         $this->seedTestimonials();
         $this->seedFilieres();
@@ -111,6 +112,19 @@ class HomeContentSeeder extends Seeder
                 ],
             );
         }
+    }
+
+    /**
+     * Quick-edit video slots — shared across locales like icons/images, left
+     * empty by default until a super admin uploads the real file via the
+     * pencil (see EditableVideo.jsx / Aide/Inscription.jsx).
+     */
+    private function seedVideos(): void
+    {
+        SiteContent::updateOrCreate(
+            ['content_key' => 'aide_inscription_video_path'],
+            ['type' => SiteContentType::Video, 'content_value_fr' => '', 'content_value_en' => '', 'content_value_mg' => ''],
+        );
     }
 
     private function seedSiteContent(): void
@@ -559,6 +573,80 @@ class HomeContentSeeder extends Seeder
                 'Your progress is saved at every step. You can resume this file later from "My file".',
                 'Voatahiry ny fandrosoanao amin\'ny dingana tsirairay. Azonao atao ny mamerina ity antontan-taratasy ity avy amin\'ny « Ny antontan-taratasiko ».',
             ],
+
+            // Préinscription wizard — the 4 step-indicator labels, the 4 step
+            // card titles, and the instructional text, all made quick-edit
+            // (see Preinscription/Create.jsx) so the scolarité can adjust the
+            // wording without a code change.
+            'preinscription_etape_identite' => ['Identité', 'Identity', 'Maha-izy azy'],
+            'preinscription_etape_famille' => ['Famille', 'Family', 'Fianakaviana'],
+            'preinscription_etape_formation' => ['Formation', 'Education', 'Fiofanana'],
+            'preinscription_etape_validation' => ['Validation', 'Validation', 'Fanamafisana'],
+            'preinscription_titre_identite' => ['État civil et coordonnées', 'Personal details and contact information', 'Maha-izy azy sy fifandraisana'],
+            'preinscription_info_email' => [
+                'Un e-mail vous sera envoyé à cette adresse pour définir votre mot de passe et accéder à votre espace candidat.',
+                'An e-mail will be sent to this address to set your password and access your candidate space.',
+                "Hisy mailaka halefa amin'ity adiresy ity mba hametrahana ny tenimiafinao sy hidirana amin'ny toerana voatokana ho anao.",
+            ],
+            'preinscription_titre_famille' => ['Parents et répondant', 'Parents and guardian', 'Ray aman-dreny sy mpiantoka'],
+            'preinscription_info_contact' => [
+                'Indiquez au minimum un numéro joignable : téléphone des parents ou téléphone du répondant.',
+                'Provide at least one reachable number: parents\' phone or guardian\'s phone.',
+                'Omeo laharana iray azo antenaina farafahakeliny: ny finday ny ray aman-dreny na ny finday ny mpiantoka.',
+            ],
+            'preinscription_titre_repondant' => [
+                'Tuteur ou répondant (si différent des parents)',
+                'Guardian (if different from the parents)',
+                "Mpiantoka (raha hafa amin'ny ray aman-dreny)",
+            ],
+            'preinscription_titre_formation' => ['Parcours bac et filière souhaitée', 'Baccalaureate background and desired program', 'Lalana bakalorea sy sampana irina'],
+            'preinscription_titre_validation' => ['Pièces et confirmation', 'Documents and confirmation', 'Antontan-taratasy sy fanamafisana'],
+            'preinscription_info_fichiers' => [
+                'JPG, PNG, WebP ou PDF (5 Mo maximum par fichier).',
+                'JPG, PNG, WebP or PDF (5 MB maximum per file).',
+                'JPG, PNG, WebP na PDF (5 Mo farafahabetsany isaky ny rakitra).',
+            ],
+            'preinscription_titre_resume' => ['Résumé du dossier', 'File summary', 'Famintinana ny antontan-taratasy'],
+            'preinscription_titre_resume_complet' => ['Résumé complet du dossier', 'Full file summary', 'Famintinana feno ny antontan-taratasy'],
+
+            // Every individual field label on the wizard (and its read-only
+            // summary echo), one quick-edit key per field — see fieldLabel()
+            // in Preinscription/Create.jsx. Defaults mirror FIELD_LABELS there.
+            'preinscription_champ_civilite' => ['Civilité', 'Title', 'Laza'],
+            'preinscription_champ_sexe' => ['Genre', 'Gender', 'Lahy/Vavy'],
+            'preinscription_champ_prenoms' => ['Prénom(s)', 'First name(s)', 'Fanampin\'anarana'],
+            'preinscription_champ_nom' => ['Nom', 'Last name', 'Anarana'],
+            'preinscription_champ_date_naissance' => ['Date de naissance', 'Date of birth', 'Daty nahaterahana'],
+            'preinscription_champ_lieu_naissance' => ['Lieu de naissance', 'Place of birth', 'Toerana nahaterahana'],
+            'preinscription_champ_nationalite' => ['Nationalité', 'Nationality', 'Zom-pirenena'],
+            'preinscription_champ_pays' => ['Pays de résidence', 'Country of residence', 'Firenena onenana'],
+            'preinscription_champ_cin' => [
+                'CIN ou passeport (facultatif)',
+                'National ID or passport (optional)',
+                'Kara-panondro na pasipaoro (tsy voatery)',
+            ],
+            'preinscription_champ_email' => ['Adresse e-mail', 'E-mail address', 'Adiresy mailaka'],
+            'preinscription_champ_telephone' => ['Téléphone du candidat', 'Candidate\'s phone number', 'Laharana findain\'ny kandidà'],
+            'preinscription_champ_adresse' => ['Adresse complète', 'Full address', 'Adiresy feno'],
+            'preinscription_champ_nom_pere' => ['Nom complet du père', 'Father\'s full name', 'Anaran\'ny ray feno'],
+            'preinscription_champ_nom_mere' => ['Nom complet de la mère', 'Mother\'s full name', 'Anaran\'ny reny feno'],
+            'preinscription_champ_contact_parents' => ['Téléphone des parents', 'Parents\' phone number', 'Laharana findain\'ny ray aman-dreny'],
+            'preinscription_champ_repondant_nom' => ['Nom complet du répondant', 'Guardian\'s full name', 'Anaran\'ny mpiantoka feno'],
+            'preinscription_champ_repondant_lien' => ['Lien avec le candidat', 'Relationship to the candidate', 'Ifandraisana amin\'ny kandidà'],
+            'preinscription_champ_repondant_telephone' => ['Téléphone du répondant', 'Guardian\'s phone number', 'Laharana findain\'ny mpiantoka'],
+            'preinscription_champ_annee_bacc' => ['Année d\'obtention du bac', 'Year the baccalaureate was obtained', 'Taona nahazoana ny bakalorea'],
+            'preinscription_champ_serie_bacc' => ['Série du bac', 'Baccalaureate series', 'Andalan\'ny bakalorea'],
+            'preinscription_champ_serie_bacc_autre' => ['Précisez la série', 'Specify the series', 'Hamaritana ny andalana'],
+            'preinscription_champ_mention_bacc' => ['Mention', 'Honors', 'Mention'],
+            'preinscription_champ_code_redoublement' => ['Situation', 'Situation', 'Toe-javatra'],
+            'preinscription_champ_filiere_id' => ['Filière souhaitée', 'Desired program', 'Sampana irina'],
+            'preinscription_champ_niveau' => ['Niveau', 'Level', 'Ambaratonga'],
+            'preinscription_champ_photo' => ['Photo d\'identité', 'ID photo', 'Sary mombamomba'],
+            'preinscription_champ_cin_recto' => ['CIN recto', 'National ID (front)', 'Kara-panondro (ivoho)'],
+            'preinscription_champ_cin_verso' => ['CIN verso', 'National ID (back)', 'Kara-panondro (envers)'],
+            'preinscription_champ_diplome_attestation' => ['Diplôme ou attestation', 'Diploma or certificate', 'Diplaoma na taratasy manamarina'],
+            'preinscription_champ_releve_bacc' => ['Relevé de notes', 'Transcript', 'Taratasy anonjom-bokatra'],
+
             'dossier_titre' => ['Suivi de mon dossier', 'Application tracking', 'Fanaraha-maso ny antontan-taratasiko'],
             'reinscription_titre' => ['Réinscription et redoublement', 'Re-enrollment and repeat year', 'Fanoratana indray sy famerenana taona'],
             'reinscription_soustitre' => [
@@ -590,6 +678,17 @@ class HomeContentSeeder extends Seeder
                 'Manomboka eto ny hoavinao',
             ],
             'rejoindre_hero_image_path' => ['images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg'],
+
+            'aide_inscription_titre' => [
+                "Comment s'inscrire à l'ISSTM ?",
+                'How to register at ISSTM?',
+                "Ahoana no fisoratana anarana ao amin'ny ISSTM?",
+            ],
+            'aide_inscription_soustitre' => [
+                "Une courte vidéo explicative pour vous guider dans les démarches d'inscription.",
+                'A short explainer video to guide you through the registration process.',
+                "Horonantsary fohy manazava hitari-dalana anao amin'ny dingan'ny fisoratana anarana.",
+            ],
 
             // The 3 floating parcours cards on the "Rejoindre" hero — label
             // text only here; icon/blur/position/size live in the `style`
@@ -1173,6 +1272,32 @@ class HomeContentSeeder extends Seeder
             ['content_key' => 'contact_carte_annexe_coords'],
             ['type' => SiteContentType::Url, 'content_value_fr' => '-15.72335804693739,46.31172101165267', 'content_value_en' => '-15.72335804693739,46.31172101165267', 'content_value_mg' => '-15.72335804693739,46.31172101165267'],
         );
+
+        // Whether each Préinscription field label shows its red "required"
+        // asterisk (see AsteriskToggle.jsx / Preinscription/Create.jsx) — a
+        // plain "true"/"false" Url-type value since it's shared across
+        // locales and must never go through machine translation. Starting
+        // value matches REQUIRED_DEFAULTS there; the admin's own toggle is
+        // the only thing that changes it afterward.
+        $requiredByDefault = [
+            'civilite' => true, 'sexe' => true, 'prenoms' => true, 'nom' => true,
+            'date_naissance' => true, 'lieu_naissance' => true, 'nationalite' => true, 'pays' => true,
+            'cin' => false, 'email' => true, 'telephone' => true, 'adresse' => true,
+            'nom_pere' => false, 'nom_mere' => false, 'contact_parents' => false,
+            'repondant_nom' => false, 'repondant_lien' => false, 'repondant_telephone' => false,
+            'annee_bacc' => true, 'serie_bacc' => true, 'serie_bacc_autre' => true, 'mention_bacc' => true,
+            'code_redoublement' => true, 'filiere_id' => true, 'niveau' => true,
+            'photo' => true, 'cin_recto' => true, 'cin_verso' => true,
+            'diplome_attestation' => true, 'releve_bacc' => true,
+        ];
+
+        foreach ($requiredByDefault as $field => $required) {
+            $value = $required ? 'true' : 'false';
+            SiteContent::updateOrCreate(
+                ['content_key' => "preinscription_asterisque_{$field}"],
+                ['type' => SiteContentType::Url, 'content_value_fr' => $value, 'content_value_en' => $value, 'content_value_mg' => $value],
+            );
+        }
     }
 
     private function seedHeroSlides(): void
@@ -1261,7 +1386,7 @@ class HomeContentSeeder extends Seeder
                 'image_path' => 'images/filieres/genie-informatique.jpg', 'display_order' => 1,
             ],
             [
-                'code' => 'GB', 'mention' => 'STNPA', 'niveaux' => 'L2,L3,M1,M2', 'slug' => 'genie-biomedical',
+                'code' => 'GB', 'mention' => 'STNPA', 'niveaux' => 'L1,L2', 'slug' => 'genie-biomedical',
                 'nom_fr' => 'Génie Biomédical', 'nom_en' => 'Biomedical Engineering', 'nom_mg' => 'Injeniera Biomedikaly',
                 'description_fr' => 'Formation aux technologies médicales, à la maintenance des équipements et à l\'ingénierie de la santé.',
                 'description_en' => 'Training in medical technologies, equipment maintenance, and health engineering.',

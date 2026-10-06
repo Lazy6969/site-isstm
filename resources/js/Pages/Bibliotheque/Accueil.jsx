@@ -93,7 +93,7 @@ export default function Accueil() {
 
             <main className="mx-auto max-w-5xl px-6 py-12">
                 <div className="flex flex-col items-center gap-8 sm:flex-row">
-                    <div className="relative w-full max-w-xs flex-shrink-0 overflow-hidden rounded-2xl sm:w-64">
+                    <div className="relative w-full max-w-sm flex-shrink-0 overflow-hidden rounded-2xl sm:w-80">
                         <img src={`/${introImage}`} alt="" className="w-full" style={imageStyleToCss(contentStyles?.bibliotheque_intro_image_path)} />
                         <EditableImage contentKey="bibliotheque_intro_image_path" value={introImage} />
                     </div>

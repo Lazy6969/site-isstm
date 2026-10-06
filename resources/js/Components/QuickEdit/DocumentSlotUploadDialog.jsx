@@ -4,12 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../ui/button';
 
 /**
- * Uploads (or replaces) the fixed file behind one of the Parcours page's
- * document format slots (pdf/word/image × organigramme/cursus) — see
- * Admin\OrgDocumentController. Unlike QuickAddDocumentDialog, there's no
- * title/audience to pick: the slug already fixes both.
+ * Uploads (or replaces) the fixed file behind a single admin-managed
+ * document slot — e.g. one of the Parcours page's organigramme/cursus
+ * format slots (see Admin\OrgDocumentController), or the Inscription page's
+ * downloadable préinscription dossier (see Admin\InscriptionDocumentController).
+ * Unlike QuickAddDocumentDialog, there's no title/audience to pick: the
+ * target `endpoint` already fixes both.
  */
-export default function OrgDocumentUploadDialog({ open, onClose, slug, title }) {
+export default function DocumentSlotUploadDialog({ open, onClose, endpoint, title, accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png' }) {
     const form = useForm({ file: null });
 
     useEffect(() => {
@@ -22,7 +24,7 @@ export default function OrgDocumentUploadDialog({ open, onClose, slug, title }) 
 
     function submit(e) {
         e.preventDefault();
-        form.post(`/console/organigramme/documents/${slug}`, {
+        form.post(endpoint, {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: onClose,
@@ -38,7 +40,7 @@ export default function OrgDocumentUploadDialog({ open, onClose, slug, title }) 
                 <form onSubmit={submit} className="space-y-4">
                     <input
                         type="file"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        accept={accept}
                         onChange={(e) => form.setData('file', e.target.files?.[0] ?? null)}
                         className="block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
                     />

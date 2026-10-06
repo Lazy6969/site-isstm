@@ -16,7 +16,7 @@ import { useTranslations } from '../lib/useTranslations';
 import { useQuickEdit } from '../lib/useQuickEdit';
 import EditableText from '../Components/QuickEdit/EditableText';
 import EditableOrgPersonDialog from '../Components/QuickEdit/EditableOrgPersonDialog';
-import OrgDocumentUploadDialog from '../Components/QuickEdit/OrgDocumentUploadDialog';
+import DocumentSlotUploadDialog from '../Components/QuickEdit/DocumentSlotUploadDialog';
 import BannerBackground from '../Components/QuickEdit/BannerBackground';
 
 const CURSUS_GRADIENTS = {
@@ -318,10 +318,10 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
             )}
 
             {uploadingDoc && (
-                <OrgDocumentUploadDialog
+                <DocumentSlotUploadDialog
                     open={uploadingDoc !== null}
                     onClose={() => setUploadingDoc(null)}
-                    slug={uploadingDoc.slug}
+                    endpoint={`/console/organigramme/documents/${uploadingDoc.slug}`}
                     title={uploadingDoc.title}
                 />
             )}

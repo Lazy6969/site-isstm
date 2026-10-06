@@ -1,9 +1,11 @@
 import { router } from '@inertiajs/react';
-import { Check, X } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Search, Trash2, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
+import ViewToggle from '../../../Components/Admin/ViewToggle';
 import { Avatar, AvatarFallback } from '../../../Components/ui/avatar';
 import { Button } from '../../../Components/ui/button';
+import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
 
@@ -17,7 +19,7 @@ function formatDate(value) {
     return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function ReactivationRow({ reactivation }) {
+function ReactivationRow({ reactivation, compact = false }) {
     const [refusing, setRefusing] = useState(false);
     const [motif, setMotif] = useState('');
     const [processing, setProcessing] = useState(false);
@@ -42,9 +44,15 @@ function ReactivationRow({ reactivation }) {
         );
     }
 
+    function destroy() {
+        if (!confirm(`Supprimer la demande de réactivation de ${reactivation.user?.name} ? Cette entrée pourra être restaurée depuis la corbeille.`)) return;
+        setProcessing(true);
+        router.delete(`/console/reactivations/${reactivation.id}`, { preserveScroll: true, onFinish: () => setProcessing(false) });
+    }
+
     return (
-        <div className="rounded-xl border border-admin-border bg-admin-card p-5">
-            <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-5">
+        <div className="h-full rounded-xl border border-admin-border bg-admin-card p-5">
+            <div className={`flex flex-col items-stretch gap-4 ${compact ? '' : 'sm:flex-row sm:items-center sm:gap-5'}`}>
                 <Avatar className="h-12 w-12 flex-shrink-0">
                     <AvatarFallback className="bg-admin-hover text-admin-text">{reactivation.user?.name?.[0]}</AvatarFallback>
                 </Avatar>
@@ -81,6 +89,18 @@ function ReactivationRow({ reactivation }) {
                         </Button>
                     </div>
                 )}
+
+                {!refusing && (
+                    <button
+                        type="button"
+                        onClick={destroy}
+                        disabled={processing}
+                        className="flex-shrink-0 rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
+                        aria-label={`Supprimer la demande de ${reactivation.user?.name}`}
+                    >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                )}
             </div>
 
             {pending && refusing && (
@@ -108,21 +128,51 @@ function ReactivationRow({ reactivation }) {
 
 export default function Index({ reactivations }) {
     const { t } = useTranslations();
+    const [search, setSearch] = useState('');
+    const [view, setView] = useState('list');
     const pendingCount = reactivations.filter((r) => r.status === 'en_attente').length;
+
+    const filtered = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) return reactivations;
+        return reactivations.filter(
+            (r) => r.user?.name?.toLowerCase().includes(term) || r.user?.email?.toLowerCase().includes(term),
+        );
+    }, [reactivations, search]);
 
     return (
         <AdminLayout title={t('reactivations_admin.titre', 'Réactivations de compte')}>
-            <p className="-mt-4 mb-6 text-sm text-admin-text-secondary">
-                {pendingCount} {t('reactivations_admin.a_traiter', 'demande(s) à traiter.')}
-            </p>
+            <div className="-mt-4 mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-admin-text-secondary">
+                    {pendingCount} {t('reactivations_admin.a_traiter', 'demande(s) à traiter.')}
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative w-64">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
+                        <Input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={t('reactivations_admin.search_placeholder', 'Rechercher par nom ou e-mail...')}
+                            className="pl-9"
+                        />
+                    </div>
+                    <ViewToggle view={view} onChange={setView} />
+                </div>
+            </div>
 
-            {reactivations.length === 0 ? (
+            {filtered.length === 0 ? (
                 <div className="rounded-xl border border-admin-border bg-admin-card p-8 text-center text-sm text-admin-muted">
                     {t('reactivations_admin.aucune', 'Aucune demande de réactivation pour le moment.')}
                 </div>
+            ) : view === 'grid' ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.map((reactivation) => (
+                        <ReactivationRow key={reactivation.id} reactivation={reactivation} compact />
+                    ))}
+                </div>
             ) : (
                 <div className="space-y-3">
-                    {reactivations.map((reactivation) => (
+                    {filtered.map((reactivation) => (
                         <ReactivationRow key={reactivation.id} reactivation={reactivation} />
                     ))}
                 </div>

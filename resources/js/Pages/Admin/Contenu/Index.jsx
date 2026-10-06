@@ -4,6 +4,7 @@ import {
     Pencil,
     Type,
     Image as ImageIcon,
+    Video as VideoIcon,
     Shapes,
     Search,
     X,
@@ -45,6 +46,7 @@ function useTypeMeta() {
         icon: { label: t('admin.contenu.type_icon', 'Icône'), icon: Shapes, variant: 'gold' },
         image: { label: t('admin.contenu.type_image', 'Image'), icon: ImageIcon, variant: 'success' },
         url: { label: t('admin.contenu.type_url', 'Lien'), icon: Link2, variant: 'default' },
+        video: { label: t('admin.contenu.type_video', 'Vidéo'), icon: VideoIcon, variant: 'success' },
     };
 }
 
@@ -396,7 +398,7 @@ function InlineEditPanel({ editing, onClose, icons }) {
         form.post('/console/content/update', {
             preserveScroll: true,
             preserveState: true,
-            forceFormData: content?.type === 'image',
+            forceFormData: content?.type === 'image' || content?.type === 'video',
             onSuccess: onClose,
         });
     }
@@ -516,6 +518,34 @@ function InlineEditPanel({ editing, onClose, icons }) {
                     </div>
                 </form>
             )}
+
+            {content.type === 'video' && (
+                <form onSubmit={submit} className="space-y-4">
+                    {content.content_value_fr && (
+                        // eslint-disable-next-line jsx-a11y/media-has-caption
+                        <video src={`/${content.content_value_fr}`} controls muted className="h-40 w-full rounded-lg border border-admin-border object-cover" />
+                    )}
+                    <input
+                        type="file"
+                        accept="video/mp4,video/webm,video/quicktime"
+                        onChange={(e) => form.setData('file', e.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-admin-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-admin-hover file:px-3 file:py-2 file:text-sm file:font-medium file:text-admin-text"
+                    />
+                    {form.errors.file && <p className="text-sm text-red-500">{form.errors.file}</p>}
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" onClick={onClose} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
+                            {t('admin.common.cancel', 'Annuler')}
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={form.processing || !form.data.file}
+                            className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                        >
+                            {t('admin.common.save', 'Enregistrer')}
+                        </Button>
+                    </div>
+                </form>
+            )}
         </div>
     );
 }
@@ -535,6 +565,7 @@ const TYPE_TINT = {
     icon: 'bg-amber-500/15 text-amber-500',
     image: 'bg-emerald-500/15 text-emerald-500',
     url: 'bg-violet-500/15 text-violet-500',
+    video: 'bg-rose-500/15 text-rose-500',
 };
 
 /**
@@ -589,6 +620,11 @@ function ContentRow({ content, onEdit, onHover, isEditing }) {
                     {content.type === 'icon' && <p className="mt-1 text-sm text-admin-text-secondary">{content.content_value_fr}</p>}
                     {content.type === 'image' && <p className="mt-1 truncate text-sm text-admin-text-secondary">{content.content_value_fr.split('/').pop()}</p>}
                     {content.type === 'url' && <p className="mt-1 truncate text-sm text-admin-text-secondary">{content.content_value_fr || t('admin.contenu.url_empty', 'Aucun lien défini')}</p>}
+                    {content.type === 'video' && (
+                        <p className="mt-1 truncate text-sm text-admin-text-secondary">
+                            {content.content_value_fr ? content.content_value_fr.split('/').pop() : t('admin.contenu.video_empty', 'Aucune vidéo définie')}
+                        </p>
+                    )}
                     <p className="mt-1 truncate font-mono text-[0.65rem] text-admin-muted" title={content.content_key}>
                         {content.content_key}
                     </p>
@@ -678,6 +714,7 @@ export default function Index({ groups, icons }) {
             text: allItems.filter((c) => c.type === 'text').length,
             icon: allItems.filter((c) => c.type === 'icon').length,
             image: allItems.filter((c) => c.type === 'image').length,
+            video: allItems.filter((c) => c.type === 'video').length,
             categories: Object.keys(groups).length,
         }),
         [groups, allItems],
@@ -740,6 +777,7 @@ export default function Index({ groups, icons }) {
                 <StatCard label={t('admin.contenu.texts', 'Textes')} value={stats.text} icon={Type} onClick={() => toggleTypeFilter('text')} active={typeFilter === 'text'} />
                 <StatCard label={t('admin.contenu.icons', 'Icônes')} value={stats.icon} icon={Shapes} onClick={() => toggleTypeFilter('icon')} active={typeFilter === 'icon'} />
                 <StatCard label={t('admin.contenu.images', 'Images')} value={stats.image} icon={ImageIcon} onClick={() => toggleTypeFilter('image')} active={typeFilter === 'image'} />
+                <StatCard label={t('admin.contenu.videos', 'Vidéos')} value={stats.video} icon={VideoIcon} onClick={() => toggleTypeFilter('video')} active={typeFilter === 'video'} />
                 <StatCard label={t('admin.contenu.categories', 'Catégories')} value={stats.categories} icon={FolderOpen} />
             </div>
 

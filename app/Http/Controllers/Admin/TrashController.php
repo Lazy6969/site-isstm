@@ -14,6 +14,7 @@ use App\Models\HeroSlide;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
+use App\Models\ReactivationRequest;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use Illuminate\Database\Eloquent\Model;
@@ -52,6 +53,7 @@ class TrashController extends Controller
         'diapositives' => ['model' => HeroSlide::class, 'permission' => 'hero.delete', 'label' => 'Diapositive', 'title' => null, 'files' => [['field' => 'image_path', 'folder' => 'hero']]],
         'classes' => ['model' => Classe::class, 'permission' => 'classes.delete', 'label' => 'Classe', 'title' => 'nom', 'files' => []],
         'inscriptions' => ['model' => Inscription::class, 'permission' => 'inscriptions.delete', 'label' => 'Inscription', 'title' => 'numero', 'files' => []],
+        'reactivations' => ['model' => ReactivationRequest::class, 'permission' => 'reactivations.manage', 'label' => 'Demande de réactivation', 'title' => null, 'files' => []],
     ];
 
     public function index(): Response

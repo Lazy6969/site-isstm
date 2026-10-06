@@ -14,6 +14,11 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');
 
+    // LoginRequest::authenticate() already logs the account out (Auth::logout())
+    // before redirecting here, so the visitor is a guest again by the time this
+    // request lands — safe to keep alongside the other guest-only auth pages.
+    Route::get('login/suspendu', [AuthenticatedSessionController::class, 'suspended'])->name('login.suspendu');
+
     Route::get('mot-de-passe-oublie', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('mot-de-passe-oublie', [PasswordResetLinkController::class, 'store'])
         ->middleware('throttle:password-reset')
