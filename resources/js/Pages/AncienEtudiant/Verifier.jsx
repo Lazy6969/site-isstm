@@ -1,5 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle2, CircleHelp, Send, UserCheck, XCircle } from 'lucide-react';
+import { CheckCircle2, Send, UserCheck, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
@@ -42,13 +42,6 @@ export default function Verifier() {
                             'Indiquez votre adresse e-mail et votre mot de passe pour demander la réactivation de votre compte étudiant.',
                         )}
                     </p>
-                    <Link
-                        href="/aide-inscription"
-                        className="mt-4 flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-white/20"
-                    >
-                        <CircleHelp className="h-4 w-4" aria-hidden="true" />
-                        {t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
-                    </Link>
                 </div>
             </div>
 

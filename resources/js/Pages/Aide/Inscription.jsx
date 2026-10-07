@@ -5,6 +5,7 @@ import BackButton from '../../Components/Layout/BackButton';
 import Footer from '../../Components/Home/Footer';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableVideo from '../../Components/QuickEdit/EditableVideo';
+import EtapesInscription from '../../Components/Rejoindre/EtapesInscription';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Inscription() {
@@ -72,6 +73,8 @@ export default function Inscription() {
                     </div>
                 )}
             </main>
+
+            <EtapesInscription />
 
             <Footer />
         </div>

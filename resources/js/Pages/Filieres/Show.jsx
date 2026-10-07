@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowLeft, Briefcase, Landmark, Sparkles } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import BackButton from '../../Components/Layout/BackButton';
 import { Badge } from '../../Components/ui/badge';
 import { Separator } from '../../Components/ui/separator';
 import EditableText from '../../Components/QuickEdit/EditableText';
@@ -35,6 +36,13 @@ export default function Show({ filiere }) {
                     style={{ backgroundImage: `url('/${filiere.image_path}')` }}
                 />
                 <div className="absolute inset-0 bg-isstm-navy-dark/70" />
+                {/* Positioned absolutely, outside the bottom-anchored flex stack below:
+                    that stack is bottom-justified inside a fixed h-72 box, so a 4th stacked
+                    row here would get pushed above the visible area and clipped by
+                    overflow-hidden on the outer hero wrapper. */}
+                <div className="absolute top-4 left-6 z-10">
+                    <BackButton className="w-fit rounded-full bg-white/10 px-3.5 py-1.5 backdrop-blur hover:bg-white/20" />
+                </div>
                 <div className="relative mx-auto flex h-full max-w-4xl flex-col justify-end px-6 pb-8 text-white">
                     <Link href="/filieres" className="mb-3 flex items-center gap-1.5 text-sm text-white/80 hover:underline">
                         <ArrowLeft className="h-4 w-4" aria-hidden="true" />

@@ -63,7 +63,7 @@ function MediaGrid({ media, compact = false }) {
                         <img
                             src={`/storage/${media[0].path}`}
                             alt=""
-                            className={`h-auto w-auto max-w-full ${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}
+                            className={`h-auto w-auto max-w-full ${compact ? 'max-h-60' : 'max-h-[420px]'} object-contain`}
                         />
                     </button>
                 </div>
@@ -116,7 +116,7 @@ function MediaGrid({ media, compact = false }) {
                                     <img
                                         src={`/storage/${m.path}`}
                                         alt=""
-                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-72' : 'max-h-[600px]'} object-contain`}`}
+                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : `${compact ? 'max-h-60' : 'max-h-[420px]'} object-contain`}`}
                                     />
                                 </a>
                             ))}
@@ -125,7 +125,7 @@ function MediaGrid({ media, compact = false }) {
                                     <video
                                         src={`/storage/${m.path}`}
                                         controls
-                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-72' : 'max-h-[600px]'}`}
+                                        className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-60' : 'max-h-[420px]'}`}
                                     />
                                     <a
                                         href={`/storage/${m.path}`}
@@ -170,7 +170,7 @@ function SharedPostPreview({ post }) {
         <div className="mt-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
             <div className="flex items-center gap-2.5">
                 <Link href={`/profil/${post.user.id}`}>
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-7 w-7">
                         <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                         <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                     </Avatar>
@@ -269,11 +269,11 @@ export default function PostCard({ post, highlightCommentId = null }) {
     }
 
     return (
-        <Card className="p-5">
+        <Card className="p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-3">
+                <div className="flex min-w-0 items-center gap-2.5">
                     <Link href={`/profil/${post.user.id}`} className="flex-shrink-0">
-                        <Avatar className="h-10 w-10">
+                        <Avatar className="h-9 w-9">
                             <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                             <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                         </Avatar>
@@ -418,7 +418,7 @@ export default function PostCard({ post, highlightCommentId = null }) {
                 </div>
             </div>
 
-            {post.body && <ExpandableText text={post.body} className="mt-4 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200" />}
+            {post.body && <ExpandableText text={post.body} className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200" />}
 
             {post.shared_post ? <SharedPostPreview post={post.shared_post} /> : <MediaGrid media={post.media} />}
 

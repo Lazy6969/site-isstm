@@ -60,6 +60,7 @@ export default function Footer() {
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie') },
         { href: '/rejoindre', label: t('nav.inscription', 'Inscription') },
+        { href: '/faq', label: t('nav.faq', 'FAQ') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
     ];
 

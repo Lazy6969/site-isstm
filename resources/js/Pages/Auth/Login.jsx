@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { AlertTriangle, LogIn } from 'lucide-react';
+import { LogIn, XCircle } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
 import { useTranslations } from '../../lib/useTranslations';
@@ -11,22 +12,26 @@ export default function Login() {
         password: '',
         remember: false,
     });
+    const [errorModal, setErrorModal] = useState('');
 
     function submit(e) {
         e.preventDefault();
-        post('/login');
+        // Read the failure straight off this submit's own onError callback
+        // rather than only off the shared `errors` state read in JSX below —
+        // this fires exactly once per failed attempt, so the modal can't be
+        // missed the way an inline banner further down the page could be.
+        post('/login', {
+            onError: (formErrors) => {
+                if (formErrors.email) {
+                    setErrorModal(formErrors.email);
+                }
+            },
+        });
     }
 
     return (
         <AuthLayout title={t('auth.connexion_titre', 'Connexion')} subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}>
             <Head title="Connexion" />
-
-            {errors.email && (
-                <p className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:bg-red-500/15 dark:text-red-400">
-                    <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                    {errors.email}
-                </p>
-            )}
 
             <form onSubmit={submit} className="space-y-4">
                 <TextField
@@ -73,6 +78,32 @@ export default function Login() {
                     {t('nav.se_connecter', 'Se connecter')}
                 </button>
             </form>
+
+            {errorModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    onClick={() => setErrorModal('')}
+                >
+                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-slate-800" onClick={(e) => e.stopPropagation()}>
+                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-500/15">
+                            <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true" />
+                        </div>
+                        <h2 className="mt-4 text-base font-semibold text-slate-900 dark:text-white">
+                            {t('auth.connexion_echouee', 'Connexion impossible')}
+                        </h2>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{errorModal}</p>
+                        <button
+                            type="button"
+                            onClick={() => setErrorModal('')}
+                            className="mt-5 w-full rounded-full bg-isstm-navy py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                        >
+                            {t('auth.reessayer', 'Réessayer')}
+                        </button>
+                    </div>
+                </div>
+            )}
         </AuthLayout>
     );
 }

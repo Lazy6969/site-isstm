@@ -26,7 +26,7 @@ enum AppearanceChromeColor: string
     public function label(): string
     {
         return match ($this) {
-            self::Default => 'Défaut (noir ISSTM)',
+            self::Default => 'Défaut (suit le mode clair/sombre)',
             self::White => 'Blanc neutre',
             self::Black => 'Noir',
             self::Slate => 'Ardoise',
@@ -52,13 +52,16 @@ enum AppearanceChromeColor: string
      * (--color-admin-chrome) — the pastel entries are deliberately soft/
      * desaturated so the nav stays readable and non-fatiguing; Black/Slate are
      * the exception (see isDarkInLightMode()) and get light text instead.
+     * Default mirrors --color-admin-bg exactly, so out of the box (no admin
+     * override) the chrome genuinely tracks the light/dark toggle instead of
+     * staying permanently dark.
      *
      * @return array{0: string, 1: string}
      */
     public function colors(): array
     {
         return match ($this) {
-            self::Default => ['#0b0d12', '#090b0f'],
+            self::Default => ['#f6f6f8', '#07090d'],
             self::White => ['#ffffff', '#10141d'],
             self::Black => ['#0b0e14', '#000000'],
             self::Slate => ['#1e293b', '#0b1220'],
@@ -87,7 +90,7 @@ enum AppearanceChromeColor: string
     public function isDarkInLightMode(): bool
     {
         return match ($this) {
-            self::Default, self::Black, self::Slate, self::Navy, self::Wine, self::Forest, self::Plum, self::Graphite, self::Ocean => true,
+            self::Black, self::Slate, self::Navy, self::Wine, self::Forest, self::Plum, self::Graphite, self::Ocean => true,
             default => false,
         };
     }

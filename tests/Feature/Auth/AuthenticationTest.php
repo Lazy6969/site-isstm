@@ -56,6 +56,25 @@ it('rejects an invalid password', function () {
     $response->assertSessionHasErrors('email');
 });
 
+/**
+ * Reproduces exactly what the Login.jsx frontend reads after a failed
+ * attempt: not just that the session carries a validation error (already
+ * covered above), but that the *next* page Inertia renders — the one
+ * useForm()'s errors state actually hydrates from — carries it in
+ * props.errors.email, on the right component.
+ */
+it('delivers the invalid-credentials message to the Inertia page the frontend re-renders', function () {
+    $this->from('/login')->post('/login', [
+        'email' => 'nobody@example.com',
+        'password' => 'wrong-password',
+    ]);
+
+    $this->get('/login')->assertInertia(fn ($page) => $page
+        ->component('Auth/Login')
+        ->where('errors.email', 'Ces identifiants ne correspondent à aucun compte.')
+    );
+});
+
 it('logs the user out', function () {
     $user = User::factory()->create();
 

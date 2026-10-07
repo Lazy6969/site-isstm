@@ -29,7 +29,7 @@ export default function Archives({ posts }) {
                 {t('communaute.archives_description', 'Ces publications sont masquées du fil communautaire mais restent visibles ici, uniquement pour vous.')}
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {pageLoading && [...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}
 
                 {!pageLoading && posts.data.length === 0 && (

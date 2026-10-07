@@ -669,14 +669,14 @@ export default function Create({ filieres, draft, initialStep }) {
                         )}
                         <a
                             href="/inscription"
-                            className="flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                            className="flex items-center gap-2 rounded-full bg-isstm-gold px-5 py-2 text-sm font-semibold text-isstm-navy-dark shadow-md transition hover:brightness-110"
                         >
                             <Wallet className="h-4 w-4" aria-hidden="true" />
                             {t('preinscription.voir_frais', 'Voir les frais')}
                         </a>
                         <Link
                             href="/aide-inscription"
-                            className="flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                            className="flex items-center gap-2 rounded-full bg-isstm-gold px-5 py-2 text-sm font-semibold text-isstm-navy-dark shadow-md transition hover:brightness-110"
                         >
                             <CircleHelp className="h-4 w-4" aria-hidden="true" />
                             {t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}

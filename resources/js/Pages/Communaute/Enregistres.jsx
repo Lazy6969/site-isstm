@@ -25,7 +25,7 @@ export default function Enregistres({ posts }) {
                 {t('communaute.retour_fil', 'Retour au fil')}
             </Link>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {pageLoading && [...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}
 
                 {!pageLoading && posts.data.length === 0 && (

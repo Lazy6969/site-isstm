@@ -2,6 +2,7 @@ import { Head, usePage } from '@inertiajs/react';
 import { Quote } from 'lucide-react';
 import Footer from '../../Components/Home/Footer';
 import SiteHeader from '../../Components/Layout/SiteHeader';
+import BackButton from '../../Components/Layout/BackButton';
 import { useTranslations } from '../../lib/useTranslations';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import EditableText from '../../Components/QuickEdit/EditableText';
@@ -21,6 +22,7 @@ export default function Index({ content }) {
             <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="directeur_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-4xl px-6">
+                    <BackButton />
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="accueil_mot_directeur_titre">
                             {content.accueil_mot_directeur_titre ?? t('accueil.mot_directeur_titre', 'Le mot du Directeur')}

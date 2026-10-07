@@ -24,6 +24,7 @@ class HomeContentSeeder extends Seeder
         $this->seedHeroSlides();
         $this->seedTestimonials();
         $this->seedFilieres();
+        $this->seedOrgRoleLabels();
     }
 
     /**
@@ -75,7 +76,7 @@ class HomeContentSeeder extends Seeder
             'logo_image_path' => 'images/logo-isstm.jpg',
             'bourse_lien1_logo' => 'images/partenariat/mesupres.png',
             'bourse_lien2_logo' => 'images/partenariat/tresor-public.png',
-            'bourse_lien3_logo' => 'images/logo-isstm.svg',
+            'bourse_lien3_logo' => 'images/bourse-indisponible.png',
             'associations_logo' => 'images/aei.jpeg',
             'associations_galerie_1' => 'images/portal_assoc_4.jpg',
             'associations_galerie_2' => 'images/portal_assoc_5.jpg',
@@ -434,11 +435,11 @@ class HomeContentSeeder extends Seeder
                 'Access the Public Treasury platform',
                 "Hiditra amin'ny sehatra Trésor Public",
             ],
-            'bourse_lien3_titre' => ['Autre option de bourse', 'Other scholarship option', 'Safidy vatsim-pianarana hafa'],
+            'bourse_lien3_titre' => ['Demande de bourse', 'Scholarship request', 'Fangatahana vatsim-pianarana'],
             'bourse_lien3_description' => [
-                'Cette section sera disponible dès que la scolarité y ajoutera un lien, depuis le crayon.',
-                "This section will become available once the registrar's office adds a link, from the pencil.",
-                "Ho azo jerena ity fizarana ity rehefa manampy rohy ny sampan-draharaha momba ny fianarana, amin'ny alalan'ny pensilihazo.",
+                'Actuellement indisponible',
+                'Currently unavailable',
+                "Tsy azo jerena amin'izao fotoana izao",
             ],
             'bourse_lien3_bouton' => ['Accéder à la plateforme', 'Access the platform', 'Hiditra amin\'ny sehatra'],
 
@@ -458,15 +459,20 @@ class HomeContentSeeder extends Seeder
                 "Miditra ao amin'ny ISSTM ka manorena ny hoavinao",
             ],
             'accueil_rejoindre_image_path' => ['images/accueil-rejoindre.png', 'images/accueil-rejoindre.png', 'images/accueil-rejoindre.png'],
+            'accueil_rejoindre_aide_bouton' => [
+                "Aide pour Comment s'inscrire à l'ISSTM ?",
+                'Help: How to register at ISSTM?',
+                "Fanampiana - Ahoana no fisoratana anarana ao amin'ny ISSTM?",
+            ],
 
             // Bannière "Suivi de dossier" (entre Filières et Actualités)
             'accueil_suivi_titre' => ['Suivi de votre dossier', 'Track your application', 'Fanaraha-maso ny antontan-taratasinao'],
             'accueil_suivi_soustitre' => [
-                'Entrez votre numéro de dossier pour connaître son état.',
-                'Enter your file number to check its status.',
-                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny toerana misy azy.",
+                'Entrez votre numéro de dossier pour savoir où en est votre demande de préinscription.',
+                'Enter your file number to see where your pre-registration application stands.',
+                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny fizotry ny fangatahanao fisoratana anarana mialoha.",
             ],
-            'accueil_suivi_image_path' => ['', '', ''],
+            'accueil_suivi_image_path' => ['images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg'],
 
             // Style des cartes (valeur non affichée — seule la colonne `style` compte, voir lib/cardStyle.js)
             'accueil_filieres_carte' => ['Style des cartes filières', 'Programs card style', 'Endrika kaoty sampana'],
@@ -499,6 +505,114 @@ class HomeContentSeeder extends Seeder
                 'Contact ISSTM Mahajanga: address, phone, email and campus locations.',
                 "Mifandraisa amin'ny ISSTM Mahajanga: adiresy, laharan-tariby, mailaka ary toerana misy ny campus.",
             ],
+            // FAQ
+            'faq_titre' => ['Questions fréquentes', 'Frequently Asked Questions', 'Fanontaniana matetika apetraka'],
+            'faq_soustitre' => [
+                "Tout ce qu'il faut savoir sur la préinscription, les filières et votre dossier à l'ISSTM.",
+                'Everything you need to know about pre-registration, programs and your file at ISSTM.',
+                "Izay rehetra tokony ho fantatrao momba ny fisoratana anarana mialoha, ny sampana ary ny antontan-taratasinao ao amin'ny ISSTM.",
+            ],
+            'faq_preinscription_question' => [
+                "Comment faire ma préinscription à l'ISSTM ?",
+                'How do I complete my pre-registration at ISSTM?',
+                "Ahoana ny fomba hanaovana ny fisoratana anarana mialoha ao amin'ny ISSTM?",
+            ],
+            'faq_preinscription_reponse' => [
+                'Remplissez le formulaire de préinscription en ligne avec vos informations et vos documents (photo, CIN, diplôme, relevé de notes). Une vidéo tutorielle détaille chaque étape.',
+                'Fill in the online pre-registration form with your information and documents (photo, ID card, diploma, transcript). A tutorial video walks you through every step.',
+                "Fenoy an-tserasera ny taratasy fisoratana anarana mialoha miaraka amin'ny fampahalalana sy antontan-taratasinao (sary, kara-panondro, diplaoma, taratasy naha-voamarina ny vilaza isan-taranja). Misy horonantsary mampianatra ny dingana tsirairay.",
+            ],
+            'faq_documents_question' => [
+                'Quels documents dois-je fournir pour ma préinscription ?',
+                'What documents do I need for my pre-registration?',
+                'Antontan-taratasy inona no ilaina amin\'ny fisoratana anarana mialoha?',
+            ],
+            'faq_documents_reponse' => [
+                "Une photo d'identité, votre CIN recto et verso, votre diplôme ou attestation du baccalauréat, et votre relevé de notes du bac.",
+                'An ID photo, both sides of your national ID, your baccalaureate diploma or certificate, and your baccalaureate transcript.',
+                "Sary famantarana, ny kara-panondronao (lafiny roa), ny diplaoma na taratasy fanamarinana ny bakalorea, ary ny taratasy naha-voamarina ny vilaza isan-taranja amin'ny bakalorea.",
+            ],
+            'faq_filieres_question' => [
+                "Quelles filières propose l'ISSTM ?",
+                'Which programs does ISSTM offer?',
+                'Sampana inona no atolotry ny ISSTM?',
+            ],
+            'faq_filieres_reponse' => [
+                "L'ISSTM propose plusieurs filières en Génie Informatique, Génie Civil, Génie Biomédical, Génie Électrique et bien d'autres, réparties en Licence et Master.",
+                "ISSTM offers several programs in Computer Engineering, Civil Engineering, Biomedical Engineering, Electrical Engineering and more, across Bachelor's and Master's levels.",
+                'Sampana maro no atolotry ny ISSTM toy ny Jeny Informatika, Jeny Sivily, Jeny Biomedikaly, Jeny Elektrisite ary maro hafa koa, mizara ho Licence sy Master.',
+            ],
+            'faq_frais_question' => [
+                "Quels sont les frais d'inscription ?",
+                'What are the tuition fees?',
+                'Firy ny sarany fisoratana anarana?',
+            ],
+            'faq_frais_reponse' => [
+                'Les frais varient selon la filière et le statut (national ou étranger). Le détail complet est disponible sur la page Inscription.',
+                'Fees vary depending on the program and your status (national or international). Full details are available on the Enrollment page.',
+                "Miovaova arakaraka ny sampana sy ny sata (teratany na vahiny) ny sarany. Ny antsipiriany feno dia hita ao amin'ny pejy Fisoratana anarana.",
+            ],
+            'faq_suivi_question' => [
+                'Comment suivre mon dossier de préinscription ?',
+                'How do I track my pre-registration file?',
+                'Ahoana ny fanarahana ny antontan-taratasiko fisoratana anarana mialoha?',
+            ],
+            'faq_suivi_reponse' => [
+                "Entrez votre numéro de dossier sur la page de suivi pour connaître son statut : reçu, en cours d'examen, accepté ou refusé.",
+                'Enter your file number on the tracking page to see its status: received, under review, accepted or refused.',
+                "Ampidiro ny laharan'ny antontan-taratasinao amin'ny pejy fanarahana mba hahafantarana ny sataniny: voaray, eo am-pandinihana, nekena na nolavina.",
+            ],
+            'faq_bourse_question' => [
+                'Comment faire une demande de bourse ?',
+                'How do I apply for a scholarship?',
+                'Ahoana ny fomba hangatahana vatsim-pianarana?',
+            ],
+            'faq_bourse_reponse' => [
+                "L'ISSTM vous oriente vers les plateformes officielles de bourse d'État et de gestion du portefeuille Trésor Public.",
+                'ISSTM directs you to the official State scholarship platform and the Public Treasury wallet management platform.',
+                "Ny ISSTM dia mitarika anao any amin'ny sehatra ofisialin'ny vatsim-pianaran'ny Fanjakana sy ny fitantanana ny kaonty Trésor Public.",
+            ],
+            'faq_ancien_etudiant_question' => [
+                'Je suis un ancien étudiant, comment réactiver mon compte ?',
+                "I'm a former student — how do I reactivate my account?",
+                'Mpianatra taloha aho, ahoana ny famerenana ny kaontiko?',
+            ],
+            'faq_ancien_etudiant_reponse' => [
+                "Indiquez l'adresse e-mail et le mot de passe de votre ancien compte sur la page de réactivation ; votre demande sera transmise à la scolarité.",
+                "Enter your former account's e-mail address and password on the reactivation page; your request will be sent to the registrar's office.",
+                "Ampidiro ny adiresy mailaka sy ny tenimiafin'ny kaontinao taloha amin'ny pejy famerenana; halefa any amin'ny sampan-draharaha momba ny fianarana ny fangatahanao.",
+            ],
+            'faq_mot_de_passe_question' => [
+                "J'ai oublié mon mot de passe, que faire ?",
+                'I forgot my password — what should I do?',
+                'Hadinoko ny tenimiafiko, inona no atao?',
+            ],
+            'faq_mot_de_passe_reponse' => [
+                'Cliquez sur « Mot de passe oublié » sur la page de connexion pour recevoir un lien de réinitialisation par e-mail.',
+                'Click "Forgot password" on the login page to receive a reset link by e-mail.',
+                "Tsindrio ny hoe « Hadino ny tenimiafina » eo amin'ny pejy fidirana mba handraisana rohy famerenana amin'ny mailaka.",
+            ],
+            'faq_contact_question' => [
+                "Comment contacter la scolarité ou l'administration ?",
+                "How do I contact the registrar's office or administration?",
+                "Ahoana ny fifandraisana amin'ny sampan-draharaha momba ny fianarana na ny fitantanana?",
+            ],
+            'faq_contact_reponse' => [
+                'Retrouvez nos coordonnées (e-mail, téléphone, adresse) sur la page Contact, ou en bas de chaque page du site.',
+                'Find our contact details (e-mail, phone, address) on the Contact page, or at the bottom of every page on the site.',
+                "Jereo ny fomba fifandraisana aminay (mailaka, telefaona, adiresy) ao amin'ny pejy Fifandraisana, na eo ambanin'ny pejy tsirairay amin'ny tranonkala.",
+            ],
+            'faq_cta_titre' => [
+                "Vous n'avez pas trouvé votre réponse ?",
+                "Didn't find your answer?",
+                'Tsy hitanao ny valiny tadiavinao?',
+            ],
+            'faq_cta_texte' => [
+                "L'équipe de la scolarité est là pour vous aider.",
+                "Our registrar's team is here to help you.",
+                "Vonona hanampy anao ny ekipan'ny sampan-draharaha momba ny fianarana.",
+            ],
+
             'bourse_seo_titre' => ["Bourse d'études", 'Scholarships', 'Vatsim-pianarana'],
             'bourse_seo_description' => [
                 "Bourses d'études de l'État malagasy et portefeuille Trésor Public : démarches et plateformes officielles pour les étudiants de l'ISSTM.",
@@ -682,6 +796,37 @@ class HomeContentSeeder extends Seeder
             ],
             'rejoindre_hero_image_path' => ['images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg', 'images/rejoindre-hero.jpg'],
 
+            // Les 4 étapes de l'inscription, juste au-dessus du footer sur la page Rejoindre
+            'rejoindre_etapes_titre' => [
+                'Les étapes de votre inscription',
+                'Your enrollment steps',
+                "Ny dingana amin'ny fisoratana anaranao",
+            ],
+            'rejoindre_etape1_titre' => ['Préinscription', 'Pre-registration', 'Fisoratana anarana mialoha'],
+            'rejoindre_etape1_texte' => [
+                "Remplissez votre dossier de préinscription et envoyez-le par voie postale à :\n\nMme le Chef de Service de la Scolarité Centrale\nUniversité de Mahajanga\nBP 652, Mahajanga (401)\nTél. : 034 44 889 86\n\nVous pouvez également déposer directement votre dossier auprès du service concerné.",
+                "Fill in your pre-registration file and send it by post to:\n\nMme le Chef de Service de la Scolarité Centrale\nUniversité de Mahajanga\nBP 652, Mahajanga (401)\nPhone: 034 44 889 86\n\nYou can also drop your file off directly at the relevant office.",
+                "Fenoy ny antontan-taratasy fisoratana anarana mialoha ary alefaso amin'ny paositra ho any amin'ny:\n\nMme le Chef de Service de la Scolarité Centrale\nUniversité de Mahajanga\nBP 652, Mahajanga (401)\nTél. : 034 44 889 86\n\nAzonao atao koa ny mametraka mivantana ny antontan-taratasinao any amin'ny sampan-draharaha voakasika.",
+            ],
+            'rejoindre_etape2_titre' => ['Fiche du candidat', 'Candidate form', "Taratasin'ny mpilatsaka"],
+            'rejoindre_etape2_texte' => [
+                "Remplissez soigneusement la fiche du candidat, joignez les pièces demandées, puis envoyez votre dossier en ligne pour qu'il soit examiné par l'établissement.",
+                'Carefully fill in the candidate form, attach the required documents, then submit your file online so the institution can review it.',
+                "Fenoy tsara ny taratasin'ny mpilatsaka, ampio ny antontan-taratasy takiana, avy eo alefaso an-tserasera ny antontan-taratasinao mba hodinihin'ny Oniversite.",
+            ],
+            'rejoindre_etape3_titre' => ['Inscription & validation', 'Enrollment & validation', 'Fisoratana anarana & fanamarinana'],
+            'rejoindre_etape3_texte' => [
+                "Si votre candidature est acceptée par l'établissement, procédez à votre inscription définitive en déposant les documents nécessaires.\n\nLe dépôt de votre dossier permet au service de la scolarité de vérifier et d'approuver votre compte étudiant.",
+                "If your application is accepted by the institution, complete your final enrollment by submitting the necessary documents.\n\nSubmitting your file lets the registrar's office verify and approve your student account.",
+                "Raha eken'ny Oniversite ny fangatahanao, dia ataovy ny fisoratana anarana farany amin'ny fametrahana ireo antontan-taratasy ilaina.\n\nNy fametrahan'ny antontan-taratasinao no ahafahan'ny sampan-draharaha momba ny fianarana manamarina sy manankina ny kaontinao mpianatra.",
+            ],
+            'rejoindre_etape4_titre' => ['Activation du compte', 'Account activation', 'Fampandehanana ny kaonty'],
+            'rejoindre_etape4_texte' => [
+                "Consultez votre adresse e-mail après la validation de votre dossier.\n\nVous recevrez les informations nécessaires pour créer votre propre mot de passe et accéder à la plateforme de l'établissement.",
+                "Check your e-mail once your file has been approved.\n\nYou'll receive everything you need to create your own password and access the institution's platform.",
+                "Jereo ny mailakao rehefa voamarina ny antontan-taratasinao.\n\nHandray ianao ireo fampahalalana ilaina mba hamoronana ny tenimiafinao manokana sy hidirana ao amin'ny sehatry ny Oniversite.",
+            ],
+
             'aide_inscription_titre' => [
                 "Comment s'inscrire à l'ISSTM ?",
                 'How to register at ISSTM?',
@@ -710,7 +855,7 @@ class HomeContentSeeder extends Seeder
                 'Enter your file number to check its status.',
                 "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny toerana misy azy.",
             ],
-            'suivi_banniere_image_path' => ['', '', ''],
+            'suivi_banniere_image_path' => ['images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg'],
 
             // Optional photo behind each page's navy title banner — empty by
             // default (plain navy, as every banner already looked), uploaded
@@ -959,6 +1104,7 @@ class HomeContentSeeder extends Seeder
             ],
             'parcours_direction_6_nom' => ['M. Judickael M.', 'M. Judickael M.', 'M. Judickael M.'],
             'parcours_poles_titre' => ['Pôle Pédagogique & Pôle Administratif', 'Academic & Administrative Divisions', 'Sampana Pedagojika & Sampana Fitantanana'],
+            'parcours_legende_titre' => ['Légende', 'Legend', 'Famaritana'],
             'parcours_poles_hint' => [
                 'Cliquez sur un pôle pour découvrir son équipe.',
                 'Click on a division to discover its team.',
@@ -1151,8 +1297,8 @@ class HomeContentSeeder extends Seeder
                 'Beyond academics, student life is rich in activities. Discover our sports, cultural and academic clubs to grow and develop new skills.',
                 "Ankoatry ny fianarana, be zavatra atao ny fiainan'ny mpianatra. Fantaro ireo klioba fanatanjahantena, kolontsaina ary akademika mba hivelaranao sy hampivoaranao fahaizana vaovao.",
             ],
-            'vie_etudiante_intro1_image_path' => ['images/campus/etudiant1.png', 'images/campus/etudiant1.png', 'images/campus/etudiant1.png'],
-            'vie_etudiante_intro2_image_path' => ['images/campus/etudiant2.png', 'images/campus/etudiant2.png', 'images/campus/etudiant2.png'],
+            'vie_etudiante_intro1_image_path' => ['images/diplome-etudiant.png', 'images/diplome-etudiant.png', 'images/diplome-etudiant.png'],
+            'vie_etudiante_intro2_image_path' => ['images/diplomes-groupe.png', 'images/diplomes-groupe.png', 'images/diplomes-groupe.png'],
             'vie_etudiante_campus_logo_image_path' => ['images/umg.jpg', 'images/umg.jpg', 'images/umg.jpg'],
             'vie_etudiante_campus_slide1_image_path' => ['images/portal_campus_1.jpg', 'images/portal_campus_1.jpg', 'images/portal_campus_1.jpg'],
             'vie_etudiante_campus_slide2_image_path' => ['images/portal_campus_2.jpg', 'images/portal_campus_2.jpg', 'images/portal_campus_2.jpg'],
@@ -1173,8 +1319,8 @@ class HomeContentSeeder extends Seeder
                 "ISSTM's library provides official thesis templates, alumni theses and projects, as well as the institution's entire documentary collection.",
                 "Ny tranombokin'ny ISSTM manome ny maodely fanoratana tahirin-kevitra ofisialy, ny tahirin-kevitra sy tetikasan'ny mpianatra taloha, ary ny tahiry an-tsoratra rehetra an'ny sekoly.",
             ],
-            'bibliotheque_intro_image_path' => ['images/campus/etudiant1.png', 'images/campus/etudiant1.png', 'images/campus/etudiant1.png'],
-            'bibliotheque_banniere_image_path' => ['', '', ''],
+            'bibliotheque_intro_image_path' => ['images/diplomes-groupe.png', 'images/diplomes-groupe.png', 'images/diplomes-groupe.png'],
+            'bibliotheque_banniere_image_path' => ['images/bibliotheque-salle-info.jpg', 'images/bibliotheque-salle-info.jpg', 'images/bibliotheque-salle-info.jpg'],
 
             'bibliotheque_seo_titre' => ['Bibliothèque', 'Library', 'Tranombokisa'],
             'bibliotheque_seo_description' => [
@@ -1364,6 +1510,167 @@ class HomeContentSeeder extends Seeder
             Testimonial::updateOrCreate(
                 ['author_name' => $testimonial['author_name'], 'program' => $testimonial['program']],
                 $testimonial,
+            );
+        }
+    }
+
+    /**
+     * One SiteContent row per org-chart title_key (see Components/Parcours/
+     * orgChartData.js's `roleLabels` for the French defaults these shadow) —
+     * lets a super admin correct a position's wording from the pencil on
+     * /parcours instead of editing the frontend source, in all 3 locales.
+     */
+    private function seedOrgRoleLabels(): void
+    {
+        $roles = [
+            'conseil_etablissement' => ["Conseil d'Établissement", 'Establishment Board', 'Filan-kevitry ny Andrim-pampianarana'],
+            'directeur' => ['Directeur', 'Director', "Talen'ny"],
+            'prmp' => ['PRMP', 'Procurement Officer (PRMP)', "Tompon'andraikitra amin'ny fividianam-bokatra (PRMP)"],
+            'conseil_scientifique' => ['Conseil Scientifique', 'Scientific Council', 'Filan-kevitra Siantifika'],
+            'college_enseignants' => ['Collège des Enseignants', 'Faculty Board', "Kolejin'ny Mpampianatra"],
+            'secretariat_direction' => ['Secrétariat de direction', 'Executive Secretariat', "Sekretarian'ny Talen'ny"],
+            'resp_qualite' => ["Responsable d'Assurance qualité", 'Quality Assurance Officer', "Tompon'andraikitry ny Antoky ny Kalitao"],
+            'resp_comm' => ['Responsable de la communication', 'Communications Officer', "Tompon'andraikitry ny Fifandraisana"],
+            'coordo_pedagogique' => [
+                'Coordonnateur des activités pédagogiques',
+                'Academic Programs Coordinator',
+                'Mpandrindra ny asa pedagojika',
+            ],
+            'mention_gc' => ['Mention Génie Civil', 'Civil Engineering Department', 'Sokajy Jeny Sivily'],
+            'mention_sti' => [
+                'Sciences et Technologies Industrielles (STI)',
+                'Industrial Sciences and Technologies (IST)',
+                'Siansa sy Teknolojia Indostrialy (STI)',
+            ],
+            'mention_stnpa' => [
+                'Sciences et Techniques du Numérique et Physiques Appliquées (STNPA)',
+                'Digital Sciences and Applied Physics Techniques (DSAPT)',
+                'Siansa sy Teknika Nomerika ary Fizika Ampiharina (STNPA)',
+            ],
+            'parcours_gi' => ['Parcours Génie Informatique', 'Computer Engineering Track', 'Lalana Jeny Informatika'],
+            'parcours_gb' => ['Parcours Génie Biomédical', 'Biomedical Engineering Track', 'Lalana Jeny Biomedikaly'],
+            'parcours_gei' => [
+                'Parcours Génie Électronique Informatique',
+                'Electronic & Computer Engineering Track',
+                'Lalana Jeny Elektronika Informatika',
+            ],
+            'parcours_ge' => ['Parcours Génie Électrique', 'Electrical Engineering Track', 'Lalana Jeny Elektrisite'],
+            'parcours_gind' => ['Parcours Génie Industriel', 'Industrial Engineering Track', 'Lalana Jeny Indostrialy'],
+            'parcours_gt' => ['Parcours Génie Thermique', 'Thermal Engineering Track', 'Lalana Jeny Mafana (Thermique)'],
+            'parcours_gcivil' => ['Parcours Génie Civil', 'Civil Engineering Track', 'Lalana Jeny Sivily'],
+            'parcours_ghyd' => ['Parcours Génie Hydraulique', 'Hydraulic Engineering Track', 'Lalana Jeny Hidrolika'],
+            'parcours_garchi' => ['Parcours Génie Architecture', 'Architectural Engineering Track', 'Lalana Jeny Arsitektiraly'],
+            'service_cooperation' => [
+                'Service de la coopération et du partenariat',
+                'Cooperation & Partnership Office',
+                'Sampan-draharaha momba ny fiaraha-miasa',
+            ],
+            'division_coop' => [
+                'Division Coopérations et relations extérieures',
+                'Cooperation & External Relations Division',
+                'Fizarana Fiaraha-miasa sy Fifandraisana ivelany',
+            ],
+            'division_labo' => [
+                'Division des laboratoires et ateliers',
+                'Laboratories & Workshops Division',
+                'Fizarana Laboratoara sy Atelie',
+            ],
+            'division_relations' => [
+                'Division Relations entreprises (stage & visites industrielles)',
+                'Corporate Relations Division (internships & industry visits)',
+                "Fizarana Fifandraisana amin'ny orinasa (fianarana asa & fitsidihana indostrialy)",
+            ],
+            'secretaire_principal' => ['Secrétaire principal', 'Chief Secretary', 'Sekretera Lehibe'],
+            'service_compta' => ['Service de la comptabilité', 'Accounting Office', 'Sampan-draharaha momba ny kaonty'],
+            'service_numerique' => ['Service du numérique', 'Digital Services Office', 'Sampan-draharaha Nomerika'],
+            'service_scolarite' => ['Service de la scolarité', "Registrar's Office", 'Sampan-draharaha momba ny fianarana'],
+            'secretariat_master' => [
+                'Secrétariats pédagogiques Master',
+                "Master's Program Secretariats",
+                'Sekretaria pedagojika Master',
+            ],
+            'secretariat_licence' => [
+                'Secrétariats pédagogiques Licence',
+                "Bachelor's Program Secretariats",
+                'Sekretaria pedagojika Licence',
+            ],
+            'resp_diplomes' => [
+                'Responsable des diplômes et certification',
+                'Diplomas & Certification Officer',
+                "Tompon'andraikitry ny mari-pahaizana sy fanamarinana",
+            ],
+            'service_logistique' => [
+                'Service logistique et technique',
+                'Logistics & Technical Services',
+                'Sampan-draharaha lojistika sy teknika',
+            ],
+            'division_logistique' => ['Division de la logistique', 'Logistics Division', 'Fizarana Lojistika'],
+            'division_technique' => ['Division technique', 'Technical Division', 'Fizarana Teknika'],
+            'resp_biblio' => ['Responsable bibliothèque', 'Library Officer', "Tompon'andraikitry ny tranomboky"],
+            'service_stats' => ['Service statistique et HC', 'Statistics & HC Office', 'Sampan-draharaha statistika sy HC'],
+            'agent_affaires' => [
+                'Agent des affaires des enseignants',
+                'Faculty Affairs Officer',
+                "Mpiasa misahana ny raharahan'ny mpampianatra",
+            ],
+            'resp_stats_diplomes' => [
+                'Responsable de la statistique et des relations avec les diplômés',
+                'Statistics & Alumni Relations Officer',
+                "Tompon'andraikitry ny statistika sy fifandraisana amin'ny nahazo diplaoma",
+            ],
+            'chef_de_parcours' => ['Chef de Parcours', 'Track Head', "Lehiben'ny lalana"],
+        ];
+
+        foreach ($roles as $key => [$fr, $en, $mg]) {
+            SiteContent::updateOrCreate(
+                ['content_key' => "parcours_role_{$key}"],
+                ['content_value_fr' => $fr, 'content_value_en' => $en, 'content_value_mg' => $mg],
+            );
+        }
+
+        // The legend's own category labels (see Components/Parcours/
+        // orgChartData.js's `categories`), keyed the same way.
+        $legend = [
+            'gouvernance' => ['Gouvernance', 'Governance', 'Fitantanana'],
+            'instances' => [
+                'Conseils & instances collégiales',
+                'Councils & collegial bodies',
+                'Filan-kevitra sy rafi-piaraha-midinika',
+            ],
+            'qualite' => [
+                'Qualité, achats & communication',
+                'Quality, procurement & communication',
+                'Kalitao, fividianana ary fifandraisana',
+            ],
+            'secretariats' => ['Secrétariats', 'Secretariats', 'Sekretaria'],
+            'poles' => ['Pôles (racines)', 'Divisions (roots)', 'Sampana (fototra)'],
+            'mentions' => ['Mentions', 'Departments', 'Sokajy'],
+            'servicesPole' => [
+                'Services de coordination du pôle',
+                'Division coordination services',
+                'Sampan-draharaha mandrindra ny sampana',
+            ],
+            'parcours' => [
+                'Parcours & unités pédagogiques',
+                'Tracks & academic units',
+                'Lalana sy vondrona pedagojika',
+            ],
+            'cooperation' => [
+                'Coopération, laboratoires & relations',
+                'Cooperation, labs & relations',
+                'Fiaraha-miasa, laboratoara ary fifandraisana',
+            ],
+            'administratif' => [
+                'Services administratifs & techniques',
+                'Administrative & technical services',
+                'Sampan-draharaha fitantanana sy teknika',
+            ],
+        ];
+
+        foreach ($legend as $key => [$fr, $en, $mg]) {
+            SiteContent::updateOrCreate(
+                ['content_key' => "parcours_legende_{$key}"],
+                ['content_value_fr' => $fr, 'content_value_en' => $en, 'content_value_mg' => $mg],
             );
         }
     }

@@ -1,7 +1,9 @@
 import { usePage } from '@inertiajs/react';
+import { CircleHelp } from 'lucide-react';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 import EditableButton from '../QuickEdit/EditableButton';
+import EtapesInscription from '../Rejoindre/EtapesInscription';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -11,6 +13,8 @@ import { useTranslations } from '../../lib/useTranslations';
  * Hero's centered/top-to-bottom gradient), an eyebrow, a headline and a CTA.
  * Everything here (photo, eyebrow, headline, button label) is admin-editable,
  * and the whole section can be hidden via SectionVisibility (see Home.jsx).
+ * The 4-step enrollment walkthrough sits directly below it, as one visual
+ * block — both toggle together under the same "rejoignez_nous" section.
  */
 export default function RejoignezNous() {
     const { t } = useTranslations();
@@ -18,7 +22,8 @@ export default function RejoignezNous() {
     const image = content.accueil_rejoindre_image_path ?? 'images/accueil-rejoindre.png';
 
     return (
-        <section className="relative flex h-[60vh] min-h-[420px] items-center overflow-hidden bg-isstm-navy-dark text-white">
+        <>
+            <section className="relative flex h-[60vh] min-h-[420px] items-center overflow-hidden bg-isstm-navy-dark text-white">
             <img
                 src={`/${image}`}
                 alt=""
@@ -32,6 +37,14 @@ export default function RejoignezNous() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <EditableImage contentKey="accueil_rejoindre_image_path" value={image} className="absolute top-3 right-3 z-20" />
+
+            <EditableButton
+                contentKey="accueil_rejoindre_aide_bouton"
+                href="/aide-inscription"
+                defaultLabel={t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
+                icon={CircleHelp}
+                className="absolute top-14 right-3 z-20 flex items-center gap-2 rounded-full bg-isstm-navy px-4 py-1.5 text-sm font-semibold text-white shadow-md transition hover:brightness-110"
+            />
 
             <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
                 <div className="max-w-lg">
@@ -62,6 +75,9 @@ export default function RejoignezNous() {
                     </div>
                 </div>
             </div>
-        </section>
+            </section>
+
+            <EtapesInscription />
+        </>
     );
 }
