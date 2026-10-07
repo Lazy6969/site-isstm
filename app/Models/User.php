@@ -76,10 +76,19 @@ class User extends Authenticatable implements MustVerifyEmail
      * Queued instead of the framework default — real SMTP delivery is slow
      * enough that sending it inline blocked the request that triggers it
      * (account creation, password-reset requests). See QueuedResetPassword.
+     *
+     * ->locale() captures *this* request's locale (set by SetLocale
+     * middleware from the session) onto the notification itself before it's
+     * queued. Without it, the queue worker that actually renders the e-mail
+     * later has no session to read and falls back to config('app.locale')
+     * (English) — the vendor Markdown template's @lang() calls would then
+     * render the whole e-mail in English regardless of the site's language.
+     * Correct here because this is the one notifying themselves — the
+     * current session's locale genuinely is the recipient's.
      */
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new QueuedResetPassword($token));
+        $this->notify((new QueuedResetPassword($token))->locale(app()->getLocale()));
     }
 
     /**
@@ -88,7 +97,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification(): void
     {
-        $this->notify(new QueuedVerifyEmail);
+        $this->notify((new QueuedVerifyEmail)->locale(app()->getLocale()));
     }
 
     /**
