@@ -43,6 +43,7 @@ export default function Inscription() {
                             key={video}
                             src={`/${video}`}
                             controls
+                            autoPlay
                             muted
                             playsInline
                             className="aspect-video w-full max-h-[80vh]"

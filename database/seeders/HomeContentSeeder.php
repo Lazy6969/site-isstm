@@ -115,15 +115,18 @@ class HomeContentSeeder extends Seeder
     }
 
     /**
-     * Quick-edit video slots — shared across locales like icons/images, left
-     * empty by default until a super admin uploads the real file via the
-     * pencil (see EditableVideo.jsx / Aide/Inscription.jsx).
+     * Quick-edit video slots — shared across locales like icons/images.
+     * aide_inscription_video_path defaults to the bundled tutorial at
+     * public/images/tuto.mp4 (same seed-asset convention as logo-isstm.png);
+     * a super admin can still replace it via the pencil (see EditableVideo.jsx
+     * / Aide/Inscription.jsx), which then switches it to a storage/site-content
+     * upload instead.
      */
     private function seedVideos(): void
     {
         SiteContent::updateOrCreate(
             ['content_key' => 'aide_inscription_video_path'],
-            ['type' => SiteContentType::Video, 'content_value_fr' => '', 'content_value_en' => '', 'content_value_mg' => ''],
+            ['type' => SiteContentType::Video, 'content_value_fr' => 'images/tuto.mp4', 'content_value_en' => 'images/tuto.mp4', 'content_value_mg' => 'images/tuto.mp4'],
         );
     }
 
