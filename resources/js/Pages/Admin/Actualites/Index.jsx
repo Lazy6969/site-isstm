@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { Check, ImagePlus, Newspaper, Palette, Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react';
+import { CalendarDays, Check, ImagePlus, LayoutGrid, List, Newspaper, Palette, Pencil, Plus, Search, Star, Trash2, X } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Input } from '../../../Components/ui/input';
 import { Label } from '../../../Components/ui/label';
@@ -316,6 +316,183 @@ function CardOverlay({ mode, article, onCancel }) {
     );
 }
 
+const VIEW_STORAGE_KEY = 'admin.actualites.view';
+
+function useStoredView() {
+    const [view, setViewState] = useState(() => {
+        try {
+            return localStorage.getItem(VIEW_STORAGE_KEY) === 'list' ? 'list' : 'grid';
+        } catch {
+            return 'grid';
+        }
+    });
+
+    function setView(next) {
+        setViewState(next);
+        try {
+            localStorage.setItem(VIEW_STORAGE_KEY, next);
+        } catch {
+            // storage unavailable: the choice just won't persist
+        }
+    }
+
+    return [view, setView];
+}
+
+/** Validate / reject (pending articles, publishers only), edit and delete — shared by both views. */
+function ArticleActions({ article, canPublish, onValidate, onReject, onEdit, onDelete }) {
+    const { t } = useTranslations();
+
+    return (
+        <div className="flex flex-shrink-0 gap-0.5">
+            {canPublish && article.status === 'en_attente' && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => onValidate(article)}
+                        className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-emerald-500/10 hover:text-emerald-500"
+                        aria-label={`${t('admin.actualites.validate', 'Valider')} ${article.title}`}
+                        title={t('admin.actualites.validate', 'Valider')}
+                    >
+                        <Check className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onReject(article)}
+                        className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-500"
+                        aria-label={`${t('admin.actualites.reject', 'Rejeter')} ${article.title}`}
+                        title={t('admin.actualites.reject', 'Rejeter')}
+                    >
+                        <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                </>
+            )}
+            <button
+                type="button"
+                onClick={() => onEdit(article)}
+                className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-accent/10 hover:text-admin-accent"
+                aria-label={`${t('admin.common.edit', 'Modifier')} ${article.title}`}
+                title={t('admin.common.edit', 'Modifier')}
+            >
+                <Pencil className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+                type="button"
+                onClick={() => onDelete(article)}
+                className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-500"
+                aria-label={`${t('admin.common.delete', 'Supprimer')} ${article.title}`}
+                title={t('admin.common.delete', 'Supprimer')}
+            >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+            </button>
+        </div>
+    );
+}
+
+function CategoryLabel({ category }) {
+    if (!category) return null;
+    const color = category.color || '#94a3b8';
+
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold" style={{ color, backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)` }}>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
+            {category.name_fr}
+        </span>
+    );
+}
+
+function ArticleCard({ article, statusLabel, dateText, editing, overlay, onCancelOverlay, actions }) {
+    const { t } = useTranslations();
+
+    return (
+        <li
+            className={`group admin-card relative flex flex-col overflow-hidden !p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-admin-accent/10 ${
+                editing ? '!border-admin-accent ring-2 ring-admin-accent/40' : 'hover:border-admin-accent/40'
+            }`}
+        >
+            {overlay && <CardOverlay mode={overlay.mode} article={article} onCancel={onCancelOverlay} />}
+
+            <div className="relative aspect-[16/9] overflow-hidden bg-admin-bg">
+                {article.image_path ? (
+                    <img src={`/${article.image_path}`} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-admin-accent/10 to-transparent text-admin-muted">
+                        <Newspaper className="h-10 w-10" aria-hidden="true" />
+                    </div>
+                )}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/35 to-transparent" aria-hidden="true" />
+                <span className={`absolute left-3 top-3 rounded-full border px-2.5 py-0.5 text-xs font-semibold backdrop-blur ${STATUS_TONES[article.status]}`}>{statusLabel}</span>
+                {article.is_featured && (
+                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow" title={t('admin.actualites.featured', 'Mettre en avant')}>
+                        <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+                    </span>
+                )}
+            </div>
+
+            <div className="flex flex-1 flex-col gap-2 p-4">
+                <div>
+                    <CategoryLabel category={article.category} />
+                </div>
+                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-admin-text">{article.title}</h3>
+                {article.excerpt && <p className="line-clamp-2 text-sm text-admin-text-secondary">{article.excerpt}</p>}
+                {article.status === 'rejete' && article.rejection_reason && <p className="rounded-lg bg-red-500/10 px-2.5 py-1.5 text-xs text-red-400">{article.rejection_reason}</p>}
+                <div className="mt-auto flex items-center justify-between gap-2 border-t border-admin-border/60 pt-3 text-xs text-admin-muted">
+                    <span className="flex min-w-0 items-center gap-1.5 truncate">
+                        <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                        <span className="truncate">{[article.author, dateText].filter(Boolean).join(' · ') || '—'}</span>
+                    </span>
+                    {actions}
+                </div>
+            </div>
+        </li>
+    );
+}
+
+function ArticleRow({ article, statusLabel, dateText, editing, overlay, onCancelOverlay, actions }) {
+    const { t } = useTranslations();
+
+    return (
+        <li
+            className={`group admin-card relative flex flex-wrap items-center gap-x-4 gap-y-3 overflow-hidden !p-3 transition-all duration-200 ${
+                editing ? '!border-admin-accent ring-2 ring-admin-accent/40' : 'hover:border-admin-accent/40'
+            }`}
+        >
+            {overlay && <CardOverlay mode={overlay.mode} article={article} onCancel={onCancelOverlay} />}
+
+            <div className="relative aspect-[16/10] w-28 flex-shrink-0 overflow-hidden rounded-lg bg-admin-bg sm:w-40">
+                {article.image_path ? (
+                    <img src={`/${article.image_path}`} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-admin-accent/10 to-transparent text-admin-muted">
+                        <Newspaper className="h-6 w-6" aria-hidden="true" />
+                    </div>
+                )}
+                {article.is_featured && (
+                    <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-amber-950" title={t('admin.actualites.featured', 'Mettre en avant')}>
+                        <Star className="h-3 w-3 fill-current" aria-hidden="true" />
+                    </span>
+                )}
+            </div>
+
+            <div className="min-w-0 flex-1 basis-56">
+                <div className="mb-1 flex flex-wrap items-center gap-2">
+                    <CategoryLabel category={article.category} />
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${STATUS_TONES[article.status]}`}>{statusLabel}</span>
+                </div>
+                <h3 className="line-clamp-1 text-sm font-semibold text-admin-text sm:text-base">{article.title}</h3>
+                {article.excerpt && <p className="mt-0.5 line-clamp-1 text-sm text-admin-text-secondary">{article.excerpt}</p>}
+                {article.status === 'rejete' && article.rejection_reason && <p className="mt-1 line-clamp-1 text-xs text-red-400">{article.rejection_reason}</p>}
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-admin-muted">
+                    <CalendarDays className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                    {[article.author, dateText].filter(Boolean).join(' · ') || '—'}
+                </p>
+            </div>
+
+            {actions}
+        </li>
+    );
+}
+
 export default function Index({ articles, categories }) {
     const { t, locale } = useTranslations();
     const { props } = usePage();
@@ -336,6 +513,7 @@ export default function Index({ articles, categories }) {
     const [statusFilter, setStatusFilter] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
     const [visible, setVisible] = useState(PAGE_SIZE);
+    const [view, setView] = useStoredView();
 
     useEffect(() => setVisible(PAGE_SIZE), [search, statusFilter, categoryFilter]);
 
@@ -358,6 +536,25 @@ export default function Index({ articles, categories }) {
     const shown = filtered.slice(0, visible);
     const formatDate = (value) => (value ? new Date(value).toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' }) : null);
     const chips = [['', t('admin.actualites.all', 'Tous'), articles.length], ...Object.keys(statusLabels).filter((s) => counts[s]).map((s) => [s, statusLabels[s], counts[s]])];
+
+    const itemProps = (article) => ({
+        article,
+        statusLabel: statusLabels[article.status],
+        dateText: formatDate(article.published_at),
+        editing: panel?.type === 'article' && panel.article?.id === article.id,
+        overlay: overlay?.id === article.id ? overlay : null,
+        onCancelOverlay: () => setOverlay(null),
+        actions: (
+            <ArticleActions
+                article={article}
+                canPublish={canPublish}
+                onValidate={(target) => setOverlay({ id: target.id, mode: 'approve' })}
+                onReject={(target) => setOverlay({ id: target.id, mode: 'reject' })}
+                onEdit={(target) => setPanel({ type: 'article', article: target })}
+                onDelete={(target) => setOverlay({ id: target.id, mode: 'delete' })}
+            />
+        ),
+    });
 
     return (
         <AdminLayout title={t('admin.actualites.title', 'Actualités')}>
@@ -384,6 +581,26 @@ export default function Index({ articles, categories }) {
                         </option>
                     ))}
                 </select>
+                <div className="flex h-10 items-center gap-1 rounded-lg border border-admin-border bg-admin-card p-1" role="group" aria-label={t('admin.galerie.view_mode', "Mode d'affichage")}>
+                    {[
+                        ['grid', LayoutGrid, t('admin.galerie.view_grid', 'Grille')],
+                        ['list', List, t('admin.galerie.view_list', 'Liste')],
+                    ].map(([mode, Icon, label]) => (
+                        <button
+                            key={mode}
+                            type="button"
+                            onClick={() => setView(mode)}
+                            aria-pressed={view === mode}
+                            title={label}
+                            className={`flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition ${
+                                view === mode ? 'bg-admin-accent text-admin-accent-foreground shadow-sm' : 'text-admin-text-secondary hover:bg-admin-hover'
+                            }`}
+                        >
+                            <Icon className="h-4 w-4" aria-hidden="true" />
+                            <span className="hidden sm:inline">{label}</span>
+                        </button>
+                    ))}
+                </div>
                 <button type="button" onClick={() => setPanel({ type: 'colors' })} className="flex h-10 items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 text-sm font-medium text-admin-text transition hover:bg-admin-hover">
                     <Palette className="h-4 w-4" aria-hidden="true" />
                     <span className="hidden sm:inline">{t('admin.actualites.category_colors', 'Couleurs des catégories')}</span>
@@ -400,6 +617,7 @@ export default function Index({ articles, categories }) {
                         key={value || 'all'}
                         type="button"
                         onClick={() => setStatusFilter(value)}
+                        aria-pressed={statusFilter === value}
                         className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
                             statusFilter === value
                                 ? 'border-admin-accent bg-admin-accent text-admin-accent-foreground shadow-sm shadow-admin-accent/25'
@@ -423,95 +641,19 @@ export default function Index({ articles, categories }) {
                         </div>
                     ) : (
                         <>
-                            <ul className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${panel ? 'xl:grid-cols-2' : 'xl:grid-cols-3'}`}>
-                                {shown.map((article) => {
-                                    const editingThis = panel?.type === 'article' && panel.article?.id === article.id;
-                                    const color = article.category?.color || '#94a3b8';
-                                    return (
-                                        <li
-                                            key={article.id}
-                                            className={`group admin-card relative flex flex-col overflow-hidden !p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-admin-accent/10 ${
-                                                editingThis ? '!border-admin-accent ring-2 ring-admin-accent/40' : 'hover:border-admin-accent/40'
-                                            }`}
-                                        >
-                                            {overlay?.id === article.id && <CardOverlay mode={overlay.mode} article={article} onCancel={() => setOverlay(null)} />}
-
-                                            <div className="relative aspect-[16/9] overflow-hidden bg-admin-bg">
-                                                {article.image_path ? (
-                                                    <img src={`/${article.image_path}`} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                                ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-admin-muted">
-                                                        <Newspaper className="h-10 w-10" aria-hidden="true" />
-                                                    </div>
-                                                )}
-                                                <span className={`absolute left-3 top-3 rounded-full border px-2.5 py-0.5 text-xs font-semibold backdrop-blur ${STATUS_TONES[article.status]}`}>
-                                                    {statusLabels[article.status]}
-                                                </span>
-                                                {article.is_featured && (
-                                                    <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-amber-950" title={t('admin.actualites.featured', 'Mettre en avant')}>
-                                                        <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="flex flex-1 flex-col gap-2 p-4">
-                                                {article.category && (
-                                                    <span className="flex items-center gap-1.5 text-xs font-semibold" style={{ color }}>
-                                                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} aria-hidden="true" />
-                                                        {article.category.name_fr}
-                                                    </span>
-                                                )}
-                                                <h3 className="line-clamp-2 text-base font-semibold leading-snug text-admin-text">{article.title}</h3>
-                                                {article.excerpt && <p className="line-clamp-2 text-sm text-admin-text-secondary">{article.excerpt}</p>}
-                                                {article.status === 'rejete' && article.rejection_reason && (
-                                                    <p className="rounded-lg bg-red-500/10 px-2.5 py-1.5 text-xs text-red-400">{article.rejection_reason}</p>
-                                                )}
-                                                <div className="mt-auto flex items-center justify-between gap-2 pt-2 text-xs text-admin-muted">
-                                                    <span className="truncate">{[article.author, formatDate(article.published_at)].filter(Boolean).join(' · ') || '—'}</span>
-                                                    <div className="flex flex-shrink-0 gap-0.5">
-                                                        {canPublish && article.status === 'en_attente' && (
-                                                            <>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => setOverlay({ id: article.id, mode: 'approve' })}
-                                                                    className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-emerald-500/10 hover:text-emerald-500"
-                                                                    aria-label={`${t('admin.actualites.validate', 'Valider')} ${article.title}`}
-                                                                >
-                                                                    <Check className="h-4 w-4" aria-hidden="true" />
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => setOverlay({ id: article.id, mode: 'reject' })}
-                                                                    className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-500"
-                                                                    aria-label={`${t('admin.actualites.reject', 'Rejeter')} ${article.title}`}
-                                                                >
-                                                                    <X className="h-4 w-4" aria-hidden="true" />
-                                                                </button>
-                                                            </>
-                                                        )}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setPanel({ type: 'article', article })}
-                                                            className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-accent"
-                                                            aria-label={`${t('admin.common.edit', 'Modifier')} ${article.title}`}
-                                                        >
-                                                            <Pencil className="h-4 w-4" aria-hidden="true" />
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setOverlay({ id: article.id, mode: 'delete' })}
-                                                            className="rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-500"
-                                                            aria-label={`${t('admin.common.delete', 'Supprimer')} ${article.title}`}
-                                                        >
-                                                            <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                            {view === 'grid' ? (
+                                <ul className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${panel ? 'xl:grid-cols-2' : 'xl:grid-cols-3'}`}>
+                                    {shown.map((article) => (
+                                        <ArticleCard key={article.id} {...itemProps(article)} />
+                                    ))}
+                                </ul>
+                            ) : (
+                                <ul className="space-y-3">
+                                    {shown.map((article) => (
+                                        <ArticleRow key={article.id} {...itemProps(article)} />
+                                    ))}
+                                </ul>
+                            )}
 
                             {filtered.length > visible && (
                                 <div className="mt-5 flex justify-center">

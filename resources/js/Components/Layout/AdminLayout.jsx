@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Head } from '@inertiajs/react';
 import AdminSidebar from '../Admin/AdminSidebar';
 import AdminHeader from '../Admin/AdminHeader';
-import AdminFooter from '../Admin/AdminFooter';
 import BackToTop from '../Admin/BackToTop';
 import { Sheet, SheetContent } from '../ui/sheet';
 import { TooltipProvider } from '../ui/tooltip';
@@ -77,8 +76,6 @@ export default function AdminLayout({ children, title, actions, showTitle = true
                         )}
                         {children}
                     </main>
-
-                    <AdminFooter />
                 </div>
             </div>
             <BackToTop />

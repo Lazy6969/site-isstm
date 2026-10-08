@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Link, router, useForm } from '@inertiajs/react';
+import { ArrowUpRight, Plus, Pencil, Search, Trash2, Users } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
+import { Badge } from '../../../../Components/ui/badge';
 import { Button } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
 import { Label } from '../../../../Components/ui/label';
@@ -12,7 +13,178 @@ import { useTranslations } from '../../../../lib/useTranslations';
 
 const emptyForm = { nom: '', filiere_id: '', niveau: '', annee: '', effectif_max: '' };
 
-export default function Index({ classes, filieres }) {
+const NIVEAU_ORDER = ['L1', 'L2', 'L3', 'M1', 'M2'];
+const NONE = '__none__';
+
+const preinscritStatutLabels = {
+    en_attente: ['admin.classes.statut_soumis', 'Soumis'],
+    en_cours_examen: ['admin.classes.statut_examen', "En cours d'examen"],
+    a_completer: ['admin.classes.statut_completer', 'À compléter'],
+};
+
+function niveauSort(a, b) {
+    const rank = (value) => (NIVEAU_ORDER.includes(value) ? NIVEAU_ORDER.indexOf(value) : NIVEAU_ORDER.length);
+    return rank(a) - rank(b) || a.localeCompare(b);
+}
+
+/**
+ * Everyone who belongs to a niveau — enrolled students and candidates whose
+ * pré-inscription is still in progress — filterable by niveau and by kind, so
+ * the two groups stay easy to tell apart.
+ */
+function MembresPanel({ membres }) {
+    const { t } = useTranslations();
+    const [niveau, setNiveau] = useState('');
+    const [type, setType] = useState('');
+    const [search, setSearch] = useState('');
+
+    const niveaux = [...new Set(membres.map((membre) => membre.niveau).filter(Boolean))].sort(niveauSort);
+    const hasUndefined = membres.some((membre) => !membre.niveau);
+    const countFor = (value) => membres.filter((membre) => (value === NONE ? !membre.niveau : membre.niveau === value)).length;
+
+    const term = search.trim().toLowerCase();
+    const rows = membres.filter((membre) => {
+        if (niveau === NONE ? membre.niveau : niveau && membre.niveau !== niveau) return false;
+        if (type && membre.type !== type) return false;
+        if (!term) return true;
+        return [membre.nom, membre.email, membre.reference, membre.filiere].some((field) => (field ?? '').toLowerCase().includes(term));
+    });
+
+    const niveauChips = [['', t('admin.classes.tous', 'Tous'), membres.length], ...niveaux.map((value) => [value, value, countFor(value)]), ...(hasUndefined ? [[NONE, t('admin.classes.niveau_indefini', 'Non défini'), countFor(NONE)]] : [])];
+    const typeOptions = [
+        ['', t('admin.classes.tous', 'Tous')],
+        ['etudiant', t('admin.classes.type_etudiants', 'Étudiants')],
+        ['preinscrit', t('admin.classes.type_preinscrits', 'Préinscrits')],
+    ];
+
+    return (
+        <section className="mt-8">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <h2 className="flex items-center gap-2 text-base font-semibold text-admin-text">
+                        <Users className="h-4 w-4 text-admin-accent" aria-hidden="true" />
+                        {t('admin.classes.membres_title', 'Inscrits par niveau')}
+                    </h2>
+                    <p className="text-sm text-admin-text-secondary">
+                        {t('admin.classes.membres_subtitle', 'Étudiants validés et candidats préinscrits, filtrables par niveau.')}
+                    </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative">
+                        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={t('admin.classes.rechercher', 'Rechercher...')}
+                            className="h-10 w-56 rounded-lg border border-admin-border bg-admin-card pl-9 pr-3 text-sm text-admin-text outline-none placeholder:text-admin-muted focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                        />
+                    </div>
+                    <div className="flex h-10 items-center gap-1 rounded-lg border border-admin-border bg-admin-card p-1" role="group" aria-label={t('admin.classes.filtre_type', 'Filtrer par type')}>
+                        {typeOptions.map(([value, label]) => (
+                            <button
+                                key={value || 'all'}
+                                type="button"
+                                onClick={() => setType(value)}
+                                aria-pressed={type === value}
+                                className={`h-8 rounded-md px-2.5 text-xs font-medium transition ${
+                                    type === value ? 'bg-admin-accent text-admin-accent-foreground shadow-sm' : 'text-admin-text-secondary hover:bg-admin-hover'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={t('admin.classes.niveau', 'Niveau')}>
+                {niveauChips.map(([value, label, count]) => (
+                    <button
+                        key={value || 'all'}
+                        type="button"
+                        onClick={() => setNiveau(value)}
+                        aria-pressed={niveau === value}
+                        className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${
+                            niveau === value
+                                ? 'border-admin-accent bg-admin-accent text-admin-accent-foreground shadow-sm shadow-admin-accent/25'
+                                : 'border-admin-border bg-admin-card text-admin-text-secondary hover:border-admin-accent/50 hover:text-admin-text'
+                        }`}
+                    >
+                        {label}
+                        <span className={`rounded-full px-1.5 text-xs ${niveau === value ? 'bg-white/20' : 'bg-admin-hover text-admin-muted'}`}>{count}</span>
+                    </button>
+                ))}
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>{t('admin.common.name', 'Nom')}</TableHead>
+                            <TableHead>{t('admin.classes.filiere', 'Filière')}</TableHead>
+                            <TableHead>{t('admin.classes.niveau', 'Niveau')}</TableHead>
+                            <TableHead>{t('admin.classes.col_type', 'Type')}</TableHead>
+                            <TableHead>{t('admin.classes.col_reference', 'Matricule / dossier')}</TableHead>
+                            <TableHead className="text-right">
+                                <span className="sr-only">{t('admin.common.actions', 'Actions')}</span>
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {rows.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
+                                    {t('admin.classes.membres_empty', 'Personne dans ce niveau pour le moment.')}
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {rows.map((membre) => (
+                            <TableRow key={membre.key}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-admin-hover text-xs font-semibold text-admin-text">
+                                            {membre.nom?.[0]?.toUpperCase()}
+                                        </span>
+                                        <div className="min-w-0">
+                                            <p className="truncate font-medium text-admin-text">{membre.nom}</p>
+                                            {membre.email && <p className="truncate text-xs text-admin-muted">{membre.email}</p>}
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{membre.filiere ?? '—'}</TableCell>
+                                <TableCell>{membre.niveau ? <Badge variant="outline">{membre.niveau}</Badge> : '—'}</TableCell>
+                                <TableCell>
+                                    {membre.type === 'etudiant' ? (
+                                        <Badge variant="success">{t('admin.classes.type_etudiant', 'Étudiant')}</Badge>
+                                    ) : (
+                                        <div className="flex flex-col items-start gap-0.5">
+                                            <Badge variant="warning">{t('admin.classes.type_preinscrit', 'Préinscrit')}</Badge>
+                                            {preinscritStatutLabels[membre.statut] && (
+                                                <span className="text-xs text-admin-muted">{t(...preinscritStatutLabels[membre.statut])}</span>
+                                            )}
+                                        </div>
+                                    )}
+                                </TableCell>
+                                <TableCell className="tabular-nums text-admin-text-secondary">{membre.reference ?? '—'}</TableCell>
+                                <TableCell className="text-right">
+                                    <Link
+                                        href={membre.href}
+                                        className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-accent"
+                                        aria-label={`${t('admin.classes.voir_dossier', 'Voir le dossier')} ${membre.nom}`}
+                                    >
+                                        <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                                    </Link>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </section>
+    );
+}
+
+export default function Index({ classes, filieres, membres = [] }) {
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -55,7 +227,7 @@ export default function Index({ classes, filieres }) {
     }
 
     return (
-        <AdminLayout title={t('admin.classes.title', 'Classes')}>
+        <AdminLayout title={t('admin.classes.title', 'Niveaux')}>
             <div className="mb-5 flex items-center justify-between">
                 <p className="text-sm text-admin-text-secondary">
                     {classes.length} {t('admin.classes.count_suffix', 'classe(s)')}
@@ -119,6 +291,8 @@ export default function Index({ classes, filieres }) {
                     </TableBody>
                 </Table>
             </div>
+
+            <MembresPanel membres={membres} />
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>

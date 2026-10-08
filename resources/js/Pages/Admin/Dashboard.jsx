@@ -31,6 +31,7 @@ import StatCard from '../../Components/Admin/StatCard';
 import ChartCard from '../../Components/Admin/ChartCard';
 import ActivityList from '../../Components/Admin/ActivityList';
 import StudentDistribution from '../../Components/Admin/StudentDistribution';
+import PendingQueue from '../../Components/Admin/PendingQueue';
 import { Tabs, TabsList, TabsTrigger } from '../../Components/ui/tabs';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -134,6 +135,7 @@ export default function Dashboard({
     etudiantsParFiliere,
     activiteRecente,
     dossiersParType = [],
+    aTraiter = [],
 }) {
     const { t } = useTranslations();
     const permissions = usePage().props.auth?.permissions ?? [];
@@ -344,6 +346,8 @@ export default function Dashboard({
                             ))}
                         </div>
                     </ChartCard>
+
+                    <PendingQueue queues={aTraiter.filter((queue) => can(queue.permission))} />
                 </div>
             </div>
         </AdminLayout>

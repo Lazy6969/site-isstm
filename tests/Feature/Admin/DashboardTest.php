@@ -8,11 +8,13 @@ use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
+use App\Models\ReactivationRequest;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use App\Models\User;
 use App\NewsStatus;
 use App\PreinscriptionStatus;
+use App\ReactivationStatus;
 use App\Role;
 use App\StatutInscription;
 
@@ -102,5 +104,39 @@ it('aggregates chart and activity data for an admin', function () {
         ->where('activiteRecente.0.type', 'preinscription')
         ->where('activiteRecente.1.type', 'etudiant')
         ->where('activiteRecente.1.subject', $etudiant->user->name)
+    );
+});
+
+it('counts what is waiting for a decision in each queue', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    Candidat::factory()->create(['status' => PreinscriptionStatus::Soumis]);
+    Candidat::factory()->create(['status' => PreinscriptionStatus::EnExamen]);
+    Candidat::factory()->create(['status' => PreinscriptionStatus::Brouillon]);
+    Candidat::factory()->create(['status' => PreinscriptionStatus::Accepte]);
+    Inscription::factory()->create(['type' => 'reinscription', 'statut' => StatutInscription::EnAttente]);
+    Inscription::factory()->create(['type' => 'reinscription', 'statut' => StatutInscription::Validee]);
+    ReactivationRequest::factory()->create(['status' => ReactivationStatus::EnAttente]);
+    ReactivationRequest::factory()->create(['status' => ReactivationStatus::Refusee]);
+    NewsArticle::factory()->create(['status' => NewsStatus::EnAttente]);
+    NewsArticle::factory()->create(['status' => NewsStatus::Publie]);
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->has('aTraiter', 4)
+        ->where('aTraiter.0', ['key' => 'preinscriptions', 'count' => 2, 'href' => '/console/preinscriptions', 'permission' => 'preinscriptions.manage'])
+        ->where('aTraiter.1.count', 1)
+        ->where('aTraiter.2.count', 1)
+        ->where('aTraiter.3.count', 1)
+    );
+});
+
+it('reports empty queues as zero rather than hiding them', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->where('aTraiter.0.count', 0)
+        ->where('aTraiter.1.count', 0)
+        ->where('aTraiter.2.count', 0)
+        ->where('aTraiter.3.count', 0)
     );
 });

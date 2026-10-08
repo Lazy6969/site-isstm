@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Candidat;
+use App\Models\Classe;
 use App\Models\Etudiant;
 use App\Notifications\PreinscriptionAccepted;
 use App\Notifications\PreinscriptionCorrectionRequested;
@@ -140,9 +141,17 @@ class PreinscriptionController extends Controller
 
         $matricule = Etudiant::generateMatricule();
 
+        // The niveau the candidate chose in the form (filière + level) becomes
+        // the student's class, so the dossier and the Niveaux page show it from
+        // the moment the dossier is accepted.
+        $classe = $preinscription->filiere_id !== null && $preinscription->niveau !== null
+            ? Classe::forNiveau($preinscription->filiere_id, $preinscription->niveau)
+            : null;
+
         Etudiant::create([
             'user_id' => $user->id,
             'candidat_id' => $preinscription->id,
+            'classe_id' => $classe?->id,
             'matricule' => $matricule,
             'statut' => StatutEtudiant::Actif,
             // Copied from the candidate's dossier so the étudiant record is

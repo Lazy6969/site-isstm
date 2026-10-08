@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Candidat;
 use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Models\Filiere;
 use App\Models\Inscription;
 use App\Models\User;
 use App\Role;
@@ -107,4 +109,137 @@ it('forbids a non-admin from deleting a dossier étudiant', function () {
     $this->actingAs($other)->delete("/console/scolarite/etudiants/{$etudiant->id}")->assertForbidden();
 
     expect(Etudiant::find($etudiant->id))->not->toBeNull();
+});
+
+/**
+ * Reads the rows of an exported workbook back as plain arrays of strings.
+ *
+ * @return array<int, array<int, string>>
+ */
+function exportedRows($response): array
+{
+    $zip = new ZipArchive;
+    expect($zip->open($response->baseResponse->getFile()->getPathname()))->toBeTrue();
+
+    foreach (['[Content_Types].xml', '_rels/.rels', 'xl/workbook.xml', 'xl/_rels/workbook.xml.rels', 'xl/styles.xml', 'xl/worksheets/sheet1.xml'] as $part) {
+        expect(simplexml_load_string($zip->getFromName($part)))->not->toBeFalse();
+    }
+
+    $sheet = new DOMDocument;
+    $sheet->loadXML($zip->getFromName('xl/worksheets/sheet1.xml'));
+    $zip->close();
+
+    $rows = [];
+    foreach ($sheet->getElementsByTagName('row') as $row) {
+        $rows[] = array_map(fn (DOMElement $cell) => $cell->textContent, iterator_to_array($row->getElementsByTagName('c')));
+    }
+
+    return $rows;
+}
+
+it('filters the student list by filière and niveau', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $info = Filiere::factory()->create(['nom_fr' => 'Informatique']);
+    $civil = Filiere::factory()->create(['nom_fr' => 'Génie civil']);
+    $infoL1 = Etudiant::factory()->create(['classe_id' => Classe::factory()->create(['filiere_id' => $info->id, 'niveau' => 'L1'])->id, 'matricule' => 'A-INFO-L1']);
+    Etudiant::factory()->create(['classe_id' => Classe::factory()->create(['filiere_id' => $info->id, 'niveau' => 'L2'])->id, 'matricule' => 'B-INFO-L2']);
+    Etudiant::factory()->create(['classe_id' => Classe::factory()->create(['filiere_id' => $civil->id, 'niveau' => 'L1'])->id, 'matricule' => 'C-CIVIL-L1']);
+
+    $this->actingAs($admin)->get("/console/scolarite/etudiants?filiere_id={$info->id}&niveau=L1")->assertInertia(fn ($page) => $page
+        ->component('Admin/Scolarite/Etudiants/Index')
+        ->has('etudiants', 1)
+        ->where('etudiants.0.matricule', $infoL1->matricule)
+        ->where('etudiants.0.filiere_nom', 'Informatique')
+        ->where('etudiants.0.niveau_code', 'L1')
+        ->where('filters.niveau', 'L1')
+        ->has('filieres', 2)
+        ->where('niveaux', ['L1', 'L2'])
+    );
+});
+
+it('falls back to the pre-registration niveau for a student without a class', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $filiere = Filiere::factory()->create(['nom_fr' => 'Informatique']);
+    $candidat = Candidat::factory()->create(['filiere_id' => $filiere->id, 'niveau' => 'M1']);
+    $etudiant = Etudiant::factory()->create(['candidat_id' => $candidat->id, 'classe_id' => null]);
+    Etudiant::factory()->create();
+
+    $this->actingAs($admin)->get("/console/scolarite/etudiants?filiere_id={$filiere->id}&niveau=M1")->assertInertia(fn ($page) => $page
+        ->has('etudiants', 1)
+        ->where('etudiants.0.id', $etudiant->id)
+        ->where('etudiants.0.niveau_code', 'M1')
+    );
+});
+
+it('searches students by name, matricule or e-mail and filters by statut', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $found = Etudiant::factory()->create(['user_id' => User::factory()->role(Role::Etudiant)->create(['name' => 'Rakoto Jean'])->id]);
+    Etudiant::factory()->create(['user_id' => User::factory()->role(Role::Etudiant)->create(['name' => 'Rabe Marie'])->id, 'statut' => StatutEtudiant::Diplome]);
+
+    $this->actingAs($admin)->get('/console/scolarite/etudiants?q=rakoto')->assertInertia(fn ($page) => $page
+        ->has('etudiants', 1)->where('etudiants.0.id', $found->id));
+    $this->actingAs($admin)->get('/console/scolarite/etudiants?statut=diplome')->assertInertia(fn ($page) => $page
+        ->has('etudiants', 1)->where('etudiants.0.statut', 'diplome'));
+});
+
+it('rejects an unknown filière or statut in the filters', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->get('/console/scolarite/etudiants?filiere_id=999999')->assertSessionHasErrors('filiere_id');
+    $this->actingAs($admin)->get('/console/scolarite/etudiants/export?statut=nimporte')->assertSessionHasErrors('statut');
+});
+
+it('exports the filtered students as an Excel workbook', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $filiere = Filiere::factory()->create(['code' => 'GI', 'nom_fr' => 'Génie Informatique']);
+    $classe = Classe::factory()->create(['filiere_id' => $filiere->id, 'niveau' => 'L2', 'annee' => '2026']);
+    $kept = Etudiant::factory()->create([
+        'user_id' => User::factory()->role(Role::Etudiant)->create(['name' => 'Rakoto Jean', 'email' => 'jean@example.test'])->id,
+        'classe_id' => $classe->id,
+        'matricule' => 'ISSTM-2026-00007',
+        'nom' => 'RAKOTO & Fils <test>',
+        'prenoms' => 'Jean',
+        'telephone' => '0340000000',
+        'sexe' => 'M',
+        'date_naissance' => '2004-05-10',
+    ]);
+    Etudiant::factory()->create(['classe_id' => Classe::factory()->create(['niveau' => 'L1'])->id, 'matricule' => 'ISSTM-2026-00099']);
+
+    $response = $this->actingAs($admin)->get("/console/scolarite/etudiants/export?filiere_id={$filiere->id}&niveau=L2");
+
+    $response->assertOk()
+        ->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        ->assertDownload('etudiants_GI_L2_'.now()->format('Y-m-d').'.xlsx');
+
+    $rows = exportedRows($response);
+
+    expect($rows)->toHaveCount(2)
+        ->and($rows[0][0])->toBe('Matricule')
+        ->and($rows[0])->toContain('Filière', 'Niveau', 'Statut')
+        ->and($rows[1][0])->toBe('ISSTM-2026-00007')
+        ->and($rows[1][1])->toBe('RAKOTO & Fils <test>')
+        ->and($rows[1][2])->toBe('Jean')
+        ->and($rows[1][5])->toBe('10/05/2004')
+        ->and($rows[1][9])->toBe('0340000000')
+        ->and($rows[1][10])->toBe('jean@example.test')
+        ->and($rows[1][13])->toBe('Génie Informatique')
+        ->and($rows[1][14])->toBe('L2')
+        ->and($rows[1][15])->toBe('2026')
+        ->and($rows[1][16])->toBe('Actif');
+});
+
+it('exports every student when no filter is set', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Etudiant::factory()->count(3)->create();
+
+    $response = $this->actingAs($admin)->get('/console/scolarite/etudiants/export');
+
+    $response->assertOk()->assertDownload('etudiants_'.now()->format('Y-m-d').'.xlsx');
+    expect(exportedRows($response))->toHaveCount(4);
+});
+
+it('forbids a non-admin from exporting students', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($etudiant)->get('/console/scolarite/etudiants/export')->assertForbidden();
 });

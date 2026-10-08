@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Archive, BarChart3, FileEdit, FileText, Globe, LayoutDashboard, Mail, MapPin, Palette, Phone } from 'lucide-react';
+import { Archive, ArrowUpRight, BarChart3, FileEdit, FileText, Globe, LayoutDashboard, Mail, MapPin, Palette, Phone } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 
 const SOCIALS = [
@@ -11,10 +11,11 @@ const SOCIALS = [
 ];
 
 /**
- * Footer shown at the bottom of every admin page: identity, contact details
- * (from the site's own editable content), shortcuts limited to what the
- * account may open, and the copyright line. Uses the admin theme tokens, so it
- * follows light / dark and the chosen accent.
+ * Footer shown at the bottom of every admin page: identity and social links,
+ * shortcuts limited to what the account may open, contact details (from the
+ * site's own editable content) and a bottom bar with the copyright and the
+ * signed-in account. Uses the admin theme tokens, so it follows light / dark
+ * and the chosen accent.
  */
 export default function AdminFooter() {
     const { t } = useTranslations();
@@ -22,6 +23,7 @@ export default function AdminFooter() {
     const permissions = auth?.permissions ?? [];
     const user = auth?.user;
     const year = new Date().getFullYear();
+    const initial = (user?.name ?? '?').trim().charAt(0).toUpperCase();
 
     const shortcuts = [
         ['/console/dashboard', LayoutDashboard, t('admin.nav.dashboard', 'Tableau de bord'), 'dashboard.view'],
@@ -34,82 +36,126 @@ export default function AdminFooter() {
 
     const socials = SOCIALS.filter(([key]) => content?.[key]);
     const contacts = [
-        [Phone, content?.contact_telephone, content?.contact_telephone ? `tel:${content.contact_telephone.replace(/[^0-9+]/g, '')}` : null],
-        [Mail, content?.contact_email, content?.contact_email ? `mailto:${content.contact_email}` : null],
-        [MapPin, content?.contact_adresse, null],
-    ].filter(([, value]) => value);
+        [Phone, t('admin.footer.phone', 'Téléphone'), content?.contact_telephone, content?.contact_telephone ? `tel:${content.contact_telephone.replace(/[^0-9+]/g, '')}` : null],
+        [Mail, t('admin.footer.email', 'E-mail'), content?.contact_email, content?.contact_email ? `mailto:${content.contact_email}` : null],
+        [MapPin, t('admin.footer.address', 'Adresse'), content?.contact_adresse, null],
+    ].filter(([, , value]) => value);
+
+    const linkClass = 'group flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text';
+    const iconTile = 'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-admin-accent/10 text-admin-accent transition group-hover:bg-admin-accent group-hover:text-admin-accent-foreground';
 
     return (
-        <footer className="mt-10 border-t border-admin-border bg-admin-card/70 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
-            <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center">
-                <div className="flex items-center gap-3">
-                    <img src="/images/logo-isstm.svg" alt="" className="h-11 w-11 rounded-lg bg-white object-contain p-1 shadow-sm" />
-                    <div className="text-left">
-                        <p className="text-base font-bold leading-tight tracking-wide text-admin-text">ISSTM</p>
-                        <p className="text-sm leading-tight text-admin-text-secondary">{t('admin.footer.tagline', "Administration de l'Institut Supérieur des Sciences et Techniques de Mahajanga")}</p>
-                    </div>
-                </div>
+        <footer className="px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-2xl border border-admin-border bg-admin-card/80 shadow-sm backdrop-blur-sm">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-admin-accent to-transparent" aria-hidden="true" />
+                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-admin-accent/10 blur-3xl" aria-hidden="true" />
 
-                {socials.length > 0 && (
-                    <ul className="flex flex-wrap justify-center gap-2.5">
-                        {socials.map(([key, label, path]) => (
-                            <li key={key}>
-                                <a
-                                    href={content[key]}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={label}
-                                    title={label}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-admin-border bg-admin-bg/40 text-admin-text transition hover:-translate-y-0.5 hover:border-admin-accent/60 hover:bg-admin-accent hover:text-admin-accent-foreground hover:shadow-md hover:shadow-admin-accent/25"
-                                >
-                                    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current" aria-hidden="true">
-                                        <path d={path} />
-                                    </svg>
+                <div className="relative grid gap-8 p-6 sm:p-8 md:grid-cols-[1.25fr_1fr_1.15fr]">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <img src="/images/logo-isstm.svg" alt="" className="h-12 w-12 rounded-xl bg-white object-contain p-1.5 shadow-sm ring-1 ring-black/5" />
+                            <div>
+                                <p className="text-lg font-bold leading-tight tracking-wide text-admin-text">ISSTM</p>
+                                <p className="text-xs font-medium uppercase tracking-wider text-admin-accent">{t('admin.footer.console', 'Console d’administration')}</p>
+                            </div>
+                        </div>
+                        <p className="max-w-sm text-sm leading-relaxed text-admin-text-secondary">
+                            {t('admin.footer.tagline', "Administration de l'Institut Supérieur des Sciences et Techniques de Mahajanga")}
+                        </p>
+                        {socials.length > 0 && (
+                            <ul className="flex flex-wrap gap-2">
+                                {socials.map(([key, label, path]) => (
+                                    <li key={key}>
+                                        <a
+                                            href={content[key]}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={label}
+                                            title={label}
+                                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-admin-border bg-admin-bg/40 text-admin-text-secondary transition hover:-translate-y-0.5 hover:border-admin-accent/60 hover:bg-admin-accent hover:text-admin-accent-foreground hover:shadow-md hover:shadow-admin-accent/25"
+                                        >
+                                            <svg viewBox="0 0 24 24" className="h-[17px] w-[17px] fill-current" aria-hidden="true">
+                                                <path d={path} />
+                                            </svg>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    <nav aria-label={t('admin.footer.shortcuts', 'Raccourcis')}>
+                        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-muted">{t('admin.footer.shortcuts', 'Raccourcis')}</h2>
+                        <ul className="grid grid-cols-1 gap-0.5 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+                            {shortcuts.map(([href, Icon, label]) => (
+                                <li key={href}>
+                                    <Link href={href} className={linkClass}>
+                                        <span className={iconTile}>
+                                            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </span>
+                                        <span className="truncate">{label}</span>
+                                    </Link>
+                                </li>
+                            ))}
+                            <li>
+                                <a href="/" target="isstm-site-preview" rel="noopener noreferrer" className={linkClass}>
+                                    <span className={iconTile}>
+                                        <Globe className="h-3.5 w-3.5" aria-hidden="true" />
+                                    </span>
+                                    <span className="truncate">{t('admin.header.view_site', 'Voir le site')}</span>
+                                    <ArrowUpRight className="ml-auto h-3.5 w-3.5 flex-shrink-0 opacity-0 transition group-hover:opacity-100" aria-hidden="true" />
                                 </a>
                             </li>
-                        ))}
-                    </ul>
-                )}
+                        </ul>
+                    </nav>
 
-                {contacts.length > 0 && (
-                    <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1.5 text-sm text-admin-text-secondary">
-                        {contacts.map(([Icon, value, href]) => (
-                            <li key={value} className="flex items-center gap-2">
-                                <Icon className="h-4 w-4 flex-shrink-0 text-admin-muted" aria-hidden="true" />
-                                {href ? (
-                                    <a href={href} className="transition hover:text-admin-accent">
-                                        {value}
-                                    </a>
-                                ) : (
-                                    <span>{value}</span>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                    {contacts.length > 0 && (
+                        <div>
+                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-admin-muted">{t('admin.footer.contact', 'Contact')}</h2>
+                            <ul className="space-y-2">
+                                {contacts.map(([Icon, label, value, href]) => {
+                                    const body = (
+                                        <>
+                                            <span className={iconTile}>
+                                                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                                            </span>
+                                            <span className="min-w-0">
+                                                <span className="block text-[0.65rem] font-semibold uppercase tracking-wider text-admin-muted">{label}</span>
+                                                <span className="block break-words text-sm text-admin-text">{value}</span>
+                                            </span>
+                                        </>
+                                    );
 
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-admin-border to-transparent" aria-hidden="true" />
+                                    return (
+                                        <li key={label}>
+                                            {href ? (
+                                                <a href={href} className="group flex items-center gap-3 rounded-xl border border-admin-border/70 bg-admin-bg/30 px-3 py-2 transition hover:border-admin-accent/50 hover:bg-admin-hover">
+                                                    {body}
+                                                </a>
+                                            ) : (
+                                                <div className="group flex items-center gap-3 rounded-xl border border-admin-border/70 bg-admin-bg/30 px-3 py-2">{body}</div>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    )}
+                </div>
 
-                <nav aria-label={t('admin.footer.shortcuts', 'Raccourcis')} className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm">
-                    {shortcuts.map(([href, Icon, label]) => (
-                        <Link key={href} href={href} className="flex items-center gap-1.5 text-admin-text-secondary transition hover:text-admin-accent">
-                            <Icon className="h-4 w-4" aria-hidden="true" />
-                            {label}
-                        </Link>
-                    ))}
-                    <a href="/" target="isstm-site-preview" rel="noopener noreferrer" className="flex items-center gap-1.5 text-admin-text-secondary transition hover:text-admin-accent">
-                        <Globe className="h-4 w-4" aria-hidden="true" />
-                        {t('admin.header.view_site', 'Voir le site')}
-                    </a>
-                </nav>
-
-                <div className="space-y-0.5 text-sm">
+                <div className="relative flex flex-wrap items-center justify-between gap-3 border-t border-admin-border/70 bg-admin-bg/30 px-6 py-3.5 text-xs sm:px-8">
                     <p className="text-admin-text-secondary">
                         © {year} <span className="font-semibold text-admin-text">ISSTM</span>. {t('admin.footer.rights', 'Tous droits réservés.')}
                     </p>
                     {user && (
-                        <p className="text-xs text-admin-muted">
-                            {t('admin.footer.signed_in_as', 'Connecté en tant que')} <span className="font-medium text-admin-text-secondary">{user.name}</span>
+                        <p className="flex items-center gap-2 rounded-full border border-admin-border bg-admin-card py-1 pl-1 pr-3 text-admin-muted">
+                            <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-admin-accent text-[0.7rem] font-bold text-admin-accent-foreground">
+                                {initial}
+                                <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full border border-admin-card bg-emerald-500" aria-hidden="true" />
+                            </span>
+                            <span>
+                                {t('admin.footer.signed_in_as', 'Connecté en tant que')} <span className="font-medium text-admin-text">{user.name}</span>
+                            </span>
                         </p>
                     )}
                 </div>

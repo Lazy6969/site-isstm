@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\StatutEtudiant;
 use Database\Factories\EtudiantFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -72,6 +73,37 @@ class Etudiant extends Model
      * repart de 1 chaque année. Léger risque de collision sous approbations
      * concurrentes, accepté vu le volume (validation manuelle, un clic à la fois).
      */
+    /**
+     * The list and the Excel export share these filters so they always return
+     * the same students. A student's filière and niveau are those of their
+     * class; before one is set they fall back to what the pré-inscription asked
+     * for, so nobody drops out of a filter just because no class was assigned.
+     *
+     * @param  Builder<Etudiant>  $query
+     */
+    public function scopeFilter(Builder $query, ?int $filiereId = null, ?string $niveau = null, ?string $statut = null, ?string $search = null): void
+    {
+        $query
+            ->when($filiereId, fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->whereHas('classe', fn (Builder $classe) => $classe->where('filiere_id', $filiereId))
+                ->orWhere(fn (Builder $query) => $query->whereNull('classe_id')
+                    ->whereHas('candidat', fn (Builder $candidat) => $candidat->where('filiere_id', $filiereId)))))
+            ->when($niveau, fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->whereHas('classe', fn (Builder $classe) => $classe->where('niveau', $niveau))
+                ->orWhere(fn (Builder $query) => $query->whereNull('classe_id')
+                    ->whereHas('candidat', fn (Builder $candidat) => $candidat->where('niveau', $niveau)))))
+            ->when($statut, fn (Builder $query) => $query->where('statut', $statut))
+            ->when($search, function (Builder $query) use ($search) {
+                $like = '%'.addcslashes($search, '%_\\').'%';
+
+                $query->where(fn (Builder $query) => $query
+                    ->where('matricule', 'like', $like)
+                    ->orWhere('nom', 'like', $like)
+                    ->orWhere('prenoms', 'like', $like)
+                    ->orWhereHas('user', fn (Builder $user) => $user->where('name', 'like', $like)->orWhere('email', 'like', $like)));
+            });
+    }
+
     public static function generateMatricule(): string
     {
         $year = now()->year;

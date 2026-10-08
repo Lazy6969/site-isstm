@@ -19,6 +19,12 @@ export default function TextField({ label, error, className = '', type, ...props
             {label && (
                 <label htmlFor={props.id} className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {label}
+                    {props.required && (
+                        <span className="text-red-500" aria-hidden="true">
+                            {' '}
+                            *
+                        </span>
+                    )}
                 </label>
             )}
             {isPassword ? (

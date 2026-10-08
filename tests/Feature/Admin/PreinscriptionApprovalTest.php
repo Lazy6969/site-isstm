@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Candidat;
+use App\Models\Classe;
 use App\Models\Etudiant;
+use App\Models\Filiere;
 use App\Models\User;
 use App\Notifications\PreinscriptionAccepted;
 use App\Notifications\PreinscriptionRefused;
@@ -116,4 +118,42 @@ it('refuses to decide a preinscription twice', function () {
     $this->actingAs($admin)
         ->post("/console/preinscriptions/{$preinscription->id}/approve")
         ->assertStatus(409);
+});
+
+it('places the new student in the niveau chosen in the pre-registration form', function () {
+    Notification::fake();
+    $admin = User::factory()->role(Role::Admin)->create();
+    $filiere = Filiere::factory()->create(['code' => 'GI']);
+    $preinscription = Candidat::factory()->create([
+        'user_id' => User::factory()->create(['role' => Role::User])->id,
+        'status' => PreinscriptionStatus::Soumis,
+        'filiere_id' => $filiere->id,
+        'niveau' => 'L2',
+    ]);
+
+    $this->actingAs($admin)->post("/console/preinscriptions/{$preinscription->id}/approve")->assertRedirect();
+
+    $etudiant = Etudiant::where('candidat_id', $preinscription->id)->firstOrFail();
+    expect($etudiant->classe)->not->toBeNull()
+        ->and($etudiant->classe->niveau)->toBe('L2')
+        ->and($etudiant->classe->filiere_id)->toBe($filiere->id);
+});
+
+it('reuses the same niveau for every student accepted into it', function () {
+    Notification::fake();
+    $admin = User::factory()->role(Role::Admin)->create();
+    $filiere = Filiere::factory()->create();
+
+    foreach (range(1, 2) as $_) {
+        $preinscription = Candidat::factory()->create([
+            'user_id' => User::factory()->create(['role' => Role::User])->id,
+            'status' => PreinscriptionStatus::Soumis,
+            'filiere_id' => $filiere->id,
+            'niveau' => 'M1',
+        ]);
+        $this->actingAs($admin)->post("/console/preinscriptions/{$preinscription->id}/approve")->assertRedirect();
+    }
+
+    expect(Classe::where('filiere_id', $filiere->id)->where('niveau', 'M1')->count())->toBe(1)
+        ->and(Etudiant::whereNotNull('classe_id')->count())->toBe(2);
 });

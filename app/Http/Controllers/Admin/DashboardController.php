@@ -11,10 +11,12 @@ use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
+use App\Models\ReactivationRequest;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use App\NewsStatus;
 use App\PreinscriptionStatus;
+use App\ReactivationStatus;
 use App\StatutInscription;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -60,7 +62,45 @@ class DashboardController extends Controller
             'etudiantsParFiliere' => $this->etudiantsParFiliere(),
             'activiteRecente' => $this->activiteRecente(),
             'dossiersParType' => $this->dossiersParType(),
+            'aTraiter' => $this->aTraiter(),
         ]);
+    }
+
+    /**
+     * The queues waiting on the scolarité / the editors, each with the page that
+     * works through it. The page only shows the ones the account may open, so
+     * the permission travels with the entry.
+     *
+     * @return array<int, array{key: string, count: int, href: string, permission: string}>
+     */
+    private function aTraiter(): array
+    {
+        return [
+            [
+                'key' => 'preinscriptions',
+                'count' => Candidat::whereIn('status', [PreinscriptionStatus::Soumis, PreinscriptionStatus::EnExamen])->count(),
+                'href' => '/console/preinscriptions',
+                'permission' => 'preinscriptions.manage',
+            ],
+            [
+                'key' => 'reinscriptions',
+                'count' => Inscription::whereNotNull('type')->whereIn('statut', [StatutInscription::EnAttente, StatutInscription::EnExamen])->count(),
+                'href' => '/console/scolarite/inscriptions',
+                'permission' => 'inscriptions.view',
+            ],
+            [
+                'key' => 'reactivations',
+                'count' => ReactivationRequest::where('status', ReactivationStatus::EnAttente)->count(),
+                'href' => '/console/reactivations',
+                'permission' => 'reactivations.manage',
+            ],
+            [
+                'key' => 'articles',
+                'count' => NewsArticle::where('status', NewsStatus::EnAttente)->count(),
+                'href' => '/console/actualites',
+                'permission' => 'news.publish',
+            ],
+        ];
     }
 
     /**
