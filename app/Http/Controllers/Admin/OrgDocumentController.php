@@ -21,7 +21,7 @@ class OrgDocumentController extends Controller
      *
      * @var array<string, string>
      */
-    private const TITLES = [
+    public const TITLES = [
         'organigramme_pdf' => "Organigramme complet de l'ISSTM (PDF)",
         'organigramme_word' => "Organigramme complet de l'ISSTM (Word)",
         'organigramme_image' => "Organigramme complet de l'ISSTM (Image)",
@@ -34,14 +34,25 @@ class OrgDocumentController extends Controller
     {
         abort_unless(array_key_exists($slug, self::TITLES), 404);
 
+        // Each slot takes only its own format, so the "Word" button of the public
+        // page never hands out a PDF.
+        $mimes = match (Str::afterLast($slug, '_')) {
+            'pdf' => 'pdf',
+            'word' => 'doc,docx',
+            default => 'jpg,jpeg,png',
+        };
+
         $request->validate([
-            'file' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
+            'file' => ['required', 'file', "mimes:{$mimes}", 'max:10240'],
         ]);
 
-        $existing = Document::where('slug', $slug)->first();
+        // A slot that was removed earlier is only soft-deleted, and its slug is
+        // unique — bring that row back rather than trying to create a second one.
+        $existing = Document::withTrashed()->where('slug', $slug)->first();
         if ($existing && Str::startsWith($existing->file_path, 'storage/documents/')) {
             Storage::disk('public')->delete(Str::after($existing->file_path, 'storage/'));
         }
+        $existing?->restore();
 
         $path = 'storage/'.$request->file('file')->store('documents', 'public');
 
@@ -55,5 +66,19 @@ class OrgDocumentController extends Controller
         );
 
         return back()->with('status', 'Document mis à jour.');
+    }
+
+    /**
+     * Takes a format off the Parcours page: the slot goes back to "Document à
+     * venir". The row is only soft-deleted (like everything else managed from
+     * the console), so it can still be restored from the corbeille.
+     */
+    public function destroy(string $slug): RedirectResponse
+    {
+        abort_unless(array_key_exists($slug, self::TITLES), 404);
+
+        Document::where('slug', $slug)->first()?->delete();
+
+        return back()->with('status', 'Document retiré.');
     }
 }
