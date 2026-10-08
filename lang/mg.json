@@ -1,4 +1,8 @@
 {
+    "admin.dashboard.activity_show_more": "Hamaky bebe kokoa",
+    "admin.dashboard.activity_show_less": "Hampihena",
+    "admin.dashboard.dismiss_activity": "Esory ity asa ity",
+    "admin.dashboard.restore_activities": "Aseho indray ny asa nafenina",
     "admin.dashboard.todo_title": "Ho tontosana",
     "admin.dashboard.todo_subtitle": "Ireo miandry fanapahan-kevitra",
     "admin.dashboard.todo_up_to_date": "Vita daholo",

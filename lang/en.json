@@ -1,4 +1,8 @@
 {
+    "admin.dashboard.activity_show_more": "Show more",
+    "admin.dashboard.activity_show_less": "Show less",
+    "admin.dashboard.dismiss_activity": "Remove this activity",
+    "admin.dashboard.restore_activities": "Show hidden activities again",
     "admin.dashboard.todo_title": "To review",
     "admin.dashboard.todo_subtitle": "What is waiting for a decision",
     "admin.dashboard.todo_up_to_date": "Up to date",

@@ -1,4 +1,8 @@
 {
+    "admin.dashboard.activity_show_more": "En savoir plus",
+    "admin.dashboard.activity_show_less": "Voir moins",
+    "admin.dashboard.dismiss_activity": "Retirer cette activité",
+    "admin.dashboard.restore_activities": "Réafficher les activités masquées",
     "admin.dashboard.todo_title": "À traiter",
     "admin.dashboard.todo_subtitle": "Ce qui attend une décision",
     "admin.dashboard.todo_up_to_date": "À jour",

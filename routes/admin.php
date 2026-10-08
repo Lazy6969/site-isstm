@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('console')->name('admin.')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->middleware('can:dashboard.view')->name('dashboard');
+    Route::post('dashboard/activites/masquer', [DashboardController::class, 'dismissActivity'])->middleware('can:dashboard.view')->name('dashboard.activities.dismiss');
+    Route::delete('dashboard/activites/masquees', [DashboardController::class, 'restoreActivities'])->middleware('can:dashboard.view')->name('dashboard.activities.restore');
 
     Route::get('preinscriptions', [PreinscriptionController::class, 'index'])->middleware('can:preinscriptions.manage')->name('preinscriptions.index');
     Route::get('preinscriptions/export', [PreinscriptionController::class, 'export'])->middleware('can:preinscriptions.manage')->name('preinscriptions.export');

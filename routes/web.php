@@ -113,6 +113,19 @@ Route::get('reinscription', [InscriptionDossierController::class, 'create'])->mi
 Route::patch('reinscription/{inscription}/brouillon', [InscriptionDossierController::class, 'saveDraft'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:20,1'])->name('inscription-dossier.save-draft');
 Route::post('reinscription/{inscription}/soumettre', [InscriptionDossierController::class, 'submit'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:10,1'])->name('inscription-dossier.submit');
 
+// Notifications belong to the account, whatever its role: the scolarité and
+// matériel staff get them too (they have the bell in the console), so these
+// routes only ask for a signed-in user — not one of the community roles below.
+Route::middleware(['auth', 'activity'])->group(function () {
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/recentes', [NotificationController::class, 'recent'])->name('notifications.recent');
+    Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('notifications/supprimer', [NotificationController::class, 'destroySelected'])->name('notifications.destroy-selected');
+    Route::post('notifications/tout-supprimer', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
+    Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+});
+
 Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
     Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
     Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
@@ -160,14 +173,6 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::patch('commentaires/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
-
-    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('notifications/recentes', [NotificationController::class, 'recent'])->name('notifications.recent');
-    Route::post('notifications/tout-lire', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
-    Route::post('notifications/supprimer', [NotificationController::class, 'destroySelected'])->name('notifications.destroy-selected');
-    Route::post('notifications/tout-supprimer', [NotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
-    Route::post('notifications/{notification}/lu', [NotificationController::class, 'markRead'])->name('notifications.read');
-    Route::delete('notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     Route::get('groupes', [ClassGroupController::class, 'index'])->name('class-groups.index');
     Route::post('groupes', [ClassGroupController::class, 'store'])->name('class-groups.store');

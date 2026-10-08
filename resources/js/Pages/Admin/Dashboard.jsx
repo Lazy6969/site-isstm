@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     GraduationCap,
     School,
@@ -136,10 +136,16 @@ export default function Dashboard({
     activiteRecente,
     dossiersParType = [],
     aTraiter = [],
+    activitesMasquees = 0,
 }) {
     const { t } = useTranslations();
     const permissions = usePage().props.auth?.permissions ?? [];
     const can = (permission) => !permission || permissions.includes(permission);
+
+    // Only the feed is refreshed — the rest of the dashboard keeps what it already shows.
+    const activityVisit = { preserveScroll: true, only: ['activiteRecente', 'activitesMasquees'] };
+    const dismissActivity = (item) => router.post('/console/dashboard/activites/masquer', { key: item.key }, activityVisit);
+    const restoreActivities = () => router.delete('/console/dashboard/activites/masquees', activityVisit);
     const [periode, setPeriode] = useState(6);
 
     const periodOptions = [
@@ -288,7 +294,7 @@ export default function Dashboard({
                             )
                         }
                     >
-                        <ActivityList items={activiteRecente} />
+                        <ActivityList items={activiteRecente} onDismiss={dismissActivity} hiddenCount={activitesMasquees} onRestore={restoreActivities} />
                     </ChartCard>
 
                     <ChartCard title={t('admin.dashboard.site_content', 'Contenu du site')}>

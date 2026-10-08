@@ -45,9 +45,12 @@ class ArchiveAdminActions
 
     private function shouldArchive(Request $request): bool
     {
+        // Hiding a dashboard activity is a display preference, not an
+        // administrative action worth keeping a trace of.
         return $request->user() !== null
             && ! $request->isMethodSafe()
-            && $request->is('console/*');
+            && $request->is('console/*')
+            && ! $request->routeIs('admin.dashboard.activities.*');
     }
 
     /**

@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell } from 'lucide-react';
+import { Bell, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
@@ -33,15 +33,23 @@ export default function AdminNotificationBell() {
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [failed, setFailed] = useState(false);
+    const [confirmingAll, setConfirmingAll] = useState(false);
     const unreadCount = auth?.unreadNotificationsCount ?? 0;
 
     function onOpenChange(next) {
         setOpen(next);
+        setConfirmingAll(false);
         if (next) {
             setLoading(true);
+            setFailed(false);
             fetch('/notifications/recentes', { headers: { Accept: 'application/json' } })
-                .then((res) => res.json())
+                .then((res) => {
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res.json();
+                })
                 .then((json) => setNotifications(json.notifications))
+                .catch(() => setFailed(true))
                 .finally(() => setLoading(false));
         }
     }
@@ -52,6 +60,17 @@ export default function AdminNotificationBell() {
             {},
             { preserveScroll: true, onSuccess: () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true }))) },
         );
+    }
+
+    function deleteNotification(notification) {
+        setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+        router.delete(`/notifications/${notification.id}`, { preserveScroll: true, preserveState: true, only: ['auth'] });
+    }
+
+    function deleteAll() {
+        setNotifications([]);
+        setConfirmingAll(false);
+        router.post('/notifications/tout-supprimer', {}, { preserveScroll: true, preserveState: true, only: ['auth'] });
     }
 
     async function openNotification(notification) {
@@ -85,37 +104,80 @@ export default function AdminNotificationBell() {
             <DropdownMenuContent className="w-80 bg-admin-card p-0 text-admin-text">
                 <div className="flex items-center justify-between px-3 py-2.5">
                     <p className="text-sm font-semibold text-admin-text">Notifications</p>
-                    {unreadCount > 0 && (
-                        <button type="button" onClick={markAllRead} className="text-xs font-medium text-admin-accent hover:underline">
-                            Tout marquer comme lu
-                        </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {unreadCount > 0 && (
+                            <button type="button" onClick={markAllRead} className="text-xs font-medium text-admin-accent hover:underline">
+                                Tout marquer comme lu
+                            </button>
+                        )}
+                        {notifications.length > 0 && !confirmingAll && (
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingAll(true)}
+                                aria-label="Supprimer toutes les notifications"
+                                title="Supprimer toutes les notifications"
+                                className="flex h-7 w-7 items-center justify-center rounded-md text-admin-muted transition hover:bg-red-500/10 hover:text-red-500"
+                            >
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            </button>
+                        )}
+                    </div>
                 </div>
+                {confirmingAll && (
+                    <div className="animate-in fade-in-0 flex items-center justify-between gap-2 border-t border-admin-border bg-red-500/5 px-3 py-2 duration-150">
+                        <p className="text-xs font-medium text-admin-text">Supprimer toutes les notifications ?</p>
+                        <div className="flex gap-1.5">
+                            <button
+                                type="button"
+                                onClick={() => setConfirmingAll(false)}
+                                className="rounded-md border border-admin-border px-2 py-1 text-xs font-medium text-admin-text-secondary transition hover:bg-admin-hover"
+                            >
+                                Non
+                            </button>
+                            <button type="button" onClick={deleteAll} className="rounded-md bg-red-600 px-2 py-1 text-xs font-semibold text-white transition hover:bg-red-500">
+                                Oui, tout supprimer
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <DropdownMenuSeparator className="bg-admin-border" />
 
                 <div className="max-h-96 overflow-y-auto">
                     {loading && <p className="px-3 py-6 text-center text-sm text-admin-muted">Chargement…</p>}
 
-                    {!loading && notifications.length === 0 && (
+                    {!loading && failed && (
+                        <p className="px-3 py-6 text-center text-sm text-red-500">Impossible de charger les notifications. Réessayez dans un instant.</p>
+                    )}
+
+                    {!loading && !failed && notifications.length === 0 && (
                         <p className="px-3 py-6 text-center text-sm text-admin-muted">Aucune notification pour le moment.</p>
                     )}
 
                     {!loading &&
                         notifications.map((notification) => (
-                            <button
-                                type="button"
+                            <div
                                 key={notification.id}
-                                onClick={() => openNotification(notification)}
-                                className={`block w-full border-b border-admin-border px-3 py-2.5 text-left text-sm transition last:border-b-0 hover:bg-admin-hover ${
+                                className={`group flex items-start border-b border-admin-border transition last:border-b-0 hover:bg-admin-hover ${
                                     !notification.read ? 'bg-admin-accent/5' : ''
                                 }`}
                             >
-                                <span className="flex items-start gap-2">
-                                    <span className="flex-1 text-admin-text">{notificationText(notification)}</span>
-                                    {!notification.read && <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-admin-accent" />}
-                                </span>
-                                <span className="mt-0.5 block text-xs text-admin-muted">{timeAgo(notification.created_at)}</span>
-                            </button>
+                                <button type="button" onClick={() => openNotification(notification)} className="block min-w-0 flex-1 px-3 py-2.5 text-left text-sm">
+                                    <span className="flex items-start gap-2">
+                                        <span className="flex-1 text-admin-text">{notificationText(notification)}</span>
+                                        {!notification.read && <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-admin-accent" />}
+                                    </span>
+                                    <span className="mt-0.5 block text-xs text-admin-muted">{timeAgo(notification.created_at)}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => deleteNotification(notification)}
+                                    aria-label="Supprimer cette notification"
+                                    title="Supprimer cette notification"
+                                    className="mr-2 mt-2 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-admin-muted transition hover:bg-red-500/10 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent/40"
+                                >
+                                    <X className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                            </div>
                         ))}
                 </div>
 

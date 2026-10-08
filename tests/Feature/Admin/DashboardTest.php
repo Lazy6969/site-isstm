@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ActionArchive;
 use App\Models\Candidat;
 use App\Models\Classe;
 use App\Models\Etudiant;
@@ -17,6 +18,7 @@ use App\PreinscriptionStatus;
 use App\ReactivationStatus;
 use App\Role;
 use App\StatutInscription;
+use Illuminate\Support\Facades\DB;
 
 it('forbids a non-admin from viewing the dashboard', function () {
     $etudiant = User::factory()->role(Role::Etudiant)->create();
@@ -139,4 +141,84 @@ it('reports empty queues as zero rather than hiding them', function () {
         ->where('aTraiter.2.count', 0)
         ->where('aTraiter.3.count', 0)
     );
+});
+
+it('gives every recent activity a key built from its dossier', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $candidat = Candidat::factory()->create(['created_at' => now()]);
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->where('activiteRecente.0.key', "preinscription-{$candidat->id}")
+        ->where('activitesMasquees', 0)
+    );
+});
+
+it('hides a recent activity for the account that removed it, without touching the dossier', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $other = User::factory()->role(Role::Admin)->create();
+    $candidat = Candidat::factory()->create(['created_at' => now()]);
+
+    $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => "preinscription-{$candidat->id}"])->assertRedirect();
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->has('activiteRecente', 0)
+        ->where('activitesMasquees', 1)
+    );
+    $this->actingAs($other)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->has('activiteRecente', 1)
+        ->where('activitesMasquees', 0)
+    );
+    expect(Candidat::find($candidat->id))->not->toBeNull();
+});
+
+it('keeps the feed full by bringing older activities up when one is removed', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $newest = Candidat::factory()->create(['created_at' => now()]);
+    Candidat::factory()->count(2)->create(['created_at' => now()->subHour()]);
+
+    $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => "preinscription-{$newest->id}"]);
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page->has('activiteRecente', 2));
+});
+
+it('hides the same activity only once and shows everything again on request', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $candidat = Candidat::factory()->create(['created_at' => now()]);
+
+    foreach (range(1, 2) as $_) {
+        $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => "preinscription-{$candidat->id}"])->assertRedirect();
+    }
+    expect(DB::table('dismissed_activities')->where('user_id', $admin->id)->count())->toBe(1);
+
+    $this->actingAs($admin)->delete('/console/dashboard/activites/masquees')->assertRedirect();
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->has('activiteRecente', 1)
+        ->where('activitesMasquees', 0)
+    );
+});
+
+it('rejects a malformed activity key', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => 'etudiant-1; drop table users'])->assertSessionHasErrors('key');
+    $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => 'inconnu-3'])->assertSessionHasErrors('key');
+    expect(DB::table('dismissed_activities')->count())->toBe(0);
+});
+
+it('does not let a non-admin hide dashboard activities', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($etudiant)->post('/console/dashboard/activites/masquer', ['key' => 'etudiant-1'])->assertForbidden();
+});
+
+it('does not record hiding an activity in the action archive', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $candidat = Candidat::factory()->create();
+    $before = ActionArchive::count();
+
+    $this->actingAs($admin)->post('/console/dashboard/activites/masquer', ['key' => "preinscription-{$candidat->id}"]);
+    $this->actingAs($admin)->delete('/console/dashboard/activites/masquees');
+
+    expect(ActionArchive::count())->toBe($before);
 });

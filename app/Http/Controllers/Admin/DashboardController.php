@@ -19,15 +19,23 @@ use App\PreinscriptionStatus;
 use App\ReactivationStatus;
 use App\StatutInscription;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
+    private const RECENT_ACTIVITY_LIMIT = 12;
+
+    public function index(Request $request): Response
     {
+        $dismissed = $this->dismissedActivityKeys($request);
+        $activities = $this->activites();
+
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
                 'etudiants' => Etudiant::count(),
@@ -60,7 +68,8 @@ class DashboardController extends Controller
             'preinscriptionsParMois' => $this->preinscriptionsParMois(),
             'etudiantsParNiveau' => $this->etudiantsParNiveau(),
             'etudiantsParFiliere' => $this->etudiantsParFiliere(),
-            'activiteRecente' => $this->activiteRecente(),
+            'activiteRecente' => $activities->reject(fn (array $item) => in_array($item['key'], $dismissed, true))->take(self::RECENT_ACTIVITY_LIMIT)->values()->all(),
+            'activitesMasquees' => $activities->filter(fn (array $item) => in_array($item['key'], $dismissed, true))->count(),
             'dossiersParType' => $this->dossiersParType(),
             'aTraiter' => $this->aTraiter(),
         ]);
@@ -214,27 +223,31 @@ class DashboardController extends Controller
 
     /**
      * The last handful of préinscriptions, dossiers and inscriptions created,
-     * merged into a single reverse-chronological feed.
+     * merged into a single reverse-chronological feed. Each entry carries a `key`
+     * ("{type}-{id}" of its dossier) so an account can hide it.
      *
-     * @return array<int, array{type: string, label: string, subject: string, created_at: string}>
+     * @return Collection<int, array{key: string, type: string, label: string, subject: string, created_at: string}>
      */
-    private function activiteRecente(): array
+    private function activites(): Collection
     {
-        $preinscriptions = Candidat::latest()->take(5)->get()->map(fn (Candidat $p) => [
+        $preinscriptions = Candidat::latest()->take(10)->get()->map(fn (Candidat $p) => [
+            'key' => "preinscription-{$p->id}",
             'type' => 'preinscription',
             'label' => 'Nouvelle préinscription',
             'subject' => trim("{$p->nom} {$p->prenoms}"),
             'created_at' => $p->created_at,
         ]);
 
-        $etudiants = Etudiant::with('user:id,name')->latest()->take(5)->get()->map(fn (Etudiant $e) => [
+        $etudiants = Etudiant::with('user:id,name')->latest()->take(10)->get()->map(fn (Etudiant $e) => [
+            'key' => "etudiant-{$e->id}",
             'type' => 'etudiant',
             'label' => 'Dossier étudiant créé',
             'subject' => $e->user->name,
             'created_at' => $e->created_at,
         ]);
 
-        $inscriptions = Inscription::with('etudiant.user:id,name')->latest()->take(5)->get()->map(fn (Inscription $i) => [
+        $inscriptions = Inscription::with('etudiant.user:id,name')->latest()->take(10)->get()->map(fn (Inscription $i) => [
+            'key' => "inscription-{$i->id}",
             'type' => 'inscription',
             'label' => "Inscription {$i->annee}",
             'subject' => $i->etudiant->user->name,
@@ -243,9 +256,44 @@ class DashboardController extends Controller
 
         return Collection::make([...$preinscriptions, ...$etudiants, ...$inscriptions])
             ->sortByDesc('created_at')
-            ->take(6)
             ->map(fn (array $item) => [...$item, 'created_at' => $item['created_at']->toIso8601String()])
-            ->values()
-            ->all();
+            ->values();
+    }
+
+    /**
+     * Hides one entry of the recent-activity feed for the signed-in account.
+     * The entry is only derived from a dossier, so nothing is deleted — the
+     * dossier itself, and the feed of every other account, are untouched.
+     */
+    public function dismissActivity(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'key' => ['required', 'string', 'regex:/^(preinscription|etudiant|inscription)-\d+$/'],
+        ]);
+
+        DB::table('dismissed_activities')->insertOrIgnore([
+            'user_id' => $request->user()->getKey(),
+            'activity_key' => $validated['key'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return back();
+    }
+
+    /** Brings back every entry the signed-in account had hidden. */
+    public function restoreActivities(Request $request): RedirectResponse
+    {
+        DB::table('dismissed_activities')->where('user_id', $request->user()->getKey())->delete();
+
+        return back();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function dismissedActivityKeys(Request $request): array
+    {
+        return DB::table('dismissed_activities')->where('user_id', $request->user()->getKey())->pluck('activity_key')->all();
     }
 }
