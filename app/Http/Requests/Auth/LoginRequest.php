@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Role;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -34,9 +35,14 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * Attempt to authenticate the request's credentials. Returns true when
+     * the credentials belong to a suspended étudiant account — the
+     * controller then redirects to a dedicated page (see
+     * AuthenticatedSessionController::store()) instead of back to the login
+     * form, rather than the generic "contact an admin" message every other
+     * deactivated role gets.
      */
-    public function authenticate(): void
+    public function authenticate(): bool
     {
         $this->ensureIsNotRateLimited();
 
@@ -49,8 +55,13 @@ class LoginRequest extends FormRequest
         }
 
         if (! Auth::user()->is_active) {
+            $role = Auth::user()->role;
             Auth::logout();
             RateLimiter::hit($this->throttleKey());
+
+            if ($role === Role::Etudiant) {
+                return true;
+            }
 
             throw ValidationException::withMessages([
                 'email' => 'Ce compte a été désactivé. Contactez un administrateur.',
@@ -58,6 +69,8 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        return false;
     }
 
     /**

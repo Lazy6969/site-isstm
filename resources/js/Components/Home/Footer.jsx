@@ -60,6 +60,7 @@ export default function Footer() {
         { href: '/actualites', label: t('nav.actualites', 'Actualités') },
         { href: '/galerie', label: t('nav.galerie', 'Galerie') },
         { href: '/rejoindre', label: t('nav.inscription', 'Inscription') },
+        { href: '/faq', label: t('nav.faq', 'FAQ') },
         { href: '/contact', label: t('nav.contact', 'Contact') },
     ];
 
@@ -118,6 +119,7 @@ export default function Footer() {
                                 value={content.footer_logo_umg ?? 'images/partenariat/universite-mahajanga-footer.svg'}
                             />
                         </div>
+                        <span className="h-10 w-px bg-isstm-footer-text/15" aria-hidden="true" />
                         <div className="relative">
                             <a
                                 href="https://mesupres.gov.mg/"

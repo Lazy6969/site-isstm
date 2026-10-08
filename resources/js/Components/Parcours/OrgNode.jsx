@@ -1,6 +1,7 @@
 import { ChevronDown, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { categories, roleLabels, titleCategory } from './orgChartData';
+import EditTextDialog from '../QuickEdit/EditTextDialog';
 
 /**
  * Recursive, expand/collapse org-chart card. `node.key` is a title_key from
@@ -9,18 +10,32 @@ import { categories, roleLabels, titleCategory } from './orgChartData';
  * time — the tree shape itself stays static. `onEditPerson` (only called when
  * a real OrgPerson row already backs this node — see Parcours.jsx) opens the
  * in-place edit dialog for that person.
+ *
+ * The role title itself (e.g. "Directeur") is separately admin-editable via
+ * `content`/`contentStyles` (SiteContent key `parcours_role_<node.key>`) —
+ * it can't reuse EditableText's own built-in pencil here, since that renders
+ * the pencil as a nested <button>, and the title already sits inside this
+ * card's own expand/collapse <button>; nesting buttons is invalid HTML and
+ * would make the two click targets fight each other. Styled as a standalone
+ * trigger instead, positioned opposite the existing person-edit pencil.
  */
-export default function OrgNode({ node, people, t, depth = 0, emphasize = false, canEdit = false, onEditPerson }) {
+export default function OrgNode({ node, people, t, content = {}, contentStyles = {}, depth = 0, emphasize = false, canEdit = false, onEditPerson }) {
     const [open, setOpen] = useState(false);
+    const [editingTitleKey, setEditingTitleKey] = useState(null);
     const hasChildren = Array.isArray(node.children) && node.children.length > 0;
 
+    function roleLabel(key) {
+        return content[`parcours_role_${key}`] ?? t(`parcours.role.${key}`, roleLabels[key] ?? key);
+    }
+
     const person = people?.[node.key];
-    const title = t(`parcours.role.${node.key}`, roleLabels[node.key] ?? node.key);
+    const title = roleLabel(node.key);
     const name = person?.name ?? '';
     const photo = person?.photo_path;
-    const suffix = node.suffixKey ? t(`parcours.role.${node.suffixKey}`, roleLabels[node.suffixKey]) : null;
+    const suffix = node.suffixKey ? roleLabel(node.suffixKey) : null;
     const category = titleCategory[node.key] ?? 'parcours';
     const colorClass = categories[category]?.node ?? '';
+    const editingTitleValue = editingTitleKey ? roleLabel(editingTitleKey) : '';
 
     return (
         <div>
@@ -69,6 +84,20 @@ export default function OrgNode({ node, people, t, depth = 0, emphasize = false,
                         <Pencil className="h-3 w-3" aria-hidden="true" />
                     </button>
                 )}
+                {canEdit && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingTitleKey(node.key);
+                        }}
+                        className="absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow ring-2 ring-white transition hover:scale-110"
+                        aria-label={`Modifier l'intitulé « ${title} »`}
+                        title="Modifier l'intitulé de ce poste"
+                    >
+                        <Pencil className="h-3 w-3" aria-hidden="true" />
+                    </button>
+                )}
             </div>
 
             {hasChildren && open && (
@@ -79,12 +108,24 @@ export default function OrgNode({ node, people, t, depth = 0, emphasize = false,
                             node={child}
                             people={people}
                             t={t}
+                            content={content}
+                            contentStyles={contentStyles}
                             depth={depth + 1}
                             canEdit={canEdit}
                             onEditPerson={onEditPerson}
                         />
                     ))}
                 </div>
+            )}
+
+            {editingTitleKey && (
+                <EditTextDialog
+                    open={editingTitleKey !== null}
+                    onClose={() => setEditingTitleKey(null)}
+                    contentKey={`parcours_role_${editingTitleKey}`}
+                    initialValue={editingTitleValue}
+                    initialStyle={contentStyles[`parcours_role_${editingTitleKey}`]}
+                />
             )}
         </div>
     );

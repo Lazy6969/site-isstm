@@ -14,6 +14,7 @@ enum HomeSection: string
     case Director = 'director';
     case MissionVision = 'mission_vision';
     case Filieres = 'filieres';
+    case DossierTracking = 'dossier_tracking';
     case Actualites = 'actualites';
     case RejoignezNous = 'rejoignez_nous';
     case Testimonials = 'testimonials';
@@ -26,6 +27,7 @@ enum HomeSection: string
             self::Director => 'Mot du Directeur',
             self::MissionVision => 'Mission & Vision',
             self::Filieres => 'Filières',
+            self::DossierTracking => 'Suivi de dossier',
             self::Actualites => 'Actualités',
             self::RejoignezNous => 'Rejoignez-nous',
             self::Testimonials => 'Témoignages',

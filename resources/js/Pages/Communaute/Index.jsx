@@ -126,7 +126,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
                         user={auth?.user}
                     />
 
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {pageLoading && [...Array(3)].map((_, i) => <PostCardSkeleton key={i} />)}
 
                 {!pageLoading && posts.data.length === 0 && (

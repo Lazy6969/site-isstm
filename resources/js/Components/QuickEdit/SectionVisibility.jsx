@@ -32,7 +32,7 @@ export default function SectionVisibility({ section, label, hidden, children }) 
             <button
                 type="button"
                 onClick={toggle}
-                className="absolute top-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5 text-xs font-semibold text-amber-950 shadow ring-2 ring-white transition hover:scale-105"
+                className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5 text-xs font-semibold text-amber-950 shadow ring-2 ring-white transition hover:scale-105"
                 aria-label={hidden ? `Afficher la section ${label}` : `Masquer la section ${label}`}
             >
                 {hidden ? <Eye className="h-3.5 w-3.5" aria-hidden="true" /> : <EyeOff className="h-3.5 w-3.5" aria-hidden="true" />}

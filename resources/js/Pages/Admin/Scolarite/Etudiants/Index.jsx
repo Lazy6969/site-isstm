@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
-import { Check, Download, Eye, Plus, Search, Trash2, UserPlus, X } from 'lucide-react';
+import { Ban, Check, CheckCircle2, Download, Eye, PauseOctagon, Plus, Search, Trash2, UserPlus, X } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
+import ViewToggle from '../../../../Components/Admin/ViewToggle';
 import { Button } from '../../../../Components/ui/button';
 import { Input } from '../../../../Components/ui/input';
 import { Label } from '../../../../Components/ui/label';
@@ -33,6 +34,30 @@ const statutI18nKeys = {
 };
 
 const BASE_URL = '/console/scolarite/etudiants';
+
+/** Pause (active student) or reactivate (paused student) — hidden for the other statuses. */
+function PauseButton({ etudiant, onToggle }) {
+    const { t } = useTranslations();
+
+    if (etudiant.statut !== 'actif' && etudiant.statut !== 'suspendu') return null;
+
+    const label =
+        etudiant.statut === 'actif'
+            ? `${t('admin.etudiants.mettre_en_pause', 'Mettre en pause')} — ${etudiant.user?.name}`
+            : `${t('admin.etudiants.reprendre_compte', 'Réactiver le compte')} — ${etudiant.user?.name}`;
+
+    return (
+        <button
+            type="button"
+            onClick={() => onToggle(etudiant)}
+            className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-amber-500/10 hover:text-amber-600"
+            aria-label={label}
+            title={label}
+        >
+            {etudiant.statut === 'actif' ? <Ban className="h-4 w-4" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
+        </button>
+    );
+}
 
 const selectClass =
     'h-10 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10';
@@ -151,6 +176,7 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState(filters.q ?? '');
+    const [view, setView] = useState('list');
     const searchTimer = useRef(null);
 
     const current = { filiere_id: filters.filiere_id ?? '', niveau: filters.niveau ?? '', statut: filters.statut ?? '', q: filters.q ?? '' };
@@ -179,6 +205,25 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
 
     function openCreate() {
         setOpen(true);
+    }
+
+    function togglePause(etudiant) {
+        const suspending = etudiant.statut === 'actif';
+        const verb = suspending ? 'mettre en pause' : 'réactiver';
+        if (!confirm(`Voulez-vous vraiment ${verb} le compte de ${etudiant.user?.name} ?`)) return;
+        router.post(`${BASE_URL}/${etudiant.id}/pause`, {}, { preserveScroll: true });
+    }
+
+    const activeCount = etudiants.filter((etudiant) => etudiant.statut === 'actif').length;
+
+    function pauseAll() {
+        if (
+            !confirm(
+                `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`,
+            )
+        )
+            return;
+        router.post(`${BASE_URL}/pause-tous`, {}, { preserveScroll: true });
     }
 
     function destroy(etudiant) {
@@ -245,6 +290,13 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                     {hasFilters && <span className="text-admin-muted"> · {t('admin.etudiants.filtre_actif', 'liste filtrée')}</span>}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
+                    <ViewToggle view={view} onChange={setView} />
+                    {activeCount > 0 && (
+                        <Button onClick={pauseAll} className="h-10 bg-transparent text-amber-600 hover:bg-amber-500/10">
+                            <PauseOctagon className="h-4 w-4" aria-hidden="true" />
+                            {t('admin.etudiants.pause_tous', 'Mettre tous en pause')}
+                        </Button>
+                    )}
                     <a
                         href={`${BASE_URL}/export${queryString(current)}`}
                         className="flex h-10 items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 text-sm font-medium text-admin-text transition hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-600"
@@ -261,6 +313,56 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
             </div>
 
             <div className={`grid grid-cols-1 gap-5 ${open ? 'lg:grid-cols-[minmax(0,1fr)_360px]' : ''}`}>
+                {view === 'grid' ? (
+                    <div className={`grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 ${open ? '' : 'lg:grid-cols-3'}`}>
+                        {etudiants.length === 0 && (
+                            <div className="col-span-full rounded-xl border border-admin-border bg-admin-card py-8 text-center text-sm text-admin-muted">
+                                {hasFilters
+                                    ? t('admin.etudiants.empty_filtre', 'Aucun étudiant ne correspond à ces filtres.')
+                                    : t('admin.etudiants.empty', 'Aucun dossier étudiant pour le moment.')}
+                            </div>
+                        )}
+                        {etudiants.map((etudiant) => (
+                            <div key={etudiant.id} className="flex flex-col gap-3 rounded-xl border border-admin-border bg-admin-card p-4">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 flex-shrink-0">
+                                        <AvatarFallback className="bg-admin-hover text-admin-text">{etudiant.user?.name?.[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0">
+                                        <p className="truncate font-medium text-admin-text">{etudiant.user?.name}</p>
+                                        <p className="truncate text-xs text-admin-muted">{etudiant.user?.email}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between text-sm text-admin-text-secondary">
+                                    <span>{etudiant.matricule}</span>
+                                    <Badge variant={statutVariants[etudiant.statut]}>{t(statutI18nKeys[etudiant.statut], statutLabels[etudiant.statut])}</Badge>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 text-sm text-admin-text-secondary">
+                                    <span className="min-w-0 truncate">{etudiant.filiere_nom ?? '—'}</span>
+                                    {etudiant.niveau_code && <Badge variant="outline">{etudiant.niveau_code}</Badge>}
+                                </div>
+                                <div className="mt-auto flex items-center justify-end gap-1 border-t border-admin-border pt-3">
+                                    <Link
+                                        href={`/console/scolarite/etudiants/${etudiant.id}`}
+                                        className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
+                                        aria-label={`${t('admin.etudiants.view_dossier_aria', 'Voir le dossier de')} ${etudiant.user?.name}`}
+                                    >
+                                        <Eye className="h-4 w-4" aria-hidden="true" />
+                                    </Link>
+                                    <PauseButton etudiant={etudiant} onToggle={togglePause} />
+                                    <button
+                                        type="button"
+                                        onClick={() => destroy(etudiant)}
+                                        className="inline-flex rounded-lg p-2 text-admin-text-secondary transition hover:bg-red-500/10 hover:text-red-600"
+                                        aria-label={`Supprimer le compte de ${etudiant.user?.name}`}
+                                    >
+                                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
                 <div className="min-w-0 overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                     <Table>
                         <TableHeader>
@@ -314,6 +416,7 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                                         >
                                             <Eye className="h-4 w-4" aria-hidden="true" />
                                         </Link>
+                                        <PauseButton etudiant={etudiant} onToggle={togglePause} />
                                         <button
                                             type="button"
                                             onClick={() => destroy(etudiant)}
@@ -328,6 +431,7 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                         </TableBody>
                     </Table>
                 </div>
+                )}
 
                 {open && <NewDossierPanel eligibleUsers={eligibleUsers} classes={classes} onClose={() => setOpen(false)} />}
             </div>

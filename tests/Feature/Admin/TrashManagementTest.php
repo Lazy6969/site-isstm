@@ -4,6 +4,7 @@ use App\Models\CampusBloc;
 use App\Models\GalleryAlbum;
 use App\Models\GalleryPhoto;
 use App\Models\NewsArticle;
+use App\Models\ReactivationRequest;
 use App\Models\User;
 use App\Role;
 use Illuminate\Support\Facades\Storage;
@@ -86,6 +87,19 @@ it('permanently deletes every image of a campus bloc, which keeps an array of pa
 
     Storage::disk('public')->assertMissing('campus/a.jpg');
     Storage::disk('public')->assertMissing('campus/b.jpg');
+});
+
+it('lists a deleted reactivation request in the corbeille and lets an admin restore it', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $reactivation = ReactivationRequest::factory()->create();
+    $reactivation->delete();
+
+    $this->actingAs($admin)->get('/console/corbeille')
+        ->assertInertia(fn ($page) => $page->where('items.0.type', 'reactivations'));
+
+    $this->actingAs($admin)->post("/console/corbeille/reactivations/{$reactivation->id}/restaurer")->assertRedirect();
+
+    expect(ReactivationRequest::find($reactivation->id))->not->toBeNull();
 });
 
 it('only shows and allows acting on trashed items a scolarité account has permission for', function () {

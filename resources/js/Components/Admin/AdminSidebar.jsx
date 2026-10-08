@@ -28,6 +28,7 @@ import {
     Trash2,
     TriangleAlert,
     RotateCcw,
+    DoorClosed,
 } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -88,6 +89,7 @@ function buildNavGroups(t) {
                 { href: '/console/settings/appearance', label: t('admin.nav.apparence', 'Apparence'), icon: Palette, permission: 'settings.manage' },
                 { href: '/console/statistiques', label: t('admin.nav.statistics', 'Statistiques'), icon: BarChart3, permission: 'statistics.view' },
                 { href: '/console/settings/maintenance', label: t('admin.nav.maintenance', 'Maintenance'), icon: TriangleAlert, permission: 'settings.manage' },
+                { href: '/console/settings/inscriptions', label: t('admin.nav.inscriptions_settings', 'Inscriptions'), icon: DoorClosed, permission: 'settings.manage' },
             ],
         },
     ];

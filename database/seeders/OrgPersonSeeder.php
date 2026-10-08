@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Document;
 use App\Models\OrgPerson;
 use Illuminate\Database\Seeder;
 
@@ -12,6 +13,8 @@ class OrgPersonSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->seedDocuments();
+
         $people = [
             ['title_key' => 'agent_affaires', 'name' => 'Mme. Secrétaire P.', 'photo_path' => 'images/organigramme/secretaire.jpg', 'sort_order' => 27],
             ['title_key' => 'college_enseignants', 'name' => 'Mme. Nathalie V.', 'photo_path' => 'images/organigramme/nathalie.jpg', 'sort_order' => 5],
@@ -56,6 +59,35 @@ class OrgPersonSeeder extends Seeder
 
         foreach ($people as $person) {
             OrgPerson::updateOrCreate(['title_key' => $person['title_key']], $person);
+        }
+    }
+
+    /**
+     * The Parcours page's 6 fixed downloadable document files — 3 formats
+     * (pdf/word/image) for each of the 2 documents (organigramme/cursus),
+     * mirroring the legacy site's download section (see
+     * Admin\OrgDocumentController / ParcoursController). Registers the files
+     * already sitting in public/images/organigramme/ so they show up without
+     * an admin having to re-upload them through the quick-edit pencil.
+     */
+    private function seedDocuments(): void
+    {
+        Document::whereIn('slug', ['organigramme', 'cursus'])->delete();
+
+        $documents = [
+            'organigramme_pdf' => ["Organigramme complet de l'ISSTM (PDF)", 'images/organigramme/organigramme.pdf'],
+            'organigramme_word' => ["Organigramme complet de l'ISSTM (Word)", 'images/organigramme/organigramme.docx'],
+            'organigramme_image' => ["Organigramme complet de l'ISSTM (Image)", 'images/organigramme/organigramme.jpeg'],
+            'cursus_pdf' => ['Grille des cursus (PDF)', 'images/organigramme/cursus.pdf'],
+            'cursus_word' => ['Grille des cursus (Word)', 'images/organigramme/cursus.docx'],
+            'cursus_image' => ['Grille des cursus (Image)', 'images/organigramme/cursus.jpg'],
+        ];
+
+        foreach ($documents as $slug => [$title, $path]) {
+            Document::updateOrCreate(
+                ['slug' => $slug],
+                ['title' => $title, 'category' => 'etudiant', 'file_path' => $path],
+            );
         }
     }
 }

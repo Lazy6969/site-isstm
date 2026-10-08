@@ -1,13 +1,16 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, FileSignature, MapPin, Wallet } from 'lucide-react';
+import { AlertTriangle, CalendarClock, CheckCircle2, ClipboardList, Download, FileSignature, MapPin, Pencil, Wallet } from 'lucide-react';
+import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
 import Footer from '../../Components/Home/Footer';
 import { Card } from '../../Components/ui/card';
 import { useTranslations } from '../../lib/useTranslations';
+import { useQuickEdit } from '../../lib/useQuickEdit';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import EditableImage from '../../Components/QuickEdit/EditableImage';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
+import DocumentSlotUploadDialog from '../../Components/QuickEdit/DocumentSlotUploadDialog';
 import { imageStyleToCss } from '../../lib/imageStyle';
 
 function FeeTable({ title, rows }) {
@@ -68,9 +71,12 @@ const FILIERE_COLORS = [
     ['Génie Biomédicale (GBM)', 'bg-red-500'],
 ];
 
-export default function Index({ content }) {
+export default function Index({ content, dossierPreinscription }) {
     const { t } = useTranslations();
-    const { contentStyles } = usePage().props;
+    const { auth, contentStyles } = usePage().props;
+    const { active } = useQuickEdit();
+    const canEditDocuments = active && (auth?.permissions ?? []).includes('documents.edit');
+    const [uploadingDossier, setUploadingDossier] = useState(false);
 
     const dateLimite = content.inscription_date_limite
         ? new Date(content.inscription_date_limite).toLocaleDateString('fr-FR', {
@@ -313,6 +319,36 @@ export default function Index({ content }) {
                         )}
                     </p>
 
+                    <div className="relative mb-6 inline-flex">
+                        {dossierPreinscription ? (
+                            <a
+                                href={`/${dossierPreinscription}`}
+                                download
+                                className="flex items-center gap-2 rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                            >
+                                <Download className="h-4 w-4" aria-hidden="true" />
+                                {t('inscription.telecharger_dossier', 'Télécharger le dossier de préinscription')}
+                            </a>
+                        ) : (
+                            canEditDocuments && (
+                                <span className="flex items-center gap-2 rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                                    <Download className="h-4 w-4" aria-hidden="true" />
+                                    {t('inscription.telecharger_dossier', 'Télécharger le dossier de préinscription')}
+                                </span>
+                            )
+                        )}
+                        {canEditDocuments && (
+                            <button
+                                type="button"
+                                onClick={() => setUploadingDossier(true)}
+                                className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow ring-2 ring-white transition hover:scale-110"
+                                aria-label={t('inscription.modifier_dossier', 'Modifier ce document')}
+                            >
+                                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                        )}
+                    </div>
+
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <DossierCard
                             title={t('inscription.dossiers_preinscription_titre', "Préinscription dans l'ISSTM")}
@@ -458,6 +494,16 @@ export default function Index({ content }) {
             </main>
 
             <Footer />
+
+            {uploadingDossier && (
+                <DocumentSlotUploadDialog
+                    open={uploadingDossier}
+                    onClose={() => setUploadingDossier(false)}
+                    endpoint="/console/inscription/dossier-preinscription"
+                    title={t('inscription.telecharger_dossier', 'Télécharger le dossier de préinscription')}
+                    accept=".pdf,.doc,.docx"
+                />
+            )}
         </div>
     );
 }

@@ -1,5 +1,5 @@
-import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { AlertTriangle, ArrowLeft, CalendarClock, Check, CheckCircle2, ClipboardCheck, Eye, FileText, GraduationCap, IdCard, Mail, Save, Send, Users, Wallet, XCircle } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, CalendarClock, Check, CheckCircle2, CircleHelp, ClipboardCheck, Eye, FileText, GraduationCap, IdCard, Mail, Save, Send, Users, Wallet, XCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
@@ -10,6 +10,7 @@ import FileInput from '../../Components/Form/FileInput';
 import { Card } from '../../Components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../Components/ui/dialog';
 import EditableText from '../../Components/QuickEdit/EditableText';
+import AsteriskToggle from '../../Components/QuickEdit/AsteriskToggle';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 import { countries, mentionsBacc, nationalites, seriesBacc } from '../../Components/Preinscription/countries';
 import { useTranslations } from '../../lib/useTranslations';
@@ -81,7 +82,7 @@ const FIELD_LABELS = {
     lieu_naissance: 'Lieu de naissance',
     nationalite: 'Nationalité',
     pays: 'Pays de résidence',
-    cin: 'CIN ou passeport',
+    cin: 'CIN ou passeport (facultatif)',
     email: 'Adresse e-mail',
     telephone: 'Téléphone du candidat',
     adresse: 'Adresse complète',
@@ -108,6 +109,44 @@ const FIELD_LABELS = {
 function labelOf(field) {
     return FIELD_LABELS[field] ?? field;
 }
+
+// Whether a field's label shows the red asterisk by default — matches
+// whether validateStep() actually requires it below, but is purely the
+// starting point for AsteriskToggle: toggling it only changes what's
+// displayed (see preinscription_asterisque_<field> content keys), never
+// what validateStep() or the server actually requires.
+const REQUIRED_DEFAULTS = {
+    civilite: true,
+    sexe: true,
+    prenoms: true,
+    nom: true,
+    date_naissance: true,
+    lieu_naissance: true,
+    nationalite: true,
+    pays: true,
+    cin: false,
+    email: true,
+    telephone: true,
+    adresse: true,
+    nom_pere: false,
+    nom_mere: false,
+    contact_parents: false,
+    repondant_nom: false,
+    repondant_lien: false,
+    repondant_telephone: false,
+    annee_bacc: true,
+    serie_bacc: true,
+    serie_bacc_autre: true,
+    mention_bacc: true,
+    code_redoublement: true,
+    filiere_id: true,
+    niveau: true,
+    photo: true,
+    cin_recto: true,
+    cin_verso: true,
+    diplome_attestation: true,
+    releve_bacc: true,
+};
 
 const MIN_AGE = 14;
 const MAX_AGE = 100;
@@ -246,7 +285,10 @@ function FilePreviewThumb({ label, file, existingPath }) {
                     </a>
                 ) : (
                     <a href={url} target="_blank" rel="noreferrer" className="block h-24 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-                        <img src={url} alt={label} className="h-full w-full object-cover" />
+                        {/* alt empty on purpose: `label` can now be an editable node (not
+                            a plain string), and the caption right below already names
+                            the file for anyone using a screen reader. */}
+                        <img src={url} alt="" className="h-full w-full object-cover" />
                     </a>
                 )
             ) : (
@@ -347,6 +389,30 @@ export default function Create({ filieres, draft, initialStep }) {
         diplome_attestation: draft?.diplome_attestation_path ? 'Fichier déjà envoyé ✓' : null,
         releve_bacc: draft?.releve_bacc_path ? 'Fichier déjà envoyé ✓' : null,
     };
+
+    // Every field label on the wizard, editable via its own pencil — keyed
+    // off the same field names as FIELD_LABELS (whose static strings stay
+    // the fallback here, and the only source for the composed error-message
+    // sentences below, which stay plain text on purpose). Bundles the red
+    // "required" asterisk and its own toggle right in with the label, so
+    // the whole TextField/SelectField/FileInput `label` prop is self-
+    // contained — those components are never asked to draw their own
+    // asterisk here (see REQUIRED_DEFAULTS/AsteriskToggle above).
+    function fieldLabel(field) {
+        const contentKey = `preinscription_champ_${field}`;
+        const asteriskKey = `preinscription_asterisque_${field}`;
+        const asteriskVisible = (content[asteriskKey] ?? (REQUIRED_DEFAULTS[field] ? 'true' : 'false')) === 'true';
+
+        return (
+            <span className="inline-flex items-center gap-1">
+                <EditableText as="span" contentKey={contentKey}>
+                    {content[contentKey] ?? labelOf(field)}
+                </EditableText>
+                {asteriskVisible && <span className="text-red-500">*</span>}
+                <AsteriskToggle contentKey={asteriskKey} visible={asteriskVisible} />
+            </span>
+        );
+    }
 
     function set(field) {
         return (e) => setData(field, e.target.value);
@@ -603,11 +669,18 @@ export default function Create({ filieres, draft, initialStep }) {
                         )}
                         <a
                             href="/inscription"
-                            className="flex items-center gap-2 rounded-full bg-white/10 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+                            className="flex items-center gap-2 rounded-full bg-isstm-gold px-5 py-2 text-sm font-semibold text-isstm-navy-dark shadow-md transition hover:brightness-110"
                         >
                             <Wallet className="h-4 w-4" aria-hidden="true" />
                             {t('preinscription.voir_frais', 'Voir les frais')}
                         </a>
+                        <Link
+                            href="/aide-inscription"
+                            className="flex items-center gap-2 rounded-full bg-isstm-gold px-5 py-2 text-sm font-semibold text-isstm-navy-dark shadow-md transition hover:brightness-110"
+                        >
+                            <CircleHelp className="h-4 w-4" aria-hidden="true" />
+                            {t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -654,7 +727,9 @@ export default function Create({ filieres, draft, initialStep }) {
                                                 active ? 'text-isstm-navy dark:text-white' : 'text-slate-400 dark:text-slate-500'
                                             }`}
                                         >
-                                            {s.label}
+                                            <EditableText as="span" contentKey={`preinscription_etape_${s.key}`}>
+                                                {content[`preinscription_etape_${s.key}`] ?? s.label}
+                                            </EditableText>
                                         </span>
                                     </div>
                                 );
@@ -679,13 +754,15 @@ export default function Create({ filieres, draft, initialStep }) {
                                 <Card className="p-6">
                                     <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
                                         <IdCard className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                                        État civil et coordonnées
+                                        <EditableText as="span" contentKey="preinscription_titre_identite">
+                                            {content.preinscription_titre_identite ?? 'État civil et coordonnées'}
+                                        </EditableText>
                                     </h2>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                Civilité <span className="text-red-500">*</span>
+                                                {fieldLabel('civilite')}
                                             </label>
                                             <RadioGroup
                                                 name="civilite"
@@ -702,7 +779,7 @@ export default function Create({ filieres, draft, initialStep }) {
                                         </div>
                                         <div>
                                             <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                Genre <span className="text-red-500">*</span>
+                                                {fieldLabel('sexe')}
                                             </label>
                                             <RadioGroup
                                                 name="sexe"
@@ -717,28 +794,28 @@ export default function Create({ filieres, draft, initialStep }) {
                                             />
                                         </div>
 
-                                        <TextField id="prenoms" name="prenoms" autoComplete="given-name" label="Prénom(s)" value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} required disabled={!!draftId} />
-                                        <TextField id="nom" name="nom" autoComplete="family-name" label="Nom" value={data.nom} onChange={set('nom')} error={errors.nom} required disabled={!!draftId} />
-                                        <TextField id="date_naissance" name="date_naissance" autoComplete="bday" label="Date de naissance" type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} required />
-                                        <TextField id="lieu_naissance" name="lieu_naissance" autoComplete="off" label="Lieu de naissance" value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} required />
+                                        <TextField id="prenoms" name="prenoms" autoComplete="given-name" label={fieldLabel('prenoms')} value={data.prenoms} onChange={set('prenoms')} error={errors.prenoms} disabled={!!draftId} />
+                                        <TextField id="nom" name="nom" autoComplete="family-name" label={fieldLabel('nom')} value={data.nom} onChange={set('nom')} error={errors.nom} disabled={!!draftId} />
+                                        <TextField id="date_naissance" name="date_naissance" autoComplete="bday" label={fieldLabel('date_naissance')} type="date" value={data.date_naissance} onChange={set('date_naissance')} error={errors.date_naissance} />
+                                        <TextField id="lieu_naissance" name="lieu_naissance" autoComplete="off" label={fieldLabel('lieu_naissance')} value={data.lieu_naissance} onChange={set('lieu_naissance')} error={errors.lieu_naissance} />
 
-                                        <SelectField id="nationalite" name="nationalite" autoComplete="off" label="Nationalité" value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite} required>
+                                        <SelectField id="nationalite" name="nationalite" autoComplete="off" label={fieldLabel('nationalite')} value={data.nationalite} onChange={set('nationalite')} error={errors.nationalite}>
                                             <option value="" disabled>Choisir…</option>
                                             {nationalites.map((n) => <option key={n} value={n}>{n}</option>)}
                                         </SelectField>
-                                        <SelectField id="pays" name="pays" autoComplete="country-name" label="Pays de résidence" value={data.pays} onChange={set('pays')} error={errors.pays} required>
+                                        <SelectField id="pays" name="pays" autoComplete="country-name" label={fieldLabel('pays')} value={data.pays} onChange={set('pays')} error={errors.pays}>
                                             <option value="" disabled>Choisir…</option>
                                             {countries.map((c) => <option key={c} value={c}>{c}</option>)}
                                         </SelectField>
 
-                                        <TextField id="cin" name="cin" autoComplete="off" label="CIN ou passeport (facultatif)" value={data.cin} onChange={set('cin')} error={errors.cin} />
-                                        <TextField id="telephone" name="telephone" autoComplete="tel" label="Téléphone du candidat" value={data.telephone} onChange={set('telephone')} error={errors.telephone} required />
+                                        <TextField id="cin" name="cin" autoComplete="off" label={fieldLabel('cin')} value={data.cin} onChange={set('cin')} error={errors.cin} />
+                                        <TextField id="telephone" name="telephone" autoComplete="tel" label={fieldLabel('telephone')} value={data.telephone} onChange={set('telephone')} error={errors.telephone} />
 
-                                        <TextField id="email" name="email" autoComplete="email" label="Adresse e-mail" type="email" value={data.email} onChange={set('email')} error={errors.email} required disabled={!!draftId} className="sm:col-span-2" />
+                                        <TextField id="email" name="email" autoComplete="email" label={fieldLabel('email')} type="email" value={data.email} onChange={set('email')} error={errors.email} disabled={!!draftId} className="sm:col-span-2" />
 
                                         <div className="sm:col-span-2">
                                             <label htmlFor="adresse" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                Adresse complète <span className="text-red-500">*</span>
+                                                {fieldLabel('adresse')}
                                             </label>
                                             <textarea
                                                 id="adresse"
@@ -756,7 +833,10 @@ export default function Create({ filieres, draft, initialStep }) {
                                     {!draftId && (
                                         <p className="mt-6 flex items-start gap-2 rounded-lg bg-isstm-navy/5 px-3.5 py-3 text-sm text-isstm-navy dark:bg-white/5 dark:text-white">
                                             <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
-                                            Un e-mail vous sera envoyé à cette adresse pour définir votre mot de passe et accéder à votre espace candidat.
+                                            <EditableText as="span" contentKey="preinscription_info_email">
+                                                {content.preinscription_info_email ??
+                                                    'Un e-mail vous sera envoyé à cette adresse pour définir votre mot de passe et accéder à votre espace candidat.'}
+                                            </EditableText>
                                         </p>
                                     )}
 
@@ -772,27 +852,34 @@ export default function Create({ filieres, draft, initialStep }) {
                                 <Card className="p-6">
                                     <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
                                         <Users className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                                        Parents et répondant
+                                        <EditableText as="span" contentKey="preinscription_titre_famille">
+                                            {content.preinscription_titre_famille ?? 'Parents et répondant'}
+                                        </EditableText>
                                     </h2>
 
                                     <p className="mb-4 rounded-lg bg-isstm-navy/5 px-3 py-2 text-sm text-isstm-navy dark:bg-white/5 dark:text-white">
-                                        Indiquez au minimum un numéro joignable : téléphone des parents ou téléphone du répondant.
+                                        <EditableText as="span" contentKey="preinscription_info_contact">
+                                            {content.preinscription_info_contact ??
+                                                'Indiquez au minimum un numéro joignable : téléphone des parents ou téléphone du répondant.'}
+                                        </EditableText>
                                     </p>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <TextField id="nom_pere" name="nom_pere" autoComplete="off" label="Nom complet du père" value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
-                                        <TextField id="nom_mere" name="nom_mere" autoComplete="off" label="Nom complet de la mère" value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
-                                        <TextField id="contact_parents" name="contact_parents" autoComplete="tel" label="Téléphone des parents" value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} className="sm:col-span-2" />
+                                        <TextField id="nom_pere" name="nom_pere" autoComplete="off" label={fieldLabel('nom_pere')} value={data.nom_pere} onChange={set('nom_pere')} error={errors.nom_pere} />
+                                        <TextField id="nom_mere" name="nom_mere" autoComplete="off" label={fieldLabel('nom_mere')} value={data.nom_mere} onChange={set('nom_mere')} error={errors.nom_mere} />
+                                        <TextField id="contact_parents" name="contact_parents" autoComplete="tel" label={fieldLabel('contact_parents')} value={data.contact_parents} onChange={set('contact_parents')} error={errors.contact_parents} className="sm:col-span-2" />
                                     </div>
 
                                     <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-700">
                                         <p className="mb-4 text-sm font-medium text-slate-600 dark:text-slate-300">
-                                            Tuteur ou répondant <span className="text-slate-400">(si différent des parents)</span>
+                                            <EditableText as="span" contentKey="preinscription_titre_repondant">
+                                                {content.preinscription_titre_repondant ?? 'Tuteur ou répondant (si différent des parents)'}
+                                            </EditableText>
                                         </p>
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                            <TextField id="repondant_nom" name="repondant_nom" autoComplete="off" label="Nom complet" value={data.repondant_nom} onChange={set('repondant_nom')} error={errors.repondant_nom} />
-                                            <TextField id="repondant_lien" name="repondant_lien" autoComplete="off" label="Lien avec le candidat" placeholder="Ex. oncle, tante, répondant légal" value={data.repondant_lien} onChange={set('repondant_lien')} error={errors.repondant_lien} />
-                                            <TextField id="repondant_telephone" name="repondant_telephone" autoComplete="tel" label="Téléphone du répondant" value={data.repondant_telephone} onChange={set('repondant_telephone')} error={errors.repondant_telephone} className="sm:col-span-2" />
+                                            <TextField id="repondant_nom" name="repondant_nom" autoComplete="off" label={fieldLabel('repondant_nom')} value={data.repondant_nom} onChange={set('repondant_nom')} error={errors.repondant_nom} />
+                                            <TextField id="repondant_lien" name="repondant_lien" autoComplete="off" label={fieldLabel('repondant_lien')} placeholder="Ex. oncle, tante, répondant légal" value={data.repondant_lien} onChange={set('repondant_lien')} error={errors.repondant_lien} />
+                                            <TextField id="repondant_telephone" name="repondant_telephone" autoComplete="tel" label={fieldLabel('repondant_telephone')} value={data.repondant_telephone} onChange={set('repondant_telephone')} error={errors.repondant_telephone} className="sm:col-span-2" />
                                         </div>
                                     </div>
 
@@ -812,23 +899,25 @@ export default function Create({ filieres, draft, initialStep }) {
                                 <Card className="p-6">
                                     <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
                                         <GraduationCap className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                                        Parcours bac et filière souhaitée
+                                        <EditableText as="span" contentKey="preinscription_titre_formation">
+                                            {content.preinscription_titre_formation ?? 'Parcours bac et filière souhaitée'}
+                                        </EditableText>
                                     </h2>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <TextField id="annee_bacc" name="annee_bacc" autoComplete="off" label="Année d'obtention du bac" value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} required />
-                                        <SelectField id="serie_bacc" name="serie_bacc" autoComplete="off" label="Série du bac" value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc} required>
+                                        <TextField id="annee_bacc" name="annee_bacc" autoComplete="off" label={fieldLabel('annee_bacc')} value={data.annee_bacc} onChange={set('annee_bacc')} error={errors.annee_bacc} />
+                                        <SelectField id="serie_bacc" name="serie_bacc" autoComplete="off" label={fieldLabel('serie_bacc')} value={data.serie_bacc} onChange={set('serie_bacc')} error={errors.serie_bacc}>
                                             <option value="" disabled>Choisir…</option>
                                             {seriesBacc.map((s) => <option key={s} value={s}>{s}</option>)}
                                         </SelectField>
                                         {data.serie_bacc === 'AUTRE' && (
-                                            <TextField id="serie_bacc_autre" name="serie_bacc_autre" autoComplete="off" label="Précisez la série" value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} required />
+                                            <TextField id="serie_bacc_autre" name="serie_bacc_autre" autoComplete="off" label={fieldLabel('serie_bacc_autre')} value={data.serie_bacc_autre} onChange={set('serie_bacc_autre')} error={errors.serie_bacc_autre} />
                                         )}
-                                        <SelectField id="mention_bacc" name="mention_bacc" autoComplete="off" label="Mention" value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc} required>
+                                        <SelectField id="mention_bacc" name="mention_bacc" autoComplete="off" label={fieldLabel('mention_bacc')} value={data.mention_bacc} onChange={set('mention_bacc')} error={errors.mention_bacc}>
                                             <option value="" disabled>Choisir…</option>
                                             {mentionsBacc.map((m) => <option key={m} value={m}>{m}</option>)}
                                         </SelectField>
-                                        <SelectField id="code_redoublement" name="code_redoublement" autoComplete="off" label="Situation" value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement} required>
+                                        <SelectField id="code_redoublement" name="code_redoublement" autoComplete="off" label={fieldLabel('code_redoublement')} value={data.code_redoublement} onChange={set('code_redoublement')} error={errors.code_redoublement}>
                                             <option value="" disabled>Choisir…</option>
                                             <option value="N">Nouveau bachelier</option>
                                             <option value="R">Redoublant(e)</option>
@@ -837,16 +926,15 @@ export default function Create({ filieres, draft, initialStep }) {
                                             id="filiere_id"
                                             name="filiere_id"
                                             autoComplete="off"
-                                            label="Filière souhaitée"
+                                            label={fieldLabel('filiere_id')}
                                             value={data.filiere_id}
                                             onChange={(e) => { setData('filiere_id', e.target.value); setData('niveau', ''); }}
                                             error={errors.filiere_id}
-                                            required
                                         >
                                             <option value="" disabled>Choisir…</option>
                                             {filieres.map((f) => <option key={f.id} value={f.id}>{f.nom}</option>)}
                                         </SelectField>
-                                        <SelectField id="niveau" name="niveau" autoComplete="off" label="Niveau" value={data.niveau} onChange={set('niveau')} error={errors.niveau} required disabled={niveaux.length === 0}>
+                                        <SelectField id="niveau" name="niveau" autoComplete="off" label={fieldLabel('niveau')} value={data.niveau} onChange={set('niveau')} error={errors.niveau} disabled={niveaux.length === 0}>
                                             <option value="" disabled>
                                                 {niveaux.length ? 'Choisir…' : "Choisissez d'abord une filière"}
                                             </option>
@@ -870,20 +958,30 @@ export default function Create({ filieres, draft, initialStep }) {
                                 <Card className="p-6">
                                     <h2 className="mb-4 flex items-center gap-2 font-semibold text-isstm-navy dark:text-white">
                                         <ClipboardCheck className="h-5 w-5 text-isstm-gold" aria-hidden="true" />
-                                        Pièces et confirmation
+                                        <EditableText as="span" contentKey="preinscription_titre_validation">
+                                            {content.preinscription_titre_validation ?? 'Pièces et confirmation'}
+                                        </EditableText>
                                     </h2>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                        <FileInput id="photo" label="Photo d'identité" file={data.photo} existingLabel={existingFiles.photo} onChange={onFileChange('photo')} error={errors.photo} />
-                                        <FileInput id="cin_recto" label="CIN recto" file={data.cin_recto} existingLabel={existingFiles.cin_recto} onChange={onFileChange('cin_recto')} error={errors.cin_recto} />
-                                        <FileInput id="cin_verso" label="CIN verso" file={data.cin_verso} existingLabel={existingFiles.cin_verso} onChange={onFileChange('cin_verso')} error={errors.cin_verso} />
-                                        <FileInput id="diplome_attestation" label="Diplôme ou attestation" file={data.diplome_attestation} existingLabel={existingFiles.diplome_attestation} onChange={onFileChange('diplome_attestation')} error={errors.diplome_attestation} />
-                                        <FileInput id="releve_bacc" label="Relevé de notes" file={data.releve_bacc} existingLabel={existingFiles.releve_bacc} onChange={onFileChange('releve_bacc')} error={errors.releve_bacc} />
+                                        <FileInput id="photo" label={fieldLabel('photo')} file={data.photo} existingLabel={existingFiles.photo} onChange={onFileChange('photo')} error={errors.photo} required={false} />
+                                        <FileInput id="cin_recto" label={fieldLabel('cin_recto')} file={data.cin_recto} existingLabel={existingFiles.cin_recto} onChange={onFileChange('cin_recto')} error={errors.cin_recto} required={false} />
+                                        <FileInput id="cin_verso" label={fieldLabel('cin_verso')} file={data.cin_verso} existingLabel={existingFiles.cin_verso} onChange={onFileChange('cin_verso')} error={errors.cin_verso} required={false} />
+                                        <FileInput id="diplome_attestation" label={fieldLabel('diplome_attestation')} file={data.diplome_attestation} existingLabel={existingFiles.diplome_attestation} onChange={onFileChange('diplome_attestation')} error={errors.diplome_attestation} required={false} />
+                                        <FileInput id="releve_bacc" label={fieldLabel('releve_bacc')} file={data.releve_bacc} existingLabel={existingFiles.releve_bacc} onChange={onFileChange('releve_bacc')} error={errors.releve_bacc} required={false} />
                                     </div>
-                                    <p className="mt-2 text-xs text-slate-400">JPG, PNG, WebP ou PDF (5 Mo maximum par fichier).</p>
+                                    <p className="mt-2 text-xs text-slate-400">
+                                        <EditableText as="span" contentKey="preinscription_info_fichiers">
+                                            {content.preinscription_info_fichiers ?? 'JPG, PNG, WebP ou PDF (5 Mo maximum par fichier).'}
+                                        </EditableText>
+                                    </p>
 
                                     <div className="mt-6 rounded-xl bg-slate-50 p-5 dark:bg-slate-800/60">
-                                        <h3 className="mb-3 font-semibold text-isstm-navy dark:text-white">Résumé du dossier</h3>
+                                        <h3 className="mb-3 font-semibold text-isstm-navy dark:text-white">
+                                            <EditableText as="span" contentKey="preinscription_titre_resume">
+                                                {content.preinscription_titre_resume ?? 'Résumé du dossier'}
+                                            </EditableText>
+                                        </h3>
                                         <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                                             <div>
                                                 <p className="text-slate-400">Candidat</p>
@@ -961,60 +1059,64 @@ export default function Create({ filieres, draft, initialStep }) {
             <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>
                 <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Résumé complet du dossier</DialogTitle>
+                        <DialogTitle>
+                            <EditableText as="span" contentKey="preinscription_titre_resume_complet">
+                                {content.preinscription_titre_resume_complet ?? 'Résumé complet du dossier'}
+                            </EditableText>
+                        </DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-6">
                         <section>
                             <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Identité</h3>
                             <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                                <SummaryField label="Civilité" value={data.civilite} />
-                                <SummaryField label="Genre" value={data.sexe === 'M' ? 'Masculin' : data.sexe === 'F' ? 'Féminin' : ''} />
-                                <SummaryField label="Prénom(s)" value={data.prenoms} />
-                                <SummaryField label="Nom" value={data.nom} />
-                                <SummaryField label="Date de naissance" value={data.date_naissance} />
-                                <SummaryField label="Lieu de naissance" value={data.lieu_naissance} />
-                                <SummaryField label="Nationalité" value={data.nationalite} />
-                                <SummaryField label="Pays de résidence" value={data.pays} />
-                                <SummaryField label="CIN ou passeport" value={data.cin} />
-                                <SummaryField label="Téléphone" value={data.telephone} />
-                                <SummaryField label="E-mail" value={data.email} />
-                                <SummaryField label="Adresse" value={data.adresse} />
+                                <SummaryField label={fieldLabel('civilite')} value={data.civilite} />
+                                <SummaryField label={fieldLabel('sexe')} value={data.sexe === 'M' ? 'Masculin' : data.sexe === 'F' ? 'Féminin' : ''} />
+                                <SummaryField label={fieldLabel('prenoms')} value={data.prenoms} />
+                                <SummaryField label={fieldLabel('nom')} value={data.nom} />
+                                <SummaryField label={fieldLabel('date_naissance')} value={data.date_naissance} />
+                                <SummaryField label={fieldLabel('lieu_naissance')} value={data.lieu_naissance} />
+                                <SummaryField label={fieldLabel('nationalite')} value={data.nationalite} />
+                                <SummaryField label={fieldLabel('pays')} value={data.pays} />
+                                <SummaryField label={fieldLabel('cin')} value={data.cin} />
+                                <SummaryField label={fieldLabel('telephone')} value={data.telephone} />
+                                <SummaryField label={fieldLabel('email')} value={data.email} />
+                                <SummaryField label={fieldLabel('adresse')} value={data.adresse} />
                             </div>
                         </section>
 
                         <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
                             <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Famille et répondant</h3>
                             <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                                <SummaryField label="Nom du père" value={data.nom_pere} />
-                                <SummaryField label="Nom de la mère" value={data.nom_mere} />
-                                <SummaryField label="Téléphone des parents" value={data.contact_parents} />
-                                <SummaryField label="Répondant" value={data.repondant_nom} />
-                                <SummaryField label="Lien avec le répondant" value={data.repondant_lien} />
-                                <SummaryField label="Téléphone du répondant" value={data.repondant_telephone} />
+                                <SummaryField label={fieldLabel('nom_pere')} value={data.nom_pere} />
+                                <SummaryField label={fieldLabel('nom_mere')} value={data.nom_mere} />
+                                <SummaryField label={fieldLabel('contact_parents')} value={data.contact_parents} />
+                                <SummaryField label={fieldLabel('repondant_nom')} value={data.repondant_nom} />
+                                <SummaryField label={fieldLabel('repondant_lien')} value={data.repondant_lien} />
+                                <SummaryField label={fieldLabel('repondant_telephone')} value={data.repondant_telephone} />
                             </div>
                         </section>
 
                         <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
                             <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Parcours bac et filière</h3>
                             <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                                <SummaryField label="Année d'obtention du bac" value={data.annee_bacc} />
-                                <SummaryField label="Série du bac" value={data.serie_bacc === 'AUTRE' ? data.serie_bacc_autre : data.serie_bacc} />
-                                <SummaryField label="Mention" value={data.mention_bacc} />
-                                <SummaryField label="Situation" value={data.code_redoublement === 'R' ? 'Redoublant(e)' : data.code_redoublement === 'N' ? 'Nouveau bachelier' : ''} />
-                                <SummaryField label="Filière souhaitée" value={selectedFiliere?.nom} />
-                                <SummaryField label="Niveau" value={data.niveau} />
+                                <SummaryField label={fieldLabel('annee_bacc')} value={data.annee_bacc} />
+                                <SummaryField label={fieldLabel('serie_bacc')} value={data.serie_bacc === 'AUTRE' ? data.serie_bacc_autre : data.serie_bacc} />
+                                <SummaryField label={fieldLabel('mention_bacc')} value={data.mention_bacc} />
+                                <SummaryField label={fieldLabel('code_redoublement')} value={data.code_redoublement === 'R' ? 'Redoublant(e)' : data.code_redoublement === 'N' ? 'Nouveau bachelier' : ''} />
+                                <SummaryField label={fieldLabel('filiere_id')} value={selectedFiliere?.nom} />
+                                <SummaryField label={fieldLabel('niveau')} value={data.niveau} />
                             </div>
                         </section>
 
                         <section className="border-t border-slate-100 pt-5 dark:border-slate-700">
                             <h3 className="mb-3 text-sm font-semibold text-isstm-navy dark:text-white">Pièces jointes</h3>
                             <div className="grid grid-cols-3 gap-4 sm:grid-cols-5">
-                                <FilePreviewThumb label="Photo d'identité" file={data.photo} existingPath={draft?.photo_path} />
-                                <FilePreviewThumb label="CIN recto" file={data.cin_recto} existingPath={draft?.cin_recto_path} />
-                                <FilePreviewThumb label="CIN verso" file={data.cin_verso} existingPath={draft?.cin_verso_path} />
-                                <FilePreviewThumb label="Diplôme/attestation" file={data.diplome_attestation} existingPath={draft?.diplome_attestation_path} />
-                                <FilePreviewThumb label="Relevé de notes" file={data.releve_bacc} existingPath={draft?.releve_bacc_path} />
+                                <FilePreviewThumb label={fieldLabel('photo')} file={data.photo} existingPath={draft?.photo_path} />
+                                <FilePreviewThumb label={fieldLabel('cin_recto')} file={data.cin_recto} existingPath={draft?.cin_recto_path} />
+                                <FilePreviewThumb label={fieldLabel('cin_verso')} file={data.cin_verso} existingPath={draft?.cin_verso_path} />
+                                <FilePreviewThumb label={fieldLabel('diplome_attestation')} file={data.diplome_attestation} existingPath={draft?.diplome_attestation_path} />
+                                <FilePreviewThumb label={fieldLabel('releve_bacc')} file={data.releve_bacc} existingPath={draft?.releve_bacc_path} />
                             </div>
                         </section>
                     </div>

@@ -2,16 +2,17 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Password;
 
-class PreinscriptionAccepted extends Notification implements ShouldQueue
+/**
+ * Sent synchronously (not ShouldQueue) — see PreinscriptionReceived's
+ * docblock for why: this dev environment can't keep a `queue:work` process
+ * running continuously, which left this e-mail stuck undelivered.
+ */
+class PreinscriptionAccepted extends Notification
 {
-    use Queueable;
-
     public function __construct(public string $matricule) {}
 
     /**

@@ -3,6 +3,7 @@ import { Calendar, MapPin } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
+import BackButton from '../../Components/Layout/BackButton';
 import EventCalendar from '../../Components/Evenements/EventCalendar';
 import { CATEGORY_META } from '../../Components/Evenements/categoryMeta';
 import EditableText from '../../Components/QuickEdit/EditableText';
@@ -41,6 +42,7 @@ export default function Index({ evenements, calendrier }) {
             <div className="relative overflow-hidden bg-isstm-navy py-14 text-white sm:py-20">
                 <BannerBackground contentKey="evenements_banniere_image_path" />
                 <div className="relative z-10 mx-auto max-w-5xl px-6">
+                    <BackButton />
                     <h1 className="text-2xl font-bold sm:text-3xl">
                         <EditableText as="span" contentKey="evenements_titre">
                             {content.evenements_titre ?? t('evenements.titre', 'Événements à venir')}
@@ -55,7 +57,7 @@ export default function Index({ evenements, calendrier }) {
             </div>
 
             <main className="mx-auto max-w-5xl space-y-10 px-6 py-12">
-                {calendrier.length > 0 && <EventCalendar evenements={calendrier} />}
+                <EventCalendar evenements={calendrier} />
 
                 <section>
                     {availableCategories.length > 1 && (

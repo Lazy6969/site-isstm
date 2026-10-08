@@ -66,6 +66,9 @@ class UpdateQuickEditContentRequest extends FormRequest
                     'style.border_radius' => ['nullable', 'integer', 'min:0', 'max:100'],
                     'style.object_position' => ['nullable', Rule::in(['center', 'top', 'bottom', 'left', 'right'])],
                 ],
+                SiteContentType::Video => [
+                    'file' => ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:51200'],
+                ],
                 default => [
                     'value' => ['required', 'string', 'max:10000'],
                     'style' => ['nullable', 'array'],

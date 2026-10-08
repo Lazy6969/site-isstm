@@ -296,3 +296,11 @@ html[data-community-accent='amber'] .community-shell { --color-isstm-navy: #d977
         transform: none;
     }
 }
+
+/* TextField.jsx already draws its own show/hide eye button on every password
+   input — without this, Edge (and some Chromium builds) layers its own native
+   reveal icon on top, so two overlapping eye icons show up in the same spot. */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+    display: none;
+}

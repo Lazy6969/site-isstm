@@ -2,10 +2,12 @@ import { ChevronLeft, ChevronRight, Download, X } from 'lucide-react';
 import { useEffect } from 'react';
 
 /**
- * Full-screen image viewer for a post's photo album, opened from MediaGrid's
- * "+N" overflow tile (see PostCard.jsx) — lets a visitor browse every photo,
- * not just the first 4 the grid shows. Mirrors Galerie/Show.jsx's lightbox
- * (prev/next/download/close, arrow-key + Escape support).
+ * Full-screen image viewer for a post's photos, opened by clicking any image
+ * tile in MediaGrid (see PostCard.jsx) — single photo, small grid, or the
+ * "+N" overflow tile of a larger album all open the same viewer, letting a
+ * visitor browse every photo past what the grid shows. Mirrors
+ * Galerie/Show.jsx's lightbox (prev/next/download/close, arrow-key + Escape
+ * support).
  */
 export default function PostMediaLightbox({ images, index, onClose, onNavigate }) {
     const current = images[index];

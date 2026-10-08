@@ -106,6 +106,21 @@ export default function MissionVision({ content }) {
                                         />
                                         {active && <EditableImage contentKey={block.imageKey} value={block.image} />}
                                     </div>
+
+                                    {/* Beveled seam between the text panel and the image, simulating
+                                        a raised ridge (light core, dark edges either side). Lives
+                                        inside the sliding block itself (not a separate overlay) so it
+                                        rides the same translate-x transition instead of sitting still
+                                        while the panels slide underneath it. */}
+                                    <div
+                                        className="pointer-events-none absolute inset-y-0 left-1/2 z-30 hidden w-6 -translate-x-1/2 md:block"
+                                        style={{
+                                            background:
+                                                'linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.12) 60%, rgba(0,0,0,0.3) 100%)',
+                                            boxShadow: '3px 0 10px rgba(0,0,0,0.25), -3px 0 10px rgba(0,0,0,0.2)',
+                                        }}
+                                        aria-hidden="true"
+                                    />
                                 </div>
                             );
                         })}

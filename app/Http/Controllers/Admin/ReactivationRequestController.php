@@ -73,4 +73,19 @@ class ReactivationRequestController extends Controller
 
         return back()->with('status', "Demande de {$reactivation->user->name} refusée.");
     }
+
+    /**
+     * Soft-deletes the request record, not the account it's about — it only
+     * clears clutter from this list. Recoverable from the Corbeille like
+     * every other admin-deletable record (see TrashController).
+     */
+    public function destroy(ReactivationRequest $reactivation): RedirectResponse
+    {
+        $name = $reactivation->user->name;
+        $reactivation->delete();
+
+        ActivityLog::record('reactivation_deleted', "Demande de réactivation de {$name} supprimée", $reactivation);
+
+        return back()->with('status', "Demande de {$name} supprimée.");
+    }
 }

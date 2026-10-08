@@ -19,6 +19,7 @@ Route::middleware(['auth'])->prefix('console')->name('admin.')->group(function (
     Route::get('reactivations', [ReactivationRequestController::class, 'index'])->middleware('can:reactivations.manage')->name('reactivations.index');
     Route::post('reactivations/{reactivation}/approuver', [ReactivationRequestController::class, 'approve'])->middleware('can:reactivations.manage')->name('reactivations.approve');
     Route::post('reactivations/{reactivation}/refuser', [ReactivationRequestController::class, 'refuse'])->middleware('can:reactivations.manage')->name('reactivations.refuse');
+    Route::delete('reactivations/{reactivation}', [ReactivationRequestController::class, 'destroy'])->middleware('can:reactivations.manage')->name('reactivations.destroy');
 
     Route::middleware('can:dashboard.view')->prefix('corbeille')->name('trash.')->group(function () {
         Route::get('/', [TrashController::class, 'index'])->name('index');
