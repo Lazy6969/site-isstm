@@ -17,7 +17,6 @@ function buildQuickLinks(t) {
         { href: '/console/dashboard', permission: 'dashboard.view', label: t('admin.nav.dashboard', 'Tableau de bord') },
         { href: '/console/preinscriptions', permission: 'preinscriptions.manage', label: t('admin.nav.preinscriptions', 'Préinscriptions') },
         { href: '/console/scolarite/etudiants', permission: 'etudiants.view', label: t('admin.nav.etudiants', 'Étudiants') },
-        { href: '/console/scolarite/inscriptions', permission: 'inscriptions.view', label: t('admin.nav.inscriptions', 'Inscriptions') },
         { href: '/console/scolarite/classes', permission: 'classes.view', label: t('admin.nav.niveaux', 'Niveaux') },
         { href: '/console/filieres', permission: 'filieres.view', label: t('admin.nav.filieres', 'Filières') },
         { href: '/console/contenu', permission: 'quick-edit.access', label: t('admin.nav.contenu_site', 'Contenu du site') },

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Check, Eye, TriangleAlert } from 'lucide-react';
+import { Check, DoorClosed, DoorOpen, Eye, TriangleAlert } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Label } from '../../../Components/ui/label';
@@ -27,7 +27,7 @@ function TemplateCard({ template, selected, onSelect }) {
     );
 }
 
-export default function Maintenance({ settings, templates }) {
+export default function Maintenance({ settings, templates, inscriptionSettings }) {
     const form = useForm({
         enabled: settings.enabled,
         template: settings.template,
@@ -35,6 +35,20 @@ export default function Maintenance({ settings, templates }) {
         message: settings.message,
     });
     const [previewKey, setPreviewKey] = useState(0);
+
+    const inscriptionForm = useForm({
+        closed: inscriptionSettings.closed,
+        message: inscriptionSettings.message,
+    });
+
+    function toggleInscriptionsClosed() {
+        inscriptionForm.setData('closed', !inscriptionForm.data.closed);
+    }
+
+    function submitInscriptions(e) {
+        e.preventDefault();
+        inscriptionForm.put('/console/settings/maintenance/inscriptions', { preserveScroll: true });
+    }
 
     function pickTemplate(template) {
         form.setData({
@@ -157,6 +171,69 @@ export default function Maintenance({ settings, templates }) {
                         combinaisons avant d'activer la maintenance pour de vrai.
                     </p>
                 </div>
+            </form>
+
+            <hr className="my-8 border-admin-border" />
+
+            <h2 className="mb-1 text-base font-semibold text-admin-text">Préinscription & réactivation</h2>
+            <p className="mb-5 text-sm text-admin-text-secondary">
+                Ferme temporairement l'accès aux formulaires de préinscription et de réactivation de compte (bouton
+                « Ancien étudiant »), indépendamment de la maintenance générale du site. Les dossiers déjà en
+                brouillon restent accessibles à leur auteur pour être terminés.
+            </p>
+
+            <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-card p-5">
+                <div className="flex items-center gap-3">
+                    <span
+                        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                            inscriptionForm.data.closed
+                                ? 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400'
+                                : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                        }`}
+                    >
+                        {inscriptionForm.data.closed ? (
+                            <DoorClosed className="h-5 w-5" aria-hidden="true" />
+                        ) : (
+                            <DoorOpen className="h-5 w-5" aria-hidden="true" />
+                        )}
+                    </span>
+                    <div>
+                        <p className="font-medium text-admin-text">Préinscription & réactivation</p>
+                        <Badge variant={inscriptionForm.data.closed ? 'danger' : 'success'}>
+                            {inscriptionForm.data.closed ? 'Fermées' : 'Ouvertes'}
+                        </Badge>
+                    </div>
+                </div>
+                <Button
+                    type="button"
+                    onClick={toggleInscriptionsClosed}
+                    className={inscriptionForm.data.closed ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-red-600 text-white hover:bg-red-700'}
+                >
+                    {inscriptionForm.data.closed ? 'Rouvrir les inscriptions' : 'Fermer les inscriptions'}
+                </Button>
+            </div>
+
+            <form onSubmit={submitInscriptions} className="max-w-lg space-y-4">
+                <div>
+                    <Label htmlFor="inscriptions-message">Message affiché aux visiteurs lorsque c'est fermé</Label>
+                    <Textarea
+                        id="inscriptions-message"
+                        value={inscriptionForm.data.message}
+                        onChange={(e) => inscriptionForm.setData('message', e.target.value)}
+                        rows={3}
+                        placeholder="Les inscriptions sont actuellement fermées."
+                        className="mt-1.5"
+                    />
+                    {inscriptionForm.errors.message && <p className="mt-1 text-sm text-red-500">{inscriptionForm.errors.message}</p>}
+                </div>
+
+                <Button
+                    type="submit"
+                    disabled={inscriptionForm.processing}
+                    className="bg-admin-accent text-admin-accent-foreground hover:bg-admin-accent/90"
+                >
+                    Enregistrer
+                </Button>
             </form>
         </AdminLayout>
     );

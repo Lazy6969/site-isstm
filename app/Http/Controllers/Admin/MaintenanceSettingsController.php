@@ -25,6 +25,17 @@ class MaintenanceSettingsController extends Controller
                 'message' => Setting::get('maintenance.message', ''),
             ],
             'templates' => MaintenanceTemplate::options(),
+            // Préinscription/réactivation gating used to live on its own page
+            // (/console/settings/inscriptions) — folded in here since both
+            // toggles answer the same question ("can visitors reach the site
+            // right now?"). The Setting keys themselves (inscriptions.closed /
+            // inscriptions.closed_message) are unchanged, so every place that
+            // reads them (PreinscriptionController, ReactivationRequestController,
+            // HandleInertiaRequests) keeps working untouched.
+            'inscriptionSettings' => [
+                'closed' => Setting::get('inscriptions.closed', 'false') === 'true',
+                'message' => Setting::get('inscriptions.closed_message', ''),
+            ],
         ]);
     }
 
@@ -50,6 +61,31 @@ class MaintenanceSettingsController extends Controller
         );
 
         return back()->with('status', $validated['enabled'] ? 'Le site est maintenant en maintenance.' : 'Le site est de nouveau accessible à tous.');
+    }
+
+    /**
+     * Ported from the former InscriptionSettingsController — same Setting
+     * keys (inscriptions.closed / inscriptions.closed_message), only the
+     * admin page/route moved.
+     */
+    public function updateInscriptions(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'closed' => ['required', 'boolean'],
+            'message' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        Setting::set('inscriptions.closed', $validated['closed'] ? 'true' : 'false');
+        Setting::set('inscriptions.closed_message', $validated['message'] ?? '');
+
+        ActivityLog::record(
+            $validated['closed'] ? 'inscriptions_closed' : 'inscriptions_reopened',
+            $validated['closed']
+                ? 'Préinscription et réactivation de compte fermées pour les visiteurs'
+                : 'Préinscription et réactivation de compte rouvertes aux visiteurs',
+        );
+
+        return back()->with('status', $validated['closed'] ? 'Les inscriptions sont désormais fermées.' : 'Les inscriptions sont de nouveau ouvertes.');
     }
 
     /**

@@ -4,7 +4,6 @@ import {
     LayoutDashboard,
     UserPlus,
     GraduationCap,
-    ClipboardList,
     School,
     Newspaper,
     Images,
@@ -28,7 +27,6 @@ import {
     Trash2,
     TriangleAlert,
     RotateCcw,
-    DoorClosed,
 } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -53,7 +51,6 @@ function buildNavGroups(t) {
             label: t('admin.nav.group_scolarite', 'Scolarité'),
             items: [
                 { href: '/console/scolarite/etudiants', label: t('admin.nav.etudiants', 'Étudiants'), icon: GraduationCap, permission: 'etudiants.view' },
-                { href: '/console/scolarite/inscriptions', label: t('admin.nav.inscriptions', 'Inscriptions'), icon: ClipboardList, permission: 'inscriptions.view' },
                 { href: '/console/scolarite/classes', label: t('admin.nav.niveaux', 'Niveaux'), icon: School, permission: 'classes.view' },
             ],
         },
@@ -89,7 +86,6 @@ function buildNavGroups(t) {
                 { href: '/console/settings/appearance', label: t('admin.nav.apparence', 'Apparence'), icon: Palette, permission: 'settings.manage' },
                 { href: '/console/statistiques', label: t('admin.nav.statistics', 'Statistiques'), icon: BarChart3, permission: 'statistics.view' },
                 { href: '/console/settings/maintenance', label: t('admin.nav.maintenance', 'Maintenance'), icon: TriangleAlert, permission: 'settings.manage' },
-                { href: '/console/settings/inscriptions', label: t('admin.nav.inscriptions_settings', 'Inscriptions'), icon: DoorClosed, permission: 'settings.manage' },
             ],
         },
     ];

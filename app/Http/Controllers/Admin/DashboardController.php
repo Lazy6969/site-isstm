@@ -92,12 +92,6 @@ class DashboardController extends Controller
                 'permission' => 'preinscriptions.manage',
             ],
             [
-                'key' => 'reinscriptions',
-                'count' => Inscription::whereNotNull('type')->whereIn('statut', [StatutInscription::EnAttente, StatutInscription::EnExamen])->count(),
-                'href' => '/console/scolarite/inscriptions',
-                'permission' => 'inscriptions.view',
-            ],
-            [
                 'key' => 'reactivations',
                 'count' => ReactivationRequest::where('status', ReactivationStatus::EnAttente)->count(),
                 'href' => '/console/reactivations',
