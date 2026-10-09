@@ -24,21 +24,32 @@ function PortalCard({ slides, logoKey, logo, titleKey, title, descKey, descripti
     return (
         <section className="relative h-72 overflow-hidden rounded-3xl shadow-lg sm:h-[420px]">
             {slides.map((slide, index) => (
+                // Crossfade visibility (outer, class-driven opacity) is kept on
+                // its own element, separate from the photo's own adjustable
+                // opacity (inner, inline style) — stacking the two as nested
+                // elements composites them instead of one overriding the
+                // other, which is what happened when both lived on this same
+                // div (the pencil's "Opacité" field had no visible effect).
                 <div
                     key={slide.key}
-                    className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-                        index === current ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    style={{
-                        backgroundImage: `url('/${slide.value}')`,
-                        ...imageStyleToBackgroundCss(contentStyles?.[slide.key], { includeOpacity: false }),
-                    }}
+                    className={`absolute inset-0 transition-opacity duration-1000 ${index === current ? 'opacity-100' : 'opacity-0'}`}
                 >
+                    <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{
+                            backgroundImage: `url('/${slide.value}')`,
+                            ...imageStyleToBackgroundCss(contentStyles?.[slide.key]),
+                        }}
+                    />
                     {index === current && <EditableImage contentKey={slide.key} value={slide.value} className="absolute top-3 right-3 z-20" />}
                 </div>
             ))}
 
-            <div className="absolute inset-0 bg-isstm-navy-dark/75" />
+            {/* Just dark enough for the white title/text to stay readable —
+                not the near-opaque wash this used to be, which hid most of
+                the photo behind a flat color (see BannerBackground.jsx for
+                the same fix applied to the page's own banner photo). */}
+            <div className="absolute inset-0 bg-isstm-navy-dark/45" />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center text-white">
                 <div className="relative mb-4">

@@ -20,7 +20,9 @@ it('lets a super admin list every site content entry grouped by section', functi
     $this->actingAs($admin)->get('/console/contenu')->assertInertia(fn ($page) => $page
         ->component('Admin/Contenu/Index')
         ->where('groups.Contact.0.content_key', 'contact_email')
-        ->has('groups.Accueil — Statistiques', 1)
+        // 2, not 1: the migration-seeded `stat_design` key (see
+        // Components/Home/Stats.jsx) always exists alongside it.
+        ->has('groups.Accueil — Statistiques', 2)
         ->has('icons')
     );
 });

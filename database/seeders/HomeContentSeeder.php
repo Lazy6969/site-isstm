@@ -480,6 +480,18 @@ class HomeContentSeeder extends Seeder
             'bourse_carte' => ['Style des cartes bourse', 'Scholarship card style', 'Endrika kaoty vatsim-pianarana'],
             'equipe_carte' => ['Style des cartes équipe', 'Team card style', 'Endrika kaoty ekipa'],
 
+            // Design des statistiques de l'accueil (valeur non affichée — seule
+            // la colonne `style.design` compte, voir Components/Home/Stats.jsx)
+            'stat_design' => ['Design des statistiques', 'Stats design', 'Endrika antontan-isa'],
+
+            // Design du bloc Mission & Vision (valeur non affichée — seule la
+            // colonne `style.design` compte, voir Components/Home/MissionVision.jsx)
+            'mission_vision_design' => ['Design mission et vision', 'Mission and vision design', 'Endrika iraka sy fahitana'],
+
+            // Design des 4 étapes d'inscription (valeur non affichée — seule la
+            // colonne `style.design` compte, voir Components/Rejoindre/EtapesInscription.jsx)
+            'rejoindre_etapes_design' => ["Design des étapes d'inscription", 'Enrollment steps design', 'Endrika dingana fisoratana anarana'],
+
             // SEO — titre/description meta par page (voir Components/QuickEdit/SeoHead.jsx)
             'accueil_seo_titre' => ['Accueil', 'Home', 'Fandraisana'],
             'accueil_seo_description' => [

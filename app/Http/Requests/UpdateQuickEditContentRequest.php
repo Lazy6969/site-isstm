@@ -102,6 +102,12 @@ class UpdateQuickEditContentRequest extends FormRequest
                     // part of this style payload.
                     'style.icon' => ['nullable', Rule::enum(SiteIcon::class)],
                     'style.blur' => ['nullable', Rule::in(['none', 'sm', 'md', 'lg', 'xl'])],
+                    // Which layout to render — reused by every content key
+                    // offering a design picker (stat_design in
+                    // Components/Home/Stats.jsx, up to 9 choices; mission_vision_design
+                    // in Components/Home/MissionVision.jsx, 5 choices) — a plain
+                    // text content key simply never sets this otherwise.
+                    'style.design' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '6', '7', '8', '9'])],
                 ],
             },
         ];
