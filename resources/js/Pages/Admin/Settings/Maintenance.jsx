@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useForm } from '@inertiajs/react';
-import { Check, DoorClosed, DoorOpen, Eye, TriangleAlert } from 'lucide-react';
+import { router, useForm } from '@inertiajs/react';
+import { Check, DoorClosed, DoorOpen, Eye, GraduationCap, TriangleAlert } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Button } from '../../../Components/ui/button';
 import { Label } from '../../../Components/ui/label';
@@ -27,7 +27,7 @@ function TemplateCard({ template, selected, onSelect }) {
     );
 }
 
-export default function Maintenance({ settings, templates, inscriptionSettings }) {
+export default function Maintenance({ settings, templates, inscriptionSettings, admissionsOpen }) {
     const form = useForm({
         enabled: settings.enabled,
         template: settings.template,
@@ -48,6 +48,17 @@ export default function Maintenance({ settings, templates, inscriptionSettings }
     function submitInscriptions(e) {
         e.preventDefault();
         inscriptionForm.put('/console/settings/maintenance/inscriptions', { preserveScroll: true });
+    }
+
+    // A single boolean with nothing else to configure — toggling it takes
+    // effect immediately (like a light switch), unlike the maintenance/
+    // inscriptions toggles above which stage into their own form's "Enregistrer".
+    const [admissionsOpenState, setAdmissionsOpenState] = useState(admissionsOpen);
+
+    function toggleAdmissionsOpen() {
+        const next = !admissionsOpenState;
+        setAdmissionsOpenState(next);
+        router.put('/console/settings/maintenance/admissions', { open: next }, { preserveScroll: true });
     }
 
     function pickTemplate(template) {
@@ -235,6 +246,41 @@ export default function Maintenance({ settings, templates, inscriptionSettings }
                     Enregistrer
                 </Button>
             </form>
+
+            <hr className="my-8 border-admin-border" />
+
+            <h2 className="mb-1 text-base font-semibold text-admin-text">Admissions</h2>
+            <p className="mb-5 text-sm text-admin-text-secondary">
+                Bascule la bannière « Admissions ouvertes / fermées » affichée sur l'accueil. Le titre, le texte et
+                l'image de chaque état se modifient directement sur la page via le crayon.
+            </p>
+
+            <div className="flex items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-card p-5">
+                <div className="flex items-center gap-3">
+                    <span
+                        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                            admissionsOpenState
+                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                                : 'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400'
+                        }`}
+                    >
+                        <GraduationCap className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <div>
+                        <p className="font-medium text-admin-text">Admissions</p>
+                        <Badge variant={admissionsOpenState ? 'success' : 'danger'}>
+                            {admissionsOpenState ? 'Ouvertes' : 'Fermées'}
+                        </Badge>
+                    </div>
+                </div>
+                <Button
+                    type="button"
+                    onClick={toggleAdmissionsOpen}
+                    className={admissionsOpenState ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}
+                >
+                    {admissionsOpenState ? 'Marquer comme fermées' : 'Marquer comme ouvertes'}
+                </Button>
+            </div>
         </AdminLayout>
     );
 }

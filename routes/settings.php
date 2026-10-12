@@ -13,4 +13,7 @@ Route::middleware(['auth'])->prefix('console/settings')->name('admin.settings.')
     Route::get('maintenance/preview', [MaintenanceSettingsController::class, 'preview'])->middleware('can:settings.manage')->name('maintenance.preview');
     // Préinscription/réactivation gating, formerly its own /console/settings/inscriptions page.
     Route::put('maintenance/inscriptions', [MaintenanceSettingsController::class, 'updateInscriptions'])->middleware('can:settings.manage')->name('maintenance.inscriptions.update');
+    // The homepage "Admissions ouvertes/fermées" banner's on/off switch — also
+    // reachable from the banner's own on-page toggle (same permission either way).
+    Route::put('maintenance/admissions', [MaintenanceSettingsController::class, 'updateAdmissions'])->middleware('can:settings.manage')->name('maintenance.admissions.update');
 });

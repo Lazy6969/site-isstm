@@ -32,6 +32,9 @@ import {
     RotateCcw,
     UserCheck,
     Search,
+    Sun,
+    Moon,
+    Bell,
 } from 'lucide-react';
 
 /**
@@ -73,6 +76,9 @@ export const ICONS = {
     RotateCcw,
     UserCheck,
     Search,
+    Sun,
+    Moon,
+    Bell,
 };
 
 export function getIcon(name) {

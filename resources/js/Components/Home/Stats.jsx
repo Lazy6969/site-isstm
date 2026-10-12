@@ -8,7 +8,13 @@ function useCountUp(target, active) {
     const [value, setValue] = useState(0);
 
     useEffect(() => {
-        if (!active) return;
+        // Leaving view resets to 0 rather than freezing mid-count, so the
+        // next time this item scrolls into view it counts up fresh instead
+        // of just sitting at its last value.
+        if (!active) {
+            setValue(0);
+            return;
+        }
         const duration = 1400;
         const start = performance.now();
 
@@ -25,9 +31,11 @@ function useCountUp(target, active) {
     return value;
 }
 
-/** Combines the count-up animation with the IntersectionObserver that starts
- * it once the item scrolls into view — shared by every one of the 5 designs
- * below so each only has to render markup around `value`. */
+/** Combines the count-up animation with the IntersectionObserver that drives
+ * it — shared by every one of the 9 designs below so each only has to render
+ * markup around `value`/`active`. `active` toggles both ways (not just on
+ * first reveal), so scrolling the item out and back in replays the count-up
+ * and the icon's pop-in every time, not just once per page load. */
 function useRevealingCount(target) {
     const ref = useRef(null);
     const [active, setActive] = useState(false);
@@ -36,38 +44,42 @@ function useRevealingCount(target) {
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) setActive(true);
-            },
-            { threshold: 0.4 },
-        );
+        const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { threshold: 0.4 });
         observer.observe(el);
         return () => observer.disconnect();
     }, []);
 
-    return [ref, value];
+    return [ref, value, active];
 }
 
-// Shared 3-color accent rotation (brand gold/navy/red) for the designs that
-// color each stat differently — literal class names so Tailwind's scanner
-// picks them up (a templated `bg-${color}` string would not).
-const PALETTE = [
-    { bg: 'bg-isstm-gold', text: 'text-isstm-gold', border: 'border-isstm-gold' },
-    { bg: 'bg-isstm-navy', text: 'text-isstm-navy', border: 'border-isstm-navy' },
-    { bg: 'bg-isstm-red', text: 'text-isstm-red', border: 'border-isstm-red' },
-];
+// Shared icon "pop in" transition, applied to every design's icon wrapper
+// below — scales/fades in on each reveal, back out when the item leaves
+// view, so it replays in sync with the count-up every time.
+const ICON_POP_CLASS = 'transition-all duration-500 ease-out';
+function iconPopStyle(active) {
+    return active ? 'scale-100 opacity-100' : 'scale-50 opacity-0';
+}
+
+// Shared 3-color accent rotation (brand gold/navy/red by default) for the
+// designs that color each stat differently — admin-overridable via the
+// design picker's own color swatches (see stat_design's `colorizable` prop
+// below), applied as inline styles rather than Tailwind classes since a
+// color chosen at runtime can't be a statically-scanned class name.
+const DEFAULT_PALETTE = ['#d4a017', '#003366', '#dc143c'];
+const PALETTE_LABELS = ['Couleur 1', 'Couleur 2', 'Couleur 3'];
 
 /* ---------------------------------------------------------------------- */
 /* Design 1 — "Plaque": a single glass panel, gold icon badge per item.    */
 /* ---------------------------------------------------------------------- */
 
 function PlaqueItem({ item, isLast }) {
-    const [ref, value] = useRevealingCount(item.target);
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="relative flex flex-1 items-center gap-4 px-6 py-6 sm:px-7 sm:py-7">
-            <span className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-isstm-gold to-amber-400 text-isstm-navy-dark shadow-lg shadow-black/20 sm:h-16 sm:w-16">
+            <span
+                className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-isstm-gold to-amber-400 text-isstm-navy-dark shadow-lg shadow-black/20 sm:h-16 sm:w-16 ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-6 w-6 sm:h-7 sm:w-7" />
             </span>
             <div className="min-w-0">
@@ -112,11 +124,13 @@ function DesignPlaque({ items, pencil }) {
 /* ---------------------------------------------------------------------- */
 
 function GradientPlaqueItem({ item, isLast }) {
-    const [ref, value] = useRevealingCount(item.target);
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="relative flex flex-1 flex-col items-center gap-2 px-6 py-7 text-center sm:py-8">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm">
+            <span
+                className={`flex h-12 w-12 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-6 w-6" />
             </span>
             <p className="text-3xl leading-none font-extrabold text-white sm:text-4xl">
@@ -154,13 +168,15 @@ function DesignPlaqueGradient({ items, pencil }) {
 /* cell (brand accent border) inside one bounding panel.                   */
 /* ---------------------------------------------------------------------- */
 
-function OutlinePlaqueItem({ item, index }) {
-    const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
+function OutlinePlaqueItem({ item, color }) {
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
-        <div ref={ref} className={`flex flex-col items-center gap-2 rounded-xl border-2 px-5 py-6 text-center ${palette.border}`}>
-            <span className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${palette.bg}`}>
+        <div ref={ref} className="flex flex-col items-center gap-2 rounded-xl border-2 px-5 py-6 text-center" style={{ borderColor: color }}>
+            <span
+                className={`flex h-11 w-11 items-center justify-center rounded-full text-white ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+                style={{ backgroundColor: color }}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-5 w-5" />
             </span>
             <p className="text-2xl leading-none font-extrabold text-isstm-navy-dark sm:text-3xl dark:text-white">
@@ -173,14 +189,14 @@ function OutlinePlaqueItem({ item, index }) {
     );
 }
 
-function DesignPlaqueOutline({ items, pencil }) {
+function DesignPlaqueOutline({ items, pencil, colors }) {
     return (
         <section className="relative -mt-20 z-20 mx-auto max-w-5xl px-6">
             {pencil}
             <div className="relative rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-2xl shadow-slate-900/10 sm:p-5 dark:border-white/10 dark:bg-slate-900">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {items.map((item, index) => (
-                        <OutlinePlaqueItem key={item.statKey} item={item} index={index} />
+                        <OutlinePlaqueItem key={item.statKey} item={item} color={colors[index]} />
                     ))}
                 </div>
             </div>
@@ -193,18 +209,20 @@ function DesignPlaqueOutline({ items, pencil }) {
 /* brand-color blocks instead of one shared background.                   */
 /* ---------------------------------------------------------------------- */
 
-function ColorPlaqueItem({ item, index, isLast }) {
-    const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
+function ColorPlaqueItem({ item, color, isLast }) {
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div
             ref={ref}
-            className={`flex flex-1 flex-col items-center gap-2 px-6 py-7 text-center text-white sm:py-8 ${palette.bg} ${
+            className={`flex flex-1 flex-col items-center gap-2 px-6 py-7 text-center text-white sm:py-8 ${
                 !isLast ? 'border-b border-white/20 sm:border-r sm:border-b-0' : ''
             }`}
+            style={{ backgroundColor: color }}
         >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/20">
+            <span
+                className={`flex h-11 w-11 items-center justify-center rounded-full bg-white/20 ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-5 w-5" />
             </span>
             <p className="text-3xl leading-none font-extrabold sm:text-4xl">
@@ -217,13 +235,13 @@ function ColorPlaqueItem({ item, index, isLast }) {
     );
 }
 
-function DesignPlaqueColor({ items, pencil }) {
+function DesignPlaqueColor({ items, pencil, colors }) {
     return (
         <section className="relative -mt-20 z-20 mx-auto max-w-5xl px-6">
             {pencil}
             <div className="relative flex flex-col overflow-hidden rounded-[1.75rem] shadow-2xl shadow-black/30 sm:flex-row">
                 {items.map((item, index) => (
-                    <ColorPlaqueItem key={item.statKey} item={item} index={index} isLast={index === items.length - 1} />
+                    <ColorPlaqueItem key={item.statKey} item={item} color={colors[index]} isLast={index === items.length - 1} />
                 ))}
             </div>
         </section>
@@ -235,19 +253,21 @@ function DesignPlaqueColor({ items, pencil }) {
 /* corner ribbon card that carries the number and label.                  */
 /* ---------------------------------------------------------------------- */
 
-function RibbonItem({ item, index }) {
-    const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
+function RibbonItem({ item, index, color }) {
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="flex flex-col items-center text-center">
-            <span className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-4 border-white text-white shadow-lg dark:border-slate-900 ${palette.bg}`}>
+            <span
+                className={`flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border-4 border-white text-white shadow-lg dark:border-slate-900 ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+                style={{ backgroundColor: color }}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-6 w-6" />
             </span>
             <span className="h-6 w-px bg-slate-300 dark:bg-white/20" aria-hidden="true" />
             <div
-                className={`relative w-full max-w-[220px] px-5 pt-7 pb-6 text-white shadow-xl ${palette.bg}`}
-                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 78%, 82% 100%, 0 100%)', borderRadius: '1rem' }}
+                className="relative w-full max-w-[220px] px-5 pt-7 pb-6 text-white shadow-xl"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 100% 78%, 82% 100%, 0 100%)', borderRadius: '1rem', backgroundColor: color }}
             >
                 <span className="absolute -top-3 -left-3 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-white text-xs font-bold text-isstm-navy shadow">
                     {index + 1}
@@ -263,14 +283,14 @@ function RibbonItem({ item, index }) {
     );
 }
 
-function DesignRibbons({ items, pencil }) {
+function DesignRibbons({ items, pencil, colors }) {
     return (
         <section className="relative bg-white py-16 sm:py-20 dark:bg-slate-900">
             <div className="relative mx-auto max-w-5xl px-6">
                 {pencil}
                 <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-6">
                     {items.map((item, index) => (
-                        <RibbonItem key={item.statKey} item={item} index={index} />
+                        <RibbonItem key={item.statKey} item={item} index={index} color={colors[index]} />
                     ))}
                 </div>
             </div>
@@ -283,39 +303,45 @@ function DesignRibbons({ items, pencil }) {
 /* carrying a diamond pendant with the number.                            */
 /* ---------------------------------------------------------------------- */
 
-function OrbitItem({ item, index }) {
-    const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
+function OrbitItem({ item, color }) {
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="relative flex flex-col items-center gap-3">
-            <span className={`flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg ring-4 ring-white dark:ring-slate-900 ${palette.bg}`}>
+            <span
+                className={`flex h-16 w-16 items-center justify-center rounded-full text-white shadow-lg ring-4 ring-white dark:ring-slate-900 ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+                style={{ backgroundColor: color }}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-7 w-7" />
             </span>
-            <span className={`flex h-14 w-14 rotate-45 items-center justify-center rounded-xl shadow-md ${palette.bg}`}>
+            <span
+                className="flex h-14 w-14 rotate-45 items-center justify-center rounded-xl shadow-md"
+                style={{ backgroundColor: color }}
+            >
                 <span className="-rotate-45 text-base font-extrabold text-white">
                     +<EditableText as="span" contentKey={item.statKey}>{String(value)}</EditableText>
                 </span>
             </span>
-            <p className={`text-xs font-semibold tracking-wide uppercase ${palette.text} dark:text-white/90`}>
+            <p className="text-xs font-semibold tracking-wide uppercase dark:text-white/90" style={{ color }}>
                 <EditableText as="span" contentKey={item.labelKey}>{item.label}</EditableText>
             </p>
         </div>
     );
 }
 
-function DesignOrbit({ items, pencil }) {
+function DesignOrbit({ items, pencil, colors }) {
     return (
         <section className="relative bg-white py-16 sm:py-20 dark:bg-slate-900">
             <div className="relative mx-auto max-w-5xl px-6">
                 {pencil}
                 <div className="relative grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-6">
                     <div
-                        className="pointer-events-none absolute inset-x-12 top-8 hidden h-px bg-gradient-to-r from-isstm-gold via-isstm-navy to-isstm-red opacity-60 sm:block"
+                        className="pointer-events-none absolute inset-x-12 top-8 hidden h-px opacity-60 sm:block"
+                        style={{ backgroundImage: `linear-gradient(to right, ${colors[0]}, ${colors[1]}, ${colors[2]})` }}
                         aria-hidden="true"
                     />
                     {items.map((item, index) => (
-                        <OrbitItem key={item.statKey} item={item} index={index} />
+                        <OrbitItem key={item.statKey} item={item} color={colors[index]} />
                     ))}
                 </div>
             </div>
@@ -328,15 +354,28 @@ function DesignOrbit({ items, pencil }) {
 /* pointed tag cards.                                                      */
 /* ---------------------------------------------------------------------- */
 
-function BeadTag({ item, index }) {
+function BeadIcon({ item, color, index, total }) {
+    const [ref, , active] = useRevealingCount(0);
+
+    return (
+        <span
+            ref={ref}
+            className={`flex h-16 w-16 items-center justify-center rounded-full border-4 border-white text-white shadow-lg dark:border-slate-900 ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+            style={{ zIndex: total - index, backgroundColor: color }}
+        >
+            <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-6 w-6" />
+        </span>
+    );
+}
+
+function BeadTag({ item, color }) {
     const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
 
     return (
         <div
             ref={ref}
-            className={`flex flex-col items-center px-4 pt-8 pb-5 text-center text-white shadow-lg ${palette.bg}`}
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)' }}
+            className="flex flex-col items-center px-4 pt-8 pb-5 text-center text-white shadow-lg"
+            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)', backgroundColor: color }}
         >
             <p className="text-2xl leading-none font-extrabold">
                 +<EditableText as="span" contentKey={item.statKey}>{String(value)}</EditableText>
@@ -348,25 +387,19 @@ function BeadTag({ item, index }) {
     );
 }
 
-function DesignBeads({ items, pencil }) {
+function DesignBeads({ items, pencil, colors }) {
     return (
         <section className="relative bg-white py-16 sm:py-20 dark:bg-slate-900">
             <div className="relative mx-auto max-w-2xl px-6">
                 {pencil}
                 <div className="flex -space-x-3 [&>*]:relative">
                     {items.map((item, index) => (
-                        <span
-                            key={item.statKey}
-                            className={`flex h-16 w-16 items-center justify-center rounded-full border-4 border-white text-white shadow-lg dark:border-slate-900 ${PALETTE[index].bg}`}
-                            style={{ zIndex: items.length - index }}
-                        >
-                            <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-6 w-6" />
-                        </span>
+                        <BeadIcon key={item.statKey} item={item} color={colors[index]} index={index} total={items.length} />
                     ))}
                 </div>
                 <div className="-mt-1 grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {items.map((item, index) => (
-                        <BeadTag key={item.statKey} item={item} index={index} />
+                        <BeadTag key={item.statKey} item={item} color={colors[index]} />
                     ))}
                 </div>
             </div>
@@ -379,13 +412,15 @@ function DesignBeads({ items, pencil }) {
 /* glow bleeding beneath each one.                                        */
 /* ---------------------------------------------------------------------- */
 
-function BadgeItem({ item, index }) {
-    const [ref, value] = useRevealingCount(item.target);
-    const palette = PALETTE[index];
+function BadgeItem({ item, color }) {
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="relative flex flex-col items-center gap-3 text-center">
-            <span className={`flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-xl ${palette.bg}`}>
+            <span
+                className={`flex h-16 w-16 items-center justify-center rounded-2xl text-white shadow-xl ${ICON_POP_CLASS} ${iconPopStyle(active)}`}
+                style={{ backgroundColor: color }}
+            >
                 <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-7 w-7" />
             </span>
             <p className="text-3xl leading-none font-extrabold text-isstm-navy-dark dark:text-white">
@@ -395,21 +430,22 @@ function BadgeItem({ item, index }) {
                 <EditableText as="span" contentKey={item.labelKey}>{item.label}</EditableText>
             </p>
             <span
-                className={`pointer-events-none absolute -bottom-6 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full opacity-20 blur-2xl ${palette.bg}`}
+                className="pointer-events-none absolute -bottom-6 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full opacity-20 blur-2xl"
+                style={{ backgroundColor: color }}
                 aria-hidden="true"
             />
         </div>
     );
 }
 
-function DesignBadges({ items, pencil }) {
+function DesignBadges({ items, pencil, colors }) {
     return (
         <section className="relative overflow-hidden bg-white py-16 sm:py-20 dark:bg-slate-900">
             <div className="relative mx-auto max-w-5xl px-6">
                 {pencil}
                 <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-4">
                     {items.map((item, index) => (
-                        <BadgeItem key={item.statKey} item={item} index={index} />
+                        <BadgeItem key={item.statKey} item={item} color={colors[index]} />
                     ))}
                 </div>
             </div>
@@ -423,11 +459,13 @@ function DesignBadges({ items, pencil }) {
 /* ---------------------------------------------------------------------- */
 
 function ClassicItem({ item }) {
-    const [ref, value] = useRevealingCount(item.target);
+    const [ref, value, active] = useRevealingCount(item.target);
 
     return (
         <div ref={ref} className="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-100 sm:p-5 dark:bg-slate-800 dark:ring-slate-700">
-            <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="mx-auto h-5 w-5 text-isstm-gold sm:h-6 sm:w-6" />
+            <span className={`mx-auto inline-flex ${ICON_POP_CLASS} ${iconPopStyle(active)}`}>
+                <EditableIcon contentKey={item.iconKey} value={item.iconValue} className="h-5 w-5 text-isstm-gold sm:h-6 sm:w-6" />
+            </span>
             <p className="mt-1.5 text-xl font-bold text-isstm-navy sm:text-2xl dark:text-white">
                 +<EditableText as="span" contentKey={item.statKey}>{String(value)}</EditableText>
             </p>
@@ -601,6 +639,7 @@ const DESIGN_OPTIONS = [
 export default function Stats({ content }) {
     const { contentStyles } = usePage().props;
     const design = contentStyles?.stat_design?.design ?? '1';
+    const colors = contentStyles?.stat_design?.colors ?? DEFAULT_PALETTE;
 
     const items = [
         {
@@ -637,8 +676,11 @@ export default function Stats({ content }) {
             description="Choisissez l'apparence du bloc statistiques affiché sous l'accueil."
             designs={DESIGN_OPTIONS}
             className="absolute top-2 right-2 z-40 sm:top-4 sm:right-4"
+            colorizable
+            colorLabels={PALETTE_LABELS}
+            defaultColors={DEFAULT_PALETTE}
         />
     );
 
-    return <DesignComponent items={items} pencil={pencil} />;
+    return <DesignComponent items={items} pencil={pencil} colors={colors} />;
 }

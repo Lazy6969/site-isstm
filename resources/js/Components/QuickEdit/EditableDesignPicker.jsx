@@ -12,7 +12,16 @@ import EditDesignPickerDialog from './EditDesignPickerDialog';
  * `designs` is an array of { value, label, Thumbnail } describing the
  * choices offered in the dialog.
  */
-export default function EditableDesignPicker({ contentKey, title, description, designs, className = '' }) {
+export default function EditableDesignPicker({
+    contentKey,
+    title,
+    description,
+    designs,
+    className = '',
+    colorizable = false,
+    colorLabels,
+    defaultColors,
+}) {
     const { canEdit, active } = useQuickEdit();
     const { contentStyles } = usePage().props;
     const [open, setOpen] = useState(false);
@@ -40,6 +49,10 @@ export default function EditableDesignPicker({ contentKey, title, description, d
                 description={description}
                 designs={designs}
                 design={contentStyles?.[contentKey]?.design ?? '1'}
+                colorizable={colorizable}
+                colorLabels={colorLabels}
+                colors={contentStyles?.[contentKey]?.colors ?? defaultColors}
+                defaultColors={defaultColors}
             />
         </>
     );

@@ -65,6 +65,10 @@ class UpdateQuickEditContentRequest extends FormRequest
                     'style.filter' => ['nullable', Rule::in(['none', 'grayscale', 'sepia', 'blur', 'contrast', 'vivid'])],
                     'style.border_radius' => ['nullable', 'integer', 'min:0', 'max:100'],
                     'style.object_position' => ['nullable', Rule::in(['center', 'top', 'bottom', 'left', 'right'])],
+                    // Independently adjustable blur, combinable with the
+                    // filter above (see commonProps() in lib/imageStyle.js) —
+                    // every image on the site offers this via its own pencil.
+                    'style.blur_px' => ['nullable', 'integer', 'min:0', 'max:20'],
                 ],
                 SiteContentType::Video => [
                     'file' => ['nullable', 'file', 'mimes:mp4,webm,mov', 'max:51200'],
@@ -108,6 +112,12 @@ class UpdateQuickEditContentRequest extends FormRequest
                     // in Components/Home/MissionVision.jsx, 5 choices) — a plain
                     // text content key simply never sets this otherwise.
                     'style.design' => ['nullable', Rule::in(['1', '2', '3', '4', '5', '6', '7', '8', '9'])],
+                    // The brand-color rotation a colorizable design picker
+                    // lets an admin override (see stat_design in
+                    // Components/Home/Stats.jsx) — always exactly 3 hex
+                    // colors, same order as the design's own default palette.
+                    'style.colors' => ['nullable', 'array', 'size:3'],
+                    'style.colors.*' => ['regex:/^#[0-9a-f]{6}$/i'],
                 ],
             },
         ];

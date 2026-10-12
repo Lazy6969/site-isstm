@@ -5,13 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Select } from '../ui/select';
-import { IMAGE_FILTER_OPTIONS, IMAGE_POSITION_OPTIONS, imageStyleToCss } from '../../lib/imageStyle';
+import { IMAGE_BLUR_MAX_PX, IMAGE_FILTER_OPTIONS, IMAGE_POSITION_OPTIONS, imageStyleToCss } from '../../lib/imageStyle';
 
 const DEFAULT_STYLE = {
     opacity: 100,
     filter: 'none',
     border_radius: 0,
     object_position: 'center',
+    blur_px: 0,
 };
 
 const POSITION_LABELS = { center: 'Centre', top: 'Haut', bottom: 'Bas', left: 'Gauche', right: 'Droite' };
@@ -26,6 +27,7 @@ function toStylePayload(style) {
     if (style.filter !== DEFAULT_STYLE.filter) payload.filter = style.filter;
     if (Number(style.border_radius) !== DEFAULT_STYLE.border_radius) payload.border_radius = Number(style.border_radius);
     if (style.object_position !== DEFAULT_STYLE.object_position) payload.object_position = style.object_position;
+    if (Number(style.blur_px) !== DEFAULT_STYLE.blur_px) payload.blur_px = Number(style.blur_px);
 
     return Object.keys(payload).length > 0 ? payload : null;
 }
@@ -105,7 +107,7 @@ export default function EditImageDialog({ open, onClose, contentKey, currentValu
                             </Button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                             <div className="space-y-1">
                                 <Label htmlFor="qei-opacity">Opacité ({style.opacity}%)</Label>
                                 <input
@@ -115,6 +117,18 @@ export default function EditImageDialog({ open, onClose, contentKey, currentValu
                                     max={100}
                                     value={style.opacity}
                                     onChange={(e) => patchStyle({ opacity: e.target.value })}
+                                    className="h-10 w-full accent-admin-text"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <Label htmlFor="qei-blur">Flou ({style.blur_px}px)</Label>
+                                <input
+                                    id="qei-blur"
+                                    type="range"
+                                    min={0}
+                                    max={IMAGE_BLUR_MAX_PX}
+                                    value={style.blur_px}
+                                    onChange={(e) => patchStyle({ blur_px: e.target.value })}
                                     className="h-10 w-full accent-admin-text"
                                 />
                             </div>

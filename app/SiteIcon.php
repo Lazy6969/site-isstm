@@ -43,4 +43,7 @@ enum SiteIcon: string
     case RotateCcw = 'RotateCcw';
     case UserCheck = 'UserCheck';
     case Search = 'Search';
+    case Sun = 'Sun';
+    case Moon = 'Moon';
+    case Bell = 'Bell';
 }

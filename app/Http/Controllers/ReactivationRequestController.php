@@ -30,7 +30,9 @@ class ReactivationRequestController extends Controller
             return redirect()->route('rejoindre')->with('status', 'Vous êtes déjà inscrit(e) en tant qu’étudiant.');
         }
 
-        if (Setting::get('inscriptions.closed', 'false') === 'true') {
+        // Closed either by its own toggle, or by the broader "Admissions
+        // fermées" status.
+        if (Setting::get('inscriptions.closed', 'false') === 'true' || Setting::get('admissions.open', 'true') === 'false') {
             return redirect()->route('rejoindre')->with(
                 'status',
                 Setting::get('inscriptions.closed_message') ?: 'Les inscriptions sont actuellement fermées.',

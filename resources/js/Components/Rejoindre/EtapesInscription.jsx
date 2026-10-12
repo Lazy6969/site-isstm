@@ -3,6 +3,7 @@ import { ChevronDown, ListChecks } from 'lucide-react';
 import { useState } from 'react';
 import EditableText from '../QuickEdit/EditableText';
 import EditableDesignPicker from '../QuickEdit/EditableDesignPicker';
+import AbstractWaves from '../Layout/AbstractWaves';
 import { useTranslations } from '../../lib/useTranslations';
 
 const STEPS = [
@@ -88,8 +89,9 @@ function EtapesHeader({ pencil }) {
 
 function DesignCards({ steps, pencil }) {
     return (
-        <section className="bg-white py-14 sm:py-20 dark:bg-slate-900">
-            <div className="mx-auto max-w-6xl px-6">
+        <section className="relative overflow-hidden bg-white py-14 sm:py-20 dark:bg-slate-900">
+            <AbstractWaves />
+            <div className="relative z-10 mx-auto max-w-6xl px-6">
                 <EtapesHeader pencil={pencil} />
 
                 <div className="mt-12 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">

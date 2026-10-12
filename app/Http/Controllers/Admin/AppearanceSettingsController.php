@@ -32,6 +32,14 @@ class AppearanceSettingsController extends Controller
                 'siteAccent' => Setting::get('appearance.site_accent', SiteAccentColor::Gold->value),
                 'siteMenu' => Setting::get('appearance.site_menu', SiteMenuColor::Default->value),
                 'siteFooter' => Setting::get('appearance.site_footer', SiteFooterColor::Default->value),
+                // The decorative wave background (see AbstractWaves.jsx) — set
+                // from the quick "Couleur" picker fixed on the public site, not
+                // its own section here; kept in this same settings bag for
+                // consistency with every other appearance choice.
+                'abstractWaves' => Setting::get('appearance.abstract_waves', 'none'),
+                // The short decorative dash under section titles like "Nos
+                // filières" / "Paroles d'étudiants" (see TitleUnderline.jsx).
+                'titleUnderline' => Setting::get('appearance.title_underline', ''),
             ],
             'palettes' => AppearancePalette::options(),
             'chromes' => AppearanceChromeColor::options(),
@@ -70,6 +78,12 @@ class AppearanceSettingsController extends Controller
             // Overrides the homepage hero's sparkle color (see Hero.jsx); null
             // resets it to automatically follow sitePrimary.
             'heroSparkleColor' => ['sometimes', 'nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+            // Which of the 5 decorative wave backgrounds to show behind every
+            // public page's light sections (see AbstractWaves.jsx), or 'none'.
+            'abstractWaves' => ['sometimes', Rule::in(['none', '1', '2', '3', '4', '5'])],
+            // The section-title underline's color (see TitleUnderline.jsx);
+            // empty string resets it to the component's own gold default.
+            'titleUnderline' => ['sometimes', 'nullable', 'regex:/^#[0-9a-f]{6}$/i'],
         ]);
 
         $map = [
@@ -82,6 +96,8 @@ class AppearanceSettingsController extends Controller
             'siteMenu' => 'appearance.site_menu',
             'siteFooter' => 'appearance.site_footer',
             'heroSparkleColor' => 'appearance.hero_sparkle_color',
+            'abstractWaves' => 'appearance.abstract_waves',
+            'titleUnderline' => 'appearance.title_underline',
         ];
 
         foreach ($map as $field => $settingKey) {

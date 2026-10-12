@@ -36,6 +36,11 @@ class MaintenanceSettingsController extends Controller
                 'closed' => Setting::get('inscriptions.closed', 'false') === 'true',
                 'message' => Setting::get('inscriptions.closed_message', ''),
             ],
+            // The "Admissions ouvertes/fermées" homepage banner's on/off
+            // switch — its title/text/image/design stay quick-edit content
+            // (see Components/Home/AdmissionsStatus.jsx), only this boolean
+            // lives here and in the banner's own on-page toggle.
+            'admissionsOpen' => Setting::get('admissions.open', 'true') === 'true',
         ]);
     }
 
@@ -86,6 +91,28 @@ class MaintenanceSettingsController extends Controller
         );
 
         return back()->with('status', $validated['closed'] ? 'Les inscriptions sont désormais fermées.' : 'Les inscriptions sont de nouveau ouvertes.');
+    }
+
+    /**
+     * The homepage "Admissions ouvertes/fermées" banner's on/off switch —
+     * its own copy, image and design stay quick-edit content, only this
+     * boolean is a Setting (so it can also be flipped from the banner's own
+     * on-page toggle, gated the same way as this admin page).
+     */
+    public function updateAdmissions(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'open' => ['required', 'boolean'],
+        ]);
+
+        Setting::set('admissions.open', $validated['open'] ? 'true' : 'false');
+
+        ActivityLog::record(
+            $validated['open'] ? 'admissions_opened' : 'admissions_closed',
+            $validated['open'] ? 'Admissions marquées comme ouvertes' : 'Admissions marquées comme fermées',
+        );
+
+        return back()->with('status', $validated['open'] ? 'Les admissions sont marquées comme ouvertes.' : 'Les admissions sont marquées comme fermées.');
     }
 
     /**

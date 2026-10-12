@@ -6,6 +6,7 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableButton from '../QuickEdit/EditableButton';
 import EditableCardStyle from '../QuickEdit/EditableCardStyle';
+import TitleUnderline from '../Layout/TitleUnderline';
 import { cardContainerStyle } from '../../lib/cardStyle';
 
 export default function Filieres({ filieres }) {
@@ -25,6 +26,7 @@ export default function Filieres({ filieres }) {
                                 {content.accueil_filieres_titre}
                             </EditableText>
                         </h2>
+                        <TitleUnderline />
                         <p className="mt-2 text-slate-500 dark:text-slate-400">
                             <EditableText as="span" contentKey="accueil_filieres_soustitre">
                                 {content.accueil_filieres_soustitre}

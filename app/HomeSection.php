@@ -11,6 +11,7 @@ namespace App;
 enum HomeSection: string
 {
     case Stats = 'stats';
+    case Admissions = 'admissions';
     case Director = 'director';
     case MissionVision = 'mission_vision';
     case Filieres = 'filieres';
@@ -24,6 +25,7 @@ enum HomeSection: string
     {
         return match ($this) {
             self::Stats => 'Statistiques',
+            self::Admissions => 'Admissions',
             self::Director => 'Mot du Directeur',
             self::MissionVision => 'Mission & Vision',
             self::Filieres => 'Filières',

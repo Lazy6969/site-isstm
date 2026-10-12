@@ -45,6 +45,14 @@ class HomeContentSeeder extends Seeder
             'equipe_membre_2_icon' => SiteIcon::Server,
             'equipe_membre_3_icon' => SiteIcon::Sparkles,
             'equipe_membre_4_icon' => SiteIcon::Wrench,
+            // Header toggles — see DarkModeToggle.jsx / NotificationBell.jsx.
+            // mode_sombre is shown while the light theme is active (click to
+            // go dark); mode_clair is shown while the dark theme is active
+            // (click to go light) — each independently swappable via its
+            // own pencil since the two never show at the same time.
+            'header_icone_mode_sombre' => SiteIcon::Moon,
+            'header_icone_mode_clair' => SiteIcon::Sun,
+            'header_icone_notifications' => SiteIcon::Bell,
         ];
 
         foreach ($icons as $key => $icon) {
@@ -465,6 +473,34 @@ class HomeContentSeeder extends Seeder
                 "Fanampiana - Ahoana no fisoratana anarana ao amin'ny ISSTM?",
             ],
 
+            // Bannière "Admissions ouvertes/fermées" (sous le hero) — le texte
+            // affiché bascule selon admissions.open (voir Setting, basculé
+            // depuis le crayon ou /console/settings/maintenance), chaque état
+            // gardant son propre titre/texte pour ne pas écraser l'autre.
+            'admissions_titre_ouvert' => ['Admissions ouvertes', 'Admissions open', 'Misokatra ny fidirana'],
+            'admissions_texte_ouvert' => [
+                "Les candidatures pour la prochaine rentrée sont ouvertes. Déposez votre dossier dès maintenant et rejoignez l'ISSTM.",
+                'Applications for the upcoming academic year are open. Submit your application now and join ISSTM.',
+                "Misokatra ny fangatahana ho an'ny taom-pianarana ho avy. Alefaso ny antontan-taratasinao ankehitriny ka miditra ao amin'ny ISSTM.",
+            ],
+            'admissions_titre_ferme' => ['Admissions fermées', 'Admissions closed', 'Mihidy ny fidirana'],
+            'admissions_texte_ferme' => [
+                'Les admissions sont actuellement fermées. Revenez bientôt ou contactez-nous pour en savoir plus sur la prochaine session.',
+                'Admissions are currently closed. Check back soon or contact us to learn more about the next session.',
+                "Mihidy amin'izao fotoana izao ny fidirana. Avia indray tsy ho ela na mifandraisa aminay mba hahafantarana bebe kokoa momba ny fotoana manaraka.",
+            ],
+            'admissions_image_path' => ['images/accueil-rejoindre.png', 'images/accueil-rejoindre.png', 'images/accueil-rejoindre.png'],
+            'admissions_bouton' => ['Faire une préinscription', 'Apply now', 'Manao fisoratana anarana mialoha'],
+
+            // En-tête du site (logo + nom de l'établissement) — partagé par
+            // Header.jsx (accueil) et SiteHeader.jsx (pages intérieures), voir
+            // Components/Layout/BrandTitle.jsx. Valeurs identiques dans les 3
+            // langues : nom propre de l'établissement, non traduit.
+            'header_titre_ligne1' => ['Institut Supérieur des Sciences', 'Institut Supérieur des Sciences', 'Institut Supérieur des Sciences'],
+            'header_titre_ligne2' => ['et Technologies de Mahajanga', 'et Technologies de Mahajanga', 'et Technologies de Mahajanga'],
+            'header_devise' => ['Honnêteté - Discipline - Excellence', 'Honnêteté - Discipline - Excellence', 'Honnêteté - Discipline - Excellence'],
+            'header_logo_image_path' => ['images/logo-isstm.svg', 'images/logo-isstm.svg', 'images/logo-isstm.svg'],
+
             // Bannière "Suivi de dossier" (entre Filières et Actualités)
             'accueil_suivi_titre' => ['Suivi de votre dossier', 'Track your application', 'Fanaraha-maso ny antontan-taratasinao'],
             'accueil_suivi_soustitre' => [
@@ -491,6 +527,14 @@ class HomeContentSeeder extends Seeder
             // Design des 4 étapes d'inscription (valeur non affichée — seule la
             // colonne `style.design` compte, voir Components/Rejoindre/EtapesInscription.jsx)
             'rejoindre_etapes_design' => ["Design des étapes d'inscription", 'Enrollment steps design', 'Endrika dingana fisoratana anarana'],
+
+            // Design du mot du directeur et des témoignages (valeur non affichée
+            // — seule la colonne `style.design` compte, voir Components/Home/Director.jsx
+            // et Components/Home/Testimonials.jsx)
+            'directeur_design' => ['Design du mot du directeur', 'Director message design', 'Endrika tenin\'ny talen\'ny sekoly'],
+            'temoignages_design' => ['Design des témoignages', 'Testimonials design', 'Endrika fitantarana'],
+            'admissions_design' => ['Design admissions', 'Admissions design', 'Endrika fidirana'],
+            'header_design' => ['Design du header', 'Header design', 'Endrika lohapejy'],
 
             // SEO — titre/description meta par page (voir Components/QuickEdit/SeoHead.jsx)
             'accueil_seo_titre' => ['Accueil', 'Home', 'Fandraisana'],

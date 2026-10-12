@@ -7,6 +7,7 @@ import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
 import EditableButton from '../QuickEdit/EditableButton';
 import EditableDesignPicker from '../QuickEdit/EditableDesignPicker';
+import AbstractWaves from '../Layout/AbstractWaves';
 
 /* ---------------------------------------------------------------------- */
 /* Design 1 — "Carrousel": sliding book-like panel, auto-rotating.         */
@@ -33,8 +34,9 @@ function DesignCarousel({ blocks, contentStyles, t, pencil }) {
     }
 
     return (
-        <section className="relative bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
-            <div className="relative mx-auto max-w-6xl px-6">
+        <section className="relative overflow-hidden bg-slate-50 py-16 sm:py-24 dark:bg-slate-900">
+            <AbstractWaves />
+            <div className="relative z-10 mx-auto max-w-6xl px-6">
                 {pencil}
                 <div className="relative overflow-hidden rounded-[2.5rem] bg-slate-100 shadow-xl dark:bg-slate-800">
                     <div className="relative min-h-[600px] sm:min-h-[520px] md:min-h-[420px]">
