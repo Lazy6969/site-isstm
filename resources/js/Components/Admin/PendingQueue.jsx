@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ArrowRight, CheckCircle2, ClipboardCheck, GraduationCap, Newspaper, RotateCcw, UserPlus } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ClipboardCheck, Newspaper, RotateCcw, UserPlus } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 
 const TONES = {
@@ -18,12 +18,6 @@ function useQueueMeta() {
             tone: 'sky',
             label: t('admin.dashboard.todo_preinscriptions', 'Préinscriptions'),
             hint: t('admin.dashboard.todo_preinscriptions_hint', 'Dossiers à examiner'),
-        },
-        reinscriptions: {
-            icon: GraduationCap,
-            tone: 'violet',
-            label: t('admin.dashboard.todo_reinscriptions', 'Réinscriptions'),
-            hint: t('admin.dashboard.todo_reinscriptions_hint', 'Dossiers étudiants soumis'),
         },
         reactivations: {
             icon: RotateCcw,

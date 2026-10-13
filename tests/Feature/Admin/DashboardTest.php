@@ -124,11 +124,10 @@ it('counts what is waiting for a decision in each queue', function () {
     NewsArticle::factory()->create(['status' => NewsStatus::Publie]);
 
     $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
-        ->has('aTraiter', 4)
+        ->has('aTraiter', 3)
         ->where('aTraiter.0', ['key' => 'preinscriptions', 'count' => 2, 'href' => '/console/preinscriptions', 'permission' => 'preinscriptions.manage'])
         ->where('aTraiter.1.count', 1)
         ->where('aTraiter.2.count', 1)
-        ->where('aTraiter.3.count', 1)
     );
 });
 
@@ -139,7 +138,6 @@ it('reports empty queues as zero rather than hiding them', function () {
         ->where('aTraiter.0.count', 0)
         ->where('aTraiter.1.count', 0)
         ->where('aTraiter.2.count', 0)
-        ->where('aTraiter.3.count', 0)
     );
 });
 

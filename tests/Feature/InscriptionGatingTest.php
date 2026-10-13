@@ -59,3 +59,40 @@ it('leaves both forms open when inscriptions are not closed', function () {
     $this->get('/preinscription')->assertInertia(fn ($page) => $page->component('Preinscription/Create'));
     $this->get('/ancien-etudiant')->assertInertia(fn ($page) => $page->component('AncienEtudiant/Verifier'));
 });
+
+// Admissions marked closed (see AdmissionsStatus.jsx) is a second, broader
+// way to close the same gate — either setting alone is enough.
+
+it('blocks the preinscription form once admissions are marked closed', function () {
+    Setting::set('admissions.open', 'false');
+
+    $this->get('/preinscription')->assertRedirect(route('rejoindre'));
+});
+
+it('blocks the reactivation form once admissions are marked closed', function () {
+    Setting::set('admissions.open', 'false');
+
+    $this->get('/ancien-etudiant')->assertRedirect(route('rejoindre'));
+});
+
+it('blocks the fees page once admissions are marked closed', function () {
+    Setting::set('admissions.open', 'false');
+
+    $this->get('/inscription')->assertRedirect(route('rejoindre'));
+});
+
+it('blocks the fees page once inscriptions are closed, even with admissions still open', function () {
+    Setting::set('inscriptions.closed', 'true');
+
+    $this->get('/inscription')->assertRedirect(route('rejoindre'));
+});
+
+it('leaves the fees page open when neither admissions nor inscriptions are closed', function () {
+    $this->get('/inscription')->assertInertia(fn ($page) => $page->component('Inscription/Index'));
+});
+
+it('shares inscriptionsClosed as true on every page once admissions are marked closed', function () {
+    Setting::set('admissions.open', 'false');
+
+    $this->get('/')->assertInertia(fn ($page) => $page->where('inscriptionsClosed', true));
+});

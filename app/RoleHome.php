@@ -24,7 +24,6 @@ class RoleHome
     private const SCOLARITE_PAGES = [
         ['etudiants.view', 'admin.scolarite.etudiants.index'],
         ['preinscriptions.manage', 'admin.preinscriptions.index'],
-        ['inscriptions.view', 'admin.scolarite.inscriptions.index'],
         ['payments.view', 'admin.ecolage.index'],
         ['reactivations.manage', 'admin.reactivations.index'],
         ['dashboard.view', 'admin.dashboard'],

@@ -42,7 +42,7 @@ it('lets an account with only a legacy role keep its community access', function
 it('gives scolarité the finer actions of the permissions it already held', function () {
     $scolarite = SpatieRole::findByName('scolarite');
 
-    foreach (['etudiants.export', 'etudiants.pause', 'inscriptions.approve', 'preinscriptions.approve', 'reactivations.refuse'] as $permission) {
+    foreach (['etudiants.export', 'etudiants.pause', 'preinscriptions.approve', 'reactivations.refuse'] as $permission) {
         expect($scolarite->hasPermissionTo($permission))->toBeTrue();
     }
 

@@ -2,6 +2,7 @@ import SeoHead from '../Components/QuickEdit/SeoHead';
 import Header from '../Components/Home/Header';
 import Hero from '../Components/Home/Hero';
 import Stats from '../Components/Home/Stats';
+import AdmissionsStatus from '../Components/Home/AdmissionsStatus';
 import Director from '../Components/Home/Director';
 import MissionVision from '../Components/Home/MissionVision';
 import Filieres from '../Components/Home/Filieres';
@@ -33,6 +34,9 @@ export default function Home({ content, heroSlides, heroSparkleColor, testimonia
             </SectionVisibility>
             <SectionVisibility section="mission_vision" label="Mission & Vision" hidden={hiddenSections.includes('mission_vision')}>
                 <MissionVision content={content} />
+            </SectionVisibility>
+            <SectionVisibility section="admissions" label="Admissions" hidden={hiddenSections.includes('admissions')}>
+                <AdmissionsStatus />
             </SectionVisibility>
             <SectionVisibility section="filieres" label="Filières" hidden={hiddenSections.includes('filieres')}>
                 <Filieres filieres={filieres} />

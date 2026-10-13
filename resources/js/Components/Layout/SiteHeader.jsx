@@ -7,9 +7,13 @@ import MobileTabBar from './MobileTabBar';
 import MobileMenuButton from './MobileMenuButton';
 import BrandTitle from './BrandTitle';
 import DarkModeToggle from './DarkModeToggle';
+import EditableImage from '../QuickEdit/EditableImage';
+import EditableDesignPicker from '../QuickEdit/EditableDesignPicker';
+import { HEADER_DESIGN_OPTIONS } from './headerDesignOptions';
 import { getEtablissementLinks, getVieEtudianteLinks } from './headerNavLinks';
 import { useHideOnScroll } from '../../lib/useHideOnScroll';
 import { useTranslations } from '../../lib/useTranslations';
+import { headerBorderClass, headerBrandDividerClass, headerLogoSizeClass, headerPaddingClass, headerShowsTopAccent } from '../../lib/headerDesign';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -45,22 +49,30 @@ function NavDropdown({ label, items }) {
 }
 
 export default function SiteHeader() {
-    const { auth } = usePage().props;
+    const { auth, content, contentStyles } = usePage().props;
     const { t } = useTranslations();
     const user = auth?.user;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
     const hidden = useHideOnScroll();
+    const design = contentStyles?.header_design?.design ?? '1';
+    const logo = content?.header_logo_image_path ?? 'images/logo-isstm.svg';
 
     return (
         <>
             <header
-                className={`sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`}
+                className={`sticky top-0 z-40 bg-isstm-menu text-isstm-menu-text transition-[transform,opacity] duration-500 ${hidden ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'} ${headerBorderClass(design)}`}
             >
-            <div className="relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
-                <Link href="/" className="flex min-w-0 items-center gap-3.5">
-                    <img src="/images/logo-isstm.svg" alt="ISSTM" className="h-11 w-auto flex-shrink-0" />
+            {headerShowsTopAccent(design) && <div className="absolute inset-x-0 top-0 z-10 h-[3px] bg-isstm-gold" aria-hidden="true" />}
+            <div className={`relative grid grid-cols-[auto_1fr_auto] items-center gap-2 px-4 sm:gap-4 sm:px-6 ${headerPaddingClass(design)}`}>
+                <div className={`flex min-w-0 items-center gap-3.5 ${headerBrandDividerClass(design)}`}>
+                    <div className="relative flex-shrink-0">
+                        <Link href="/">
+                            <img src={`/${logo}`} alt="ISSTM" className={`${headerLogoSizeClass(design)} w-auto`} />
+                        </Link>
+                        <EditableImage contentKey="header_logo_image_path" value={logo} className="absolute -top-1.5 -right-1.5 h-5 w-5" />
+                    </div>
                     <BrandTitle />
-                </Link>
+                </div>
 
                 <NavigationMenu className="hidden min-w-0 justify-self-center lg:flex">
                     <NavigationMenuList>
@@ -132,6 +144,14 @@ export default function SiteHeader() {
                     </div>
                 </div>
             </div>
+
+            <EditableDesignPicker
+                contentKey="header_design"
+                title="Design du header"
+                description="Choisissez l'apparence de la barre d'en-tête, sur tout le site."
+                designs={HEADER_DESIGN_OPTIONS}
+                className="absolute -bottom-9 right-4 z-30"
+            />
             </header>
 
             <MobileTabBar />

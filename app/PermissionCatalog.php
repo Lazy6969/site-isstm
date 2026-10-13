@@ -68,8 +68,6 @@ class PermissionCatalog
         'reactivations.manage' => ['reactivations.approve', 'reactivations.refuse', 'reactivations.delete'],
         'etudiants.view' => ['etudiants.export'],
         'etudiants.edit' => ['etudiants.pause'],
-        'inscriptions.view' => ['inscriptions.export'],
-        'inscriptions.edit' => ['inscriptions.approve', 'inscriptions.refuse'],
         'activity-log.view' => ['activity-log.delete'],
     ];
 

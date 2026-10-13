@@ -1,11 +1,12 @@
 import { Link } from '@inertiajs/react';
 
-export default function AuthLayout({ title, subtitle, children }) {
+export default function AuthLayout({ title, subtitle, children, background = null }) {
     return (
         <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-isstm-navy-dark px-6 py-12">
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-isstm-navy/40 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-isstm-gold/20 blur-3xl" />
+                {background}
             </div>
 
             <div className="relative w-full max-w-md">

@@ -1,8 +1,11 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { Bell } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import Skeleton from '../Loading/Skeleton';
 import { markNotificationRead, notificationLink } from '../../lib/notifications';
+import { useQuickEdit } from '../../lib/useQuickEdit';
+import { getIcon } from '../QuickEdit/icons';
+import EditIconDialog from '../QuickEdit/EditIconDialog';
 
 function timeAgo(dateString) {
     const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -34,12 +37,17 @@ function notificationText(notification) {
 }
 
 export default function NotificationBell() {
-    const { auth } = usePage().props;
+    const { auth, content } = usePage().props;
+    const { canEdit, active } = useQuickEdit();
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [iconDialogOpen, setIconDialogOpen] = useState(false);
     const ref = useRef(null);
     const unreadCount = auth?.unreadNotificationsCount ?? 0;
+    const iconValue = content?.header_icone_notifications;
+    const Icon = getIcon(iconValue ?? 'Bell');
+    const editable = canEdit && active;
 
     useEffect(() => {
         function onClickOutside(e) {
@@ -88,13 +96,32 @@ export default function NotificationBell() {
                 className="relative flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-white/10"
                 aria-label="Notifications"
             >
-                <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
+                <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                 {unreadCount > 0 && (
                     <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
+
+            {editable && (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => setIconDialogOpen(true)}
+                        className="absolute -top-1 -right-1 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-amber-950 shadow ring-2 ring-white transition hover:scale-110"
+                        aria-label="Changer cette icône"
+                    >
+                        <Pencil className="h-2.5 w-2.5" aria-hidden="true" />
+                    </button>
+                    <EditIconDialog
+                        open={iconDialogOpen}
+                        onClose={() => setIconDialogOpen(false)}
+                        contentKey="header_icone_notifications"
+                        currentValue={iconValue}
+                    />
+                </>
+            )}
 
             {open && (
                 <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700">

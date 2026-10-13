@@ -82,11 +82,20 @@ class HandleInertiaRequests extends Middleware
             // Gates the Préinscription/Ancien étudiant entry points everywhere
             // they're offered (see HeroParcoursCards.jsx) — set from
             // /console/settings/inscriptions.
-            'inscriptionsClosed' => fn () => Setting::get('inscriptions.closed', 'false') === 'true',
+            // Closed either by its own dedicated toggle, or by the broader
+            // "Admissions fermées" status (see AdmissionsStatus.jsx) — either
+            // one alone is enough to gate préinscription/réactivation/frais.
+            'inscriptionsClosed' => fn () => Setting::get('inscriptions.closed', 'false') === 'true'
+                || Setting::get('admissions.open', 'true') === 'false',
             'inscriptionsClosedMessage' => fn () => Setting::get(
                 'inscriptions.closed_message',
                 'Les inscriptions sont actuellement fermées.',
             ) ?: 'Les inscriptions sont actuellement fermées.',
+            // Drives the "Admissions ouvertes/fermées" banner (see
+            // Components/Home/AdmissionsStatus.jsx) — toggled from the pencil
+            // on the page itself (for whoever holds settings.manage) or from
+            // /console/settings/maintenance.
+            'admissionsOpen' => fn () => Setting::get('admissions.open', 'true') === 'true',
             // Feeds the quick site-color picker fixed on the public site (see
             // SitePrimaryColorPicker.jsx) — shared globally rather than only on
             // the admin settings page, since the picker itself is available
@@ -100,6 +109,17 @@ class HandleInertiaRequests extends Middleware
                 'resolvedHex' => SitePrimaryColor::resolve(Setting::get('appearance.site_primary'))[0],
                 'options' => SitePrimaryColor::options(),
             ],
+            // Which decorative wave background (see AbstractWaves.jsx) to
+            // show behind every public page's light sections, or 'none' —
+            // shared globally since the component renders on many pages, not
+            // just the admin settings page. AbstractWaves itself skips
+            // /communaute regardless of this setting.
+            'abstractWavesDesign' => fn () => Setting::get('appearance.abstract_waves', 'none'),
+            // The section-title underline's color (see TitleUnderline.jsx) —
+            // empty means "use the component's own gold default".
+            'titleUnderlineColor' => fn () => Setting::get('appearance.title_underline', ''),
+            // 'dash' (original short rule) or 'bar' (wider highlight stroke).
+            'titleUnderlineStyle' => fn () => Setting::get('appearance.title_underline_style', 'dash'),
         ];
     }
 }

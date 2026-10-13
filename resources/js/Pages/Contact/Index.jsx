@@ -5,6 +5,7 @@ import ContactMaps from '../../Components/Contact/ContactMaps';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
+import AbstractWaves from '../../Components/Layout/AbstractWaves';
 
 export default function Index({ content }) {
     return (
@@ -33,9 +34,12 @@ export default function Index({ content }) {
                 </div>
             </div>
 
-            <main className="mx-auto max-w-6xl px-6 py-12">
-                <ContactCards content={content} />
-                <ContactMaps content={content} />
+            <main className="relative overflow-hidden">
+                <AbstractWaves />
+                <div className="relative z-10 mx-auto max-w-6xl px-6 py-12">
+                    <ContactCards content={content} />
+                    <ContactMaps content={content} />
+                </div>
             </main>
 
             <Footer />

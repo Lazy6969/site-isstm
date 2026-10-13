@@ -8,6 +8,7 @@ import SeoHead from '../../Components/QuickEdit/SeoHead';
 import { imageStyleToCss } from '../../lib/imageStyle';
 import { useTranslations } from '../../lib/useTranslations';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
+import AbstractWaves from '../../Components/Layout/AbstractWaves';
 import { Card } from '../../Components/ui/card';
 
 const licenceFilieres = [
@@ -75,7 +76,9 @@ export default function Index() {
                 </div>
             </div>
 
-            <main className="mx-auto max-w-5xl space-y-12 px-6 py-12">
+            <main className="relative overflow-hidden">
+                <AbstractWaves />
+                <div className="relative z-10 mx-auto max-w-5xl space-y-12 px-6 py-12">
                 <div className="relative overflow-hidden rounded-2xl shadow-lg ring-1 ring-slate-100 dark:ring-slate-700">
                     <img
                         src={`/${content.formations_offre_image ?? 'images/slide1.jpg'}`}
@@ -167,6 +170,7 @@ export default function Index() {
                         {t('bibliotheque.acceder', 'Accéder à la bibliothèque')}
                     </Link>
                 </Card>
+                </div>
             </main>
 
             <Footer />

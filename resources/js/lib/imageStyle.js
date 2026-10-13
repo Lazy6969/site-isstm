@@ -9,12 +9,21 @@ export const IMAGE_FILTER_OPTIONS = [
 
 export const IMAGE_POSITION_OPTIONS = ['center', 'top', 'bottom', 'left', 'right'];
 
+// Max blur the slider allows — past this an image is unrecognizable, which
+// is never useful for any current use of the style system.
+export const IMAGE_BLUR_MAX_PX = 20;
+
 function commonProps(style, { includeOpacity = true } = {}) {
     const filter = IMAGE_FILTER_OPTIONS.find((option) => option.value === style.filter);
+    const blurPx = Number(style.blur_px) || 0;
+    // Combinable with the single-select filter above (CSS `filter` accepts
+    // several functions space-separated) — e.g. "Noir et blanc" + a blur
+    // amount both apply together, rather than the slider replacing it.
+    const filterValue = [filter?.css, blurPx > 0 ? `blur(${blurPx}px)` : undefined].filter(Boolean).join(' ') || undefined;
 
     return {
         opacity: includeOpacity && style.opacity !== undefined && style.opacity !== null ? style.opacity / 100 : undefined,
-        filter: filter?.css,
+        filter: filterValue,
         borderRadius: style.border_radius ? `${style.border_radius}px` : undefined,
     };
 }

@@ -53,11 +53,15 @@ class PreinscriptionController extends Controller
                 ->with('status', 'Votre dossier a déjà été envoyé : il n’est plus modifiable. Vous pouvez suivre son avancement sur cette page.');
         }
 
-        // No draft to resume and registrations are closed: a brand new
+        // No draft to resume and registrations are closed (either their own
+        // toggle, or the broader "Admissions fermées" status): a brand new
         // candidate has nothing to open right now. Someone already mid-draft
         // above is let through regardless, so closing registrations never
         // strands an in-progress dossier.
-        if ($candidat === null && Setting::get('inscriptions.closed', 'false') === 'true') {
+        $registrationsClosed = Setting::get('inscriptions.closed', 'false') === 'true'
+            || Setting::get('admissions.open', 'true') === 'false';
+
+        if ($candidat === null && $registrationsClosed) {
             return redirect()->route('rejoindre')->with(
                 'status',
                 Setting::get('inscriptions.closed_message') ?: 'Les inscriptions sont actuellement fermées.',

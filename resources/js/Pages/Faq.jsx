@@ -8,6 +8,7 @@ import BannerBackground from '../Components/QuickEdit/BannerBackground';
 import EditableText from '../Components/QuickEdit/EditableText';
 import SeoHead from '../Components/QuickEdit/SeoHead';
 import FaqAccordionItem from '../Components/Faq/FaqAccordionItem';
+import AbstractWaves from '../Components/Layout/AbstractWaves';
 import { useTranslations } from '../lib/useTranslations';
 
 const QUICK_LINKS = [
@@ -136,7 +137,9 @@ export default function Faq() {
                 </div>
             </div>
 
-            <main className="mx-auto max-w-4xl px-6 py-12">
+            <main className="relative overflow-hidden">
+                <AbstractWaves />
+                <div className="relative z-10 mx-auto max-w-4xl px-6 py-12">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     {QUICK_LINKS.map((link) => {
                         const Icon = link.icon;
@@ -198,6 +201,7 @@ export default function Faq() {
                         <Mail className="h-4 w-4" aria-hidden="true" />
                         {t('faq.cta_bouton', 'Nous contacter')}
                     </Link>
+                </div>
                 </div>
             </main>
 

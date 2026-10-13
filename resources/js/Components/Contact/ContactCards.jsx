@@ -58,12 +58,12 @@ export default function ContactCards({ content }) {
                         label={card.title}
                         hidden={hiddenContactFields?.includes(card.field)}
                     >
-                        <div className="relative">
+                        <div className="relative h-full">
                             <Wrapper
                                 {...(card.href
                                     ? { href: card.href, target: card.href.startsWith('http') ? '_blank' : undefined, rel: 'noopener' }
                                     : {})}
-                                className="block rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md dark:bg-slate-800 dark:ring-slate-700"
+                                className="flex h-full flex-col justify-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-100 transition hover:-translate-y-1 hover:shadow-md dark:bg-slate-800 dark:ring-slate-700"
                             >
                                 {/* Cards with a link (email/phone/facebook) can't nest the pencil's <button> inside
                                     the <a> — only the address card (no href) gets an editable icon, and every
