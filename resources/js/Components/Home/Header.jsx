@@ -6,6 +6,7 @@ import LanguageSwitcher from '../Layout/LanguageSwitcher';
 import MobileTabBar from '../Layout/MobileTabBar';
 import MobileMenuButton from '../Layout/MobileMenuButton';
 import NotificationBell from '../Layout/NotificationBell';
+import AssistantIsstm from '../Layout/AssistantIsstm';
 import BrandTitle from '../Layout/BrandTitle';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import EditableImage from '../QuickEdit/EditableImage';
@@ -136,6 +137,7 @@ export default function Header() {
 
                 <div className="flex items-center gap-2 justify-self-end sm:gap-3">
                     <div className="hidden items-center gap-3 lg:flex">
+                        <AssistantIsstm />
                         <DarkModeToggle />
                         <LanguageSwitcher />
                         {user && (user.is_messagerie || isCommunityMember) && (
@@ -151,6 +153,7 @@ export default function Header() {
                     </div>
 
                     <div className="flex items-center gap-2 lg:hidden">
+                        <AssistantIsstm />
                         <HeaderSearchButton />
                         <MobileMenuButton />
                     </div>

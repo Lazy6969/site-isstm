@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\CampusController;
 use App\Http\Controllers\ClassGroupAnnouncementController;
 use App\Http\Controllers\ClassGroupController;
@@ -93,6 +94,8 @@ Route::get('galerie/{album:slug}', [GalleryController::class, 'show'])->name('ga
 Route::get('recherche', [SearchController::class, 'index'])->name('recherche');
 // /communaute/recherche (publications et comptes uniquement) vit avec le
 // reste des routes de la communauté plus bas, dans le groupe auth+role.
+
+Route::post('assistant/demander', [AssistantController::class, 'ask'])->middleware('throttle:30,1')->name('assistant.ask');
 
 Route::get('inscription', [InscriptionController::class, 'index'])->name('inscription');
 Route::inertia('rejoindre', 'Rejoindre')->name('rejoindre');

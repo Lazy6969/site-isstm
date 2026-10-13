@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { MessageSquare } from 'lucide-react';
 import NotificationBell from './NotificationBell';
+import AssistantIsstm from './AssistantIsstm';
 import HeaderSearchButton from './HeaderSearchButton';
 import LanguageSwitcher from './LanguageSwitcher';
 import MobileTabBar from './MobileTabBar';
@@ -123,6 +124,7 @@ export default function SiteHeader() {
 
                 <div className="flex items-center gap-2 justify-self-end sm:gap-3">
                     <div className="hidden items-center gap-3 lg:flex">
+                        <AssistantIsstm />
                         <DarkModeToggle />
                         <LanguageSwitcher />
 
@@ -139,6 +141,7 @@ export default function SiteHeader() {
                     </div>
 
                     <div className="flex items-center gap-2 lg:hidden">
+                        <AssistantIsstm />
                         <HeaderSearchButton />
                         <MobileMenuButton />
                     </div>
