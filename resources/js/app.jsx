@@ -5,6 +5,7 @@ import { createInertiaApp, usePage } from '@inertiajs/react';
 import { Settings } from 'lucide-react';
 import { QuickEditProvider } from './lib/useQuickEdit';
 import { ToastProvider } from './lib/useToast';
+import { ConfirmProvider } from './lib/useConfirm';
 import { LogoutConfirmProvider } from './lib/useLogoutConfirm';
 import { useIsNavigatingToHome } from './lib/useIsNavigatingToHome';
 import { useIsNavigatingToCommunity } from './lib/useIsNavigatingToCommunity';
@@ -14,6 +15,7 @@ import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 import ScrollProgressRobot from './Components/Layout/ScrollProgressRobot';
+import QuickEditOverlay from './Components/QuickEdit/QuickEditOverlay';
 import SitePrimaryColorPicker from './Components/QuickEdit/SitePrimaryColorPicker';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
 import CommunitySkeleton from './Components/Loading/CommunitySkeleton';
@@ -109,6 +111,7 @@ createInertiaApp({
         page.default.layout = (children) => (
             <ToastProvider>
                 <QuickEditProvider>
+                  <ConfirmProvider>
                     <LogoutConfirmProvider>
                         {/*
                             Shown at every width (see FloatingAccountGroup) — now that it's
@@ -119,6 +122,7 @@ createInertiaApp({
                         <FloatingAccountGroup />
                         <ScrollProgressRobot />
                         <SitePrimaryColorPicker />
+                        <QuickEditOverlay />
                         <FlashToastBridge />
                         <Toaster />
                         <LogoutConfirmDialog />
@@ -126,6 +130,7 @@ createInertiaApp({
                         <CommunitySkeletonBridge />
                         {existingLayout ? existingLayout(children) : children}
                     </LogoutConfirmProvider>
+                  </ConfirmProvider>
                 </QuickEditProvider>
             </ToastProvider>
         );

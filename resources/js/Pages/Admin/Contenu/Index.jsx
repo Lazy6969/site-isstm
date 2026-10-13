@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import StatCard from '../../../Components/Admin/StatCard';
+import ContentMixBar from '../../../Components/Admin/ContentMixBar';
 import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
@@ -779,6 +780,7 @@ export default function Index({ groups, icons }) {
                 <StatCard label={t('admin.contenu.images', 'Images')} value={stats.image} icon={ImageIcon} onClick={() => toggleTypeFilter('image')} active={typeFilter === 'image'} />
                 <StatCard label={t('admin.contenu.videos', 'Vidéos')} value={stats.video} icon={VideoIcon} onClick={() => toggleTypeFilter('video')} active={typeFilter === 'video'} />
                 <StatCard label={t('admin.contenu.categories', 'Catégories')} value={stats.categories} icon={FolderOpen} />
+                <ContentMixBar stats={stats} typeFilter={typeFilter} onSelect={toggleTypeFilter} className="col-span-2 sm:col-span-3 lg:col-span-4" />
             </div>
 
             <div className="relative mb-4 w-full sm:max-w-sm">

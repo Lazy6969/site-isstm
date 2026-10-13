@@ -30,6 +30,66 @@ class SiteContent extends Model
     }
 
     /**
+     * Content keys with this prefix store an override of a language-file string
+     * (the ones rendered through the front-end `t('key', 'fallback')`), so those
+     * texts can be quick-edited like any other content. The prefix is followed by
+     * the original translation key, e.g. `ui.inscription.dossiers_titre`.
+     */
+    public const UI_PREFIX = 'ui.';
+
+    /**
+     * The active locale's language-file strings, each replaced by its quick-edit
+     * override when one exists — what the front end receives as `translations`.
+     *
+     * @return array<string, string>
+     */
+    public static function translationsWithOverrides(): array
+    {
+        $base = app('translator')->getLoader()->load(app()->getLocale(), '*', '*');
+
+        $overrides = static::where('content_key', 'like', static::UI_PREFIX.'%')->get()
+            ->mapWithKeys(fn (self $content) => [substr($content->content_key, strlen(static::UI_PREFIX)) => $content->localizedValue()]);
+
+        return array_merge($base, $overrides->all());
+    }
+
+    /**
+     * Returns the override row for a language-file string, creating it from the
+     * three language files on first edit. Only keys that really exist in the
+     * French file are accepted, so this can never create rows under arbitrary keys.
+     */
+    public static function ensureUiString(string $contentKey): ?self
+    {
+        if (! str_starts_with($contentKey, static::UI_PREFIX)) {
+            return null;
+        }
+
+        $existing = static::where('content_key', $contentKey)->first();
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $translationKey = substr($contentKey, strlen(static::UI_PREFIX));
+        $loader = app('translator')->getLoader();
+        $fr = $loader->load('fr', '*', '*');
+
+        if (! isset($fr[$translationKey]) || ! is_string($fr[$translationKey])) {
+            return null;
+        }
+
+        $en = $loader->load('en', '*', '*');
+        $mg = $loader->load('mg', '*', '*');
+
+        return static::create([
+            'content_key' => $contentKey,
+            'type' => SiteContentType::Text,
+            'content_value_fr' => $fr[$translationKey],
+            'content_value_en' => is_string($en[$translationKey] ?? null) ? $en[$translationKey] : $fr[$translationKey],
+            'content_value_mg' => is_string($mg[$translationKey] ?? null) ? $mg[$translationKey] : $fr[$translationKey],
+        ]);
+    }
+
+    /**
      * The content value for the active locale, falling back to French when the
      * localized column is empty (some legacy content is only translated in fr/en).
      *

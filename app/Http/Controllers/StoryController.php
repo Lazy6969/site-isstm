@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStoryRequest;
 use App\Models\Story;
-use App\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,7 +33,7 @@ class StoryController extends Controller
                     'media_path' => $story->media_path,
                     'caption' => $story->caption,
                     'created_at' => $story->created_at,
-                    'can_manage' => $viewer->hasLegacyRole(Role::Admin) || $story->user_id === $viewer->id,
+                    'can_manage' => $viewer->isAdministrator() || $story->user_id === $viewer->id,
                     // Only the story's own author can see how many people
                     // viewed it — matches viewer-list-style privacy elsewhere
                     // (Instagram/Snapchat): nobody else sees this count.
@@ -71,7 +70,7 @@ class StoryController extends Controller
     public function destroy(Request $request, Story $story): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user->hasLegacyRole(Role::Admin) || $story->user_id === $user->id, 403);
+        abort_unless($user->isAdministrator() || $story->user_id === $user->id, 403);
 
         $story->delete();
 

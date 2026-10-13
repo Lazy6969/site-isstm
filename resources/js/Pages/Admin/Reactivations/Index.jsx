@@ -8,6 +8,7 @@ import { Button } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import { useConfirm } from '../../../lib/useConfirm';
 
 const STATUS_BADGE = {
     en_attente: { label: 'En attente', className: 'bg-admin-hover text-admin-text-secondary' },
@@ -20,6 +21,7 @@ function formatDate(value) {
 }
 
 function ReactivationRow({ reactivation, compact = false }) {
+    const confirmAction = useConfirm();
     const [refusing, setRefusing] = useState(false);
     const [motif, setMotif] = useState('');
     const [processing, setProcessing] = useState(false);
@@ -44,8 +46,8 @@ function ReactivationRow({ reactivation, compact = false }) {
         );
     }
 
-    function destroy() {
-        if (!confirm(`Supprimer la demande de réactivation de ${reactivation.user?.name} ? Cette entrée pourra être restaurée depuis la corbeille.`)) return;
+    async function destroy() {
+        if (!(await confirmAction({ message: 'Cette demande sera placée dans la corbeille, d’où vous pourrez la restaurer.', title: 'Supprimer cette demande ?', details: reactivation.user?.name, confirmLabel: 'Supprimer' }))) return;
         setProcessing(true);
         router.delete(`/console/reactivations/${reactivation.id}`, { preserveScroll: true, onFinish: () => setProcessing(false) });
     }

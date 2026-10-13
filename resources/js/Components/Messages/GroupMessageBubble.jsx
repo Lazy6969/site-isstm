@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import AttachmentPreview from './AttachmentPreview';
 import { useTranslations } from '../../lib/useTranslations';
 import { linkifyParts } from '../../lib/linkify';
+import { useConfirm } from '../../lib/useConfirm';
 
 function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -16,14 +17,15 @@ function formatTime(dateString) {
  * since a group has more than one other participant, unlike a DM thread.
  */
 export default function GroupMessageBubble({ message: m, isOwn }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
 
     function hide() {
         router.delete(`/groupes/messages/${m.id}`, { data: { scope: 'me' }, preserveScroll: true });
     }
 
-    function unsend() {
-        if (confirm(t('messages.confirmer_suppression', 'Supprimer ce message pour tout le monde ?'))) {
+    async function unsend() {
+        if (await confirmAction({ message: t('messages.confirmer_suppression', 'Supprimer ce message pour tout le monde ?'), title: 'Supprimer pour tout le monde ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/groupes/messages/${m.id}`, { data: { scope: 'everyone' }, preserveScroll: true });
         }
     }

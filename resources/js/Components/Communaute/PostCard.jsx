@@ -34,6 +34,7 @@ import { Badge } from '../ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
+import { useConfirm } from '../../lib/useConfirm';
 
 const REACTIONS = [
     { value: 'like', emoji: '👍', labelKey: 'communaute.jaime', label: "J'aime" },
@@ -192,6 +193,7 @@ const COLLAPSED_COMMENT_COUNT = 1;
 const HOVER_CLOSE_DELAY_MS = 300;
 
 export default function PostCard({ post, highlightCommentId = null }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const { data, setData, post: submitComment, processing, reset } = useForm({ body: '', parent_id: null });
     const [showAllComments, setShowAllComments] = useState(false);
@@ -262,8 +264,8 @@ export default function PostCard({ post, highlightCommentId = null }) {
         });
     }
 
-    function destroyPost() {
-        if (confirm(t('communaute.confirmer_suppression_post', 'Supprimer cette publication ?'))) {
+    async function destroyPost() {
+        if (await confirmAction({ message: t('communaute.confirmer_suppression_post', 'Supprimer cette publication ?'), title: 'Supprimer cette publication ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/communaute/${post.id}`, { preserveScroll: true });
         }
     }

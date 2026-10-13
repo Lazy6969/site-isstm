@@ -1,24 +1,28 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArchiveRestore, ArrowLeft, Ban, Crown, MoreHorizontal, Paperclip, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus } from 'lucide-react';
+import { ArchiveRestore, ArrowLeft, Ban, Crown, MoreHorizontal, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import AttachmentPreview from '../../Components/Messages/AttachmentPreview';
+import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../Components/ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
+import { useConfirm } from '../../lib/useConfirm';
 
 function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [tab, setTab] = useState('discussion');
     const [showAddFriends, setShowAddFriends] = useState(false);
     const [selectedFriends, setSelectedFriends] = useState([]);
     const messageForm = useForm({ body: '', attachments: [] });
+    const attachmentPicker = useAttachmentPicker(messageForm.data.attachments, (files) => messageForm.setData('attachments', files), messageForm.errors);
     const announcementForm = useForm({ type: 'devoir', title: '', description: '', due_date: '' });
 
     const announcementTypes = [
@@ -55,8 +59,8 @@ export default function Show({ group, membership, members, messages, announcemen
         });
     }
 
-    function deleteAnnouncement(id) {
-        if (confirm(t('groupes.confirmer_suppression_annonce', 'Supprimer cette annonce ?'))) {
+    async function deleteAnnouncement(id) {
+        if (await confirmAction({ message: t('groupes.confirmer_suppression_annonce', 'Supprimer cette annonce ?'), title: 'Supprimer cette annonce ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/groupes/annonces/${id}`, { preserveScroll: true });
         }
     }
@@ -86,14 +90,14 @@ export default function Show({ group, membership, members, messages, announcemen
         );
     }
 
-    function archiveGroup() {
-        if (confirm(t('groupes.confirmer_archiver', 'Archiver ce groupe ? Il restera consultable dans « Groupes archivés ».'))) {
+    async function archiveGroup() {
+        if (await confirmAction({ message: t('groupes.confirmer_archiver', 'Archiver ce groupe ? Il restera consultable dans « Groupes archivés ».'), tone: 'warning', title: 'Archiver ce groupe ?', confirmLabel: 'Archiver' })) {
             router.post(`/groupes/${group.id}/archiver`, {}, { preserveScroll: true });
         }
     }
 
-    function destroyGroup() {
-        if (confirm(t('groupes.confirmer_suppression_groupe', 'Supprimer définitivement ce groupe ? Cette action est irréversible.'))) {
+    async function destroyGroup() {
+        if (await confirmAction({ message: t('groupes.confirmer_suppression_groupe', 'Supprimer définitivement ce groupe ? Cette action est irréversible.'), title: 'Supprimer ce groupe ?', confirmLabel: 'Supprimer définitivement' })) {
             router.delete(`/groupes/${group.id}`);
         }
     }
@@ -241,16 +245,10 @@ export default function Show({ group, membership, members, messages, announcemen
                         ))}
                     </div>
 
+                    <SelectedAttachments files={messageForm.data.attachments} picker={attachmentPicker} />
+
                     <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
-                        <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
-                            <Paperclip className="h-4 w-4" aria-hidden="true" />
-                            <input
-                                type="file"
-                                multiple
-                                onChange={(e) => messageForm.setData('attachments', Array.from(e.target.files))}
-                                className="hidden"
-                            />
-                        </label>
+                        <AttachmentButton picker={attachmentPicker} disabled={messageForm.processing} />
                         <input
                             type="text"
                             value={messageForm.data.body}

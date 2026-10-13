@@ -7,7 +7,6 @@ use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Notifications\CommentReplied;
-use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -43,7 +42,7 @@ class CommentController extends Controller
     public function destroy(Request $request, Comment $comment): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user->hasLegacyRole(Role::Admin) || $comment->user_id === $user->id, 403);
+        abort_unless($user->isAdministrator() || $comment->user_id === $user->id, 403);
 
         $comment->delete();
 

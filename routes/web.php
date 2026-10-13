@@ -14,7 +14,10 @@ use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DirecteurController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\DocumentInteractionController;
 use App\Http\Controllers\DossierTrackingController;
+use App\Http\Controllers\EcolageController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FiliereController;
 use App\Http\Controllers\FriendController;
@@ -76,6 +79,9 @@ Route::get('campus/{bloc:bloc_key}', [CampusController::class, 'show'])->name('c
 Route::get('parcours', [ParcoursController::class, 'index'])->name('parcours');
 
 Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
+Route::get('telecharger', DocumentDownloadController::class)->middleware('throttle:60,1')->name('documents.download');
+Route::get('consulter', [DocumentInteractionController::class, 'view'])->middleware('throttle:60,1')->name('documents.view');
+Route::post('documents/partage', [DocumentInteractionController::class, 'share'])->middleware('throttle:30,1')->name('documents.share');
 
 Route::inertia('mentions-legales', 'MentionsLegales')->name('mentions-legales');
 Route::inertia('confidentialite', 'Confidentialite')->name('confidentialite');
@@ -112,9 +118,9 @@ Route::post('preinscription/{preinscription}/soumettre', [PreinscriptionControll
 // here straight from their own already-logged-in session.
 Route::get('mon-dossier', [PreinscriptionController::class, 'dossier'])->middleware(['auth'])->name('preinscription.dossier');
 
-Route::get('reinscription', [InscriptionDossierController::class, 'create'])->middleware(['auth', 'role:etudiant', 'verified'])->name('inscription-dossier.create');
-Route::patch('reinscription/{inscription}/brouillon', [InscriptionDossierController::class, 'saveDraft'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:20,1'])->name('inscription-dossier.save-draft');
-Route::post('reinscription/{inscription}/soumettre', [InscriptionDossierController::class, 'submit'])->middleware(['auth', 'role:etudiant', 'verified', 'throttle:10,1'])->name('inscription-dossier.submit');
+Route::get('reinscription', [InscriptionDossierController::class, 'create'])->middleware(['auth', 'role:etudiant', 'access:reinscription.submit', 'verified'])->name('inscription-dossier.create');
+Route::patch('reinscription/{inscription}/brouillon', [InscriptionDossierController::class, 'saveDraft'])->middleware(['auth', 'role:etudiant', 'access:reinscription.submit', 'verified', 'throttle:20,1'])->name('inscription-dossier.save-draft');
+Route::post('reinscription/{inscription}/soumettre', [InscriptionDossierController::class, 'submit'])->middleware(['auth', 'role:etudiant', 'access:reinscription.submit', 'verified', 'throttle:10,1'])->name('inscription-dossier.submit');
 
 // Notifications belong to the account, whatever its role: the scolarité and
 // matériel staff get them too (they have the bell in the console), so these
@@ -130,70 +136,75 @@ Route::middleware(['auth', 'activity'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group(function () {
-    Route::get('amis', [FriendController::class, 'index'])->name('friends.index');
-    Route::post('amis/{recipient}', [FriendController::class, 'store'])->name('friends.store');
-    Route::post('amis/demandes/{friendRequest}/accepter', [FriendController::class, 'accept'])->name('friends.accept');
-    Route::post('amis/demandes/{friendRequest}/refuser', [FriendController::class, 'decline'])->name('friends.decline');
-    Route::delete('amis/demandes/{friendRequest}', [FriendController::class, 'destroy'])->name('friends.destroy');
+    Route::get('amis', [FriendController::class, 'index'])->middleware('access:friends.manage')->name('friends.index');
+    Route::post('amis/{recipient}', [FriendController::class, 'store'])->middleware('access:friends.manage')->name('friends.store');
+    Route::post('amis/demandes/{friendRequest}/accepter', [FriendController::class, 'accept'])->middleware('access:friends.manage')->name('friends.accept');
+    Route::post('amis/demandes/{friendRequest}/refuser', [FriendController::class, 'decline'])->middleware('access:friends.manage')->name('friends.decline');
+    Route::delete('amis/demandes/{friendRequest}', [FriendController::class, 'destroy'])->middleware('access:friends.manage')->name('friends.destroy');
 
-    Route::get('messages', [ConversationController::class, 'index'])->name('messages.index');
-    Route::get('messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
-    Route::get('messages/groupe/{group}', [ConversationController::class, 'showGroup'])->name('messages.show-group');
-    Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->name('messages.start');
-    Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->name('messages.send');
-    Route::patch('messages/message/{message}', [MessageController::class, 'update'])->name('messages.messages.update');
-    Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->name('messages.messages.destroy');
-    Route::post('messages/message/{message}/supprimer', [MessageController::class, 'unsend'])->name('messages.messages.unsend');
-    Route::post('messages/message/{message}/transferer', [MessageForwardController::class, 'store'])->name('messages.messages.forward');
-    Route::post('messages/message/{message}/reaction', [MessageReactionController::class, 'store'])->name('messages.messages.reaction');
-    Route::get('messages/{conversation}/statut', [ConversationController::class, 'status'])->name('messages.status');
-    Route::post('messages/{conversation}/frappe', [ConversationController::class, 'typing'])->name('messages.typing');
+    Route::get('messages', [ConversationController::class, 'index'])->middleware('access:messages.view')->name('messages.index');
+    Route::get('messages/{conversation}', [ConversationController::class, 'show'])->middleware('access:messages.view')->name('messages.show');
+    Route::get('messages/groupe/{group}', [ConversationController::class, 'showGroup'])->middleware('access:messages.view')->name('messages.show-group');
+    Route::post('messages/nouveau/{friend}', [ConversationController::class, 'store'])->middleware('access:messages.send')->name('messages.start');
+    Route::post('messages/{conversation}/envoyer', [MessageController::class, 'store'])->middleware('access:messages.send')->name('messages.send');
+    Route::patch('messages/message/{message}', [MessageController::class, 'update'])->middleware('access:messages.send')->name('messages.messages.update');
+    Route::delete('messages/message/{message}', [MessageController::class, 'destroy'])->middleware('access:messages.send')->name('messages.messages.destroy');
+    Route::post('messages/message/{message}/supprimer', [MessageController::class, 'unsend'])->middleware('access:messages.send')->name('messages.messages.unsend');
+    Route::post('messages/message/{message}/transferer', [MessageForwardController::class, 'store'])->middleware('access:messages.send')->name('messages.messages.forward');
+    Route::post('messages/message/{message}/reaction', [MessageReactionController::class, 'store'])->middleware('access:messages.send')->name('messages.messages.reaction');
+    Route::get('messages/{conversation}/statut', [ConversationController::class, 'status'])->middleware('access:messages.view')->name('messages.status');
+    Route::post('messages/{conversation}/frappe', [ConversationController::class, 'typing'])->middleware('access:messages.send')->name('messages.typing');
 
-    Route::get('communaute', [PostController::class, 'index'])->name('posts.index');
-    Route::post('communaute', [PostController::class, 'store'])->name('posts.store');
-    Route::get('communaute/enregistres', [PostController::class, 'saved'])->name('posts.saved');
-    Route::get('communaute/archives', [PostController::class, 'archives'])->name('posts.archives');
-    Route::get('communaute/recherche', [CommunitySearchController::class, 'index'])->name('community-search');
-    Route::get('communaute/{post}', [PostController::class, 'show'])->name('posts.show');
+    Route::get('communaute', [PostController::class, 'index'])->middleware('access:community.view')->name('posts.index');
+    Route::post('communaute', [PostController::class, 'store'])->middleware('access:community.post')->name('posts.store');
+    Route::get('communaute/enregistres', [PostController::class, 'saved'])->middleware('access:community.view')->name('posts.saved');
+    Route::get('communaute/archives', [PostController::class, 'archives'])->middleware('access:community.view')->name('posts.archives');
+    Route::get('communaute/recherche', [CommunitySearchController::class, 'index'])->middleware('access:community.view')->name('community-search');
+    Route::get('communaute/{post}', [PostController::class, 'show'])->middleware('access:community.view')->name('posts.show');
     Route::patch('communaute/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('communaute/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
-    Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('communaute/{post}/commentaires', [CommentController::class, 'store'])->middleware('access:community.comment')->name('comments.store');
     Route::post('communaute/{post}/enregistrer', [PostSaveController::class, 'toggle'])->name('posts.save');
     Route::post('communaute/{post}/masquer', [PostHideController::class, 'store'])->name('posts.hide');
     Route::post('communaute/{post}/signaler', [PostReportController::class, 'store'])->name('posts.report');
     Route::post('communaute/{post}/archiver', [PostArchiveController::class, 'toggle'])->name('posts.archive');
     Route::post('communaute/{post}/epingler', [PostPinController::class, 'toggle'])->name('posts.pin');
     Route::post('communaute/{post}/commentaires-toggle', [PostCommentsToggleController::class, 'toggle'])->name('posts.comments-toggle');
-    Route::get('communaute/{post}/reactions', [PostReactionListController::class, 'index'])->name('posts.reactions');
+    Route::get('communaute/{post}/reactions', [PostReactionListController::class, 'index'])->middleware('access:community.view')->name('posts.reactions');
 
-    Route::get('stories', [StoryController::class, 'index'])->name('stories.index');
-    Route::post('stories', [StoryController::class, 'store'])->name('stories.store');
-    Route::post('stories/{story}/vue', [StoryController::class, 'view'])->name('stories.view');
+    Route::get('stories', [StoryController::class, 'index'])->middleware('access:stories.view')->name('stories.index');
+    Route::post('stories', [StoryController::class, 'store'])->middleware('access:stories.create')->name('stories.store');
+    Route::post('stories/{story}/vue', [StoryController::class, 'view'])->middleware('access:stories.view')->name('stories.view');
     Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
 
     Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('tableau-de-bord', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::patch('commentaires/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('commentaires/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
-    Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->name('reactions.store');
+    Route::post('communaute/{post}/reaction', [ReactionController::class, 'store'])->middleware('access:community.react')->name('reactions.store');
 
-    Route::get('groupes', [ClassGroupController::class, 'index'])->name('class-groups.index');
-    Route::post('groupes', [ClassGroupController::class, 'store'])->name('class-groups.store');
-    Route::post('groupes/rejoindre', [ClassGroupController::class, 'join'])->name('class-groups.join');
-    Route::get('groupes/archives', [ClassGroupController::class, 'archives'])->name('class-groups.archives');
-    Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->name('class-groups.show');
-    Route::delete('groupes/{group}', [ClassGroupController::class, 'destroy'])->name('class-groups.destroy');
-    Route::post('groupes/{group}/archiver', [ClassGroupController::class, 'archive'])->name('class-groups.archive');
-    Route::post('groupes/{group}/membres', [ClassGroupController::class, 'addMembers'])->name('class-groups.members.add');
-    Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->name('class-groups.messages.store');
+    Route::get('groupes', [ClassGroupController::class, 'index'])->middleware('access:groups.view')->name('class-groups.index');
+    Route::post('groupes', [ClassGroupController::class, 'store'])->middleware('access:groups.create')->name('class-groups.store');
+    Route::post('groupes/rejoindre', [ClassGroupController::class, 'join'])->middleware('access:groups.join')->name('class-groups.join');
+    Route::get('groupes/archives', [ClassGroupController::class, 'archives'])->middleware('access:groups.view')->name('class-groups.archives');
+    Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->middleware('access:groups.view')->name('class-groups.show');
+    Route::delete('groupes/{group}', [ClassGroupController::class, 'destroy'])->middleware('access:groups.moderate')->name('class-groups.destroy');
+    Route::post('groupes/{group}/archiver', [ClassGroupController::class, 'archive'])->middleware('access:groups.moderate')->name('class-groups.archive');
+    Route::post('groupes/{group}/membres', [ClassGroupController::class, 'addMembers'])->middleware('access:groups.moderate')->name('class-groups.members.add');
+    Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->middleware('access:groups.message')->name('class-groups.messages.store');
     Route::delete('groupes/messages/{message}', [ClassGroupMessageController::class, 'destroy'])->name('class-groups.messages.destroy');
-    Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->name('class-groups.announcements.store');
+    Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->middleware('access:groups.announce')->name('class-groups.announcements.store');
     Route::delete('groupes/annonces/{announcement}', [ClassGroupAnnouncementController::class, 'destroy'])->name('class-groups.announcements.destroy');
-    Route::get('groupes/{group}/presence', [ClassGroupPresenceController::class, 'index'])->name('class-groups.presence.index');
-    Route::post('groupes/{group}/presence', [ClassGroupPresenceController::class, 'store'])->name('class-groups.presence.store');
-    Route::post('groupes/membres/{member}/bannir', [ClassGroupMemberController::class, 'ban'])->name('class-groups.members.ban');
-    Route::post('groupes/membres/{member}/reintegrer', [ClassGroupMemberController::class, 'unban'])->name('class-groups.members.unban');
-    Route::post('groupes/membres/{member}/delegue', [ClassGroupMemberController::class, 'toggleDelegate'])->name('class-groups.members.delegate');
+    Route::get('groupes/{group}/presence', [ClassGroupPresenceController::class, 'index'])->middleware('access:groups.presence')->name('class-groups.presence.index');
+    Route::post('groupes/{group}/presence', [ClassGroupPresenceController::class, 'store'])->middleware('access:groups.presence')->name('class-groups.presence.store');
+    Route::post('groupes/membres/{member}/bannir', [ClassGroupMemberController::class, 'ban'])->middleware('access:groups.moderate')->name('class-groups.members.ban');
+    Route::post('groupes/membres/{member}/reintegrer', [ClassGroupMemberController::class, 'unban'])->middleware('access:groups.moderate')->name('class-groups.members.unban');
+    Route::post('groupes/membres/{member}/delegue', [ClassGroupMemberController::class, 'toggleDelegate'])->middleware('access:groups.moderate')->name('class-groups.members.delegate');
+
+    Route::get('ecolage', [EcolageController::class, 'index'])->middleware('access:ecolage.view')->name('ecolage.index');
+    Route::post('ecolage', [EcolageController::class, 'store'])->middleware(['access:ecolage.submit', 'throttle:10,1'])->name('ecolage.store');
+    Route::delete('ecolage/{payment}', [EcolageController::class, 'destroy'])->middleware('access:ecolage.submit')->name('ecolage.destroy');
+    Route::get('ecolage/{payment}/fichier/{type}', [EcolageController::class, 'file'])->middleware('access:ecolage.view')->name('ecolage.file');
 });
 
 Route::middleware(['auth', 'messagerie'])->prefix('messagerie')->name('staff-messages.')->group(function () {
@@ -218,6 +229,7 @@ require __DIR__.'/organigramme.php';
 require __DIR__.'/evenements.php';
 require __DIR__.'/campus.php';
 require __DIR__.'/documents.php';
+require __DIR__.'/ecolage.php';
 require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/activity-log.php';

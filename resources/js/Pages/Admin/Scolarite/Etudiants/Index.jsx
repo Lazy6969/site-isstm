@@ -11,6 +11,7 @@ import { Badge } from '../../../../Components/ui/badge';
 import { Avatar, AvatarFallback } from '../../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 const statutVariants = {
     actif: 'success',
@@ -173,13 +174,14 @@ function NewDossierPanel({ eligibleUsers, classes, onClose }) {
 }
 
 export default function Index({ etudiants, classes, eligibleUsers, filieres = [], niveaux = [], filters = {} }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState(filters.q ?? '');
     const [view, setView] = useState('list');
     const searchTimer = useRef(null);
 
-    const current = { filiere_id: filters.filiere_id ?? '', niveau: filters.niveau ?? '', statut: filters.statut ?? '', q: filters.q ?? '' };
+    const current = { filiere_id: filters.filiere_id ?? '', niveau: filters.niveau ?? '', statut: filters.statut ?? '', q: filters.q ?? '', date_from: filters.date_from ?? '', date_to: filters.date_to ?? '' };
     const hasFilters = Object.values(current).some((value) => value !== '');
 
     function applyFilters(next) {
@@ -207,32 +209,22 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
         setOpen(true);
     }
 
-    function togglePause(etudiant) {
+    async function togglePause(etudiant) {
         const suspending = etudiant.statut === 'actif';
         const verb = suspending ? 'mettre en pause' : 'réactiver';
-        if (!confirm(`Voulez-vous vraiment ${verb} le compte de ${etudiant.user?.name} ?`)) return;
+        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: 'Confirmer cette action ?', details: etudiant.user?.name, confirmLabel: 'Confirmer' }))) return;
         router.post(`${BASE_URL}/${etudiant.id}/pause`, {}, { preserveScroll: true });
     }
 
     const activeCount = etudiants.filter((etudiant) => etudiant.statut === 'actif').length;
 
-    function pauseAll() {
-        if (
-            !confirm(
-                `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`,
-            )
-        )
-            return;
+    async function pauseAll() {
+        if (!(await confirmAction({ message: `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`, tone: 'warning', title: 'Mettre tous les comptes en pause ?', confirmLabel: 'Tout mettre en pause' }))) return;
         router.post(`${BASE_URL}/pause-tous`, {}, { preserveScroll: true });
     }
 
-    function destroy(etudiant) {
-        if (
-            !confirm(
-                `Supprimer définitivement le compte de ${etudiant.user?.name} ? Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages...) seront effacées. Cette action est irréversible.`,
-            )
-        )
-            return;
+    async function destroy(etudiant) {
+        if (!(await confirmAction({ message: 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.', title: 'Supprimer ce compte étudiant ?', details: etudiant.user?.name, confirmLabel: 'Supprimer définitivement' }))) return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
     }
 
@@ -272,6 +264,14 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                         </option>
                     ))}
                 </select>
+                <label className="flex items-center gap-2 text-sm text-admin-text-secondary">
+                    {t('admin.etudiants.date_du', 'Du')}
+                    <input type="date" value={current.date_from} max={current.date_to || undefined} onChange={(e) => setFilter('date_from', e.target.value)} className={selectClass} />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-admin-text-secondary">
+                    {t('admin.etudiants.date_au', 'au')}
+                    <input type="date" value={current.date_to} min={current.date_from || undefined} onChange={(e) => setFilter('date_to', e.target.value)} className={selectClass} />
+                </label>
                 {hasFilters && (
                     <button
                         type="button"

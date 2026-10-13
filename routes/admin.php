@@ -12,16 +12,16 @@ Route::middleware(['auth'])->prefix('console')->name('admin.')->group(function (
     Route::delete('dashboard/activites/masquees', [DashboardController::class, 'restoreActivities'])->middleware('can:dashboard.view')->name('dashboard.activities.restore');
 
     Route::get('preinscriptions', [PreinscriptionController::class, 'index'])->middleware('can:preinscriptions.manage')->name('preinscriptions.index');
-    Route::get('preinscriptions/export', [PreinscriptionController::class, 'export'])->middleware('can:preinscriptions.manage')->name('preinscriptions.export');
+    Route::get('preinscriptions/export', [PreinscriptionController::class, 'export'])->middleware('can:preinscriptions.export')->name('preinscriptions.export');
     Route::get('preinscriptions/{preinscription}', [PreinscriptionController::class, 'show'])->middleware('can:preinscriptions.manage')->name('preinscriptions.show');
-    Route::post('preinscriptions/{preinscription}/approve', [PreinscriptionController::class, 'approve'])->middleware('can:preinscriptions.manage')->name('preinscriptions.approve');
-    Route::post('preinscriptions/{preinscription}/refuse', [PreinscriptionController::class, 'refuse'])->middleware('can:preinscriptions.manage')->name('preinscriptions.refuse');
-    Route::post('preinscriptions/{preinscription}/demander-correction', [PreinscriptionController::class, 'requestCorrection'])->middleware('can:preinscriptions.manage')->name('preinscriptions.request-correction');
+    Route::post('preinscriptions/{preinscription}/approve', [PreinscriptionController::class, 'approve'])->middleware('can:preinscriptions.approve')->name('preinscriptions.approve');
+    Route::post('preinscriptions/{preinscription}/refuse', [PreinscriptionController::class, 'refuse'])->middleware('can:preinscriptions.refuse')->name('preinscriptions.refuse');
+    Route::post('preinscriptions/{preinscription}/demander-correction', [PreinscriptionController::class, 'requestCorrection'])->middleware('can:preinscriptions.refuse')->name('preinscriptions.request-correction');
 
     Route::get('reactivations', [ReactivationRequestController::class, 'index'])->middleware('can:reactivations.manage')->name('reactivations.index');
-    Route::post('reactivations/{reactivation}/approuver', [ReactivationRequestController::class, 'approve'])->middleware('can:reactivations.manage')->name('reactivations.approve');
-    Route::post('reactivations/{reactivation}/refuser', [ReactivationRequestController::class, 'refuse'])->middleware('can:reactivations.manage')->name('reactivations.refuse');
-    Route::delete('reactivations/{reactivation}', [ReactivationRequestController::class, 'destroy'])->middleware('can:reactivations.manage')->name('reactivations.destroy');
+    Route::post('reactivations/{reactivation}/approuver', [ReactivationRequestController::class, 'approve'])->middleware('can:reactivations.approve')->name('reactivations.approve');
+    Route::post('reactivations/{reactivation}/refuser', [ReactivationRequestController::class, 'refuse'])->middleware('can:reactivations.refuse')->name('reactivations.refuse');
+    Route::delete('reactivations/{reactivation}', [ReactivationRequestController::class, 'destroy'])->middleware('can:reactivations.delete')->name('reactivations.destroy');
 
     Route::middleware('can:dashboard.view')->prefix('corbeille')->name('trash.')->group(function () {
         Route::get('/', [TrashController::class, 'index'])->name('index');

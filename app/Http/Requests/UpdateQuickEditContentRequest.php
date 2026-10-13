@@ -13,6 +13,19 @@ use Illuminate\Validation\Rule;
 class UpdateQuickEditContentRequest extends FormRequest
 {
     /**
+     * A language-file string (`ui.<translation key>`) has no row until it is first
+     * edited — create it from the language files so the rules below see it as an
+     * existing content key. Runs before authorize(), but editing it is still
+     * gated by the text permission there.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->user()?->can(SiteContentType::Text->permission())) {
+            SiteContent::ensureUiString((string) $this->input('key'));
+        }
+    }
+
+    /**
      * Determine if the user is authorized to make this request.
      *
      * Text/icon/image are gated by separate permissions — checked here (against

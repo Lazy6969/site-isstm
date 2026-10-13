@@ -313,7 +313,7 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
                                                 return (
                                                     <a
                                                         key={slug}
-                                                        href={`/${orgDocuments[slug]}`}
+                                                        href={`/telecharger?fichier=${encodeURIComponent(orgDocuments[slug])}`}
                                                         download
                                                         className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition ${format.color}`}
                                                     >

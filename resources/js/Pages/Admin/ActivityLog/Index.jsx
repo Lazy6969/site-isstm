@@ -1,7 +1,9 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, Download, Eye, EyeOff, ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
+import { router, usePage } from '@inertiajs/react';
+import { Search, SlidersHorizontal, Download, Eye, EyeOff, ChevronLeft, ChevronRight, X, Check, Trash2 } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { useTranslations } from '../../../lib/useTranslations';
+import { useConfirm } from '../../../lib/useConfirm';
 
 const PAGE_SIZE = 15;
 
@@ -71,6 +73,8 @@ function csvCell(value) {
 export default function Index({ logs }) {
     const { t, locale } = useTranslations();
     const ROLE_LABELS = roleLabels(t);
+    const confirmAction = useConfirm();
+    const canDelete = (usePage().props.auth?.permissions ?? []).includes('activity-log.delete');
     const dateLocale = { fr: 'fr-FR', en: 'en-GB', mg: 'fr-FR' }[locale] ?? 'fr-FR';
     const [search, setSearch] = useState('');
     const [showFilters, setShowFilters] = useState(false);
@@ -124,6 +128,33 @@ export default function Index({ logs }) {
             rows.forEach((log) => (allOnPageSelected ? next.delete(log.id) : next.add(log.id)));
             return next;
         });
+    }
+
+    async function deleteOne(log) {
+        const confirmed = await confirmAction({
+            title: t('admin.activity_log.delete_title', 'Supprimer cette entrée ?'),
+            message: t('admin.activity_log.delete_text', 'Elle sera placée dans la corbeille, d’où vous pourrez la restaurer ou la supprimer définitivement.'),
+            details: log.description,
+            confirmLabel: t('admin.activity_log.delete_confirm', 'Mettre à la corbeille'),
+        });
+        if (!confirmed) return;
+
+        router.delete(`/console/activity-log/${log.id}`, {
+            preserveScroll: true,
+            onSuccess: () => setSelected((prev) => new Set([...prev].filter((id) => id !== log.id))),
+        });
+    }
+
+    async function deleteSelected() {
+        const ids = [...selected];
+        const confirmed = await confirmAction({
+            title: t('admin.activity_log.delete_many_title', `Supprimer ${ids.length} entrée(s) ?`),
+            message: t('admin.activity_log.delete_text', 'Elle sera placée dans la corbeille, d’où vous pourrez la restaurer ou la supprimer définitivement.'),
+            confirmLabel: t('admin.activity_log.delete_confirm', 'Mettre à la corbeille'),
+        });
+        if (!confirmed) return;
+
+        router.post('/console/activity-log/supprimer', { ids }, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
     }
 
     function exportCsv() {
@@ -180,6 +211,17 @@ export default function Index({ logs }) {
                         </button>
                     )}
                 </div>
+
+                {canDelete && selected.size > 0 && (
+                    <button
+                        type="button"
+                        onClick={deleteSelected}
+                        className="flex h-10 items-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3.5 text-sm font-semibold text-rose-500 transition hover:bg-rose-500/20"
+                    >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        {t('admin.activity_log.delete', 'Supprimer')} ({selected.size})
+                    </button>
+                )}
 
                 <button
                     type="button"
@@ -239,7 +281,7 @@ export default function Index({ logs }) {
                                 <th className="px-3 py-3">{t('admin.activity_log.action', 'Action')}</th>
                                 <th className="px-3 py-3">{t('admin.common.date', 'Date')}</th>
                                 <th className="px-3 py-3">IP</th>
-                                <th className="w-16 px-3 py-3" />
+                                <th className="w-24 px-3 py-3" />
                             </tr>
                         </thead>
                         <tbody>
@@ -282,6 +324,7 @@ export default function Index({ logs }) {
                                             </td>
                                             <td className="px-3 py-3.5 text-xs text-admin-muted">{log.ip_address ?? '—'}</td>
                                             <td className="px-3 py-3.5">
+                                                <div className="flex items-center gap-0.5">
                                                 <button
                                                     type="button"
                                                     onClick={() => setOpenId(open ? null : log.id)}
@@ -291,6 +334,18 @@ export default function Index({ logs }) {
                                                 >
                                                     {open ? <EyeOff className="h-[18px] w-[18px]" aria-hidden="true" /> : <Eye className="h-[18px] w-[18px]" aria-hidden="true" />}
                                                 </button>
+                                                {canDelete && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => deleteOne(log)}
+                                                        aria-label={t('admin.activity_log.delete', 'Supprimer')}
+                                                        title={t('admin.activity_log.delete', 'Supprimer')}
+                                                        className="rounded-lg p-2 text-admin-muted transition hover:bg-rose-500/10 hover:text-rose-500"
+                                                    >
+                                                        <Trash2 className="h-[18px] w-[18px]" aria-hidden="true" />
+                                                    </button>
+                                                )}
+                                                </div>
                                             </td>
                                         </tr>
                                         {open && (

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\PermissionCatalog;
 use App\Role;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
@@ -82,6 +83,10 @@ class RolePermissionSeeder extends Seeder
         foreach (['enseignant', 'responsable-materiel'] as $role) {
             SpatieRole::findByName($role)->givePermissionTo('dashboard.view');
         }
+
+        // Community space + finer scolarité actions: created after the syncs
+        // above, since install() is additive and the syncs would wipe it.
+        PermissionCatalog::install();
 
         $this->backfillExistingUsers();
     }

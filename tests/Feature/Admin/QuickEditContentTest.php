@@ -590,3 +590,43 @@ it('rejects a parcours card style outside the whitelisted options', function () 
         ])
         ->assertSessionHasErrors(['style.blur', 'style.icon']);
 });
+
+it('lets an admin quick-edit a language-file string, creating its override on first edit', function () {
+    Http::fake();
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    expect(SiteContent::where('content_key', 'ui.documents.telecharger')->exists())->toBeFalse();
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'ui.documents.telecharger', 'value' => 'Récupérer', 'locale' => 'fr'])
+        ->assertRedirect();
+
+    $content = SiteContent::where('content_key', 'ui.documents.telecharger')->first();
+    expect($content)->not->toBeNull()
+        ->and($content->type)->toBe(SiteContentType::Text)
+        ->and($content->content_value_fr)->toBe('Récupérer');
+
+    $this->actingAs($admin)->get('/documents')->assertInertia(fn ($page) => $page
+        ->where('translations', fn ($translations) => collect($translations)->get('documents.telecharger') === 'Récupérer')
+    );
+});
+
+it('never creates an override for a key that is not in the language files', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)
+        ->post('/console/content/update', ['key' => 'ui.cle.inventee', 'value' => 'Texte'])
+        ->assertSessionHasErrors('key');
+
+    expect(SiteContent::where('content_key', 'ui.cle.inventee')->exists())->toBeFalse();
+});
+
+it('does not create a language-file override for a user without the text permission', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($etudiant)
+        ->post('/console/content/update', ['key' => 'ui.documents.telecharger', 'value' => 'Pirate'])
+        ->assertSessionHasErrors('key');
+
+    expect(SiteContent::where('content_key', 'ui.documents.telecharger')->exists())->toBeFalse();
+});

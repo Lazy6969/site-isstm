@@ -10,7 +10,6 @@ use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\ClassGroupMessage;
 use App\Models\User;
-use App\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,7 +30,7 @@ class ClassGroupController extends Controller
 
         return Inertia::render('Groupes/Index', [
             'groups' => $memberships->map(fn (ClassGroupMember $membership) => $this->presentGroup($membership, $user)),
-            'canCreate' => $user->hasLegacyRole(Role::Etudiant, Role::Enseignant, Role::Admin),
+            'canCreate' => $user->canInCommunity('groups.create'),
         ]);
     }
 
@@ -102,7 +101,7 @@ class ClassGroupController extends Controller
 
         $group->members()->create([
             'user_id' => $user->id,
-            'role_in_group' => $user->hasLegacyRole(Role::Enseignant) ? GroupMemberRole::Enseignant : GroupMemberRole::Etudiant,
+            'role_in_group' => $user->isTeacher() ? GroupMemberRole::Enseignant : GroupMemberRole::Etudiant,
             'last_read_at' => now(),
         ]);
 

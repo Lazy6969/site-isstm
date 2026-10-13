@@ -1,8 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\DocumentController;
+use App\Http\Controllers\Admin\DocumentDownloadController;
 use App\Http\Controllers\Admin\InscriptionDocumentController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('console/telechargements', [DocumentDownloadController::class, 'index'])
+    ->middleware(['auth', 'can:documents.view'])
+    ->name('admin.telechargements.index');
 
 Route::middleware(['auth'])->prefix('console/documents')->name('admin.documents.')->group(function () {
     Route::get('/', [DocumentController::class, 'index'])->middleware('can:documents.view')->name('index');

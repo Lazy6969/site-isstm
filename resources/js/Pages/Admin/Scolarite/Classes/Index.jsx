@@ -10,6 +10,7 @@ import { Select } from '../../../../Components/ui/select';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 const emptyForm = { nom: '', filiere_id: '', niveau: '', annee: '', effectif_max: '' };
 
@@ -185,6 +186,7 @@ function MembresPanel({ membres }) {
 }
 
 export default function Index({ classes, filieres, membres = [] }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
@@ -221,8 +223,8 @@ export default function Index({ classes, filieres, membres = [] }) {
         }
     }
 
-    function destroy(classe) {
-        if (!confirm(`${t('admin.classes.confirm_delete', 'Supprimer la classe')} « ${classe.nom} » ?`)) return;
+    async function destroy(classe) {
+        if (!(await confirmAction({ message: 'Cette classe sera placée dans la corbeille.', title: 'Supprimer cette classe ?', details: classe.nom, confirmLabel: 'Supprimer' }))) return;
         router.delete(`/console/scolarite/classes/${classe.id}`, { preserveScroll: true });
     }
 

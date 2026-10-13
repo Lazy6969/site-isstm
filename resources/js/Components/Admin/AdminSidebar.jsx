@@ -4,7 +4,6 @@ import {
     LayoutDashboard,
     UserPlus,
     GraduationCap,
-    School,
     Newspaper,
     Images,
     BookOpen,
@@ -15,6 +14,10 @@ import {
     Building2,
     FileEdit,
     FileText,
+    Download,
+    Wallet,
+    UsersRound,
+    MessageCircle,
     Archive,
     ShieldCheck,
     History,
@@ -41,17 +44,20 @@ function buildNavGroups(t) {
             ],
         },
         {
-            label: t('admin.nav.group_admissions', 'Admissions'),
+            label: t('admin.nav.group_communaute', 'Communauté'),
             items: [
-                { href: '/console/preinscriptions', label: t('admin.nav.preinscriptions', 'Préinscriptions'), icon: UserPlus, permission: 'preinscriptions.manage' },
-                { href: '/console/reactivations', label: t('admin.nav.reactivations', 'Réactivations'), icon: RotateCcw, permission: 'reactivations.manage' },
+                { href: '/communaute', label: t('admin.nav.fil_communautaire', 'Fil communautaire'), icon: Newspaper, permission: 'community.view' },
+                { href: '/groupes', label: t('admin.nav.groupes', 'Groupes de classe'), icon: UsersRound, permission: 'groups.view' },
+                { href: '/messages', label: t('admin.nav.messages_prives', 'Messages'), icon: MessageCircle, permission: 'messages.view' },
             ],
         },
         {
             label: t('admin.nav.group_scolarite', 'Scolarité'),
             items: [
+                { href: '/console/preinscriptions', label: t('admin.nav.preinscriptions', 'Préinscriptions'), icon: UserPlus, permission: 'preinscriptions.manage' },
+                { href: '/console/reactivations', label: t('admin.nav.reactivations', 'Réactivations'), icon: RotateCcw, permission: 'reactivations.manage' },
+                { href: '/console/ecolage', label: t('admin.nav.ecolage', 'Écolage'), icon: Wallet, permission: 'payments.view', badge: 'ecolage' },
                 { href: '/console/scolarite/etudiants', label: t('admin.nav.etudiants', 'Étudiants'), icon: GraduationCap, permission: 'etudiants.view' },
-                { href: '/console/scolarite/classes', label: t('admin.nav.niveaux', 'Niveaux'), icon: School, permission: 'classes.view' },
             ],
         },
         {
@@ -69,6 +75,7 @@ function buildNavGroups(t) {
                 { href: '/console/evenements', label: t('admin.nav.evenements', 'Événements'), icon: CalendarDays, permission: 'evenements.view' },
                 { href: '/console/campus', label: t('admin.nav.campus', 'Campus'), icon: Building2, permission: 'campus.view' },
                 { href: '/console/documents', label: t('admin.nav.documents', 'Documents'), icon: FileText, permission: 'documents.view' },
+                { href: '/console/telechargements', label: t('admin.nav.telechargements', 'Téléchargements'), icon: Download, permission: 'documents.view' },
             ],
         },
         {
@@ -97,6 +104,7 @@ function isActive(url, href) {
 
 function NavItem({ item, active, collapsed, onNavigate }) {
     const Icon = item.icon;
+    const count = Number(usePage().props.adminBadges?.[item.badge] ?? 0);
     const link = (
         <Link
             href={item.href}
@@ -112,6 +120,17 @@ function NavItem({ item, active, collapsed, onNavigate }) {
         >
             <Icon className={`h-[18px] w-[18px] flex-shrink-0 ${active ? '' : 'group-hover:text-admin-accent'}`} aria-hidden="true" />
             {!collapsed && <span className="truncate">{item.label}</span>}
+            {count > 0 && (
+                <span
+                    className={`relative flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold leading-none tabular-nums shadow-sm ${
+                        collapsed ? 'absolute right-1 top-0.5' : 'ml-auto'
+                    } ${active ? 'bg-white text-admin-accent' : 'bg-rose-500 text-white'}`}
+                    aria-label={`${count} en attente`}
+                >
+                    {!active && <span className="absolute inset-0 animate-ping rounded-full bg-rose-500/50" aria-hidden="true" />}
+                    <span className="relative">{count > 99 ? '99+' : count}</span>
+                </span>
+            )}
         </Link>
     );
 

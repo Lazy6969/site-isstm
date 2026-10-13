@@ -222,7 +222,7 @@ class EtudiantController extends Controller
     }
 
     /**
-     * @return array{filiere_id: ?int, niveau: ?string, statut: ?string, q: ?string}
+     * @return array{filiere_id: ?int, niveau: ?string, statut: ?string, q: ?string, date_from: ?string, date_to: ?string}
      */
     private function filters(Request $request): array
     {
@@ -231,18 +231,22 @@ class EtudiantController extends Controller
             'niveau' => ['nullable', 'string', 'max:10'],
             'statut' => ['nullable', Rule::enum(StatutEtudiant::class)],
             'q' => ['nullable', 'string', 'max:100'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);
 
         return [
             'filiere_id' => isset($validated['filiere_id']) ? (int) $validated['filiere_id'] : null,
             'niveau' => $validated['niveau'] ?? null,
             'statut' => $validated['statut'] ?? null,
+            'date_from' => $validated['date_from'] ?? null,
+            'date_to' => $validated['date_to'] ?? null,
             'q' => isset($validated['q']) && trim($validated['q']) !== '' ? trim($validated['q']) : null,
         ];
     }
 
     /**
-     * @param  array{filiere_id: ?int, niveau: ?string, statut: ?string, q: ?string}  $filters
+     * @param  array{filiere_id: ?int, niveau: ?string, statut: ?string, q: ?string, date_from: ?string, date_to: ?string}  $filters
      * @return Collection<int, Etudiant>
      */
     private function filteredEtudiants(array $filters): Collection
@@ -254,7 +258,7 @@ class EtudiantController extends Controller
             'candidat:id,filiere_id,niveau',
             'candidat.filiere:id,nom_fr',
         ])
-            ->filter($filters['filiere_id'], $filters['niveau'], $filters['statut'], $filters['q'])
+            ->filter($filters['filiere_id'], $filters['niveau'], $filters['statut'], $filters['q'], $filters['date_from'], $filters['date_to'])
             ->orderBy('matricule')
             ->get();
     }

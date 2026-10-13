@@ -3,8 +3,10 @@ import { Plus, Trash2, Upload } from 'lucide-react';
 import BiblioAdminLayout from '../../../../Components/Bibliotheque/BiblioAdminLayout';
 import { Card } from '../../../../Components/ui/card';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 export default function Index({ canevas, annees }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({
         titre: '',
@@ -22,8 +24,8 @@ export default function Index({ canevas, annees }) {
         });
     }
 
-    function destroy(id) {
-        if (confirm(t('bibliotheque_admin.confirmer_suppression_canevas', 'Supprimer ce canevas ?'))) {
+    async function destroy(id) {
+        if (await confirmAction({ message: t('bibliotheque_admin.confirmer_suppression_canevas', 'Supprimer ce canevas ?'), title: 'Supprimer ce canevas ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/bibliotheque/admin/canevas/${id}`, { preserveScroll: true });
         }
     }

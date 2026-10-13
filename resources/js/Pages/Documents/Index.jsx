@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { Download, FileText } from 'lucide-react';
+import { Download, Eye, FileText, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
@@ -10,6 +10,7 @@ import { useQuickEdit } from '../../lib/useQuickEdit';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
 import { useTranslations } from '../../lib/useTranslations';
+import { xsrfToken } from '../../lib/csrf';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 
 export default function Index({ documents }) {
@@ -18,6 +19,30 @@ export default function Index({ documents }) {
     const { active } = useQuickEdit();
     const canQuickAdd = active && (auth?.permissions ?? []).includes('documents.create');
     const [quickAddOpen, setQuickAddOpen] = useState(false);
+    const [copiedId, setCopiedId] = useState(null);
+
+    /** Shares the tracked "consulter" link (native share sheet, else clipboard) and counts the share once it went through. */
+    async function shareDocument(doc) {
+        const url = `${window.location.origin}/consulter?fichier=${encodeURIComponent(doc.file_path)}`;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({ title: doc.title, url });
+            } else {
+                await navigator.clipboard.writeText(url);
+                setCopiedId(doc.id);
+                setTimeout(() => setCopiedId(null), 2500);
+            }
+        } catch {
+            return;
+        }
+
+        fetch('/documents/partage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfToken(), Accept: 'application/json' },
+            body: JSON.stringify({ fichier: doc.file_path }),
+        }).catch(() => {});
+    }
 
     const categoryLabels = {
         public: t('documents.public', 'Public'),
@@ -62,14 +87,38 @@ export default function Index({ documents }) {
                                             <Badge className="mt-1">{categoryLabels[doc.category] ?? doc.category}</Badge>
                                         </div>
                                     </div>
+                                    <div className="flex shrink-0 items-center gap-2">
+                                        {copiedId === doc.id && (
+                                            <span className="text-xs font-medium text-emerald-600">{t('documents.lien_copie', 'Lien copié')}</span>
+                                        )}
+                                        <a
+                                            href={`/consulter?fichier=${encodeURIComponent(doc.file_path)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label={t('documents.consulter', 'Consulter')}
+                                            title={t('documents.consulter', 'Consulter')}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                                        >
+                                            <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </a>
+                                        <button
+                                            type="button"
+                                            onClick={() => shareDocument(doc)}
+                                            aria-label={t('documents.partager', 'Partager')}
+                                            title={t('documents.partager', 'Partager')}
+                                            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                                        >
+                                            <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                                        </button>
                                     <a
-                                        href={`/${doc.file_path}`}
+                                        href={`/telecharger?fichier=${encodeURIComponent(doc.file_path)}`}
                                         download
                                         className="flex shrink-0 items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
                                     >
                                         <Download className="h-3.5 w-3.5" aria-hidden="true" />
                                         {t('documents.telecharger', 'Télécharger')}
                                     </a>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

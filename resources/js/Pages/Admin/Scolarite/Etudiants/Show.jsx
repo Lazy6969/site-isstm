@@ -10,6 +10,7 @@ import { Badge } from '../../../../Components/ui/badge';
 import { Avatar, AvatarFallback } from '../../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 const statutVariants = { actif: 'success', suspendu: 'warning', diplome: 'outline', abandon: 'danger' };
 const statutLabels = { actif: 'Actif', suspendu: 'Suspendu', diplome: 'Diplômé', abandon: 'Abandon' };
@@ -54,6 +55,7 @@ function Section({ title, children }) {
 }
 
 export default function Show({ etudiant, classes }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [expanded, setExpanded] = useState(false);
     const form = useForm({
@@ -81,20 +83,15 @@ export default function Show({ etudiant, classes }) {
         form.put(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
     }
 
-    function destroy() {
-        if (
-            !confirm(
-                `Supprimer définitivement le compte de ${etudiant.user.name} ? Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages...) seront effacées. Cette action est irréversible.`,
-            )
-        )
-            return;
+    async function destroy() {
+        if (!(await confirmAction({ message: 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.', title: 'Supprimer ce compte étudiant ?', details: etudiant.user.name, confirmLabel: 'Supprimer définitivement' }))) return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`);
     }
 
-    function togglePause() {
+    async function togglePause() {
         const suspending = etudiant.statut === 'actif';
         const verb = suspending ? 'mettre en pause' : 'réactiver';
-        if (!confirm(`Voulez-vous vraiment ${verb} le compte de ${etudiant.user.name} ?`)) return;
+        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: 'Confirmer cette action ?', details: etudiant.user.name, confirmLabel: 'Confirmer' }))) return;
         router.post(`/console/scolarite/etudiants/${etudiant.id}/pause`, {}, { preserveScroll: true });
     }
 

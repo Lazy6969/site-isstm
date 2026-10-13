@@ -111,6 +111,47 @@ class User extends Authenticatable implements MustVerifyEmail
         return in_array($this->role, $roles, true);
     }
 
+    /**
+     * Whether this account is a Super Admin — by Spatie role or by the legacy
+     * `users.role` value (staff accounts only carry the former).
+     */
+    public function isAdministrator(): bool
+    {
+        return $this->hasAnyRole('super-admin') || $this->hasLegacyRole(Role::Admin);
+    }
+
+    /**
+     * Whether this account is a teacher, by either the Spatie role (how staff
+     * accounts are created) or the legacy `users.role` value.
+     */
+    public function isTeacher(): bool
+    {
+        return $this->hasAnyRole('enseignant') || $this->hasLegacyRole(Role::Enseignant);
+    }
+
+    /**
+     * Whether this account takes part in the community space (admin, teacher or
+     * student), whichever way its role is stored.
+     */
+    public function isCommunityMember(): bool
+    {
+        return $this->isAdministrator() || $this->isTeacher() || $this->hasAnyRole('etudiant') || $this->hasLegacyRole(Role::Etudiant);
+    }
+
+    /**
+     * Community permission check that honours the Roles screen, while accounts
+     * with no Spatie role at all keep what their legacy role has always allowed
+     * (same rule as the `access:` route middleware).
+     */
+    public function canInCommunity(string $permission): bool
+    {
+        if ($this->can($permission)) {
+            return true;
+        }
+
+        return $this->roles->isEmpty() && $this->hasLegacyRole(Role::Admin, Role::Enseignant, Role::Etudiant);
+    }
+
     public function etudiant(): HasOne
     {
         return $this->hasOne(Etudiant::class);

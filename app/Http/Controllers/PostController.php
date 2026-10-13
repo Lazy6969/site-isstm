@@ -47,7 +47,7 @@ class PostController extends Controller
 
         return Inertia::render('Communaute/Index', [
             'posts' => $posts,
-            'canPublish' => $user->hasLegacyRole(Role::Etudiant, Role::Admin, Role::Enseignant),
+            'canPublish' => $user->canInCommunity('community.post'),
             'postTypes' => array_map(fn (PostType $type) => ['value' => $type->value, 'label' => $type->label()], PostType::cases()),
             'friends' => $user->friends()->map(fn (User $friend) => [
                 'id' => $friend->id,
@@ -161,7 +161,7 @@ class PostController extends Controller
     public function destroy(Request $request, Post $post): RedirectResponse
     {
         $user = $request->user();
-        abort_unless($user->hasLegacyRole(Role::Admin) || $post->user_id === $user->id, 403);
+        abort_unless($user->isAdministrator() || $post->user_id === $user->id, 403);
 
         $post->delete();
 

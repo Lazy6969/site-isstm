@@ -5,6 +5,7 @@ use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\FriendRequest;
+use App\Models\Post;
 use App\Models\User;
 use App\Role;
 
@@ -217,4 +218,46 @@ it('lets the group owner permanently delete the group', function () {
     $this->actingAs($teacher)->delete("/groupes/{$group->id}")->assertRedirect(route('class-groups.index'));
 
     expect(ClassGroup::query()->find($group->id))->toBeNull();
+});
+
+it('lets a staff-created teacher (Spatie role only) create a group, not just join one', function () {
+    $teacher = User::factory()->create();
+    $teacher->assignRole('enseignant');
+
+    $this->actingAs($teacher)->get('/groupes')->assertInertia(fn ($page) => $page->where('canCreate', true));
+
+    $this->actingAs($teacher)->post('/groupes', ['name' => 'L2 Réseaux', 'type' => 'classe'])->assertRedirect();
+
+    $group = ClassGroup::query()->firstOrFail();
+    expect($group->teacher_id)->toBe($teacher->id)
+        ->and(ClassGroupMember::query()->where('class_group_id', $group->id)->where('user_id', $teacher->id)->sole()->role_in_group)->toBe(GroupMemberRole::Enseignant);
+});
+
+it('makes a staff-created teacher a teacher, not a student, when they join a group with its code', function () {
+    $owner = User::factory()->role(Role::Enseignant)->create();
+    $group = ClassGroup::factory()->create(['teacher_id' => $owner->id]);
+    $teacher = User::factory()->create();
+    $teacher->assignRole('enseignant');
+
+    $this->actingAs($teacher)->post('/groupes/rejoindre', ['code' => $group->join_code])->assertRedirect();
+
+    expect(ClassGroupMember::query()->where('class_group_id', $group->id)->where('user_id', $teacher->id)->sole()->role_in_group)->toBe(GroupMemberRole::Enseignant);
+});
+
+it('stops a role from creating groups once the permission is removed from the Roles screen', function () {
+    $teacher = User::factory()->create();
+    $teacher->assignRole('enseignant');
+    Spatie\Permission\Models\Role::findByName('enseignant')->revokePermissionTo('groups.create');
+
+    $this->actingAs($teacher)->get('/groupes')->assertInertia(fn ($page) => $page->where('canCreate', false));
+    $this->actingAs($teacher)->post('/groupes', ['name' => 'Interdit', 'type' => 'classe'])->assertForbidden();
+});
+
+it('lets a staff-created teacher publish on the community feed', function () {
+    $teacher = User::factory()->create();
+    $teacher->assignRole('enseignant');
+
+    $this->actingAs($teacher)->post('/communaute', ['type' => 'autre', 'body' => 'Bonjour à tous'])->assertRedirect();
+
+    expect(Post::where('user_id', $teacher->id)->exists())->toBeTrue();
 });

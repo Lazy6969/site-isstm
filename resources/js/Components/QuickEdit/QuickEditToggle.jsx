@@ -24,6 +24,7 @@ export default function QuickEditToggle() {
             title={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-label={enabled ? 'Désactiver le mode édition rapide' : 'Activer le mode édition rapide'}
             aria-pressed={enabled}
+            data-qe-skip
             className={`flex h-12 w-12 items-center justify-center rounded-full transition hover:scale-105 ${
                 enabled ? 'bg-amber-400 text-amber-950' : 'bg-admin-text text-admin-bg'
             }`}

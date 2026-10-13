@@ -81,3 +81,42 @@ it('lets the teacher delete any members message for everyone', function () {
     $this->actingAs($teacher)->delete("/groupes/messages/{$message->id}", ['scope' => 'everyone'])->assertRedirect();
     expect($message->fresh()->deleted_for_everyone_at)->not->toBeNull();
 });
+
+it('accepts every common kind of attachment in a group chat', function (string $name, string $mime) {
+    Storage::fake('public');
+    $group = ClassGroup::factory()->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/messages", [
+        'attachments' => [UploadedFile::fake()->create($name, 200, $mime)],
+    ])->assertRedirect()->assertSessionHasNoErrors();
+
+    expect(ClassGroupMessage::query()->sole()->attachments)->toHaveCount(1);
+})->with([
+    'image' => ['photo.png', 'image/png'],
+    'pdf' => ['cours.pdf', 'application/pdf'],
+    'word' => ['devoir.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    'word 97' => ['devoir.doc', 'application/msword'],
+    'excel' => ['notes.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+    'powerpoint' => ['expose.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+    'zip' => ['projet.zip', 'application/zip'],
+    'rar' => ['projet.rar', 'application/x-rar-compressed'],
+    'texte' => ['readme.txt', 'text/plain'],
+    'csv' => ['donnees.csv', 'text/csv'],
+]);
+
+it('explains why an attachment is refused', function () {
+    Storage::fake('public');
+    $group = ClassGroup::factory()->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/messages", [
+        'attachments' => [UploadedFile::fake()->create('page.html', 10, 'text/html')],
+    ])->assertSessionHasErrors('attachments.0');
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/messages", [
+        'attachments' => [UploadedFile::fake()->create('trop-gros.pdf', 11000, 'application/pdf')],
+    ])->assertSessionHasErrors('attachments.0');
+});
