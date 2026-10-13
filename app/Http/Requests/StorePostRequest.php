@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\PostType;
 use App\PostVisibility;
-use App\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -16,7 +15,7 @@ class StorePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasLegacyRole(Role::Etudiant, Role::Admin, Role::Enseignant);
+        return $this->user()->canInCommunity('community.post');
     }
 
     /**

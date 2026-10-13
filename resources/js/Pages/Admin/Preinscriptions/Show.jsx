@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../../Components/ui/avat
 import { Button } from '../../../Components/ui/button';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import { useConfirm } from '../../../lib/useConfirm';
 
 function formatDate(value) {
     if (!value) return null;
@@ -46,6 +47,7 @@ const DOCUMENTS = [
 ];
 
 export default function Show({ preinscription }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [processing, setProcessing] = useState(false);
     const [panel, setPanel] = useState(null); // null | 'refuse' | 'correction'
@@ -54,8 +56,8 @@ export default function Show({ preinscription }) {
 
     const isDecided = !['en_attente', 'en_cours_examen', 'a_completer'].includes(preinscription.status);
 
-    function approve() {
-        if (!window.confirm(t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'))) {
+    async function approve() {
+        if (!(await confirmAction({ message: t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'), tone: 'info', title: 'Créer le compte étudiant ?', confirmLabel: 'Créer le compte' }))) {
             return;
         }
 

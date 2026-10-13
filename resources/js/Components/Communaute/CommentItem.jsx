@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
+import { useConfirm } from '../../lib/useConfirm';
 
 /**
  * Flattens a comment's reply tree into a single-level list, like
@@ -20,6 +21,7 @@ function flattenReplies(replies, replyingToName) {
 }
 
 function CommentBubble({ postId, comment, replyingToName, indented, highlighted }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [replying, setReplying] = useState(false);
     const [editing, setEditing] = useState(false);
@@ -57,8 +59,8 @@ function CommentBubble({ postId, comment, replyingToName, indented, highlighted 
         });
     }
 
-    function destroy() {
-        if (confirm(t('communaute.confirmer_suppression_commentaire', 'Supprimer ce commentaire ?'))) {
+    async function destroy() {
+        if (await confirmAction({ message: t('communaute.confirmer_suppression_commentaire', 'Supprimer ce commentaire ?'), title: 'Supprimer ce commentaire ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/commentaires/${comment.id}`, { preserveScroll: true });
         }
     }

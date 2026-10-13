@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use App\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -15,7 +14,7 @@ class UpdatePostRequest extends FormRequest
     {
         $post = $this->route('post');
 
-        return $this->user()->hasLegacyRole(Role::Admin) || $post->user_id === $this->user()->id;
+        return $this->user()->isAdministrator() || $post->user_id === $this->user()->id;
     }
 
     /**

@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ArrowLeft, Download, FileText, Images, Link2, Paperclip, Search, Send, Settings2, Users, Video as VideoIcon, X } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Images, Link2, Search, Send, Settings2, Users, Video as VideoIcon, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import MessageBubble from '../../Components/Messages/MessageBubble';
@@ -9,6 +9,7 @@ import VoiceRecorder from '../../Components/Messages/VoiceRecorder';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
+import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
 import { extractLinks } from '../../lib/linkify';
 import { xsrfToken } from '../../lib/csrf';
 
@@ -45,7 +46,8 @@ export default function Index({ conversations, friends, activeConversation, mess
     const [opening, setOpening] = useState(false);
     const [liveStatus, setLiveStatus] = useState({ online: false, typing: false });
     const [replyingTo, setReplyingTo] = useState(null);
-    const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [], reply_to_id: null });
+    const { data, setData, post, processing, reset, errors } = useForm({ body: '', attachments: [], reply_to_id: null });
+    const attachmentPicker = useAttachmentPicker(data.attachments, (files) => setData('attachments', files), errors);
     const lastTypingPingAt = useRef(0);
     const isGroup = activeConversation?.kind === 'groupe';
 
@@ -366,33 +368,10 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </div>
                             )}
 
-                            {data.attachments.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 border-t border-slate-100 px-3 pt-2 dark:border-slate-700">
-                                    {data.attachments.map((file, i) => (
-                                        <span key={i} className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                                            {file.name}
-                                            <button
-                                                type="button"
-                                                onClick={() => setData('attachments', data.attachments.filter((_, fi) => fi !== i))}
-                                                aria-label={t('nav.annuler', 'Annuler')}
-                                            >
-                                                <X className="h-3 w-3" aria-hidden="true" />
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
+                            <SelectedAttachments files={data.attachments} picker={attachmentPicker} />
 
                             <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
-                                <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
-                                    <Paperclip className="h-4 w-4" aria-hidden="true" />
-                                    <input
-                                        type="file"
-                                        multiple
-                                        onChange={(e) => setData('attachments', [...data.attachments, ...Array.from(e.target.files)])}
-                                        className="hidden"
-                                    />
-                                </label>
+                                <AttachmentButton picker={attachmentPicker} disabled={processing} />
                                 <EmojiPickerButton onSelect={(emoji) => setData('body', data.body + emoji)} />
                                 <VoiceRecorder onRecorded={(file) => setData('attachments', [...data.attachments, file])} />
                                 <input

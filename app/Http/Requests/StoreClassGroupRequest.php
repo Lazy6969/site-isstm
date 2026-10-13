@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\ClassGroupType;
-use App\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -15,7 +14,7 @@ class StoreClassGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasLegacyRole(Role::Etudiant, Role::Enseignant, Role::Admin);
+        return $this->user()->canInCommunity('groups.create');
     }
 
     /**

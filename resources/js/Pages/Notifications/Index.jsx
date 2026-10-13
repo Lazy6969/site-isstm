@@ -7,6 +7,7 @@ import { Card } from '../../Components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 import { markNotificationRead, notificationLink } from '../../lib/notifications';
+import { useConfirm } from '../../lib/useConfirm';
 
 const periodOrder = ["Aujourd'hui", 'Hier', 'Cette semaine', 'Plus ancien'];
 const LONG_PRESS_MS = 500;
@@ -16,6 +17,7 @@ function formatTime(dateString) {
 }
 
 export default function Index({ groups, pagination }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [pageLoading, setPageLoading] = useState(false);
     const [selected, setSelected] = useState(() => new Set());
@@ -122,8 +124,8 @@ export default function Index({ groups, pagination }) {
         );
     }
 
-    function destroyAllNotifications() {
-        if (!confirm(t('notifications.confirmer_tout_supprimer', 'Supprimer toutes les notifications ?'))) return;
+    async function destroyAllNotifications() {
+        if (!(await confirmAction({ message: t('notifications.confirmer_tout_supprimer', 'Supprimer toutes les notifications ?'), title: 'Supprimer toutes les notifications ?', confirmLabel: 'Supprimer' }))) return;
 
         router.post('/notifications/tout-supprimer', {}, { preserveScroll: true, onSuccess: () => setSelected(new Set()) });
     }

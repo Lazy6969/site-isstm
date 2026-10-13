@@ -3,8 +3,10 @@ import { Plus, X } from 'lucide-react';
 import BiblioAdminLayout from '../../../Components/Bibliotheque/BiblioAdminLayout';
 import { Card } from '../../../Components/ui/card';
 import { useTranslations } from '../../../lib/useTranslations';
+import { useConfirm } from '../../../lib/useConfirm';
 
 export default function Reglages({ mentions, filieres, annees }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const mentionForm = useForm({ nom: '', abreviation: '' });
     const filiereForm = useForm({ nom: '', abreviation: '', niveau: 'Licence', mention_id: mentions[0]?.id ?? '' });
@@ -25,20 +27,20 @@ export default function Reglages({ mentions, filieres, annees }) {
         anneeForm.post('/bibliotheque/admin/reglages/annees', { preserveScroll: true, onSuccess: () => anneeForm.reset() });
     }
 
-    function destroyMention(id) {
-        if (confirm(t('bibliotheque_admin.confirmer_suppression_mention', 'Supprimer cette mention ? Les filières et mémoires rattachés seront aussi supprimés.'))) {
+    async function destroyMention(id) {
+        if (await confirmAction({ message: t('bibliotheque_admin.confirmer_suppression_mention', 'Supprimer cette mention ? Les filières et mémoires rattachés seront aussi supprimés.'), title: 'Supprimer cette mention ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/bibliotheque/admin/reglages/mentions/${id}`, { preserveScroll: true });
         }
     }
 
-    function destroyFiliere(id) {
-        if (confirm(t('bibliotheque_admin.confirmer_suppression_filiere', 'Supprimer cette filière ? Les mémoires rattachés seront aussi supprimés.'))) {
+    async function destroyFiliere(id) {
+        if (await confirmAction({ message: t('bibliotheque_admin.confirmer_suppression_filiere', 'Supprimer cette filière ? Les mémoires rattachés seront aussi supprimés.'), title: 'Supprimer cette filière ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/bibliotheque/admin/reglages/filieres/${id}`, { preserveScroll: true });
         }
     }
 
-    function destroyAnnee(id) {
-        if (confirm(t('bibliotheque_admin.confirmer_suppression_annee', 'Supprimer cette année universitaire ?'))) {
+    async function destroyAnnee(id) {
+        if (await confirmAction({ message: t('bibliotheque_admin.confirmer_suppression_annee', 'Supprimer cette année universitaire ?'), title: 'Supprimer cette année ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/bibliotheque/admin/reglages/annees/${id}`, { preserveScroll: true });
         }
     }

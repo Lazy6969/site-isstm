@@ -68,7 +68,7 @@ class FriendController extends Controller
         $sender = $request->user();
 
         abort_if($sender->id === $recipient->id, 422, 'Vous ne pouvez pas vous ajouter vous-même.');
-        abort_unless($recipient->hasLegacyRole(Role::Admin, Role::Enseignant, Role::Etudiant), 422);
+        abort_unless($recipient->isCommunityMember(), 422);
         abort_if($sender->friendshipWith($recipient) !== null, 409, 'Une relation existe déjà avec cet utilisateur.');
 
         $friendRequest = FriendRequest::create([

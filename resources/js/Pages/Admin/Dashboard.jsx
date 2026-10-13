@@ -34,6 +34,7 @@ import StudentDistribution from '../../Components/Admin/StudentDistribution';
 import PendingQueue from '../../Components/Admin/PendingQueue';
 import { Tabs, TabsList, TabsTrigger } from '../../Components/ui/tabs';
 import { useTranslations } from '../../lib/useTranslations';
+import { greetingPeriod } from '../../lib/greeting';
 
 const tooltipStyle = {
     backgroundColor: 'var(--color-admin-card)',
@@ -63,12 +64,18 @@ function Greeting() {
     const dateLocale = { fr: 'fr-FR', en: 'en-GB', mg: 'fr-FR' }[locale] ?? 'fr-FR';
     const date = new Intl.DateTimeFormat(dateLocale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(now);
     const time = new Intl.DateTimeFormat(dateLocale, { hour: '2-digit', minute: '2-digit' }).format(now);
+    // Follows the clock: bonjour until noon, bonne après-midi until 18h, bonsoir after.
+    const greeting = {
+        matin: t('admin.dashboard.hello_matin', 'Bonjour,'),
+        apresmidi: t('admin.dashboard.hello_apresmidi', 'Bonne après-midi,'),
+        soir: t('admin.dashboard.hello_soir', 'Bonsoir,'),
+    }[greetingPeriod(now.getHours())];
 
     return (
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h1 className="text-3xl font-light tracking-tight text-admin-text">
-                    {t('admin.dashboard.hello', 'Bonjour,')} <span className="font-bold">{user?.name}</span>
+                    {greeting} <span className="font-bold">{user?.name}</span>
                 </h1>
                 <p className="mt-1 text-sm text-admin-text-secondary">{t('admin.dashboard.overview', "Voici un aperçu général de votre administration ISSTM.")}</p>
             </div>

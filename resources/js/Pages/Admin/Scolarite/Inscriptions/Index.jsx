@@ -10,6 +10,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../../Components/ui/dialog';
 import { cn } from '../../../../lib/utils';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 const statutLabels = {
     brouillon: 'Brouillon',
@@ -31,6 +32,7 @@ const statutI18nKeys = {
 const typeLabels = { reinscription: 'Réinscription', redoublement: 'Redoublant' };
 
 export default function Index({ inscriptions, etudiants, classes }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     const form = useForm({ etudiant_id: '', classe_id: '', annee: '', numero: '', date_inscription: '' });
@@ -50,8 +52,8 @@ export default function Index({ inscriptions, etudiants, classes }) {
         router.put(`/console/scolarite/inscriptions/${inscription.id}`, { statut, numero: inscription.numero }, { preserveScroll: true });
     }
 
-    function destroy(inscription) {
-        if (!confirm(`${t('admin.inscriptions.confirm_delete', 'Supprimer cette inscription')} (${inscription.annee}) ?`)) return;
+    async function destroy(inscription) {
+        if (!(await confirmAction({ message: 'Cette inscription sera placée dans la corbeille.', title: 'Supprimer cette inscription ?', details: inscription.annee, confirmLabel: 'Supprimer' }))) return;
         router.delete(`/console/scolarite/inscriptions/${inscription.id}`, { preserveScroll: true });
     }
 

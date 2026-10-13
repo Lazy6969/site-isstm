@@ -432,13 +432,14 @@ export default function Index({ documents }) {
                                     <SortHeader label={t('admin.common.category', 'Catégorie')} field="category" sort={sort} onSort={toggleSort} />
                                     <SortHeader label={t('admin.common.type', 'Type')} field="type" sort={sort} onSort={toggleSort} />
                                     <SortHeader label={t('admin.documents.added_on', 'Ajouté le')} field="created_at" sort={sort} onSort={toggleSort} />
+                                    <SortHeader label={t('admin.documents.downloads', 'Téléchargements')} field="downloads_count" sort={sort} onSort={toggleSort} />
                                     <th className="w-32 px-3 py-3" />
                                 </tr>
                             </thead>
                             <tbody>
                                 {rows.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="py-14 text-center">
+                                        <td colSpan={7} className="py-14 text-center">
                                             <div className="flex flex-col items-center gap-3">
                                                 <span className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-accent/15 text-admin-accent">
                                                     <FileText className="h-6 w-6" aria-hidden="true" />
@@ -475,6 +476,12 @@ export default function Index({ documents }) {
                                                     <span className={`inline-flex whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ${type.tone}`}>{type.label}</span>
                                                 </td>
                                                 <td className="whitespace-nowrap px-3 py-3 text-admin-text-secondary">{formatDate(document.created_at)}</td>
+                                                <td className="whitespace-nowrap px-3 py-3">
+                                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-admin-accent/10 px-2.5 py-0.5 text-xs font-semibold text-admin-accent" title={t('admin.documents.downloads_hint', 'Nombre de téléchargements')}>
+                                                        <Download className="h-3 w-3" aria-hidden="true" />
+                                                        {document.downloads_count ?? 0}
+                                                    </span>
+                                                </td>
                                                 <td className="px-3 py-3">
                                                     <div className="flex justify-end gap-0.5">
                                                         <button
@@ -510,7 +517,7 @@ export default function Index({ documents }) {
                                             {confirmId === document.id && (
                                                 <tr className="border-b border-admin-border/60 bg-red-500/5">
                                                     <td />
-                                                    <td colSpan={5} className="px-3 py-3">
+                                                    <td colSpan={6} className="px-3 py-3">
                                                         <div className="animate-in fade-in-0 flex flex-wrap items-center justify-between gap-3 duration-150">
                                                             <p className="text-sm text-admin-text">{t('admin.documents.confirm_delete', 'Supprimer le document « :title » ?').replace(':title', document.title)}</p>
                                                             <div className="flex gap-2">

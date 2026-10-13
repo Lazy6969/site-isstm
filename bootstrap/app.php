@@ -4,6 +4,7 @@ use App\Http\Middleware\ArchiveAdminActions;
 use App\Http\Middleware\CheckMaintenanceMode;
 use App\Http\Middleware\EnsureArchiveUnlocked;
 use App\Http\Middleware\EnsureIsMessagerieUser;
+use App\Http\Middleware\EnsureUserCan;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
@@ -33,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'access' => EnsureUserCan::class,
             'messagerie' => EnsureIsMessagerieUser::class,
             'activity' => TouchLastActivity::class,
             'archive.unlocked' => EnsureArchiveUnlocked::class,

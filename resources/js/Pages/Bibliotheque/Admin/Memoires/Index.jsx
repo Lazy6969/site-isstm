@@ -3,8 +3,10 @@ import { Plus, Trash2, Upload } from 'lucide-react';
 import BiblioAdminLayout from '../../../../Components/Bibliotheque/BiblioAdminLayout';
 import { Card } from '../../../../Components/ui/card';
 import { useTranslations } from '../../../../lib/useTranslations';
+import { useConfirm } from '../../../../lib/useConfirm';
 
 export default function Index({ memoires, filieresList, annees }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({
         titre: '',
@@ -26,8 +28,8 @@ export default function Index({ memoires, filieresList, annees }) {
         });
     }
 
-    function destroy(id) {
-        if (confirm(t('bibliotheque_admin.confirmer_suppression_document', 'Supprimer ce document ?'))) {
+    async function destroy(id) {
+        if (await confirmAction({ message: t('bibliotheque_admin.confirmer_suppression_document', 'Supprimer ce document ?'), title: 'Supprimer ce document ?', confirmLabel: 'Supprimer' })) {
             router.delete(`/bibliotheque/admin/memoires/${id}`, { preserveScroll: true });
         }
     }

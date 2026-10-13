@@ -6,6 +6,7 @@ import AttachmentPreview from './AttachmentPreview';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 import { linkifyParts } from '../../lib/linkify';
+import { useConfirm } from '../../lib/useConfirm';
 
 const REACTIONS = [
     { value: 'like', emoji: '👍' },
@@ -26,6 +27,7 @@ function formatHourMinute(dateString) {
 }
 
 export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, conversations, onReply }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [editing, setEditing] = useState(false);
     const [forwardOpen, setForwardOpen] = useState(false);
@@ -38,8 +40,8 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
         router.delete(`/messages/message/${m.id}`, { preserveScroll: true });
     }
 
-    function unsendMessage() {
-        if (confirm(t('messages.confirmer_suppression', 'Supprimer ce message pour tout le monde ?'))) {
+    async function unsendMessage() {
+        if (await confirmAction({ message: t('messages.confirmer_suppression', 'Supprimer ce message pour tout le monde ?'), title: 'Supprimer pour tout le monde ?', confirmLabel: 'Supprimer' })) {
             router.post(`/messages/message/${m.id}/supprimer`, {}, { preserveScroll: true });
         }
     }

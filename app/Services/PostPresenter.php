@@ -8,7 +8,6 @@ use App\Models\PostMedia;
 use App\Models\Reaction;
 use App\Models\User;
 use App\ReactionType;
-use App\Role;
 
 /**
  * Shapes a Post (and its comments) into the array the community feed's
@@ -68,7 +67,7 @@ class PostPresenter
                 'avatar_path' => $post->user->avatar_path,
                 'role_label' => $post->user->role->label(),
             ],
-            'can_manage' => ! $nested && $viewer !== null && ($viewer->hasLegacyRole(Role::Admin) || $post->user_id === $viewer->id),
+            'can_manage' => ! $nested && $viewer !== null && ($viewer->isAdministrator() || $post->user_id === $viewer->id),
             'media' => $post->media->map(fn (PostMedia $media) => [
                 'id' => $media->id,
                 'path' => $media->path,
@@ -94,7 +93,7 @@ class PostPresenter
             'body' => $comment->body,
             'created_at' => $comment->created_at,
             'edited_at' => $comment->edited_at,
-            'can_manage' => $viewer !== null && ($viewer->hasLegacyRole(Role::Admin) || $comment->user_id === $viewer->id),
+            'can_manage' => $viewer !== null && ($viewer->isAdministrator() || $comment->user_id === $viewer->id),
             'user' => [
                 'id' => $comment->user->id,
                 'name' => $comment->user->name,

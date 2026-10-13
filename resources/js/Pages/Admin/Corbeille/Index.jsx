@@ -5,6 +5,7 @@ import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Select } from '../../../Components/ui/select';
 import { Badge } from '../../../Components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
+import { useConfirm } from '../../../lib/useConfirm';
 
 function formatDate(value) {
     if (!value) return '—';
@@ -13,6 +14,7 @@ function formatDate(value) {
 }
 
 export default function Index({ items }) {
+    const confirmAction = useConfirm();
     const [typeFilter, setTypeFilter] = useState('');
 
     const types = useMemo(() => {
@@ -28,8 +30,8 @@ export default function Index({ items }) {
         router.post(`/console/corbeille/${item.type}/${item.id}/restaurer`, {}, { preserveScroll: true });
     }
 
-    function forceDelete(item) {
-        if (!confirm(`Supprimer définitivement « ${item.title} » ? Cette action est irréversible et efface aussi le fichier associé.`)) return;
+    async function forceDelete(item) {
+        if (!(await confirmAction({ message: 'Cette action est irréversible : l’élément et son fichier associé seront effacés pour toujours.', title: 'Attention : suppression définitive', details: item.title, confirmLabel: 'Supprimer définitivement' }))) return;
         router.delete(`/console/corbeille/${item.type}/${item.id}`, { preserveScroll: true });
     }
 

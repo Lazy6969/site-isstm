@@ -1,12 +1,14 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { Paperclip, Search, Send, X } from 'lucide-react';
+import { Search, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import AttachmentPreview from '../../Components/Messages/AttachmentPreview';
+import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
 import { Card } from '../../Components/ui/card';
 import { Skeleton } from '../../Components/ui/skeleton';
 import { useTranslations } from '../../lib/useTranslations';
+import { useConfirm } from '../../lib/useConfirm';
 
 const POLL_INTERVAL_MS = 8000;
 
@@ -15,6 +17,7 @@ function formatTime(dateString) {
 }
 
 export default function Index({ others: initialOthers, messages: initialMessages }) {
+    const confirmAction = useConfirm();
     const { auth } = usePage().props;
     const { t } = useTranslations();
     const [messages, setMessages] = useState(initialMessages);
@@ -22,7 +25,8 @@ export default function Index({ others: initialOthers, messages: initialMessages
     const [search, setSearch] = useState('');
     const [searchResults, setSearchResults] = useState(null);
     const [searchLoading, setSearchLoading] = useState(false);
-    const { data, setData, post, processing, reset } = useForm({ body: '', attachments: [] });
+    const { data, setData, post, processing, reset, errors } = useForm({ body: '', attachments: [] });
+    const attachmentPicker = useAttachmentPicker(data.attachments, (files) => setData('attachments', files), errors);
     const lastIdRef = useRef(initialMessages.at(-1)?.id ?? 0);
     const bottomRef = useRef(null);
 
@@ -85,12 +89,12 @@ export default function Index({ others: initialOthers, messages: initialMessages
         router.delete(`/messagerie/${id}`, { data: { scope }, preserveScroll: true });
     }
 
-    function deleteConversation(scope) {
+    async function deleteConversation(scope) {
         const warning =
             scope === 'everyone'
                 ? t('messagerie.confirmer_suppression_tous', 'Supprimer toute la conversation pour tout le monde ? Cette action est irréversible.')
                 : t('messagerie.confirmer_masquage', 'Masquer tout votre historique de cette conversation ?');
-        if (confirm(warning)) {
+        if (await confirmAction({ message: warning, title: 'Supprimer cette conversation ?', confirmLabel: 'Supprimer' })) {
             router.post('/messagerie/supprimer', { scope }, { preserveScroll: true });
         }
     }
@@ -231,11 +235,10 @@ export default function Index({ others: initialOthers, messages: initialMessages
                             <div ref={bottomRef} />
                         </div>
 
+                        <SelectedAttachments files={data.attachments} picker={attachmentPicker} />
+
                         <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
-                            <label className="flex-shrink-0 text-slate-400 dark:text-slate-500" title={t('groupes.piece_jointe', 'Pièce jointe')}>
-                                <Paperclip className="h-4 w-4" aria-hidden="true" />
-                                <input type="file" multiple onChange={(e) => setData('attachments', Array.from(e.target.files))} className="hidden" />
-                            </label>
+                            <AttachmentButton picker={attachmentPicker} disabled={processing} />
                             <input
                                 type="text"
                                 value={data.body}

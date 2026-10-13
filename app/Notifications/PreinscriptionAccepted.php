@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Password;
  */
 class PreinscriptionAccepted extends Notification
 {
-    public function __construct(public string $matricule) {}
+    public function __construct(public string $numeroDossier) {}
 
     /**
      * @return array<int, string>
@@ -43,7 +43,7 @@ class PreinscriptionAccepted extends Notification
                     'heading' => 'Votre dossier a été accepté',
                     'lines' => [
                         "Félicitations {$notifiable->name} !",
-                        "Votre dossier de préinscription à l'ISSTM Mahajanga a été accepté. Votre matricule étudiant est : <strong>{$this->matricule}</strong>.",
+                        "Votre dossier de préinscription à l'ISSTM Mahajanga a été accepté. Votre numéro de suivi de dossier est : <strong>{$this->numeroDossier}</strong>.",
                         'Définissez votre mot de passe ci-dessous, puis connectez-vous avec votre adresse e-mail pour accéder à votre espace étudiant.',
                         'Si ce lien a expiré, utilisez « Mot de passe oublié » sur la page de connexion.',
                     ],
@@ -53,7 +53,7 @@ class PreinscriptionAccepted extends Notification
                     'heading' => 'Your application has been accepted',
                     'lines' => [
                         "Congratulations {$notifiable->name}!",
-                        "Your ISSTM Mahajanga pre-registration application has been accepted. Your student ID is: <strong>{$this->matricule}</strong>.",
+                        "Your ISSTM Mahajanga pre-registration application has been accepted. Your application tracking number is: <strong>{$this->numeroDossier}</strong>.",
                         'Set your password below, then log in with your e-mail address to access your student space.',
                         'If this link has expired, use "Forgot password" on the login page.',
                     ],
@@ -63,7 +63,7 @@ class PreinscriptionAccepted extends Notification
                     'heading' => 'Noraisina ny antontan-taratasinao',
                     'lines' => [
                         "Arahaba {$notifiable->name}!",
-                        "Noraisina ny taratasinao fisoratana anarana mialoha ao amin'ny ISSTM Mahajanga. Ny laharanao mpianatra dia: <strong>{$this->matricule}</strong>.",
+                        "Noraisina ny taratasinao fisoratana anarana mialoha ao amin'ny ISSTM Mahajanga. Ny laharana fanaraha-maso ny antontan-taratasinao dia: <strong>{$this->numeroDossier}</strong>.",
                         "Mametraha ny tenimiafina eto ambany, avy eo midira amin'ny adiresy mailakao mba hidirana amin'ny toerana voatokana ho anao.",
                         "Raha lany daty io rohy io, ampiasao ny \"Hadino ny tenimiafina\" eo amin'ny pejy fidirana.",
                     ],

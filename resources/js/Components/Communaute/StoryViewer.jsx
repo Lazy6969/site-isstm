@@ -3,6 +3,7 @@ import { Eye, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslations } from '../../lib/useTranslations';
 import { xsrfToken } from '../../lib/csrf';
+import { useConfirm } from '../../lib/useConfirm';
 
 const STORY_DURATION_MS = 5000;
 
@@ -23,6 +24,7 @@ function timeAgo(dateString) {
  * author's group at the ends.
  */
 export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate, onClose, onDeleted }) {
+    const confirmAction = useConfirm();
     const { t } = useTranslations();
     const group = groups[groupIndex];
     const story = group?.stories[storyIndex];
@@ -83,8 +85,8 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
         }
     }
 
-    function remove() {
-        if (!window.confirm(t('stories.confirmer_suppression', 'Supprimer cette story ?'))) {
+    async function remove() {
+        if (!(await confirmAction({ message: t('stories.confirmer_suppression', 'Supprimer cette story ?'), title: 'Supprimer cette story ?', confirmLabel: 'Supprimer' }))) {
             return;
         }
         router.delete(`/stories/${story.id}`, {

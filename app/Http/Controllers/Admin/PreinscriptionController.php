@@ -180,7 +180,7 @@ class PreinscriptionController extends Controller
         $preinscription->save();
 
         try {
-            $user->notify(new PreinscriptionAccepted($matricule));
+            $user->notify(new PreinscriptionAccepted((string) $preinscription->numero_dossier));
         } catch (Throwable $e) {
             report($e);
         }

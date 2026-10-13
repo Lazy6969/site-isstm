@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\CampusBloc;
 use App\Models\Classe;
 use App\Models\Document;
+use App\Models\EcolagePayment;
 use App\Models\Evenement;
 use App\Models\Filiere;
 use App\Models\GalleryAlbum;
@@ -53,6 +55,8 @@ class TrashController extends Controller
         'diapositives' => ['model' => HeroSlide::class, 'permission' => 'hero.delete', 'label' => 'Diapositive', 'title' => null, 'files' => [['field' => 'image_path', 'folder' => 'hero']]],
         'classes' => ['model' => Classe::class, 'permission' => 'classes.delete', 'label' => 'Classe', 'title' => 'nom', 'files' => []],
         'inscriptions' => ['model' => Inscription::class, 'permission' => 'inscriptions.delete', 'label' => 'Inscription', 'title' => 'numero', 'files' => []],
+        'ecolage' => ['model' => EcolagePayment::class, 'permission' => 'payments.delete', 'label' => "Versement d'écolage", 'title' => 'reference', 'files' => []],
+        'journal' => ['model' => ActivityLog::class, 'permission' => 'activity-log.delete', 'label' => "Journal d'activité", 'title' => 'description', 'files' => []],
         'reactivations' => ['model' => ReactivationRequest::class, 'permission' => 'reactivations.manage', 'label' => 'Demande de réactivation', 'title' => null, 'files' => []],
     ];
 
@@ -133,6 +137,13 @@ class TrashController extends Controller
      */
     private function deleteFiles(Model $record, array|string $files): void
     {
+        // An écolage versement's proofs live on the private disk, not under /storage.
+        if ($record instanceof EcolagePayment) {
+            Storage::disk('local')->delete([$record->receipt_path, $record->card_path]);
+
+            return;
+        }
+
         // CampusBloc keeps a JSON array of paths under a single field, unlike
         // every other trashable type's single-path field.
         if (is_string($files)) {

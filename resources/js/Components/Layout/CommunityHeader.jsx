@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, Menu, MessageCircle, Newspaper, Settings, Users, UsersRound } from 'lucide-react';
+import { Globe, Menu, MessageCircle, Newspaper, Settings, Users, UsersRound, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import NotificationBell from './NotificationBell';
@@ -15,6 +15,7 @@ const navItems = [
     { href: '/amis', labelKey: 'nav.amis', label: 'Amis', icon: Users },
     { href: '/messages', labelKey: 'nav.messages', label: 'Messages', icon: MessageCircle },
     { href: '/groupes', labelKey: 'nav.groupes', label: 'Groupes', icon: UsersRound },
+    { href: '/ecolage', labelKey: 'nav.ecolage', label: 'Écolage', icon: Wallet, permission: 'ecolage.view' },
 ];
 
 /**
@@ -24,7 +25,9 @@ const navItems = [
  * public site instead of the full Établissement/Vie étudiante navigation.
  */
 export default function CommunityHeader() {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const permissions = props.auth?.permissions ?? [];
+    const items = navItems.filter((item) => !item.permission || permissions.includes(item.permission));
     const { t } = useTranslations();
     const [open, setOpen] = useState(false);
     useCloseOnDesktop(setOpen);
@@ -49,7 +52,7 @@ export default function CommunityHeader() {
                 </button>
 
                 <nav className="hidden min-w-0 items-center gap-1 md:flex">
-                    {navItems.map((item) => (
+                    {items.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
@@ -90,7 +93,7 @@ export default function CommunityHeader() {
                 <SheetContent side="bottom" className="max-h-[85vh]">
                     <SheetTitle>{t('nav.menu', 'Menu')}</SheetTitle>
                     <nav className="mt-4 flex flex-col divide-y divide-slate-100 dark:divide-slate-700">
-                        {navItems.map((item) => (
+                        {items.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}

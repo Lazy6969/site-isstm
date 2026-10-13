@@ -69,6 +69,14 @@ class Etudiant extends Model
     }
 
     /**
+     * @return HasMany<EcolagePayment, $this>
+     */
+    public function ecolagePayments(): HasMany
+    {
+        return $this->hasMany(EcolagePayment::class);
+    }
+
+    /**
      * ISSTM-{année}-{séquence sur 5 chiffres}, ex: ISSTM-2026-00042. La séquence
      * repart de 1 chaque année. Léger risque de collision sous approbations
      * concurrentes, accepté vu le volume (validation manuelle, un clic à la fois).
@@ -81,7 +89,7 @@ class Etudiant extends Model
      *
      * @param  Builder<Etudiant>  $query
      */
-    public function scopeFilter(Builder $query, ?int $filiereId = null, ?string $niveau = null, ?string $statut = null, ?string $search = null): void
+    public function scopeFilter(Builder $query, ?int $filiereId = null, ?string $niveau = null, ?string $statut = null, ?string $search = null, ?string $dateFrom = null, ?string $dateTo = null): void
     {
         $query
             ->when($filiereId, fn (Builder $query) => $query->where(fn (Builder $query) => $query
@@ -93,6 +101,8 @@ class Etudiant extends Model
                 ->orWhere(fn (Builder $query) => $query->whereNull('classe_id')
                     ->whereHas('candidat', fn (Builder $candidat) => $candidat->where('niveau', $niveau)))))
             ->when($statut, fn (Builder $query) => $query->where('statut', $statut))
+            ->when($dateFrom, fn (Builder $query) => $query->whereDate('created_at', '>=', $dateFrom))
+            ->when($dateTo, fn (Builder $query) => $query->whereDate('created_at', '<=', $dateTo))
             ->when($search, function (Builder $query) use ($search) {
                 $like = '%'.addcslashes($search, '%_\\').'%';
 

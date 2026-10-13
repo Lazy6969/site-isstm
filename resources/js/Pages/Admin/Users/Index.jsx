@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../../../Components/ui/avat
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { useTranslations } from '../../../lib/useTranslations';
 import EditUserProfileDialog from '../../../Components/Admin/EditUserProfileDialog';
+import { useConfirm } from '../../../lib/useConfirm';
 
 function roleLabels(t) {
     return {
@@ -35,6 +36,7 @@ function formatDate(value) {
 }
 
 export default function Index({ users, roles }) {
+    const confirmAction = useConfirm();
     const { props } = usePage();
     const { t } = useTranslations();
     const ROLE_LABELS = roleLabels(t);
@@ -53,18 +55,13 @@ export default function Index({ users, roles }) {
         router.put(`/console/users/${user.id}/role`, { role }, { preserveScroll: true });
     }
 
-    function toggleActive(user) {
+    async function toggleActive(user) {
         const verb = user.is_active
             ? t('admin.users.deactivate_verb', 'désactiver')
             : t('admin.users.reactivate_verb', 'réactiver');
-        if (
-            !confirm(
-                t('admin.users.confirm_toggle', 'Voulez-vous vraiment :verb le compte de « :name » ?')
+        if (!(await confirmAction({ message: t('admin.users.confirm_toggle', 'Voulez-vous vraiment :verb le compte de « :name » ?')
                     .replace(':verb', verb)
-                    .replace(':name', user.name),
-            )
-        )
-            return;
+                    .replace(':name', user.name), tone: 'warning', title: 'Confirmer cette action ?', confirmLabel: 'Confirmer' }))) return;
         router.post(`/console/users/${user.id}/toggle-active`, {}, { preserveScroll: true });
     }
 

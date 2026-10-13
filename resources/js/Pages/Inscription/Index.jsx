@@ -322,7 +322,7 @@ export default function Index({ content, dossierPreinscription }) {
                     <div className="relative mb-6 inline-flex">
                         {dossierPreinscription ? (
                             <a
-                                href={`/${dossierPreinscription}`}
+                                href={`/telecharger?fichier=${encodeURIComponent(dossierPreinscription)}`}
                                 download
                                 className="flex items-center gap-2 rounded-full bg-isstm-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
                             >

@@ -1,9 +1,13 @@
 <?php
 
 use App\Models\User;
+use App\PermissionCatalog;
 use App\Role;
+use App\RoleHome;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * One login form for every kind of account; only the landing page differs.
@@ -27,10 +31,20 @@ it('sends a scolarité account to the students workspace', function () {
     loginAs($user)->assertRedirect(route('admin.scolarite.etudiants.index'));
 });
 
-it('sends a teacher to the personal dashboard', function () {
+it('sends a teacher to the console dashboard their role allows, not to the community feed', function () {
     $user = User::factory()->role(Role::Enseignant)->create();
 
+    loginAs($user)->assertRedirect(route('admin.dashboard'));
+    $this->actingAs($user)->get(route('admin.dashboard'))->assertOk();
+    $this->actingAs($user)->get(route('posts.index'))->assertOk();
+});
+
+it('keeps a teacher without the dashboard permission on the personal dashboard', function () {
+    $user = User::factory()->role(Role::Enseignant)->create();
+    $user->roles->first()->revokePermissionTo('dashboard.view');
+
     loginAs($user)->assertRedirect(route('dashboard.index'));
+    $this->actingAs($user)->get(route('dashboard.index'))->assertOk();
 });
 
 it('sends a student to the community feed', function () {
@@ -91,4 +105,53 @@ it('no longer has department subdomain logins or access keys', function () {
     expect(Route::has('scolarite.login'))->toBeFalse()
         ->and(Route::has('admin.access-keys.index'))->toBeFalse()
         ->and(Schema::hasTable('access_keys'))->toBeFalse();
+});
+
+it('lands a scolarité account on a page it may open even when its role lacks the students permission', function () {
+    $role = Spatie\Permission\Models\Role::findByName('scolarite');
+    $role->revokePermissionTo('etudiants.view');
+    $user = User::factory()->create();
+    $user->assignRole('scolarite');
+
+    $landing = RoleHome::for($user);
+
+    expect($landing)->toBe(route('admin.preinscriptions.index'));
+    loginAs($user)->assertRedirect(route('admin.preinscriptions.index'));
+    $this->actingAs($user)->get($landing)->assertOk();
+});
+
+it('never sends a role without any admin permission to a forbidden page', function () {
+    $scolarite = User::factory()->create();
+    $scolarite->assignRole('scolarite');
+    $scolarite->roles->first()->syncPermissions([]);
+
+    $materiel = User::factory()->create(['is_messagerie' => false]);
+    $materiel->assignRole('responsable-materiel');
+    $materiel->roles->first()->syncPermissions([]);
+
+    loginAs($scolarite)->assertRedirect(route('home'));
+    loginAs($materiel)->assertRedirect(route('home'));
+});
+
+it('sends a materiel account with staff messaging but no dashboard to the messaging page', function () {
+    $user = User::factory()->create(['is_messagerie' => true]);
+    $user->assignRole('responsable-materiel');
+    $user->roles->first()->syncPermissions([]);
+
+    loginAs($user)->assertRedirect(route('staff-messages.index'));
+    $this->actingAs($user)->get(route('staff-messages.index'))->assertOk();
+});
+
+it('keeps students and teachers out of a 403 on a database that has not created the community permissions yet', function () {
+    Permission::whereIn('name', PermissionCatalog::COMMUNITY)->delete();
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $student = User::factory()->role(Role::Etudiant)->create();
+    $teacher = User::factory()->create();
+    $teacher->assignRole('enseignant');
+
+    loginAs($student)->assertRedirect(route('posts.index'));
+    $this->actingAs($student)->get(route('posts.index'))->assertOk();
+    $this->actingAs($teacher)->get(route('posts.index'))->assertOk();
+    $this->actingAs($teacher)->get(route('class-groups.index'))->assertOk();
 });

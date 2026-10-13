@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\EcolageStatus;
 use App\Http\Controllers\Admin\ContactFieldVisibilityController;
+use App\Models\EcolagePayment;
 use App\Models\Setting;
 use App\Models\SiteContent;
 use App\PreinscriptionStatus;
@@ -51,8 +53,15 @@ class HandleInertiaRequests extends Middleware
                 'status' => fn () => $request->session()->get('status'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            // Counts shown as bubbles next to admin sidebar entries — only computed
+            // for staff who can open the page the bubble points to.
+            'adminBadges' => fn () => [
+                'ecolage' => $request->user()?->can('payments.view')
+                    ? EcolagePayment::where('status', EcolageStatus::EnAttente)->count()
+                    : 0,
+            ],
             'locale' => app()->getLocale(),
-            'translations' => fn () => app('translator')->getLoader()->load(app()->getLocale(), '*', '*'),
+            'translations' => fn () => SiteContent::translationsWithOverrides(),
             'content' => fn () => SiteContent::all()->keyBy('content_key')
                 ->map(fn (SiteContent $item) => $item->localizedValue()),
             // Kept separate from `content` (a plain string per key) rather than

@@ -18,7 +18,7 @@ class DocumentController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Documents/Index', [
-            'documents' => Document::orderByDesc('created_at')->get(['id', 'title', 'category', 'file_path', 'created_at']),
+            'documents' => Document::withCount('downloads')->orderByDesc('created_at')->get(['id', 'title', 'category', 'file_path', 'created_at']),
         ]);
     }
 
