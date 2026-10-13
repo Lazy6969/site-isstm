@@ -5,7 +5,6 @@ import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
 import EditableDesignPicker from '../QuickEdit/EditableDesignPicker';
 import AbstractWaves from '../Layout/AbstractWaves';
-import TitleUnderline from '../Layout/TitleUnderline';
 
 const BG_TINTS = ['#fbf3e3', '#e6ecf2', '#e3f9ec', '#f1e6f7'];
 
@@ -13,14 +12,11 @@ function SectionTitle({ content, pencil }) {
     return (
         <>
             {pencil}
-            <div className="mb-10 flex flex-col items-center sm:mb-12">
-                <h2 className="text-center text-2xl font-bold text-isstm-navy sm:text-3xl dark:text-white">
-                    <EditableText as="span" contentKey="accueil_temoignages_titre">
-                        {content.accueil_temoignages_titre}
-                    </EditableText>
-                </h2>
-                <TitleUnderline />
-            </div>
+            <h2 className="mb-10 text-center text-2xl font-bold text-isstm-navy sm:mb-12 sm:text-3xl dark:text-white">
+                <EditableText as="span" contentKey="accueil_temoignages_titre">
+                    {content.accueil_temoignages_titre}
+                </EditableText>
+            </h2>
         </>
     );
 }

@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { LogIn, XCircle } from 'lucide-react';
 import AuthLayout from '../../Components/Auth/AuthLayout';
 import TextField from '../../Components/Form/TextField';
+import AbstractWaves from '../../Components/Layout/AbstractWaves';
 import { useTranslations } from '../../lib/useTranslations';
 
 export default function Login() {
@@ -30,7 +31,11 @@ export default function Login() {
     }
 
     return (
-        <AuthLayout title={t('auth.connexion_titre', 'Connexion')} subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}>
+        <AuthLayout
+            title={t('auth.connexion_titre', 'Connexion')}
+            subtitle={t('auth.connexion_soustitre', 'Accédez à votre espace ISSTM.')}
+            background={<AbstractWaves force forceDesign="2" animated color="#d4a017" opacity={3} />}
+        >
             <Head title="Connexion" />
 
             <form onSubmit={submit} className="space-y-4">

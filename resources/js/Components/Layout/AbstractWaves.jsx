@@ -172,17 +172,34 @@ export const ABSTRACT_WAVES_DESIGNS = [
  * z-10`, and it renders (or doesn't) on its own. Never shows on /communaute,
  * which has its own distinct, app-like visual language.
  */
-export default function AbstractWaves({ className = '', opacity = 1 }) {
+export default function AbstractWaves({
+    className = '',
+    opacity = 1,
+    // `force`/`forceDesign` bypass the global on/off choice entirely — for a
+    // spot like the login page, which isn't part of the public site's
+    // light-section rotation but still wants its own wave backdrop.
+    force = false,
+    forceDesign,
+    // Gentle looping drift — off by default (the public-site sections read
+    // better static), opt in per usage.
+    animated = false,
+    color: colorOverride,
+}) {
     const { props, url } = usePage();
     const { sitePrimaryColor, abstractWavesDesign } = props;
     const uid = useId();
+    const design = forceDesign ?? abstractWavesDesign;
 
-    if (!abstractWavesDesign || abstractWavesDesign === 'none' || (url ?? '').startsWith('/communaute')) {
+    if (!force && (url ?? '').startsWith('/communaute')) {
+        return null;
+    }
+    if (!design || design === 'none') {
         return null;
     }
 
-    const Design = DESIGNS[abstractWavesDesign] ?? WavesFilled;
-    const color = sitePrimaryColor?.resolvedHex ?? '#003366';
+    const Design = DESIGNS[design] ?? WavesFilled;
+    const color = colorOverride ?? sitePrimaryColor?.resolvedHex ?? '#003366';
+    const driftClass = animated ? `abstract-waves-drift-${uid}` : '';
 
     return (
         <svg
@@ -191,7 +208,23 @@ export default function AbstractWaves({ className = '', opacity = 1 }) {
             preserveAspectRatio="xMidYMid slice"
             aria-hidden="true"
         >
-            <Design color={color} opacity={opacity} uid={uid} />
+            {animated && (
+                <style>{`
+                    @keyframes abstract-waves-drift-${uid} {
+                        0%, 100% { transform: translate(0px, 0px); }
+                        50% { transform: translate(16px, -8px); }
+                    }
+                    .abstract-waves-drift-${uid} {
+                        animation: abstract-waves-drift-${uid} 7s ease-in-out infinite;
+                    }
+                    @media (prefers-reduced-motion: reduce) {
+                        .abstract-waves-drift-${uid} { animation: none; }
+                    }
+                `}</style>
+            )}
+            <g className={driftClass}>
+                <Design color={color} opacity={opacity} uid={uid} />
+            </g>
         </svg>
     );
 }

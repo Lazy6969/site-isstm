@@ -84,7 +84,7 @@ export default function Header() {
                         </a>
                         <EditableImage contentKey="header_logo_image_path" value={logo} className="absolute -top-1.5 -right-1.5 h-5 w-5" />
                     </div>
-                    <BrandTitle />
+                    <BrandTitle href="#accueil" />
                 </div>
 
                 <NavigationMenu className="hidden min-w-0 justify-self-center lg:flex">

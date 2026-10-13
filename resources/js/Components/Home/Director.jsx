@@ -316,14 +316,14 @@ function DesignPolaroid({ d, pencil }) {
                         />
                         <EditableImage contentKey="directeur_image_path" value={d.image} />
                     </div>
-                    {/* A paperclip pinning the photo to its card along the
-                        left edge, held upright — placed after the photo in
+                    {/* A paperclip pinning the photo to its card at the top
+                        left, held flat/horizontal — placed after the photo in
                         the DOM (and given z-20) so it paints on top of it
-                        rather than sitting behind it. Wiggles upright on
-                        hover, as if the clip just caught the card settling
-                        back from the photo's own hover tilt. */}
+                        rather than sitting behind it. Wiggles on hover, as if
+                        the clip just caught the card settling back from the
+                        photo's own hover tilt. */}
                     <Paperclip
-                        className="pointer-events-none absolute top-1/2 -left-3 z-20 h-11 w-11 -translate-y-1/2 rotate-[8deg] text-slate-500 drop-shadow-md transition-transform duration-500 ease-out group-hover:-rotate-[6deg] dark:text-slate-300"
+                        className="pointer-events-none absolute top-1 left-1 z-20 h-10 w-10 rotate-90 text-slate-500 drop-shadow-md transition-transform duration-500 ease-out group-hover:rotate-[75deg] dark:text-slate-300"
                         aria-hidden="true"
                     />
                     <p className="font-caveat mt-3 text-center text-xl text-isstm-navy dark:text-white">

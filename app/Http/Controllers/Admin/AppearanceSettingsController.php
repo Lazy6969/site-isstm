@@ -40,6 +40,7 @@ class AppearanceSettingsController extends Controller
                 // The short decorative dash under section titles like "Nos
                 // filières" / "Paroles d'étudiants" (see TitleUnderline.jsx).
                 'titleUnderline' => Setting::get('appearance.title_underline', ''),
+                'titleUnderlineStyle' => Setting::get('appearance.title_underline_style', 'dash'),
             ],
             'palettes' => AppearancePalette::options(),
             'chromes' => AppearanceChromeColor::options(),
@@ -84,6 +85,9 @@ class AppearanceSettingsController extends Controller
             // The section-title underline's color (see TitleUnderline.jsx);
             // empty string resets it to the component's own gold default.
             'titleUnderline' => ['sometimes', 'nullable', 'regex:/^#[0-9a-f]{6}$/i'],
+            // 'dash' = the original short centered rule; 'bar' = a wider,
+            // closer highlight-style stroke under the title.
+            'titleUnderlineStyle' => ['sometimes', Rule::in(['dash', 'bar'])],
         ]);
 
         $map = [
@@ -98,6 +102,7 @@ class AppearanceSettingsController extends Controller
             'heroSparkleColor' => 'appearance.hero_sparkle_color',
             'abstractWaves' => 'appearance.abstract_waves',
             'titleUnderline' => 'appearance.title_underline',
+            'titleUnderlineStyle' => 'appearance.title_underline_style',
         ];
 
         foreach ($map as $field => $settingKey) {

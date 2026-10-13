@@ -109,6 +109,8 @@ class HandleInertiaRequests extends Middleware
             // The section-title underline's color (see TitleUnderline.jsx) —
             // empty means "use the component's own gold default".
             'titleUnderlineColor' => fn () => Setting::get('appearance.title_underline', ''),
+            // 'dash' (original short rule) or 'bar' (wider highlight stroke).
+            'titleUnderlineStyle' => fn () => Setting::get('appearance.title_underline_style', 'dash'),
         ];
     }
 }
