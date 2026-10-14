@@ -80,7 +80,7 @@ export default function AssistantIsstm() {
     }
 
     return (
-        <div className="relative" ref={ref}>
+        <div className="relative" ref={ref} data-qe-skip>
             <button
                 type="button"
                 onClick={toggle}
