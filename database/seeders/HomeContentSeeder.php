@@ -1478,6 +1478,14 @@ class HomeContentSeeder extends Seeder
             ['type' => SiteContentType::Url, 'content_value_fr' => '-15.72335804693739,46.31172101165267', 'content_value_en' => '-15.72335804693739,46.31172101165267', 'content_value_mg' => '-15.72335804693739,46.31172101165267'],
         );
 
+        // The recipient address for the Contact page's quick-send form (see
+        // QuickContactController) — same Url reasoning as the coordinates
+        // above. Defaults to the same inbox as contact_email.
+        SiteContent::updateOrCreate(
+            ['content_key' => 'contact_formulaire_email'],
+            ['type' => SiteContentType::Url, 'content_value_fr' => 'isstm.univ.umg@gmail.com', 'content_value_en' => 'isstm.univ.umg@gmail.com', 'content_value_mg' => 'isstm.univ.umg@gmail.com'],
+        );
+
         // Whether each Préinscription field label shows its red "required"
         // asterisk (see AsteriskToggle.jsx / Preinscription/Create.jsx) — a
         // plain "true"/"false" Url-type value since it's shared across

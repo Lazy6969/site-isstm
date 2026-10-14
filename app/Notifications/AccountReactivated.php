@@ -24,7 +24,7 @@ class AccountReactivated extends Notification
                 'fr' => [
                     'heading' => 'Votre compte a été réactivé',
                     'lines' => [
-                        "Bonjour {$notifiable->name},",
+                        'Bonjour '.e($notifiable->name).',',
                         "Bonne nouvelle : votre compte étudiant à l'ISSTM Mahajanga a été réactivé par la scolarité.",
                         'Vous pouvez dès maintenant vous connecter avec votre adresse e-mail et votre mot de passe habituel.',
                     ],
@@ -33,7 +33,7 @@ class AccountReactivated extends Notification
                 'en' => [
                     'heading' => 'Your account has been reactivated',
                     'lines' => [
-                        "Hello {$notifiable->name},",
+                        'Hello '.e($notifiable->name).',',
                         "Good news: your student account at ISSTM Mahajanga has been reactivated by the registrar's office.",
                         'You can now log in with your e-mail address and your usual password.',
                     ],
@@ -42,7 +42,7 @@ class AccountReactivated extends Notification
                 'mg' => [
                     'heading' => 'Novohana indray ny kaontinao',
                     'lines' => [
-                        "Manao ahoana {$notifiable->name},",
+                        'Manao ahoana '.e($notifiable->name).',',
                         "Vaovao tsara: novohan'ny sampan-draharaha momba ny fianarana indray ny kaontinao mpianatra ao amin'ny ISSTM Mahajanga.",
                         "Afaka miditra amin'ny alalan'ny adiresy mailakao sy ny tenimiafinao mahazatra izao ianao.",
                     ],

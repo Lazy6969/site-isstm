@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureIsMessagerieUser;
 use App\Http\Middleware\EnsureUserCan;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TouchLastActivity;
 use App\RoleHome;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            SecurityHeaders::class,
             CheckMaintenanceMode::class,
             SetLocale::class,
             HandleInertiaRequests::class,

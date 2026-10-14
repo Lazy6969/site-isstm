@@ -2,6 +2,7 @@ import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import ContactCards from '../../Components/Contact/ContactCards';
 import ContactMaps from '../../Components/Contact/ContactMaps';
+import QuickContactForm from '../../Components/Contact/QuickContactForm';
 import SeoHead from '../../Components/QuickEdit/SeoHead';
 import EditableText from '../../Components/QuickEdit/EditableText';
 import BannerBackground from '../../Components/QuickEdit/BannerBackground';
@@ -39,6 +40,9 @@ export default function Index({ content }) {
                 <div className="relative z-10 mx-auto max-w-6xl px-6 py-12">
                     <ContactCards content={content} />
                     <ContactMaps content={content} />
+                    <div className="mx-auto mt-12 max-w-2xl">
+                        <QuickContactForm content={content} />
+                    </div>
                 </div>
             </main>
 

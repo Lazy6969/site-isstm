@@ -55,7 +55,7 @@ class SearchController extends Controller
                 Teacher::query()->select(['name', 'specialty_fr', 'description_fr', 'departement'])->latest()->get(),
                 $queryWords,
                 fn (Teacher $t) => $t->name,
-                fn (Teacher $t) => implode(' ', [$t->specialty_fr, $t->description_fr, $t->departement]),
+                fn (Teacher $t) => implode(' ', [$t->specialty_fr, $t->description_fr, $t->departement?->value]),
             )->map(fn (Teacher $t) => [
                 'title' => $t->name,
                 'subtitle' => $t->specialty_fr,

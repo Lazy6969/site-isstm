@@ -40,7 +40,7 @@ class PreinscriptionReceived extends Notification
                 'fr' => [
                     'heading' => 'Votre préinscription a bien été reçue',
                     'lines' => [
-                        "Bonjour {$notifiable->name},",
+                        'Bonjour '.e($notifiable->name).',',
                         "Nous avons bien reçu votre dossier de préinscription à l'ISSTM Mahajanga. Il sera examiné par notre service de la scolarité, qui vous tiendra informé(e) par e-mail de la décision.",
                         $numero ? "Numéro de dossier : <strong>{$numero}</strong>" : '',
                     ],
@@ -49,7 +49,7 @@ class PreinscriptionReceived extends Notification
                 'en' => [
                     'heading' => 'Your application has been received',
                     'lines' => [
-                        "Hello {$notifiable->name},",
+                        'Hello '.e($notifiable->name).',',
                         'We have received your ISSTM Mahajanga pre-registration application. It will be reviewed by our admissions office, who will let you know their decision by e-mail.',
                         $numero ? "File number: <strong>{$numero}</strong>" : '',
                     ],
@@ -58,7 +58,7 @@ class PreinscriptionReceived extends Notification
                 'mg' => [
                     'heading' => 'Voaray ny fisoratana anaranao',
                     'lines' => [
-                        "Manao ahoana {$notifiable->name},",
+                        'Manao ahoana '.e($notifiable->name).',',
                         "Efa noraisinay ny taratasinao fisoratana anarana mialoha ao amin'ny ISSTM Mahajanga. Hodinihin'ny sampandraharaha momba ny fampianarana izany, ary hampahafantarina anao amin'ny mailaka ny fanapahan-kevitra.",
                         $numero ? "Laharan'ny antontan-taratasy: <strong>{$numero}</strong>" : '',
                     ],

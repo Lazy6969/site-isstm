@@ -43,6 +43,7 @@ use App\Http\Controllers\PostReactionListController;
 use App\Http\Controllers\PostReportController;
 use App\Http\Controllers\PostSaveController;
 use App\Http\Controllers\PreinscriptionController;
+use App\Http\Controllers\QuickContactController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ReactivationRequestController;
 use App\Http\Controllers\SearchController;
@@ -57,6 +58,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('historique', [HistoriqueController::class, 'index'])->name('historique');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
+Route::post('contact/message-rapide', [QuickContactController::class, 'store'])->middleware('throttle:10,1')->name('contact.quick-message');
 Route::get('mot-du-directeur', [DirecteurController::class, 'index'])->name('directeur');
 Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 Route::post('newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');

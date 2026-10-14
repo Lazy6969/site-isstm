@@ -1,5 +1,6 @@
 import ContactCards from '../Contact/ContactCards';
 import ContactMaps from '../Contact/ContactMaps';
+import QuickContactForm from '../Contact/QuickContactForm';
 import EditableText from '../QuickEdit/EditableText';
 
 export default function Contact({ content }) {
@@ -18,6 +19,10 @@ export default function Contact({ content }) {
                 </div>
 
                 <ContactMaps content={content} />
+
+                <div className="mx-auto mt-12 max-w-2xl">
+                    <QuickContactForm content={content} />
+                </div>
             </div>
         </section>
     );
