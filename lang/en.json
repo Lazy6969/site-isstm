@@ -1282,6 +1282,7 @@
     "pagination.precedent": "Previous",
     "pagination.suivant": "Next",
     "parametres.apparence": "Appearance",
+    "preloader.chargement": "Loading",
     "parametres.couleur_accent": "Accent color",
     "parametres.enregistrer": "Save",
     "parametres.langue": "App language",

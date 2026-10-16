@@ -147,6 +147,40 @@ html[data-density='comfortable'] {
     --admin-density-head-h: 3.25rem;
 }
 
+/* Admin dark mode: the browser's default scrollbar is a solid opaque bar
+   that reads as harsh against the near-black admin canvas — thinned and
+   made translucent so it recedes until actually needed. :has() reaches the
+   window/html scrollbar (the document owns it, not AdminLayout's own
+   content) without needing a dedicated class on <html>; the .admin-shell
+   rule covers scrollbars inside the admin UI itself (sidebar, tables,
+   dialogs, …). scrollbar-color is the standard property (Firefox, current
+   Chromium/Safari); the ::-webkit-scrollbar rules are the fallback for
+   older Chromium-based browsers that don't support it yet. */
+html.dark:has(.admin-shell),
+.dark .admin-shell {
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+html.dark:has(.admin-shell)::-webkit-scrollbar,
+.dark .admin-shell ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+html.dark:has(.admin-shell)::-webkit-scrollbar-track,
+.dark .admin-shell ::-webkit-scrollbar-track {
+    background: transparent;
+}
+html.dark:has(.admin-shell)::-webkit-scrollbar-thumb,
+.dark .admin-shell ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.16);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+html.dark:has(.admin-shell)::-webkit-scrollbar-thumb:hover,
+.dark .admin-shell ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.28);
+}
+
 /* Espace étudiant personal accent colors (see useAccentColor.js / Settings/Index.jsx).
    Picking one also overrides isstm-navy/-dark, but only inside .community-shell: this
    is what repaints the headings/links/buttons there (they're isstm-navy, not merely
@@ -303,4 +337,148 @@ html[data-community-accent='amber'] .community-shell { --color-isstm-navy: #d977
 input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
     display: none;
+}
+
+/* Splash screen shown once per tab session on first load (app.blade.php) and
+   again, every visit, on the fil communautaire (SitePreloader.jsx) — same
+   markup/classes in both places so the two stay visually identical, themed
+   off the same isstm-navy/isstm-gold tokens the rest of the site already
+   uses (so it re-themes automatically if the admin changes those colors). */
+html[data-preloader='skip'] #site-preloader {
+    display: none !important;
+}
+
+.site-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background: linear-gradient(135deg, var(--color-isstm-navy), var(--color-isstm-navy-dark));
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+}
+
+.site-preloader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.site-preloader-visual {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-preloader-ring,
+.site-preloader-ring::before {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+}
+
+.site-preloader-ring {
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    border-top-color: var(--color-isstm-gold);
+    border-right-color: color-mix(in srgb, var(--color-isstm-gold) 45%, transparent);
+    animation: preloader-spin 1.3s linear infinite;
+}
+
+.site-preloader-ring::before {
+    content: '';
+    inset: 14px;
+    border: 3px solid transparent;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+    animation: preloader-spin-reverse 2s linear infinite;
+}
+
+.site-preloader-logo {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    border-radius: 9999px;
+    object-fit: contain;
+    background: #fff;
+    padding: 10px;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), 0 10px 40px rgba(0, 0, 0, 0.4);
+    animation: preloader-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes preloader-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes preloader-spin-reverse {
+    to { transform: rotate(-360deg); }
+}
+
+@keyframes preloader-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+}
+
+.site-preloader-text {
+    margin: 0;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.site-preloader-dots span {
+    display: inline-block;
+    animation: preloader-dots 1.4s infinite;
+    opacity: 0;
+}
+.site-preloader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.site-preloader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes preloader-dots {
+    0%, 80%, 100% { opacity: 0; }
+    40% { opacity: 1; }
+}
+
+.site-preloader-bar {
+    width: 180px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.site-preloader-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    background: var(--color-isstm-gold);
+    animation: preloader-fill 1.6s ease-out forwards;
+}
+
+@keyframes preloader-fill {
+    to { width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .site-preloader-visual { width: 110px; height: 110px; }
+    .site-preloader-logo { width: 72px; height: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-preloader-ring,
+    .site-preloader-ring::before,
+    .site-preloader-logo,
+    .site-preloader-dots span,
+    .site-preloader-bar-fill {
+        animation: none;
+    }
 }

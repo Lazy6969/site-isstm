@@ -44,6 +44,18 @@
             }
         })();
     </script>
+    <script>
+        // Skips the splash screen on every navigation after the first one in
+        // this tab — sessionStorage is checked here, before <body> parses,
+        // so there's no flash of the preloader appearing then vanishing.
+        (function () {
+            try {
+                if (sessionStorage.getItem('isstm_preloader_shown')) {
+                    document.documentElement.setAttribute('data-preloader', 'skip');
+                }
+            } catch (e) {}
+        })();
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.jsx'])
     {{-- After @vite so these overrides win the cascade against app.css's :root/.dark declarations. --}}
     {{-- <style> is a raw-text element: {{ }}'s HTML-entity escaping (e.g. ' -> &#039;) would
@@ -82,6 +94,50 @@
     @inertiaHead
 </head>
 <body class="antialiased bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+    <div id="site-preloader" class="site-preloader" aria-hidden="true">
+        <div class="site-preloader-visual">
+            <div class="site-preloader-ring"></div>
+            <img src="/images/logo-isstm.svg" alt="ISSTM" class="site-preloader-logo">
+        </div>
+        <p class="site-preloader-text">Chargement<span class="site-preloader-dots"><span>.</span><span>.</span><span>.</span></span></p>
+        <div class="site-preloader-bar"><div class="site-preloader-bar-fill"></div></div>
+    </div>
+    <script>
+        // Shown once per browser tab session (see the skip-check script in
+        // <head>) while the JS bundle boots and Inertia hydrates — hidden on
+        // window 'load' rather than a blind fixed delay, with a short floor
+        // so it never just flashes, and a safety-net timeout in case 'load'
+        // is somehow never reached.
+        (function () {
+            var preloader = document.getElementById('site-preloader');
+            if (!preloader || document.documentElement.getAttribute('data-preloader') === 'skip') return;
+            try { sessionStorage.setItem('isstm_preloader_shown', '1'); } catch (e) {}
+            document.documentElement.style.overflow = 'hidden';
+
+            var MIN_VISIBLE_MS = 700;
+            var MAX_WAIT_MS = 4000;
+            var shownAt = Date.now();
+            var hidden = false;
+
+            function hide() {
+                if (hidden) return;
+                hidden = true;
+                var wait = Math.max(0, MIN_VISIBLE_MS - (Date.now() - shownAt));
+                setTimeout(function () {
+                    preloader.classList.add('is-hidden');
+                    document.documentElement.style.overflow = '';
+                    setTimeout(function () { preloader.remove(); }, 700);
+                }, wait);
+            }
+
+            if (document.readyState === 'complete') {
+                hide();
+            } else {
+                window.addEventListener('load', hide);
+            }
+            setTimeout(hide, MAX_WAIT_MS);
+        })();
+    </script>
     @inertia
 </body>
 </html>

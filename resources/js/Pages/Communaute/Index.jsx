@@ -1,7 +1,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Archive, Bookmark, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
+import SitePreloader from '../../Components/Layout/SitePreloader';
 import PostCard from '../../Components/Communaute/PostCard';
 import StoriesBar from '../../Components/Communaute/StoriesBar';
 import ShortcutsSidebar from '../../Components/Communaute/ShortcutsSidebar';
@@ -25,6 +26,19 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
     const { auth } = usePage().props;
     const [pageLoading, setPageLoading] = useState(false);
     const [composeOpen, setComposeOpen] = useState(false);
+    const [feedPreloaderHidden, setFeedPreloaderHidden] = useState(false);
+    const [feedPreloaderMounted, setFeedPreloaderMounted] = useState(true);
+
+    useEffect(() => {
+        const hideTimer = setTimeout(() => setFeedPreloaderHidden(true), 650);
+        const removeTimer = setTimeout(() => setFeedPreloaderMounted(false), 1350);
+
+        return () => {
+            clearTimeout(hideTimer);
+            clearTimeout(removeTimer);
+        };
+    }, []);
+
     const greeting = useMemo(() => {
         const firstName = auth?.user?.name?.split(' ')[0] ?? '';
         const { key, fallback } = GREETINGS[greetingPeriod()];
@@ -45,6 +59,8 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
     return (
         <AppLayout title={greeting}>
             <Head title="Communauté" />
+
+            {feedPreloaderMounted && <SitePreloader hidden={feedPreloaderHidden} />}
 
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
                 <aside className="hidden lg:sticky lg:top-20 lg:block">
