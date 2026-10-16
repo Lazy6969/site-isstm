@@ -8,6 +8,7 @@ use App\Models\ReactivationRequest;
 use App\Notifications\AccountReactivated;
 use App\Notifications\AccountReactivationRejected;
 use App\ReactivationStatus;
+use App\StatutEtudiant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -32,6 +33,14 @@ class ReactivationRequestController extends Controller
         $user = $reactivation->user;
         $user->is_active = true;
         $user->save();
+
+        // The account's own `is_active` flag is what actually gates login,
+        // but a student's dossier carries its own `statut` (shown as
+        // "Suspendu" in the Étudiants list) that togglePause/pauseAll set
+        // independently — approving here must bring both back in sync.
+        if ($user->etudiant?->statut === StatutEtudiant::Suspendu) {
+            $user->etudiant->update(['statut' => StatutEtudiant::Actif]);
+        }
 
         $reactivation->update([
             'status' => ReactivationStatus::Approuvee,

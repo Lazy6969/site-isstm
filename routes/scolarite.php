@@ -15,6 +15,7 @@ Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.
     Route::get('etudiants', [EtudiantController::class, 'index'])->middleware('can:etudiants.view')->name('etudiants.index');
     Route::get('etudiants/export', [EtudiantController::class, 'export'])->middleware('can:etudiants.export')->name('etudiants.export');
     Route::post('etudiants/pause-tous', [EtudiantController::class, 'pauseAll'])->middleware('can:etudiants.pause')->name('etudiants.pause-all');
+    Route::post('etudiants/reactiver-tous', [EtudiantController::class, 'reactivateAll'])->middleware('can:etudiants.pause')->name('etudiants.reactivate-all');
     Route::get('etudiants/{etudiant}', [EtudiantController::class, 'show'])->middleware('can:etudiants.view')->name('etudiants.show');
     Route::post('etudiants', [EtudiantController::class, 'store'])->middleware('can:etudiants.create')->name('etudiants.store');
     Route::put('etudiants/{etudiant}', [EtudiantController::class, 'update'])->middleware('can:etudiants.edit')->name('etudiants.update');

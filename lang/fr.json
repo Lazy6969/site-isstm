@@ -523,6 +523,7 @@
     "admin.etudiants.new_dossier_title": "Nouveau dossier étudiant",
     "admin.etudiants.pause_tous": "Mettre tous en pause",
     "admin.etudiants.preinscription_label": "Préinscription",
+    "admin.etudiants.reactiver_tous": "Tout réactiver",
     "admin.etudiants.reprendre_compte": "Réactiver le compte",
     "admin.etudiants.retour": "Retour aux étudiants",
     "admin.etudiants.search_placeholder": "Rechercher par nom, e-mail, matricule...",

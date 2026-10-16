@@ -523,6 +523,7 @@
     "admin.etudiants.new_dossier_title": "New student file",
     "admin.etudiants.pause_tous": "Suspend all",
     "admin.etudiants.preinscription_label": "Pre-registration",
+    "admin.etudiants.reactiver_tous": "Reactivate all",
     "admin.etudiants.reprendre_compte": "Reactivate the account",
     "admin.etudiants.retour": "Back to students",
     "admin.etudiants.search_placeholder": "Search by name, email, student ID...",
