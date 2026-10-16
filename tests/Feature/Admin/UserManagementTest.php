@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Role;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 it('forbids a non-privileged user from listing users', function () {
@@ -103,4 +104,48 @@ it('forbids a non-privileged user from editing another user\'s profile', functio
         'name' => 'Hacked Name',
         'email' => $target->email,
     ])->assertForbidden();
+});
+
+it('lets the super admin reset another user\'s password', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)->post("/console/users/{$target->id}/password", [
+        'password' => 'un-nouveau-mot-de-passe',
+        'password_confirmation' => 'un-nouveau-mot-de-passe',
+    ])->assertRedirect();
+
+    expect(Hash::check('un-nouveau-mot-de-passe', $target->fresh()->password))->toBeTrue();
+});
+
+it('rejects a password reset without a matching confirmation', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)->post("/console/users/{$target->id}/password", [
+        'password' => 'un-nouveau-mot-de-passe',
+        'password_confirmation' => 'autre-chose',
+    ])->assertSessionHasErrors('password');
+});
+
+it('lets the super admin permanently delete another user and cascade their data', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($admin)->delete("/console/users/{$target->id}")->assertRedirect();
+
+    expect(User::find($target->id))->toBeNull();
+});
+
+it('forbids a user from deleting their own account', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+
+    $this->actingAs($admin)->delete("/console/users/{$admin->id}")->assertForbidden();
+});
+
+it('forbids a non-privileged user from deleting another user', function () {
+    $etudiant = User::factory()->role(Role::Etudiant)->create();
+    $target = User::factory()->create();
+
+    $this->actingAs($etudiant)->delete("/console/users/{$target->id}")->assertForbidden();
 });

@@ -49,26 +49,6 @@ class PreinscriptionAccepted extends Notification
                     ],
                     'button' => ['text' => 'Définir mon mot de passe', 'url' => $passwordUrl],
                 ],
-                'en' => [
-                    'heading' => 'Your application has been accepted',
-                    'lines' => [
-                        'Congratulations '.e($notifiable->name).'!',
-                        "Your ISSTM Mahajanga pre-registration application has been accepted. Your application tracking number is: <strong>{$this->numeroDossier}</strong>.",
-                        'Set your password below, then log in with your e-mail address to access your student space.',
-                        'If this link has expired, use "Forgot password" on the login page.',
-                    ],
-                    'button' => ['text' => 'Set my password', 'url' => $passwordUrl],
-                ],
-                'mg' => [
-                    'heading' => 'Noraisina ny antontan-taratasinao',
-                    'lines' => [
-                        'Arahaba '.e($notifiable->name).'!',
-                        "Noraisina ny taratasinao fisoratana anarana mialoha ao amin'ny ISSTM Mahajanga. Ny laharana fanaraha-maso ny antontan-taratasinao dia: <strong>{$this->numeroDossier}</strong>.",
-                        "Mametraha ny tenimiafina eto ambany, avy eo midira amin'ny adiresy mailakao mba hidirana amin'ny toerana voatokana ho anao.",
-                        "Raha lany daty io rohy io, ampiasao ny \"Hadino ny tenimiafina\" eo amin'ny pejy fidirana.",
-                    ],
-                    'button' => ['text' => 'Mametraka ny tenimiafiko', 'url' => $passwordUrl],
-                ],
             ],
         ])->subject('Votre dossier a été accepté — ISSTM Mahajanga');
     }

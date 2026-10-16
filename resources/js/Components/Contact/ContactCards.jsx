@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
-import { Mail, Phone, Link2 } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
+import FacebookIcon from '../Icons/FacebookIcon';
 import EditableText from '../QuickEdit/EditableText';
 import EditableIcon from '../QuickEdit/EditableIcon';
 import ExternalPencil from '../QuickEdit/ExternalPencil';
@@ -39,7 +40,7 @@ export default function ContactCards({ content }) {
         },
         {
             field: 'facebook',
-            icon: Link2,
+            icon: FacebookIcon,
             title: t('contact.facebook', 'Facebook'),
             value: content.contact_facebook,
             valueKey: 'contact_facebook',

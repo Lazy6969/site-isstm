@@ -8,4 +8,6 @@ Route::middleware(['auth'])->prefix('console/users')->name('admin.users.')->grou
     Route::put('{user}/role', [UserController::class, 'updateRole'])->middleware('can:users.edit')->name('update-role');
     Route::post('{user}/toggle-active', [UserController::class, 'toggleActive'])->middleware('can:users.edit')->name('toggle-active');
     Route::post('{user}/profile', [UserController::class, 'updateProfile'])->middleware('can:users.edit')->name('update-profile');
+    Route::post('{user}/password', [UserController::class, 'updatePassword'])->middleware('can:users.edit')->name('update-password');
+    Route::delete('{user}', [UserController::class, 'destroy'])->middleware('can:users.delete')->name('destroy');
 });

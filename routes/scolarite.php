@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\ArchiveDossierController;
 use App\Http\Controllers\Admin\ClasseController;
 use App\Http\Controllers\Admin\EtudiantController;
+use App\Http\Controllers\Admin\ResultatAdmissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.')->group(function () {
@@ -18,4 +20,20 @@ Route::middleware(['auth'])->prefix('console/scolarite')->name('admin.scolarite.
     Route::put('etudiants/{etudiant}', [EtudiantController::class, 'update'])->middleware('can:etudiants.edit')->name('etudiants.update');
     Route::post('etudiants/{etudiant}/pause', [EtudiantController::class, 'togglePause'])->middleware('can:etudiants.pause')->name('etudiants.toggle-pause');
     Route::delete('etudiants/{etudiant}', [EtudiantController::class, 'destroy'])->middleware('can:etudiants.delete')->name('etudiants.destroy');
+
+    Route::get('resultats', [ResultatAdmissionController::class, 'index'])->middleware('can:resultats.view')->name('resultats.index');
+    Route::get('resultats/modele', [ResultatAdmissionController::class, 'template'])->middleware('can:resultats.import')->name('resultats.template');
+    Route::post('resultats/import', [ResultatAdmissionController::class, 'import'])->middleware('can:resultats.import')->name('resultats.import');
+    Route::delete('resultats', [ResultatAdmissionController::class, 'destroyAll'])->middleware('can:resultats.delete')->name('resultats.destroy-all');
+    Route::post('resultats', [ResultatAdmissionController::class, 'store'])->middleware('can:resultats.create')->name('resultats.store');
+    Route::put('resultats/{resultat}', [ResultatAdmissionController::class, 'update'])->middleware('can:resultats.edit')->name('resultats.update');
+    Route::delete('resultats/{resultat}', [ResultatAdmissionController::class, 'destroy'])->middleware('can:resultats.delete')->name('resultats.destroy');
+
+    Route::get('resultats/archives', [ArchiveDossierController::class, 'index'])->middleware('can:resultats.view')->name('resultats.archives.index');
+    Route::post('resultats/archives', [ArchiveDossierController::class, 'store'])->middleware('can:resultats.edit')->name('resultats.archives.store');
+    Route::put('resultats/archives/{dossier}', [ArchiveDossierController::class, 'update'])->middleware('can:resultats.edit')->name('resultats.archives.update');
+    Route::delete('resultats/archives/{dossier}', [ArchiveDossierController::class, 'destroy'])->middleware('can:resultats.delete')->name('resultats.archives.destroy');
+    Route::post('resultats/archives/{dossier}/restaurer', [ArchiveDossierController::class, 'restore'])->middleware('can:resultats.edit')->name('resultats.archives.restore');
+    Route::get('resultats/archives/{dossier}/export/excel', [ArchiveDossierController::class, 'exportExcel'])->middleware('can:resultats.export')->name('resultats.archives.export-excel');
+    Route::get('resultats/archives/{dossier}/export/pdf', [ArchiveDossierController::class, 'exportPdf'])->middleware('can:resultats.export')->name('resultats.archives.export-pdf');
 });

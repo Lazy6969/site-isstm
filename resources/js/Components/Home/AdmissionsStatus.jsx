@@ -2,6 +2,7 @@ import { router, usePage } from '@inertiajs/react';
 import { ArrowRight, CalendarClock, CircleCheck, CircleX, RefreshCw, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { useQuickEdit } from '../../lib/useQuickEdit';
+import { useTranslations } from '../../lib/useTranslations';
 import { imageStyleToCss, imageStyleToBackgroundCss } from '../../lib/imageStyle';
 import EditableText from '../QuickEdit/EditableText';
 import EditableImage from '../QuickEdit/EditableImage';
@@ -115,12 +116,14 @@ function DateLimite({ d, className = '' }) {
  * the now-gated /inscription page, so it's hidden the same as the
  * préinscription button once admissions close. */
 function AdmissionsButtons({ className = '', primaryClassName = '', secondaryClassName = '' }) {
+    const { t } = useTranslations();
+
     return (
         <div className={`flex flex-wrap items-center gap-3 ${className}`}>
             <EditableButton
                 contentKey="admissions_bouton"
                 href="/rejoindre"
-                defaultLabel="Faire une préinscription"
+                defaultLabel={t('admissions.bouton', 'Lancer ma candidature')}
                 icon={ArrowRight}
                 className={primaryClassName}
             />
@@ -197,6 +200,17 @@ function DesignCard({ d, pencil }) {
             <AdmissionsToggle open={d.open} className="absolute top-14 left-3 z-20" />
 
             <div className="relative z-10 mx-auto max-w-xl rounded-[1.75rem] bg-white px-6 py-8 text-center shadow-2xl shadow-black/30 sm:px-10 dark:bg-slate-800">
+                {/* The mascot's horizontal bar is meant to rest right on this
+                    card's own top edge, as if it were the ledge the robot is
+                    gripping — translated up by 3/4 of its own height
+                    (roughly where that bar sits in the source image) so only
+                    its head and hands show above the card. */}
+                <img
+                    src="/images/robot-admissions.png"
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-0 left-1/2 z-20 hidden h-24 w-auto -translate-x-1/2 -translate-y-3/4 sm:block"
+                />
                 <div className="flex justify-center">
                     <StatusBadge
                         open={d.open}

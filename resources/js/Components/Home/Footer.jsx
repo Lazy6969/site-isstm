@@ -1,5 +1,6 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { Code, Mail, Phone, MapPin, Link2, Send } from 'lucide-react';
+import { Code, Mail, Phone, MapPin, Send } from 'lucide-react';
+import FacebookIcon from '../Icons/FacebookIcon';
 import { getEtablissementLinks, getVieEtudianteLinks } from '../Layout/headerNavLinks';
 import { useTranslations } from '../../lib/useTranslations';
 import EditableText from '../QuickEdit/EditableText';
@@ -182,7 +183,7 @@ export default function Footer() {
                                 rel="noopener"
                                 className="flex items-center gap-2.5 hover:text-isstm-footer-text"
                             >
-                                <Link2 className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                                <FacebookIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                                 Facebook
                             </a>
                         )}

@@ -46,6 +46,7 @@ use App\Http\Controllers\PreinscriptionController;
 use App\Http\Controllers\QuickContactController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ReactivationRequestController;
+use App\Http\Controllers\ResultatController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
@@ -67,6 +68,8 @@ Route::get('filieres', [FiliereController::class, 'index'])->name('filieres.inde
 Route::get('filieres/{filiere:slug}', [FiliereController::class, 'show'])->name('filieres.show');
 
 Route::get('enseignants', [TeacherController::class, 'index'])->name('enseignants.index');
+
+Route::get('resultats', [ResultatController::class, 'index'])->name('resultats.index');
 
 Route::inertia('bourse', 'Bourse')->name('bourse');
 Route::inertia('faq', 'Faq')->name('faq');

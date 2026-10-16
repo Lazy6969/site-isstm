@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { ArrowUp, Download, FileImage, FileText, Lock, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
@@ -12,6 +12,7 @@ import {
     pedagogicalPole,
 } from '../Components/Parcours/orgChartData';
 import { Card } from '../Components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../Components/ui/dialog';
 import { useTranslations } from '../lib/useTranslations';
 import { useQuickEdit } from '../lib/useQuickEdit';
 import EditableText from '../Components/QuickEdit/EditableText';
@@ -46,6 +47,7 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
     const canEditOrg = active && (auth?.permissions ?? []).includes('organigramme.edit');
     const [editingPerson, setEditingPerson] = useState(null);
     const [uploadingDoc, setUploadingDoc] = useState(null);
+    const [showInscriptionRequise, setShowInscriptionRequise] = useState(false);
 
     function onEditPerson(person, title) {
         setEditingPerson({ person, title });
@@ -288,13 +290,14 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
                                         </EditableText>
                                     </p>
                                     {!isLoggedIn && (
-                                        <Link
-                                            href="/login"
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowInscriptionRequise(true)}
                                             className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110"
                                         >
                                             <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                                             {t('parcours.connexion_requise', 'Connectez-vous pour télécharger')}
-                                        </Link>
+                                        </button>
                                     )}
 
                                     {isLoggedIn && !isActive && (
@@ -377,6 +380,27 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
                     title={uploadingDoc.title}
                 />
             )}
+
+            <Dialog open={showInscriptionRequise} onOpenChange={setShowInscriptionRequise}>
+                <DialogContent className="max-w-sm overflow-hidden rounded-3xl border-0 bg-white p-0 text-slate-800 shadow-2xl dark:bg-slate-800 dark:text-slate-100">
+                    <div className="flex flex-col items-center px-6 pb-6 pt-8 text-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-isstm-navy/10 text-isstm-navy dark:bg-white/10 dark:text-white">
+                            <Lock className="h-6 w-6" aria-hidden="true" />
+                        </span>
+                        <DialogHeader className="mt-4">
+                            <DialogTitle className="text-center text-lg font-bold text-isstm-navy dark:text-white">
+                                {t('parcours.inscription_requise_titre', 'Inscription requise')}
+                            </DialogTitle>
+                            <DialogDescription className="text-center text-sm text-slate-600 dark:text-slate-300">
+                                {t(
+                                    'parcours.inscription_requise_texte',
+                                    'Vous devez être inscrit(e) et possédez un compte pour accéder au téléchargement de ce document.',
+                                )}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

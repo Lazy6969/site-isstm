@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\ArchiveDossier;
 use App\Models\CampusBloc;
 use App\Models\Classe;
 use App\Models\Document;
@@ -17,6 +18,7 @@ use App\Models\Inscription;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
 use App\Models\ReactivationRequest;
+use App\Models\ResultatAdmission;
 use App\Models\Teacher;
 use App\Models\Testimonial;
 use Illuminate\Database\Eloquent\Model;
@@ -58,6 +60,8 @@ class TrashController extends Controller
         'ecolage' => ['model' => EcolagePayment::class, 'permission' => 'payments.delete', 'label' => "Versement d'écolage", 'title' => 'reference', 'files' => []],
         'journal' => ['model' => ActivityLog::class, 'permission' => 'activity-log.delete', 'label' => "Journal d'activité", 'title' => 'description', 'files' => []],
         'reactivations' => ['model' => ReactivationRequest::class, 'permission' => 'reactivations.manage', 'label' => 'Demande de réactivation', 'title' => null, 'files' => []],
+        'resultats' => ['model' => ResultatAdmission::class, 'permission' => 'resultats.delete', 'label' => 'Résultat', 'title' => 'nom', 'files' => []],
+        'archives-resultats' => ['model' => ArchiveDossier::class, 'permission' => 'resultats.delete', 'label' => 'Dossier archivé', 'title' => 'nom', 'files' => []],
     ];
 
     public function index(): Response
@@ -96,6 +100,11 @@ class TrashController extends Controller
             $record->photos()->onlyTrashed()->get()->each->restore();
         }
 
+        if ($type === 'archives-resultats') {
+            /** @var ArchiveDossier $record */
+            $record->resultats()->onlyTrashed()->get()->each->restore();
+        }
+
         return back()->with('status', "{$config['label']} restauré(e).");
     }
 
@@ -112,6 +121,11 @@ class TrashController extends Controller
                 $this->deleteFiles($photo, self::TYPES['photos-galerie']['files']);
                 $photo->forceDelete();
             }
+        }
+
+        if ($type === 'archives-resultats') {
+            /** @var ArchiveDossier $record */
+            $record->resultats()->onlyTrashed()->get()->each->forceDelete();
         }
 
         $this->deleteFiles($record, $config['files']);

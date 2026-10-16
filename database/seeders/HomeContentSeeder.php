@@ -459,8 +459,12 @@ class HomeContentSeeder extends Seeder
             'accueil_actualites_bouton' => ['Toutes les actualités', 'All News', 'Vaovao rehetra'],
             'accueil_rejoindre_bouton' => ['Rejoignez-nous', 'Join us', 'Miditra miaraka aminay'],
 
-            // Bannière "Rejoignez-nous" (entre Actualités et Témoignages)
-            'accueil_rejoindre_eyebrow' => ['Admissions ouvertes', 'Admissions open', 'Misokatra ny fidirana'],
+            // Bannière "Rejoignez-nous" (entre Actualités et Témoignages) — le
+            // texte de l'eyebrow bascule selon admissions.open, comme le
+            // titre/texte de la bannière "Admissions ouvertes/fermées" plus
+            // bas, donc chaque état garde sa propre clé.
+            'accueil_rejoindre_eyebrow_ouvert' => ['Admissions ouvertes', 'Admissions open', 'Misokatra ny fidirana'],
+            'accueil_rejoindre_eyebrow_ferme' => ['Admissions fermées', 'Admissions closed', 'Mihidy ny fidirana'],
             'accueil_rejoindre_titre' => [
                 "Rejoignez l'ISSTM et construisez votre avenir",
                 'Join ISSTM and build your future',
@@ -490,7 +494,7 @@ class HomeContentSeeder extends Seeder
                 "Mihidy amin'izao fotoana izao ny fidirana. Avia indray tsy ho ela na mifandraisa aminay mba hahafantarana bebe kokoa momba ny fotoana manaraka.",
             ],
             'admissions_image_path' => ['images/accueil-rejoindre.png', 'images/accueil-rejoindre.png', 'images/accueil-rejoindre.png'],
-            'admissions_bouton' => ['Faire une préinscription', 'Apply now', 'Manao fisoratana anarana mialoha'],
+            'admissions_bouton' => ['Lancer ma candidature', 'Start my application', 'Manomboka ny fangatahako'],
 
             // En-tête du site (logo + nom de l'établissement) — partagé par
             // Header.jsx (accueil) et SiteHeader.jsx (pages intérieures), voir
@@ -838,6 +842,12 @@ class HomeContentSeeder extends Seeder
                 'Une équipe pédagogique permanente et vacataire au service de la réussite des étudiants.',
                 'A permanent and part-time teaching team dedicated to student success.',
                 "Ekipa mpampianatra tsy tapaka sy vonjimaika manolo-tena ho an'ny fahombiazan'ny mpianatra.",
+            ],
+            'resultats_titre' => ["Résultats d'admission", 'Admission results', 'Valim-pifidianana'],
+            'resultats_soustitre' => [
+                "La liste des candidats admis à l'ISSTM, publiée par la scolarité.",
+                'The list of candidates admitted to ISSTM, published by the registrar.',
+                "Ny lisitry ny kandida voaray ao amin'ny ISSTM, navoakan'ny sampan-draharaha momba ny fianarana.",
             ],
             'rejoindre_titre' => ["Rejoindre l'ISSTM", 'Join ISSTM', 'Miditra ao amin\'ny ISSTM'],
             'rejoindre_soustitre' => [

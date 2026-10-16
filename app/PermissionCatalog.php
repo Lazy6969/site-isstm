@@ -59,6 +59,22 @@ class PermissionCatalog
     public const PAYMENTS = ['payments.view', 'payments.validate', 'payments.refuse', 'payments.export', 'payments.delete'];
 
     /**
+     * The "Résultats" admission list: importing/editing/archiving it — a
+     * scolarité task, same footing as PAYMENTS.
+     *
+     * @var array<int, string>
+     */
+    public const RESULTATS = ['resultats.view', 'resultats.import', 'resultats.create', 'resultats.edit', 'resultats.delete', 'resultats.export'];
+
+    /**
+     * Deleting an account from the "Gestion des comptes" screen — a step
+     * above `users.edit`, which only lets an admin correct a profile.
+     *
+     * @var array<int, string>
+     */
+    public const ACCOUNTS = ['users.delete'];
+
+    /**
      * Finer scolarité actions, split out of the broader permissions below.
      *
      * @var array<string, array<int, string>> existing permission => new ones a role holding it inherits
@@ -81,6 +97,8 @@ class PermissionCatalog
             ...self::STUDENT_ONLY,
             ...self::ECOLAGE_STUDENT,
             ...self::PAYMENTS,
+            ...self::RESULTATS,
+            ...self::ACCOUNTS,
             ...self::ACTIVITY_LOG,
             ...array_merge(...array_values(self::INHERITED)),
         ]));
@@ -123,7 +141,7 @@ class PermissionCatalog
 
         $grants = [
             'etudiant' => [...self::COMMUNITY, ...self::STUDENT_ONLY, ...self::ECOLAGE_STUDENT],
-            'scolarite' => self::PAYMENTS,
+            'scolarite' => [...self::PAYMENTS, ...self::RESULTATS],
             'enseignant' => self::COMMUNITY,
         ];
 

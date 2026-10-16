@@ -28,6 +28,7 @@ class UserController extends Controller
                     'phone' => $user->phone,
                     'avatar_path' => $user->avatar_path,
                     'is_active' => $user->is_active,
+                    'is_online' => $user->isOnline(),
                     'role' => $user->roles->first()?->name,
                     'last_activity' => $user->last_activity?->toIso8601String(),
                     'created_at' => $user->created_at->toIso8601String(),
@@ -99,5 +100,42 @@ class UserController extends Controller
         );
 
         return back()->with('status', $user->is_active ? 'Compte réactivé.' : 'Compte désactivé.');
+    }
+
+    /**
+     * Lets a Super Admin set a new password for any account directly — the
+     * only existing path to a password change is the account's own "forgot
+     * password" e-mail flow, which doesn't help a locked-out user who can't
+     * receive mail or an admin resetting a demo/shared account.
+     */
+    public function updatePassword(Request $request, User $user): RedirectResponse
+    {
+        $validated = $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->update(['password' => $validated['password']]);
+
+        ActivityLog::record('user_password_reset', "Mot de passe de {$user->name} réinitialisé par un administrateur", $user);
+
+        return back()->with('status', 'Mot de passe mis à jour.');
+    }
+
+    /**
+     * Permanently deletes the account and everything that cascades from it
+     * (étudiant dossier, posts, messages, friend requests, etc. — every FK
+     * on `users` cascades, see Admin\EtudiantController::destroy for the
+     * same pattern). Deliberately not a soft delete: an admin reaching for
+     * this action from the accounts list means it for good.
+     */
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->is($request->user()), 403, 'Vous ne pouvez pas supprimer votre propre compte.');
+
+        $name = $user->name;
+        ActivityLog::record('user_deleted', "Compte supprimé : {$name}");
+        $user->delete();
+
+        return back()->with('status', "Le compte de {$name} et toutes ses données ont été supprimés.");
     }
 }

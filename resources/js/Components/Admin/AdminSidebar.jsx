@@ -4,6 +4,7 @@ import {
     LayoutDashboard,
     UserPlus,
     GraduationCap,
+    Award,
     Newspaper,
     Images,
     BookOpen,
@@ -30,6 +31,7 @@ import {
     Trash2,
     TriangleAlert,
     RotateCcw,
+    IdCard,
 } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
@@ -58,6 +60,7 @@ function buildNavGroups(t) {
                 { href: '/console/reactivations', label: t('admin.nav.reactivations', 'Réactivations'), icon: RotateCcw, permission: 'reactivations.manage' },
                 { href: '/console/ecolage', label: t('admin.nav.ecolage', 'Écolage'), icon: Wallet, permission: 'payments.view', badge: 'ecolage' },
                 { href: '/console/scolarite/etudiants', label: t('admin.nav.etudiants', 'Étudiants'), icon: GraduationCap, permission: 'etudiants.view' },
+                { href: '/console/scolarite/resultats', label: t('admin.nav.resultats', 'Résultats'), icon: Award, permission: 'resultats.view' },
             ],
         },
         {
@@ -82,6 +85,7 @@ function buildNavGroups(t) {
             label: t('admin.nav.group_systeme', 'Système'),
             items: [
                 { href: '/console/archives', label: t('admin.nav.archives', 'Archives des actions'), icon: Archive, permission: 'activity-log.view' },
+                { href: '/console/users', label: t('admin.nav.comptes', 'Comptes'), icon: IdCard, permission: 'users.view' },
                 { href: '/console/roles', label: t('admin.nav.roles', 'Rôles'), icon: ShieldCheck, permission: 'roles.view' },
                 { href: '/console/activity-log', label: t('admin.nav.activity_log', "Journal d'activité"), icon: History, permission: 'activity-log.view' },
                 { href: '/console/corbeille', label: t('admin.nav.corbeille', 'Corbeille'), icon: Trash2, permission: 'dashboard.view' },

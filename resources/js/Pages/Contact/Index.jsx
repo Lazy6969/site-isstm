@@ -40,7 +40,7 @@ export default function Index({ content }) {
                 <div className="relative z-10 mx-auto max-w-6xl px-6 py-12">
                     <ContactCards content={content} />
                     <ContactMaps content={content} />
-                    <div className="mx-auto mt-12 max-w-2xl">
+                    <div className="mx-auto mt-12 max-w-3xl">
                         <QuickContactForm content={content} />
                     </div>
                 </div>

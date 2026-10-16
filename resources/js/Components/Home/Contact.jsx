@@ -20,7 +20,7 @@ export default function Contact({ content }) {
 
                 <ContactMaps content={content} />
 
-                <div className="mx-auto mt-12 max-w-2xl">
+                <div className="mx-auto mt-12 max-w-3xl">
                     <QuickContactForm content={content} />
                 </div>
             </div>
