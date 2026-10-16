@@ -7,6 +7,7 @@ import GroupMessageBubble from '../../Components/Messages/GroupMessageBubble';
 import EmojiPickerButton from '../../Components/Messages/EmojiPickerButton';
 import VoiceRecorder from '../../Components/Messages/VoiceRecorder';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
+import MediaLightbox from '../../Components/Media/MediaLightbox';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
@@ -46,6 +47,7 @@ export default function Index({ conversations, friends, activeConversation, mess
     const [opening, setOpening] = useState(false);
     const [liveStatus, setLiveStatus] = useState({ online: false, typing: false });
     const [replyingTo, setReplyingTo] = useState(null);
+    const [mediaLightboxIndex, setMediaLightboxIndex] = useState(null);
     const { data, setData, post, processing, reset, errors } = useForm({ body: '', attachments: [], reply_to_id: null });
     const attachmentPicker = useAttachmentPicker(data.attachments, (files) => setData('attachments', files), errors);
     const lastTypingPingAt = useRef(0);
@@ -436,10 +438,10 @@ export default function Index({ conversations, friends, activeConversation, mess
 
                             {mediaTab === 'images' && (
                                 <div className="grid grid-cols-3 gap-2">
-                                    {mediaByTab.images.map((m) => (
-                                        <a key={m.id} href={`/storage/${m.path}`} download={m.original_name}>
+                                    {mediaByTab.images.map((m, i) => (
+                                        <button key={m.id} type="button" onClick={() => setMediaLightboxIndex(i)}>
                                             <img src={`/storage/${m.path}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
-                                        </a>
+                                        </button>
                                     ))}
                                 </div>
                             )}
@@ -485,6 +487,15 @@ export default function Index({ conversations, friends, activeConversation, mess
                     </aside>
                 )}
             </div>
+
+            {mediaLightboxIndex !== null && (
+                <MediaLightbox
+                    images={mediaByTab.images}
+                    index={mediaLightboxIndex}
+                    onNavigate={setMediaLightboxIndex}
+                    onClose={() => setMediaLightboxIndex(null)}
+                />
+            )}
         </AppLayout>
     );
 }

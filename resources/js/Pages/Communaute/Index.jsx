@@ -4,7 +4,10 @@ import { useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import PostCard from '../../Components/Communaute/PostCard';
 import StoriesBar from '../../Components/Communaute/StoriesBar';
-import ConversationsSidebar from '../../Components/Communaute/ConversationsSidebar';
+import ShortcutsSidebar from '../../Components/Communaute/ShortcutsSidebar';
+import MessagesSidebar from '../../Components/Communaute/MessagesSidebar';
+import GroupsSidebar from '../../Components/Communaute/GroupsSidebar';
+import SuggestionsSidebar from '../../Components/Communaute/SuggestionsSidebar';
 import ComposePostModal from '../../Components/Communaute/ComposePostModal';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
@@ -17,7 +20,7 @@ const GREETINGS = {
     soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
 };
 
-export default function Index({ posts, canPublish, postTypes, friends, conversations }) {
+export default function Index({ posts, canPublish, postTypes, friends, conversations, suggestions }) {
     const { t } = useTranslations();
     const { auth } = usePage().props;
     const [pageLoading, setPageLoading] = useState(false);
@@ -157,7 +160,12 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
             )}
                 </div>
 
-                <ConversationsSidebar conversations={conversations ?? []} />
+                <aside className="hidden xl:sticky xl:top-20 xl:block xl:space-y-4">
+                    <ShortcutsSidebar />
+                    <MessagesSidebar conversations={conversations ?? []} />
+                    <GroupsSidebar conversations={conversations ?? []} />
+                    <SuggestionsSidebar suggestions={suggestions ?? []} />
+                </aside>
             </div>
         </AppLayout>
     );

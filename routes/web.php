@@ -164,6 +164,8 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::post('communaute', [PostController::class, 'store'])->middleware('access:community.post')->name('posts.store');
     Route::get('communaute/enregistres', [PostController::class, 'saved'])->middleware('access:community.view')->name('posts.saved');
     Route::get('communaute/archives', [PostController::class, 'archives'])->middleware('access:community.view')->name('posts.archives');
+    Route::get('communaute/reels', [PostController::class, 'reels'])->middleware('access:community.view')->name('posts.reels');
+    Route::get('communaute/souvenirs', [PostController::class, 'memories'])->middleware('access:community.view')->name('posts.memories');
     Route::get('communaute/recherche', [CommunitySearchController::class, 'index'])->middleware('access:community.view')->name('community-search');
     Route::get('communaute/{post}', [PostController::class, 'show'])->middleware('access:community.view')->name('posts.show');
     Route::patch('communaute/{post}', [PostController::class, 'update'])->name('posts.update');

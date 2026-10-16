@@ -1,19 +1,37 @@
 import { Download, FileText } from 'lucide-react';
+import { useState } from 'react';
+import MediaLightbox from '../Media/MediaLightbox';
 
 /**
  * Renders one message attachment according to its type — shared by
  * MessageBubble (1-to-1) and GroupMessageBubble so image/video/audio/other
- * files look identical in both chat contexts. Every type carries a `download`
- * link (not just "open"), since browsers otherwise navigate to or stream
- * media in-place instead of saving it — documents, apps, archives etc. need
- * to be downloadable just as much as photos.
+ * files look identical in both chat contexts. An image opens the same
+ * full-screen MediaLightbox the fil communautaire uses, with explicit
+ * download/close buttons, instead of downloading straight to disk on click.
+ * Every other type still carries a `download` link, since browsers
+ * otherwise navigate to or stream media in-place instead of saving it —
+ * documents, apps, archives etc. need to be downloadable just as much as
+ * photos.
  */
 export default function AttachmentPreview({ attachment: a }) {
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+
     if (a.file_type === 'image') {
         return (
-            <a href={`/storage/${a.path}`} download={a.original_name} className="mt-1 block">
-                <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
-            </a>
+            <>
+                <button type="button" onClick={() => setLightboxOpen(true)} className="mt-1 block">
+                    <img src={`/storage/${a.path}`} alt="" className="max-h-48 rounded-lg" />
+                </button>
+                {lightboxOpen && (
+                    <MediaLightbox
+                        images={[a]}
+                        index={0}
+                        onNavigate={() => {}}
+                        onClose={() => setLightboxOpen(false)}
+                        downloadName={a.original_name}
+                    />
+                )}
+            </>
         );
     }
 
