@@ -15,6 +15,8 @@ import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 import ScrollProgressRobot from './Components/Layout/ScrollProgressRobot';
+import InstallPwaPrompt from './Components/Layout/InstallPwaPrompt';
+import CookieConsentBanner from './Components/Layout/CookieConsentBanner';
 import QuickEditOverlay from './Components/QuickEdit/QuickEditOverlay';
 import SitePrimaryColorPicker from './Components/QuickEdit/SitePrimaryColorPicker';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
@@ -110,12 +112,23 @@ createInertiaApp({
         const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true });
         const page = pages[`./Pages/${name}.jsx`];
 
+        // resolve() can run more than once for the very same page module
+        // (import.meta.glob's eager mode returns one shared module object,
+        // and Inertia may call resolve() again for the same page — e.g. on
+        // prefetch). Without this guard, a second call would read back the
+        // *already-wrapped* layout as `existingLayout` and wrap it a second
+        // time, mounting every provider/global widget below twice (seen as
+        // two ScrollProgressRobot buttons, two cookie banners, etc.).
+        if (page.default.layout?.isGlobalProvidersLayout) {
+            return page;
+        }
+
         // usePage()/useForm() only work inside Inertia's own <App> tree, so the
         // quick-edit and toast contexts have to wrap each page from here (a
         // persistent layout), not wrap <App> itself in setup() below — that
         // renders it as an ancestor of <App>, outside the context it needs.
         const existingLayout = page.default.layout;
-        page.default.layout = (children) => (
+        const globalProvidersLayout = (children) => (
             <ToastProvider>
                 <QuickEditProvider>
                   <ConfirmProvider>
@@ -128,6 +141,8 @@ createInertiaApp({
                         */}
                         <FloatingAccountGroup />
                         <ScrollProgressRobot />
+                        <InstallPwaPrompt />
+                        <CookieConsentBanner />
                         <SitePrimaryColorPicker />
                         <QuickEditOverlay />
                         <FlashToastBridge />
@@ -141,6 +156,8 @@ createInertiaApp({
                 </QuickEditProvider>
             </ToastProvider>
         );
+        globalProvidersLayout.isGlobalProvidersLayout = true;
+        page.default.layout = globalProvidersLayout;
 
         return page;
     },
