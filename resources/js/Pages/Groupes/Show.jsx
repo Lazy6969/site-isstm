@@ -1,8 +1,8 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { ArchiveRestore, ArrowLeft, Ban, Crown, MoreHorizontal, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { ArchiveRestore, ArrowLeft, Ban, Camera, Check, Crown, MoreHorizontal, Pencil, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus, X } from 'lucide-react';
+import { useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
-import AttachmentPreview from '../../Components/Messages/AttachmentPreview';
+import GroupMessageBubble from '../../Components/Messages/GroupMessageBubble';
 import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
@@ -15,15 +15,20 @@ function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup }) {
+export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup, friends, conversations }) {
     const confirmAction = useConfirm();
     const { t } = useTranslations();
+    const { auth } = usePage().props;
     const [tab, setTab] = useState('discussion');
     const [showAddFriends, setShowAddFriends] = useState(false);
     const [selectedFriends, setSelectedFriends] = useState([]);
-    const messageForm = useForm({ body: '', attachments: [] });
+    const [editingName, setEditingName] = useState(false);
+    const [replyingTo, setReplyingTo] = useState(null);
+    const photoInputRef = useRef(null);
+    const messageForm = useForm({ body: '', attachments: [], reply_to_id: null });
     const attachmentPicker = useAttachmentPicker(messageForm.data.attachments, (files) => messageForm.setData('attachments', files), messageForm.errors);
     const announcementForm = useForm({ type: 'devoir', title: '', description: '', due_date: '' });
+    const nameForm = useForm({ name: group.name });
 
     const announcementTypes = [
         { value: 'devoir', label: t('groupes.type_devoir', 'Devoir') },
@@ -43,12 +48,37 @@ export default function Show({ group, membership, members, messages, announcemen
         messageForm.post(`/groupes/${group.id}/messages`, {
             forceFormData: true,
             preserveScroll: true,
-            onSuccess: () => messageForm.reset(),
+            onSuccess: () => {
+                messageForm.reset();
+                setReplyingTo(null);
+            },
         });
     }
 
-    function deleteMessage(id, scope) {
-        router.delete(`/groupes/messages/${id}`, { data: { scope }, preserveScroll: true });
+    function startReply(message) {
+        setReplyingTo(message);
+        messageForm.setData('reply_to_id', message.id);
+    }
+
+    function cancelReply() {
+        setReplyingTo(null);
+        messageForm.setData('reply_to_id', null);
+    }
+
+    function submitName(e) {
+        e.preventDefault();
+        nameForm.post(`/groupes/${group.id}/modifier`, {
+            preserveScroll: true,
+            onSuccess: () => setEditingName(false),
+        });
+    }
+
+    function onPhotoSelected(e) {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+
+        router.post(`/groupes/${group.id}/modifier`, { photo: file }, { forceFormData: true, preserveScroll: true });
     }
 
     function submitAnnouncement(e) {
@@ -112,11 +142,65 @@ export default function Show({ group, membership, members, messages, announcemen
             </Link>
 
             <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-                <div>
-                    <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{group.name}</h1>
-                    <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
-                        {[group.filiere, group.niveau, group.annee].filter(Boolean).join(' · ') || group.type_label}
-                    </p>
+                <div className="flex items-start gap-3">
+                    <button
+                        type="button"
+                        onClick={() => photoInputRef.current?.click()}
+                        className="group relative flex-shrink-0"
+                        aria-label={t('groupes.changer_photo', 'Changer la photo du groupe')}
+                    >
+                        <Avatar className="h-14 w-14">
+                            <AvatarImage src={group.photo_path ? `/storage/${group.photo_path}` : undefined} alt="" />
+                            <AvatarFallback>{group.name?.[0]}</AvatarFallback>
+                        </Avatar>
+                        <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition group-hover:opacity-100">
+                            <Camera className="h-5 w-5 text-white" aria-hidden="true" />
+                        </span>
+                    </button>
+                    <input ref={photoInputRef} type="file" accept="image/*" onChange={onPhotoSelected} className="hidden" />
+
+                    <div>
+                        {editingName ? (
+                            <form onSubmit={submitName} className="flex items-center gap-1.5">
+                                <input
+                                    type="text"
+                                    autoFocus
+                                    value={nameForm.data.name}
+                                    onChange={(e) => nameForm.setData('name', e.target.value)}
+                                    className="rounded-lg border border-slate-300 px-2.5 py-1 text-xl font-bold text-isstm-navy focus:border-isstm-navy focus:outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                                />
+                                <button type="submit" className="text-emerald-600" aria-label={t('profil.enregistrer', 'Enregistrer')}>
+                                    <Check className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditingName(false);
+                                        nameForm.setData('name', group.name);
+                                    }}
+                                    className="text-slate-400"
+                                    aria-label={t('nav.annuler', 'Annuler')}
+                                >
+                                    <X className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="group flex items-center gap-1.5">
+                                <h1 className="text-2xl font-bold text-isstm-navy dark:text-white">{group.name}</h1>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingName(true)}
+                                    className="text-slate-300 opacity-0 transition hover:text-isstm-navy group-hover:opacity-100 dark:hover:text-white"
+                                    aria-label={t('groupes.renommer', 'Renommer le groupe')}
+                                >
+                                    <Pencil className="h-4 w-4" aria-hidden="true" />
+                                </button>
+                            </div>
+                        )}
+                        <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+                            {[group.filiere, group.niveau, group.annee].filter(Boolean).join(' · ') || group.type_label}
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {group.join_code && (
@@ -216,34 +300,32 @@ export default function Show({ group, membership, members, messages, announcemen
                     <div className="flex-1 space-y-3 overflow-y-auto p-4 pr-6">
                         {messages.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500">{t('groupes.aucun_message', 'Aucun message pour le moment.')}</p>}
                         {messages.map((m) => (
-                            <div key={m.id} className="group flex items-start gap-2.5">
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{m.sender_name}</span>
-                                        <span className="text-xs text-slate-400 dark:text-slate-500">{formatTime(m.created_at)}</span>
-                                    </div>
-                                    {m.deleted_for_everyone ? (
-                                        <p className="text-sm italic text-slate-400 dark:text-slate-500">{t('groupes.message_supprime', 'Message supprimé')}</p>
-                                    ) : (
-                                        <>
-                                            {m.body && <p className="text-sm break-all text-slate-700 dark:text-slate-200">{m.body}</p>}
-                                            {m.attachments.map((a) => (
-                                                <AttachmentPreview key={a.id} attachment={a} />
-                                            ))}
-                                            <div className="mt-0.5 flex gap-3 text-[11px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100">
-                                                <button onClick={() => deleteMessage(m.id, 'me')} className="hover:underline">
-                                                    {t('groupes.masquer_pour_moi', 'Masquer pour moi')}
-                                                </button>
-                                                <button onClick={() => deleteMessage(m.id, 'everyone')} className="hover:text-red-600 hover:underline">
-                                                    {t('groupes.supprimer_pour_tous', 'Supprimer pour tous')}
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+                            <GroupMessageBubble
+                                key={m.id}
+                                message={m}
+                                isOwn={m.sender_id === auth.user.id}
+                                canModerate={membership.can_moderate}
+                                conversations={conversations}
+                                friends={friends}
+                                onReply={() => startReply(m)}
+                            />
                         ))}
                     </div>
+
+                    {replyingTo && (
+                        <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+                            <span className="truncate">
+                                {t('messages.reponse_a', 'Réponse à')}{' '}
+                                <span className="font-medium">
+                                    {replyingTo.sender_id === auth.user.id ? t('messages.vous', 'vous') : replyingTo.sender_name}
+                                </span>
+                                {replyingTo.body ? ` · ${replyingTo.body}` : ''}
+                            </span>
+                            <button type="button" onClick={cancelReply} className="flex-shrink-0" aria-label={t('nav.annuler', 'Annuler')}>
+                                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
 
                     <SelectedAttachments files={messageForm.data.attachments} picker={attachmentPicker} />
 
@@ -272,18 +354,20 @@ export default function Show({ group, membership, members, messages, announcemen
                 <div className="space-y-2">
                     {members.map((m) => (
                         <Card key={m.id} className="flex items-center gap-3 p-4">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={m.avatar_path ? `/storage/${m.avatar_path}` : undefined} alt="" />
-                                <AvatarFallback>{m.name?.[0]}</AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{m.name}</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">
-                                    {m.role_in_group === 'enseignant' ? t('groupes.enseignant_role', 'Enseignant') : t('groupes.etudiant_role', 'Étudiant')}
-                                    {m.is_delegate ? ` · ${t('groupes.delegue_classe', 'Délégué de classe')}` : ''}
-                                    {m.is_banned ? ` · ${t('groupes.banni', 'Banni')}` : ''}
-                                </p>
-                            </div>
+                            <Link href={`/profil/${m.user_id}`} className="flex min-w-0 flex-1 items-center gap-3">
+                                <Avatar className="h-10 w-10 flex-shrink-0">
+                                    <AvatarImage src={m.avatar_path ? `/storage/${m.avatar_path}` : undefined} alt="" />
+                                    <AvatarFallback>{m.name?.[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold text-slate-800 hover:underline dark:text-slate-100">{m.name}</p>
+                                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                                        {m.role_in_group === 'enseignant' ? t('groupes.enseignant_role', 'Enseignant') : t('groupes.etudiant_role', 'Étudiant')}
+                                        {m.is_delegate ? ` · ${t('groupes.delegue_classe', 'Délégué de classe')}` : ''}
+                                        {m.is_banned ? ` · ${t('groupes.banni', 'Banni')}` : ''}
+                                    </p>
+                                </div>
+                            </Link>
                             {membership.can_moderate && m.role_in_group !== 'enseignant' && (
                                 <div className="flex gap-2">
                                     <button

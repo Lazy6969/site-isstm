@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function ForwardMessageDialog({ open, onClose, messageId, conversations, friends = [] }) {
+export default function ForwardMessageDialog({ open, onClose, messageId, conversations, friends = [], sourceType = 'dm' }) {
     const { t } = useTranslations();
     const [search, setSearch] = useState('');
 
@@ -34,7 +34,8 @@ export default function ForwardMessageDialog({ open, onClose, messageId, convers
 
     function forwardTo(item) {
         const payload = item.id ? { conversation_id: item.id } : { user_id: item.user.id };
-        router.post(`/messages/message/${messageId}/transferer`, payload, { preserveScroll: true, onSuccess: onClose });
+        const url = sourceType === 'groupe' ? `/groupes/messages/${messageId}/transferer` : `/messages/message/${messageId}/transferer`;
+        router.post(url, payload, { preserveScroll: true, onSuccess: onClose });
     }
 
     return (

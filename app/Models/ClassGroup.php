@@ -18,6 +18,7 @@ class ClassGroup extends Model
 
     protected $fillable = [
         'name',
+        'photo_path',
         'type',
         'annee',
         'filiere_id',

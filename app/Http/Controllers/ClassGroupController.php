@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\GroupMemberRole;
 use App\Http\Requests\JoinClassGroupRequest;
 use App\Http\Requests\StoreClassGroupRequest;
+use App\Http\Requests\UpdateClassGroupRequest;
 use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\ClassGroupMessage;
 use App\Models\User;
+use App\Services\ClassGroupMessagePresenter;
+use App\Services\ConversationListBuilder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -60,6 +64,7 @@ class ClassGroupController extends Controller
         return [
             'id' => $group->id,
             'name' => $group->name,
+            'photo_path' => $group->photo_path,
             'type' => $group->type->value,
             'type_label' => $group->type->label(),
             'annee' => $group->annee,
@@ -122,6 +127,7 @@ class ClassGroupController extends Controller
             'group' => [
                 'id' => $group->id,
                 'name' => $group->name,
+                'photo_path' => $group->photo_path,
                 'type' => $group->type->value,
                 'type_label' => $group->type->label(),
                 'annee' => $group->annee,
@@ -144,6 +150,18 @@ class ClassGroupController extends Controller
                     ->map(fn (User $friend) => ['id' => $friend->id, 'name' => $friend->name, 'avatar_path' => $friend->avatar_path])
                     ->values()
                 : [],
+            // For the "Transférer" dialog on each message — every friend (not
+            // just ones outside this group) plus existing DM conversations,
+            // same shape ConversationController hands to Messages/Index.jsx.
+            'friends' => $user->friends()->map(fn (User $friend) => [
+                'id' => $friend->id,
+                'name' => $friend->name,
+                'avatar_path' => $friend->avatar_path,
+                'online' => $friend->isOnline(),
+            ])->values(),
+            'conversations' => app(ConversationListBuilder::class)->forUser($user)
+                ->filter(fn (array $item) => $item['kind'] === 'dm')
+                ->values(),
             'members' => $group->members->map(fn (ClassGroupMember $m) => [
                 'id' => $m->id,
                 'user_id' => $m->user_id,
@@ -156,23 +174,10 @@ class ClassGroupController extends Controller
             'messages' => ClassGroupMessage::query()
                 ->where('class_group_id', $group->id)
                 ->whereDoesntHave('hiddenFor', fn ($query) => $query->where('users.id', $user->id))
-                ->with(['sender', 'attachments'])
+                ->with(['sender', 'attachments', 'replyTo.sender', 'reactions.user:id,name'])
                 ->orderBy('created_at')
                 ->get()
-                ->map(fn (ClassGroupMessage $message) => [
-                    'id' => $message->id,
-                    'sender_id' => $message->sender_id,
-                    'sender_name' => $message->sender->name,
-                    'body' => $message->body,
-                    'created_at' => $message->created_at,
-                    'deleted_for_everyone' => $message->deleted_for_everyone_at !== null,
-                    'attachments' => $message->attachments->map(fn ($a) => [
-                        'id' => $a->id,
-                        'path' => $a->path,
-                        'original_name' => $a->original_name,
-                        'file_type' => $a->file_type,
-                    ]),
-                ]),
+                ->map(fn (ClassGroupMessage $message) => app(ClassGroupMessagePresenter::class)->present($message, $user)),
             'announcements' => ClassGroupAnnouncement::query()
                 ->where('class_group_id', $group->id)
                 ->with('teacher')
@@ -189,6 +194,33 @@ class ClassGroupController extends Controller
                     'teacher_name' => $a->teacher->name,
                 ]),
         ]);
+    }
+
+    /**
+     * Renaming the group and setting its photo is deliberately open to any
+     * non-banned member, not just the teacher/moderator — unlike archive,
+     * delete, ban and announcements, this is cosmetic and low-stakes, closer
+     * to a shared group chat's name/icon than a moderation action.
+     */
+    public function update(UpdateClassGroupRequest $request, ClassGroup $group): RedirectResponse
+    {
+        $membership = $group->memberFor($request->user());
+        abort_if($membership === null || $membership->is_banned, 403);
+
+        if ($request->filled('name')) {
+            $group->name = $request->validated('name');
+        }
+
+        if ($request->hasFile('photo')) {
+            if ($group->photo_path) {
+                Storage::disk('public')->delete($group->photo_path);
+            }
+            $group->photo_path = $request->file('photo')->store('groupes/photos', 'public');
+        }
+
+        $group->save();
+
+        return back()->with('status', 'Groupe mis à jour.');
     }
 
     public function addMembers(Request $request, ClassGroup $group): RedirectResponse

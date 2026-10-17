@@ -29,6 +29,7 @@ class StoreClassGroupMessageRequest extends FormRequest
             'body' => ['required_without:attachments', 'nullable', 'string', 'max:5000'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'max:10240', 'mimes:'.$this->attachmentMimes()],
+            'reply_to_id' => ['nullable', 'integer', 'exists:class_group_messages,id'],
         ];
     }
 }

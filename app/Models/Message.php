@@ -14,6 +14,7 @@ class Message extends Model
         'sender_id',
         'reply_to_id',
         'forwarded_from_id',
+        'forwarded_from_label',
         'story_id',
         'body',
         'edited_at',

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassGroup;
 use App\Models\ClassGroupMessage;
+use App\Models\ClassGroupMessageAttachment;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\MessageAttachment;
 use App\Models\MessageReaction;
 use App\Models\User;
 use App\ReactionType;
+use App\Services\ClassGroupMessagePresenter;
 use App\Services\ConversationListBuilder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -156,34 +158,29 @@ class ConversationController extends Controller
         }
 
         if ($activeGroup !== null) {
+            $membership = $activeGroup->memberFor($user);
+
             $data['activeConversation'] = [
                 'id' => $activeGroup->id,
                 'kind' => 'groupe',
                 'name' => $activeGroup->name,
+                'photo_path' => $activeGroup->photo_path,
                 'member_count' => $activeGroup->members()->where('is_banned', false)->count(),
+                'can_moderate' => $membership?->canModerate() ?? false,
             ];
 
             $data['groupMessages'] = ClassGroupMessage::query()
                 ->where('class_group_id', $activeGroup->id)
                 ->whereDoesntHave('hiddenFor', fn ($query) => $query->where('users.id', $user->id))
-                ->with(['sender', 'attachments'])
+                ->with(['sender', 'attachments', 'replyTo.sender', 'reactions.user:id,name'])
                 ->orderBy('created_at')
                 ->get()
-                ->map(fn (ClassGroupMessage $message) => [
-                    'id' => $message->id,
-                    'sender_id' => $message->sender_id,
-                    'sender_name' => $message->sender->name,
-                    'sender_avatar_path' => $message->sender->avatar_path,
-                    'body' => $message->body,
-                    'created_at' => $message->created_at,
-                    'deleted_for_everyone' => $message->deleted_for_everyone_at !== null,
-                    'attachments' => $message->attachments->map(fn ($a) => [
-                        'id' => $a->id,
-                        'path' => $a->path,
-                        'original_name' => $a->original_name,
-                        'file_type' => $a->file_type,
-                    ]),
-                ]);
+                ->map(fn (ClassGroupMessage $message) => app(ClassGroupMessagePresenter::class)->present($message, $user));
+
+            $data['media'] = ClassGroupMessageAttachment::query()
+                ->whereHas('message', fn ($query) => $query->where('class_group_id', $activeGroup->id))
+                ->latest()
+                ->get(['id', 'path', 'original_name', 'file_type', 'created_at']);
         }
 
         return Inertia::render('Messages/Index', $data);
@@ -216,7 +213,7 @@ class ConversationController extends Controller
                 'sender_name' => $message->replyTo->sender->name,
                 'body' => $message->replyTo->deleted_at ? null : $message->replyTo->body,
             ] : null,
-            'forwarded_from_sender' => $message->forwardedFrom?->sender->name,
+            'forwarded_from_sender' => $message->forwardedFrom?->sender->name ?? $message->forwarded_from_label,
             'story_reply' => $message->story ? [
                 'id' => $message->story->id,
                 'media_path' => $message->story->media_path,

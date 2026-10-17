@@ -57,10 +57,16 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
     }
 
     return (
-        <AppLayout title={greeting}>
+        <AppLayout>
             <Head title="Communauté" />
 
             {feedPreloaderMounted && <SitePreloader hidden={feedPreloaderHidden} />}
+
+            <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-community-accent/15 via-isstm-gold/10 to-transparent p-6 dark:from-community-accent/20 dark:via-isstm-gold/10">
+                <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-community-accent/20 blur-3xl dark:bg-community-accent/25" aria-hidden="true" />
+                <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-isstm-gold/20 blur-3xl dark:bg-isstm-gold/15" aria-hidden="true" />
+                <h1 className="relative text-2xl font-bold text-isstm-navy dark:text-white">{greeting}</h1>
+            </div>
 
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
                 <aside className="hidden lg:sticky lg:top-20 lg:block">
@@ -92,22 +98,29 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
                 </aside>
 
                 <div className="min-w-0">
-                    <div className="mb-4 flex justify-end gap-4 lg:hidden">
+                    <div className="mb-4 flex gap-4 overflow-x-auto pb-1 lg:hidden">
+                        <Link
+                            href="/communaute/enregistres"
+                            className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                        >
+                            <Bookmark className="h-4 w-4" aria-hidden="true" />
+                            {t('communaute.enregistres_court', 'Enregistrés')}
+                        </Link>
                         {canPublish && (
                             <Link
                                 href="/communaute/archives"
-                                className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                                className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
                             >
                                 <Archive className="h-4 w-4" aria-hidden="true" />
                                 {t('communaute.archives_court', 'Archivés')}
                             </Link>
                         )}
                         <Link
-                            href="/communaute/enregistres"
-                            className="flex items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                            href="/tableau-de-bord"
+                            className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
                         >
-                            <Bookmark className="h-4 w-4" aria-hidden="true" />
-                            {t('communaute.enregistres_court', 'Enregistrés')}
+                            <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+                            {t('nav.tableau_bord', 'Tableau de bord')}
                         </Link>
                     </div>
 

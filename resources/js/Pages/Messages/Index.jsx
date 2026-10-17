@@ -21,7 +21,7 @@ function itemName(item) {
 }
 
 function itemAvatarPath(item) {
-    return item.kind === 'groupe' ? null : item.user.avatar_path;
+    return item.kind === 'groupe' ? item.photo_path : item.user.avatar_path;
 }
 
 function itemOnline(item) {
@@ -53,10 +53,15 @@ export default function Index({ conversations, friends, activeConversation, mess
     const isGroup = activeConversation?.kind === 'groupe';
 
     useEffect(() => {
+        setReplyingTo(null);
+        setData('reply_to_id', null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeConversation?.id, isGroup]);
+
+    useEffect(() => {
         if (!activeConversation || isGroup) return undefined;
 
         setLiveStatus({ online: activeConversation.user.online, typing: false });
-        setReplyingTo(null);
 
         function poll() {
             fetch(`/messages/${activeConversation.id}/statut`, { headers: { Accept: 'application/json' } })
@@ -100,8 +105,8 @@ export default function Index({ conversations, friends, activeConversation, mess
     }, [messages, activeConversation, isGroup]);
 
     const mediaByTab = useMemo(() => {
-        const links = (isGroup ? [] : messages)
-            .filter((m) => !m.deleted_at && m.body)
+        const links = (isGroup ? groupMessages : messages)
+            .filter((m) => (isGroup ? !m.deleted_for_everyone : !m.deleted_at) && m.body)
             .flatMap((m) => extractLinks(m.body).map((url) => ({ id: `${m.id}-${url}`, url, created_at: m.created_at })));
 
         return {
@@ -110,7 +115,7 @@ export default function Index({ conversations, friends, activeConversation, mess
             documents: (media ?? []).filter((m) => m.file_type !== 'image' && m.file_type !== 'video'),
             liens: links,
         };
-    }, [media, messages, isGroup]);
+    }, [media, messages, groupMessages, isGroup]);
 
     const visibleMessages = useMemo(() => {
         const list = isGroup ? groupMessages : messages;
@@ -162,7 +167,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                 }`}
             >
                 <span className="relative flex-shrink-0">
-                    {item.kind === 'groupe' ? (
+                    {item.kind === 'groupe' && !itemAvatarPath(item) ? (
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-community-accent/15 text-community-accent">
                             <Users className="h-5 w-5" aria-hidden="true" />
                         </span>
@@ -238,9 +243,16 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     </Link>
                                     {isGroup ? (
                                         <div className="flex min-w-0 items-center gap-2.5">
-                                            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-community-accent/15 text-community-accent">
-                                                <Users className="h-4.5 w-4.5" aria-hidden="true" />
-                                            </span>
+                                            {activeConversation.photo_path ? (
+                                                <Avatar className="h-9 w-9 flex-shrink-0">
+                                                    <AvatarImage src={`/storage/${activeConversation.photo_path}`} alt="" />
+                                                    <AvatarFallback>{activeConversation.name?.[0]}</AvatarFallback>
+                                                </Avatar>
+                                            ) : (
+                                                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-community-accent/15 text-community-accent">
+                                                    <Users className="h-4.5 w-4.5" aria-hidden="true" />
+                                                </span>
+                                            )}
                                             <span className="min-w-0">
                                                 <span className="block truncate font-semibold text-slate-800 dark:text-slate-100">{activeConversation.name}</span>
                                                 <span className="block text-xs text-slate-400 dark:text-slate-500">
@@ -280,7 +292,13 @@ export default function Index({ conversations, friends, activeConversation, mess
                                     >
                                         <Search className="h-3.5 w-3.5" aria-hidden="true" />
                                     </button>
-                                    {isGroup ? (
+                                    <button onClick={() => setShowMedia((v) => !v)} className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
+                                        <Images className="h-3.5 w-3.5" aria-hidden="true" />
+                                        <span className="hidden sm:inline">
+                                            {showMedia ? t('messages.masquer_medias', 'Masquer les médias') : t('messages.medias_echanges', 'Médias échangés')}
+                                        </span>
+                                    </button>
+                                    {isGroup && (
                                         <Link
                                             href={`/groupes/${activeConversation.id}`}
                                             className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline"
@@ -288,13 +306,6 @@ export default function Index({ conversations, friends, activeConversation, mess
                                             <Settings2 className="h-3.5 w-3.5" aria-hidden="true" />
                                             <span className="hidden sm:inline">{t('messages.plus', 'Plus')}</span>
                                         </Link>
-                                    ) : (
-                                        <button onClick={() => setShowMedia((v) => !v)} className="flex items-center gap-1.5 text-xs font-medium text-isstm-navy dark:text-white hover:underline">
-                                            <Images className="h-3.5 w-3.5" aria-hidden="true" />
-                                            <span className="hidden sm:inline">
-                                                {showMedia ? t('messages.masquer_medias', 'Masquer les médias') : t('messages.medias_echanges', 'Médias échangés')}
-                                            </span>
-                                        </button>
                                     )}
                                 </div>
                             </div>
@@ -326,7 +337,15 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 <div className="flex-1 space-y-3 overflow-y-auto p-4 pr-6">
                                     {isGroup
                                         ? visibleMessages.map((m) => (
-                                              <GroupMessageBubble key={m.id} message={m} isOwn={m.sender_id === auth.user.id} />
+                                              <GroupMessageBubble
+                                                  key={m.id}
+                                                  message={m}
+                                                  isOwn={m.sender_id === auth.user.id}
+                                                  canModerate={activeConversation.can_moderate}
+                                                  conversations={conversations.filter((c) => c.kind !== 'groupe')}
+                                                  friends={friends}
+                                                  onReply={() => startReply(m)}
+                                              />
                                           ))
                                         : visibleMessages.map((m) => (
                                               <MessageBubble
@@ -342,10 +361,17 @@ export default function Index({ conversations, friends, activeConversation, mess
                                 </div>
                             )}
 
-                            {!isGroup && replyingTo && (
+                            {replyingTo && (
                                 <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
                                     <span className="truncate">
-                                        {t('messages.reponse_a', 'Réponse à')} <span className="font-medium">{replyingTo.sender_id === activeConversation.user.id ? activeConversation.user.name : t('messages.vous', 'vous')}</span>
+                                        {t('messages.reponse_a', 'Réponse à')}{' '}
+                                        <span className="font-medium">
+                                            {replyingTo.sender_id === auth.user.id
+                                                ? t('messages.vous', 'vous')
+                                                : isGroup
+                                                  ? replyingTo.sender_name
+                                                  : activeConversation.user.name}
+                                        </span>
                                         {replyingTo.body ? ` · ${replyingTo.body}` : ''}
                                     </span>
                                     <button type="button" onClick={cancelReply} className="flex-shrink-0" aria-label={t('nav.annuler', 'Annuler')}>
@@ -382,7 +408,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                     )}
                 </section>
 
-                {!isGroup && showMedia && (
+                {showMedia && (
                     <aside className="fixed inset-0 z-20 flex min-h-0 flex-col bg-white dark:bg-slate-800 sm:static sm:z-auto sm:w-80 sm:flex-shrink-0 sm:border-l sm:border-slate-100 sm:dark:border-slate-700">
                         <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-100 p-3 dark:border-slate-700">
                             <h3 className="text-sm font-semibold text-isstm-navy dark:text-white">{t('messages.medias_echanges', 'Médias échangés')}</h3>

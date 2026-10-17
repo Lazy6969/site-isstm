@@ -78,6 +78,22 @@ it('shows a single post permalink page with its shared post nested', function ()
     );
 });
 
+it('always surfaces the original post through any number of reshares', function () {
+    $original = Post::factory()->create(['body' => 'Publication originale']);
+    $firstSharer = User::factory()->role(Role::Enseignant)->create();
+    $firstShare = Post::factory()->for($firstSharer)->create(['shared_post_id' => $original->id, 'body' => null]);
+    $secondSharer = User::factory()->role(Role::Etudiant)->create();
+    $secondShare = Post::factory()->for($secondSharer)->create(['shared_post_id' => $firstShare->id, 'body' => null]);
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+
+    $this->actingAs($viewer)->get("/communaute/{$secondShare->id}")->assertInertia(fn ($page) => $page
+        ->component('Communaute/Show')
+        ->where('post.id', $secondShare->id)
+        ->where('post.shared_post.id', $original->id)
+        ->where('post.shared_post.body', 'Publication originale')
+    );
+});
+
 it('breaks reaction counts down by type including the newer emoji reactions', function () {
     $post = Post::factory()->create();
     $user = User::factory()->role(Role::Etudiant)->create();
