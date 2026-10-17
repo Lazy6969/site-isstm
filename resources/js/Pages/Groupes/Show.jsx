@@ -1,8 +1,9 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { ArchiveRestore, ArrowLeft, Ban, Camera, Check, Crown, MoreHorizontal, Pencil, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { ArchiveRestore, ArrowLeft, Ban, Camera, Check, Crown, Download, FileText, MoreHorizontal, Pencil, Printer, Send, ShieldCheck, Trash2, UserCheck, UserPlus, X } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import GroupMessageBubble from '../../Components/Messages/GroupMessageBubble';
+import MediaLightbox from '../../Components/Media/MediaLightbox';
 import { AttachmentButton, SelectedAttachments, useAttachmentPicker } from '../../Components/Messages/AttachmentPicker';
 import { Card } from '../../Components/ui/card';
 import { Badge } from '../../Components/ui/badge';
@@ -15,7 +16,7 @@ function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup, friends, conversations }) {
+export default function Show({ group, membership, members, messages, announcements, friendsNotInGroup, friends, conversations, media }) {
     const confirmAction = useConfirm();
     const { t } = useTranslations();
     const { auth } = usePage().props;
@@ -24,6 +25,7 @@ export default function Show({ group, membership, members, messages, announcemen
     const [selectedFriends, setSelectedFriends] = useState([]);
     const [editingName, setEditingName] = useState(false);
     const [replyingTo, setReplyingTo] = useState(null);
+    const [mediaLightboxIndex, setMediaLightboxIndex] = useState(null);
     const photoInputRef = useRef(null);
     const messageForm = useForm({ body: '', attachments: [], reply_to_id: null });
     const attachmentPicker = useAttachmentPicker(messageForm.data.attachments, (files) => messageForm.setData('attachments', files), messageForm.errors);
@@ -41,7 +43,11 @@ export default function Show({ group, membership, members, messages, announcemen
         { key: 'discussion', label: t('groupes.onglet_discussion', 'Discussion') },
         { key: 'membres', label: t('groupes.onglet_membres', 'Membres') },
         { key: 'annonces', label: t('groupes.onglet_annonces', 'Annonces') },
+        { key: 'medias', label: t('messages.medias_echanges', 'Médias échangés') },
     ];
+
+    const mediaImages = useMemo(() => media.filter((m) => m.file_type === 'image'), [media]);
+    const mediaOtherFiles = useMemo(() => media.filter((m) => m.file_type !== 'image'), [media]);
 
     function sendMessage(e) {
         e.preventDefault();
@@ -477,6 +483,48 @@ export default function Show({ group, membership, members, messages, announcemen
                         </Card>
                     ))}
                 </div>
+            )}
+
+            {tab === 'medias' && (
+                <Card className="p-5">
+                    {media.length === 0 && (
+                        <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">{t('messages.aucun_media', 'Aucun média échangé.')}</p>
+                    )}
+                    {mediaImages.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                            {mediaImages.map((m, i) => (
+                                <button key={m.id} type="button" onClick={() => setMediaLightboxIndex(i)}>
+                                    <img src={`/storage/${m.path}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {mediaOtherFiles.length > 0 && (
+                        <div className={`space-y-1.5 ${mediaImages.length > 0 ? 'mt-4' : ''}`}>
+                            {mediaOtherFiles.map((m) => (
+                                <a
+                                    key={m.id}
+                                    href={`/storage/${m.path}`}
+                                    download={m.original_name}
+                                    className="flex items-center gap-2.5 rounded-lg bg-slate-50 p-2 text-xs dark:bg-slate-900"
+                                >
+                                    <FileText className="h-6 w-6 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                    <span className="min-w-0 flex-1 truncate text-slate-600 dark:text-slate-300">{m.original_name}</span>
+                                    <Download className="h-3.5 w-3.5 flex-shrink-0 text-slate-400" aria-hidden="true" />
+                                </a>
+                            ))}
+                        </div>
+                    )}
+                </Card>
+            )}
+
+            {mediaLightboxIndex !== null && (
+                <MediaLightbox
+                    images={mediaImages}
+                    index={mediaLightboxIndex}
+                    onNavigate={setMediaLightboxIndex}
+                    onClose={() => setMediaLightboxIndex(null)}
+                />
             )}
         </AppLayout>
     );

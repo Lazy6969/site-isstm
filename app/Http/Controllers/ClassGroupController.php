@@ -10,6 +10,7 @@ use App\Models\ClassGroup;
 use App\Models\ClassGroupAnnouncement;
 use App\Models\ClassGroupMember;
 use App\Models\ClassGroupMessage;
+use App\Models\ClassGroupMessageAttachment;
 use App\Models\User;
 use App\Services\ClassGroupMessagePresenter;
 use App\Services\ConversationListBuilder;
@@ -193,6 +194,10 @@ class ClassGroupController extends Controller
                     'created_at' => $a->created_at,
                     'teacher_name' => $a->teacher->name,
                 ]),
+            'media' => ClassGroupMessageAttachment::query()
+                ->whereHas('message', fn ($query) => $query->where('class_group_id', $group->id))
+                ->latest()
+                ->get(['id', 'path', 'original_name', 'file_type', 'created_at']),
         ]);
     }
 

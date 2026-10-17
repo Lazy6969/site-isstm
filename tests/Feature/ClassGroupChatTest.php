@@ -238,3 +238,19 @@ it('forbids a non-member from renaming the group', function () {
 
     $this->actingAs($outsider)->post("/groupes/{$group->id}/modifier", ['name' => 'Nouveau nom'])->assertForbidden();
 });
+
+it('lists every attachment shared in the group chat on the group page', function () {
+    Storage::fake('public');
+    $group = ClassGroup::factory()->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    ClassGroupMember::factory()->for($group, 'classGroup')->create(['user_id' => $student->id, 'role_in_group' => GroupMemberRole::Etudiant]);
+
+    $this->actingAs($student)->post("/groupes/{$group->id}/messages", [
+        'attachments' => [UploadedFile::fake()->image('photo.jpg')],
+    ]);
+
+    $this->actingAs($student)->get("/groupes/{$group->id}")->assertInertia(fn ($page) => $page
+        ->has('media', 1)
+        ->where('media.0.file_type', 'image')
+    );
+});
