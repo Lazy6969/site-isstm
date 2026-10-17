@@ -184,6 +184,15 @@ export default function Index({ stats, viewsOverTime, reactionsByType, dossier, 
                             {dossier.current.motif_refus && (
                                 <p className="mt-2 text-xs text-red-600 dark:text-red-400">{dossier.current.motif_refus}</p>
                             )}
+                            {dossier.current.kind === 'preinscription' && (
+                                <Link
+                                    href="/mon-dossier"
+                                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-isstm-navy hover:underline dark:text-white"
+                                >
+                                    <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('dashboard.voir_informations_dossier', 'Voir les informations de mon dossier (identité, famille, formation, validation)')}
+                                </Link>
+                            )}
                         </div>
 
                         <ol className="mt-4 space-y-3 border-l border-slate-200 pl-4 dark:border-slate-700">
