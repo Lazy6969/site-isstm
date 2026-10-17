@@ -1,12 +1,14 @@
 import { router, useForm } from '@inertiajs/react';
 import { Check, Clapperboard, Forward, Pencil, Reply, SmilePlus, Trash2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ForwardMessageDialog from './ForwardMessageDialog';
 import AttachmentPreview from './AttachmentPreview';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 import { linkifyParts } from '../../lib/linkify';
 import { useConfirm } from '../../lib/useConfirm';
+
+const LONG_PRESS_MS = 500;
 
 const REACTIONS = [
     { value: 'like', emoji: '👍' },
@@ -26,15 +28,50 @@ function formatHourMinute(dateString) {
     return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, conversations, onReply }) {
+export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, conversations, friends, onReply }) {
     const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [editing, setEditing] = useState(false);
     const [forwardOpen, setForwardOpen] = useState(false);
+    const [actionsOpen, setActionsOpen] = useState(false);
     const editForm = useForm({ body: m.body ?? '' });
+    const bubbleRef = useRef(null);
+    const longPressTimer = useRef(null);
 
     const totalReactions = Object.values(m.reactions ?? {}).reduce((sum, n) => sum + n, 0);
     const topReactions = REACTIONS.filter((r) => (m.reactions?.[r.value] ?? 0) > 0);
+
+    // On touch devices there is no hover, so the action row (react/reply/
+    // forward/edit/delete) stays invisible forever without this: a long
+    // press reveals it, mirroring the timed-press pattern used for
+    // multi-select in Notifications/Index.jsx, plus a short vibration.
+    useEffect(() => {
+        if (!actionsOpen) return undefined;
+
+        function onOutside(e) {
+            if (bubbleRef.current && !bubbleRef.current.contains(e.target)) {
+                setActionsOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', onOutside);
+        document.addEventListener('touchstart', onOutside);
+        return () => {
+            document.removeEventListener('mousedown', onOutside);
+            document.removeEventListener('touchstart', onOutside);
+        };
+    }, [actionsOpen]);
+
+    function startLongPress() {
+        if (editing) return;
+        longPressTimer.current = setTimeout(() => {
+            setActionsOpen(true);
+            navigator.vibrate?.(15);
+        }, LONG_PRESS_MS);
+    }
+
+    function cancelLongPress() {
+        clearTimeout(longPressTimer.current);
+    }
 
     function hideMessage() {
         router.delete(`/messages/message/${m.id}`, { preserveScroll: true });
@@ -70,7 +107,17 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
 
     return (
         <div className={`group flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-[75%]">
+            <div
+                ref={bubbleRef}
+                className="max-w-[75%]"
+                onTouchStart={startLongPress}
+                onTouchEnd={cancelLongPress}
+                onTouchMove={cancelLongPress}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    setActionsOpen((v) => !v);
+                }}
+            >
                 {m.reply_to && (
                     <div className={`mb-1 rounded-lg border-l-2 border-community-accent bg-slate-50 px-2 py-1 text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-400 ${isOwn ? 'text-right' : ''}`}>
                         <span className="font-medium">{m.reply_to.sender_name}</span> · {m.reply_to.body ?? t('messages.message_supprime_court', 'message supprimé')}
@@ -133,7 +180,7 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                                 </p>
                             )}
 
-                            <div className="flex items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
+                            <div className={`flex items-center gap-0.5 transition ${actionsOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label={t('communaute.reactions_titre', 'Réactions')}>
                                         <SmilePlus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -151,22 +198,56 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                                         ))}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                                <button onClick={onReply} className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label={t('messages.repondre', 'Répondre')}>
+                                <button
+                                    onClick={() => {
+                                        setActionsOpen(false);
+                                        onReply();
+                                    }}
+                                    className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                    aria-label={t('messages.repondre', 'Répondre')}
+                                >
                                     <Reply className="h-3.5 w-3.5" aria-hidden="true" />
                                 </button>
-                                <button onClick={() => setForwardOpen(true)} className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label={t('messages.transferer', 'Transférer')}>
+                                <button
+                                    onClick={() => {
+                                        setActionsOpen(false);
+                                        setForwardOpen(true);
+                                    }}
+                                    className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                    aria-label={t('messages.transferer', 'Transférer')}
+                                >
                                     <Forward className="h-3.5 w-3.5" aria-hidden="true" />
                                 </button>
                                 {isOwn && m.body && (
-                                    <button onClick={() => setEditing(true)} className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label={t('communaute.modifier', 'Modifier')}>
+                                    <button
+                                        onClick={() => {
+                                            setActionsOpen(false);
+                                            setEditing(true);
+                                        }}
+                                        className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        aria-label={t('communaute.modifier', 'Modifier')}
+                                    >
                                         <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                                     </button>
                                 )}
-                                {isOwn && (
-                                    <button onClick={unsendMessage} className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-slate-700" aria-label={t('communaute.supprimer', 'Supprimer')}>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger
+                                        className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-red-600 dark:hover:bg-slate-700"
+                                        aria-label={t('communaute.supprimer', 'Supprimer')}
+                                    >
                                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                                    </button>
-                                )}
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align={isOwn ? 'end' : 'start'}>
+                                        <DropdownMenuItem onSelect={hideMessage}>
+                                            {t('messages.supprimer_pour_moi', 'Supprimer pour moi')}
+                                        </DropdownMenuItem>
+                                        {isOwn && (
+                                            <DropdownMenuItem onSelect={unsendMessage} className="text-red-600 hover:!text-red-700">
+                                                {t('messages.supprimer_pour_tous', 'Supprimer pour tout le monde')}
+                                            </DropdownMenuItem>
+                                        )}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                         </>
                     )}
@@ -188,9 +269,6 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                 <div className={`mt-0.5 flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 ${isOwn ? 'justify-end' : ''}`}>
                     <span>{formatTime(m.created_at)}</span>
                     {m.edited_at && <span>· {t('communaute.modifie', 'Modifié')}</span>}
-                    <button onClick={hideMessage} className="opacity-0 hover:underline group-hover:opacity-100">
-                        {t('messages.masquer', 'Masquer')}
-                    </button>
                 </div>
                 {isLastOwnMessage && m.read_at && (
                     <p className="mt-0.5 text-right text-[11px] text-slate-400 dark:text-slate-500">
@@ -199,7 +277,7 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                 )}
             </div>
 
-            <ForwardMessageDialog open={forwardOpen} onClose={() => setForwardOpen(false)} messageId={m.id} conversations={conversations} />
+            <ForwardMessageDialog open={forwardOpen} onClose={() => setForwardOpen(false)} messageId={m.id} conversations={conversations} friends={friends} />
         </div>
     );
 }

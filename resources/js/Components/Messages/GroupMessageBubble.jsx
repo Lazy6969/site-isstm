@@ -1,10 +1,14 @@
 import { router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import AttachmentPreview from './AttachmentPreview';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 import { linkifyParts } from '../../lib/linkify';
 import { useConfirm } from '../../lib/useConfirm';
+
+const LONG_PRESS_MS = 500;
 
 function formatTime(dateString) {
     return new Date(dateString).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -19,6 +23,39 @@ function formatTime(dateString) {
 export default function GroupMessageBubble({ message: m, isOwn }) {
     const confirmAction = useConfirm();
     const { t } = useTranslations();
+    const [actionsOpen, setActionsOpen] = useState(false);
+    const bubbleRef = useRef(null);
+    const longPressTimer = useRef(null);
+
+    // On touch devices there is no hover, so the delete control stays
+    // invisible forever without this — mirrors the same long-press pattern
+    // as MessageBubble (1-to-1 DMs).
+    useEffect(() => {
+        if (!actionsOpen) return undefined;
+
+        function onOutside(e) {
+            if (bubbleRef.current && !bubbleRef.current.contains(e.target)) {
+                setActionsOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', onOutside);
+        document.addEventListener('touchstart', onOutside);
+        return () => {
+            document.removeEventListener('mousedown', onOutside);
+            document.removeEventListener('touchstart', onOutside);
+        };
+    }, [actionsOpen]);
+
+    function startLongPress() {
+        longPressTimer.current = setTimeout(() => {
+            setActionsOpen(true);
+            navigator.vibrate?.(15);
+        }, LONG_PRESS_MS);
+    }
+
+    function cancelLongPress() {
+        clearTimeout(longPressTimer.current);
+    }
 
     function hide() {
         router.delete(`/groupes/messages/${m.id}`, { data: { scope: 'me' }, preserveScroll: true });
@@ -48,7 +85,17 @@ export default function GroupMessageBubble({ message: m, isOwn }) {
                     <AvatarFallback>{m.sender_name?.[0]}</AvatarFallback>
                 </Avatar>
             )}
-            <div className="min-w-0 max-w-[75%]">
+            <div
+                ref={bubbleRef}
+                className="min-w-0 max-w-[75%]"
+                onTouchStart={startLongPress}
+                onTouchEnd={cancelLongPress}
+                onTouchMove={cancelLongPress}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    setActionsOpen((v) => !v);
+                }}
+            >
                 {!isOwn && <p className="px-1 text-[11px] font-medium text-slate-400">{m.sender_name}</p>}
                 {m.body && (
                     <p className={`rounded-2xl px-3.5 py-2 text-sm break-all ${isOwn ? 'bg-isstm-navy text-white' : 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
@@ -68,14 +115,22 @@ export default function GroupMessageBubble({ message: m, isOwn }) {
                 ))}
                 <div className={`mt-0.5 flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 ${isOwn ? 'justify-end' : ''}`}>
                     <span>{formatTime(m.created_at)}</span>
-                    <button onClick={hide} className="opacity-0 hover:underline group-hover:opacity-100">
-                        {t('messages.masquer', 'Masquer')}
-                    </button>
-                    {isOwn && (
-                        <button onClick={unsend} className="opacity-0 hover:text-red-600 group-hover:opacity-100" aria-label={t('communaute.supprimer', 'Supprimer')}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger
+                            className={`flex items-center transition hover:text-red-600 ${actionsOpen ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            aria-label={t('communaute.supprimer', 'Supprimer')}
+                        >
                             <Trash2 className="h-3 w-3" aria-hidden="true" />
-                        </button>
-                    )}
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align={isOwn ? 'end' : 'start'}>
+                            <DropdownMenuItem onSelect={hide}>{t('messages.supprimer_pour_moi', 'Supprimer pour moi')}</DropdownMenuItem>
+                            {isOwn && (
+                                <DropdownMenuItem onSelect={unsend} className="text-red-600 hover:!text-red-700">
+                                    {t('messages.supprimer_pour_tous', 'Supprimer pour tout le monde')}
+                                </DropdownMenuItem>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
         </div>

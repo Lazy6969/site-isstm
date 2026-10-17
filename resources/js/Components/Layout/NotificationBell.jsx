@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { Pencil } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Skeleton from '../Loading/Skeleton';
 import { markNotificationRead, notificationLink } from '../../lib/notifications';
 import { useQuickEdit } from '../../lib/useQuickEdit';
@@ -43,7 +44,9 @@ export default function NotificationBell() {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [iconDialogOpen, setIconDialogOpen] = useState(false);
+    const [panelPos, setPanelPos] = useState(null);
     const ref = useRef(null);
+    const panelRef = useRef(null);
     const unreadCount = auth?.unreadNotificationsCount ?? 0;
     const iconValue = content?.header_icone_notifications;
     const Icon = getIcon(iconValue ?? 'Bell');
@@ -51,13 +54,36 @@ export default function NotificationBell() {
 
     useEffect(() => {
         function onClickOutside(e) {
-            if (ref.current && !ref.current.contains(e.target)) {
+            // panelRef is checked too since the panel itself is portaled to
+            // <body> (see render below), so it is no longer a DOM descendant
+            // of `ref` even though it's still a React child.
+            if (ref.current && !ref.current.contains(e.target) && !panelRef.current?.contains(e.target)) {
                 setOpen(false);
             }
         }
         document.addEventListener('mousedown', onClickOutside);
         return () => document.removeEventListener('mousedown', onClickOutside);
     }, []);
+
+    // The panel is portaled straight to <body> (see render below) so it
+    // always stacks above the floating account/scroll widgets — those are
+    // fixed at the document root with their own z-index, and a dropdown
+    // nested inside this sticky header would otherwise be capped by the
+    // header's own (lower) stacking context no matter its own z-index.
+    // Portaling means it is no longer positioned by CSS relative to the
+    // bell button, so its coordinates are computed here instead.
+    function updatePanelPosition() {
+        if (!ref.current) return;
+        const rect = ref.current.getBoundingClientRect();
+        setPanelPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+
+    useEffect(() => {
+        if (!open) return undefined;
+        updatePanelPosition();
+        window.addEventListener('resize', updatePanelPosition);
+        return () => window.removeEventListener('resize', updatePanelPosition);
+    }, [open]);
 
     function toggle() {
         const next = !open;
@@ -123,8 +149,12 @@ export default function NotificationBell() {
                 </>
             )}
 
-            {open && (
-                <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700">
+            {open && panelPos && createPortal(
+                <div
+                    ref={panelRef}
+                    className="fixed z-[70] w-80 max-w-[calc(100vw-2rem)] rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700"
+                    style={{ top: panelPos.top, right: panelPos.right }}
+                >
                     <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-700">
                         <span className="text-sm font-semibold text-isstm-navy dark:text-white">Notifications</span>
                         {unreadCount > 0 && (
@@ -180,7 +210,8 @@ export default function NotificationBell() {
                     >
                         Voir toutes les notifications
                     </Link>
-                </div>
+                </div>,
+                document.body,
             )}
         </div>
     );

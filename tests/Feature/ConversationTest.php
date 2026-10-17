@@ -154,6 +154,34 @@ it('forwards a message into another conversation the sender is part of', functio
     expect($forwarded->sender_id)->toBe($user->id);
 });
 
+it('forwards a message straight to a friend with no existing conversation yet', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friendA = User::factory()->role(Role::Etudiant)->create();
+    $friendB = User::factory()->role(Role::Etudiant)->create();
+    FriendRequest::factory()->accepted()->create(['sender_id' => $user->id, 'recipient_id' => $friendB->id]);
+    $sourceConversation = Conversation::create(['user_one_id' => min($user->id, $friendA->id), 'user_two_id' => max($user->id, $friendA->id)]);
+    $message = Message::create(['conversation_id' => $sourceConversation->id, 'sender_id' => $friendA->id, 'body' => 'À transférer']);
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/transferer", ['user_id' => $friendB->id])->assertRedirect();
+
+    $targetConversation = Conversation::where('user_one_id', min($user->id, $friendB->id))
+        ->where('user_two_id', max($user->id, $friendB->id))
+        ->sole();
+    $forwarded = Message::query()->where('conversation_id', $targetConversation->id)->sole();
+    expect($forwarded->body)->toBe('À transférer');
+    expect($forwarded->forwarded_from_id)->toBe($message->id);
+});
+
+it('refuses to forward a message to someone who is not a friend', function () {
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friendA = User::factory()->role(Role::Etudiant)->create();
+    $stranger = User::factory()->role(Role::Etudiant)->create();
+    $sourceConversation = Conversation::create(['user_one_id' => min($user->id, $friendA->id), 'user_two_id' => max($user->id, $friendA->id)]);
+    $message = Message::create(['conversation_id' => $sourceConversation->id, 'sender_id' => $friendA->id, 'body' => 'À transférer']);
+
+    $this->actingAs($user)->post("/messages/message/{$message->id}/transferer", ['user_id' => $stranger->id])->assertStatus(422);
+});
+
 it('replies to a specific message within the same conversation', function () {
     $user = User::factory()->role(Role::Etudiant)->create();
     $friend = User::factory()->role(Role::Etudiant)->create();

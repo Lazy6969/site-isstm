@@ -335,6 +335,7 @@ export default function Index({ conversations, friends, activeConversation, mess
                                                   isOwn={m.sender_id !== activeConversation.user.id}
                                                   isLastOwnMessage={m.sender_id !== activeConversation.user.id && m.id === lastOwnMessageId}
                                                   conversations={conversations.filter((c) => c.kind !== 'groupe')}
+                                                  friends={friends}
                                                   onReply={() => startReply(m)}
                                               />
                                           ))}
