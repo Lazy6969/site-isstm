@@ -10,6 +10,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TouchLastActivity;
+use App\Http\Middleware\TrackPageView;
 use App\RoleHome;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SetLocale::class,
             HandleInertiaRequests::class,
             ArchiveAdminActions::class,
+            TrackPageView::class,
         ]);
 
         $middleware->redirectUsersTo(fn (Request $request) => RoleHome::for($request->user()));

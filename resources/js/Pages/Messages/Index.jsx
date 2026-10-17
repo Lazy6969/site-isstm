@@ -5,7 +5,6 @@ import AppLayout from '../../Components/Layout/AppLayout';
 import MessageBubble from '../../Components/Messages/MessageBubble';
 import GroupMessageBubble from '../../Components/Messages/GroupMessageBubble';
 import EmojiPickerButton from '../../Components/Messages/EmojiPickerButton';
-import VoiceRecorder from '../../Components/Messages/VoiceRecorder';
 import MessageThreadSkeleton from '../../Components/Loading/MessageThreadSkeleton';
 import MediaLightbox from '../../Components/Media/MediaLightbox';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
@@ -92,7 +91,6 @@ export default function Index({ conversations, friends, activeConversation, mess
     }, [conversations, friends, filter]);
 
     const dmItems = useMemo(() => items.filter((item) => item.kind !== 'groupe'), [items]);
-    const groupItems = useMemo(() => items.filter((item) => item.kind === 'groupe'), [items]);
 
     const lastOwnMessageId = useMemo(() => {
         if (!activeConversation || isGroup) return null;
@@ -219,23 +217,8 @@ export default function Index({ conversations, friends, activeConversation, mess
                         </label>
                     </div>
                     <div className="flex-1 overflow-y-auto">
-                        {items.length === 0 && <p className="p-4 text-center text-sm text-slate-400 dark:text-slate-500">{t('messages.aucune_conversation', 'Aucune conversation.')}</p>}
-                        {dmItems.length > 0 && (
-                            <div>
-                                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                                    {t('messages.section_messages', 'Messages')}
-                                </p>
-                                {dmItems.map(conversationButton)}
-                            </div>
-                        )}
-                        {groupItems.length > 0 && (
-                            <div>
-                                <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                                    {t('messages.section_groupes', 'Groupes')}
-                                </p>
-                                {groupItems.map(conversationButton)}
-                            </div>
-                        )}
+                        {dmItems.length === 0 && <p className="p-4 text-center text-sm text-slate-400 dark:text-slate-500">{t('messages.aucune_conversation', 'Aucune conversation.')}</p>}
+                        {dmItems.map(conversationButton)}
                     </div>
                 </aside>
 
@@ -375,7 +358,6 @@ export default function Index({ conversations, friends, activeConversation, mess
                             <form onSubmit={sendMessage} className="flex items-center gap-2 border-t border-slate-100 dark:border-slate-700 p-3">
                                 <AttachmentButton picker={attachmentPicker} disabled={processing} />
                                 <EmojiPickerButton onSelect={(emoji) => setData('body', data.body + emoji)} />
-                                <VoiceRecorder onRecorded={(file) => setData('attachments', [...data.attachments, file])} />
                                 <input
                                     type="text"
                                     value={data.body}

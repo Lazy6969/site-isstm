@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { Search, Ban, CheckCircle2, Pencil, Key, Mail, Phone, Trash2 } from 'lucide-react';
+import { Search, Ban, CheckCircle2, Pencil, Key, Mail, Phone, Trash2, Wifi, UserCheck, UserX } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
+import StatCard from '../../../Components/Admin/StatCard';
 import { Input } from '../../../Components/ui/input';
 import { Badge } from '../../../Components/ui/badge';
 import { Select } from '../../../Components/ui/select';
@@ -58,6 +59,10 @@ export default function Index({ users, roles }) {
     const [view, setView] = useState('list');
     const [editingUser, setEditingUser] = useState(null);
     const [resettingUser, setResettingUser] = useState(null);
+
+    const onlineCount = useMemo(() => users.filter((user) => user.is_online).length, [users]);
+    const activeCount = useMemo(() => users.filter((user) => user.is_active).length, [users]);
+    const disabledCount = useMemo(() => users.filter((user) => !user.is_active).length, [users]);
 
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
@@ -168,6 +173,12 @@ export default function Index({ users, roles }) {
 
     return (
         <AdminLayout title={t('admin.users.title', 'Comptes')}>
+            <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <StatCard label={t('admin.users.stat_en_ligne', 'Connectés en ce moment')} value={onlineCount} icon={Wifi} />
+                <StatCard label={t('admin.users.stat_actifs', 'Comptes actifs')} value={activeCount} icon={UserCheck} />
+                <StatCard label={t('admin.users.stat_desactives', 'Comptes désactivés')} value={disabledCount} icon={UserX} />
+            </div>
+
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-admin-text-secondary">
                     {filtered.length} {t('admin.users.count_suffix', 'compte(s)')}

@@ -244,6 +244,19 @@ it('accepts the .weba/audio-webm recording the browser MediaRecorder actually pr
     expect(Message::query()->where('conversation_id', $conversation->id)->sole()->attachments->sole()->file_type)->toBe('audio');
 });
 
+it('accepts a .heic photo, the default format on iPhone since iOS 11', function () {
+    Storage::fake('public');
+    $user = User::factory()->role(Role::Etudiant)->create();
+    $friend = User::factory()->role(Role::Etudiant)->create();
+    $conversation = Conversation::create(['user_one_id' => min($user->id, $friend->id), 'user_two_id' => max($user->id, $friend->id)]);
+
+    $this->actingAs($user)->post("/messages/{$conversation->id}/envoyer", [
+        'attachments' => [UploadedFile::fake()->create('photo.heic', 100, 'image/heic')],
+    ])->assertSessionHasNoErrors()->assertRedirect();
+
+    expect(Message::query()->where('conversation_id', $conversation->id)->sole()->attachments->sole()->file_type)->toBe('image');
+});
+
 it('returns every attachment type — not just images — for the media panel', function () {
     Storage::fake('public');
     $user = User::factory()->role(Role::Etudiant)->create();

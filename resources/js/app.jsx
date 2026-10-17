@@ -34,6 +34,12 @@ function CommunitySkeletonBridge() {
 
 const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/notifications'];
 
+// /profil (edit + public view) and /parametres already have their own clear
+// way back (a header/back link) and the account menu this group opens leads
+// right back to those same pages — showing it there is pure redundant clutter
+// and it visually crowds forms/content on narrower screens.
+const FLOATING_ACCOUNT_HIDDEN_PATHS = ['/profil', '/parametres'];
+
 // CommunityHeader (the espace étudiant's own header) renders its own inline
 // FloatingAccountButton at the end of its nav — this global floating copy
 // would otherwise show up a second time on top of it.
@@ -48,6 +54,7 @@ const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/noti
 function FloatingAccountGroup() {
     const { props, url } = usePage();
     const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
+    const onProfileOrSettings = FLOATING_ACCOUNT_HIDDEN_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
     const [open, setOpen] = useState(false);
     const containerRef = useRef(null);
 
@@ -70,7 +77,7 @@ function FloatingAccountGroup() {
     // container as an empty pill pinned to the corner of every page. Hidden
     // inside /console too — AdminHeader already has its own profile menu and
     // inline pencil there, same reasoning as QuickEditToggle/SitePrimaryColorPicker.
-    if (inCommunitySpace || url.startsWith('/console') || ! props.auth?.user) {
+    if (inCommunitySpace || onProfileOrSettings || url.startsWith('/console') || ! props.auth?.user) {
         return null;
     }
 

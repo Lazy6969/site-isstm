@@ -1,5 +1,5 @@
 import { router, useForm } from '@inertiajs/react';
-import { Check, Forward, Pencil, Reply, SmilePlus, Trash2, X } from 'lucide-react';
+import { Check, Clapperboard, Forward, Pencil, Reply, SmilePlus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import ForwardMessageDialog from './ForwardMessageDialog';
 import AttachmentPreview from './AttachmentPreview';
@@ -74,6 +74,22 @@ export default function MessageBubble({ message: m, isOwn, isLastOwnMessage, con
                 {m.reply_to && (
                     <div className={`mb-1 rounded-lg border-l-2 border-community-accent bg-slate-50 px-2 py-1 text-xs text-slate-500 dark:bg-slate-900 dark:text-slate-400 ${isOwn ? 'text-right' : ''}`}>
                         <span className="font-medium">{m.reply_to.sender_name}</span> · {m.reply_to.body ?? t('messages.message_supprime_court', 'message supprimé')}
+                    </div>
+                )}
+
+                {m.story_reply && (
+                    <div className={`mb-1 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-1.5 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 ${isOwn ? 'flex-row-reverse text-right' : ''}`}>
+                        <img
+                            src={`/storage/${m.story_reply.media_path}`}
+                            alt=""
+                            className="h-10 w-10 flex-shrink-0 rounded-md object-cover ring-1 ring-black/5"
+                        />
+                        <span className="flex items-center gap-1">
+                            <Clapperboard className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
+                            {isOwn
+                                ? t('messages.vous_avez_repondu_story', 'Vous avez répondu à sa story')
+                                : t('messages.a_repondu_story', 'A répondu à votre story')}
+                        </span>
                     </div>
                 )}
 

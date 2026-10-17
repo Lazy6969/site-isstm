@@ -144,7 +144,7 @@ class ConversationController extends Controller
             $data['messages'] = Message::query()
                 ->where('conversation_id', $active->id)
                 ->whereDoesntHave('hiddenFor', fn ($query) => $query->where('users.id', $user->id))
-                ->with(['attachments', 'replyTo.sender', 'forwardedFrom.sender', 'reactions.user:id,name'])
+                ->with(['attachments', 'replyTo.sender', 'forwardedFrom.sender', 'story', 'reactions.user:id,name'])
                 ->orderBy('created_at')
                 ->get()
                 ->map(fn (Message $message) => $this->presentMessage($message, $user));
@@ -217,6 +217,10 @@ class ConversationController extends Controller
                 'body' => $message->replyTo->deleted_at ? null : $message->replyTo->body,
             ] : null,
             'forwarded_from_sender' => $message->forwardedFrom?->sender->name,
+            'story_reply' => $message->story ? [
+                'id' => $message->story->id,
+                'media_path' => $message->story->media_path,
+            ] : null,
             'reactions' => collect(ReactionType::cases())
                 ->mapWithKeys(fn (ReactionType $type) => [$type->value => $reactionCounts->get($type->value, 0)]),
             'my_reaction' => $myReaction?->type->value,

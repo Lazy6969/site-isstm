@@ -4,20 +4,26 @@ import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
+import { useAutoplayVideos } from '../../lib/useAutoplayVideos';
 
 function formatDate(dateString) {
     return new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-/** One full-height video tile — plays while mostly visible in the scroll container, pauses otherwise. */
-function ReelTile({ video, muted, onToggleMute }) {
+/**
+ * One full-height video tile. When autoplay is on (see /parametres), it
+ * plays while mostly visible in the scroll container and pauses otherwise;
+ * off, it stays paused and shows native controls so a visitor can still
+ * start it by hand.
+ */
+function ReelTile({ video, muted, onToggleMute, autoplay }) {
     const { t } = useTranslations();
     const videoRef = useRef(null);
     const containerRef = useRef(null);
 
     useEffect(() => {
         const el = videoRef.current;
-        if (!el) return undefined;
+        if (!el || !autoplay) return undefined;
 
         const observer = new IntersectionObserver(
             ([entry]) => {
@@ -32,11 +38,19 @@ function ReelTile({ video, muted, onToggleMute }) {
 
         observer.observe(el);
         return () => observer.disconnect();
-    }, []);
+    }, [autoplay]);
 
     return (
         <div ref={containerRef} className="relative h-full w-full flex-shrink-0 snap-start overflow-hidden rounded-2xl bg-black">
-            <video ref={videoRef} src={`/storage/${video.path}`} loop muted={muted} playsInline controls={false} className="h-full w-full object-contain" />
+            <video
+                ref={videoRef}
+                src={`/storage/${video.path}`}
+                loop
+                muted={muted}
+                playsInline
+                controls={!autoplay}
+                className="h-full w-full object-contain"
+            />
 
             <button
                 type="button"
@@ -74,6 +88,7 @@ function ReelTile({ video, muted, onToggleMute }) {
 export default function Reels({ videos }) {
     const { t } = useTranslations();
     const [muted, setMuted] = useState(true);
+    const [autoplay] = useAutoplayVideos();
 
     function loadMore() {
         if (videos.next_page_url) {
@@ -100,7 +115,7 @@ export default function Reels({ videos }) {
                     style={{ height: 'calc(100vh - 220px)' }}
                 >
                     {videos.data.map((video) => (
-                        <ReelTile key={video.id} video={video} muted={muted} onToggleMute={() => setMuted((v) => !v)} />
+                        <ReelTile key={video.id} video={video} muted={muted} onToggleMute={() => setMuted((v) => !v)} autoplay={autoplay} />
                     ))}
 
                     {videos.next_page_url && (

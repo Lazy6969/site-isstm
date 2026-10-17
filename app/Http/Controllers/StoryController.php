@@ -16,8 +16,8 @@ class StoryController extends Controller
 
         $groups = Story::query()
             ->active()
-            ->with('user:id,name,avatar_path')
-            ->withCount('viewedBy')
+            ->with(['user:id,name,avatar_path', 'reactions' => fn ($query) => $query->where('user_id', $viewer->id)])
+            ->withCount(['viewedBy', 'reactions'])
             ->oldest()
             ->get()
             ->groupBy('user_id')
@@ -38,6 +38,11 @@ class StoryController extends Controller
                     // viewed it — matches viewer-list-style privacy elsewhere
                     // (Instagram/Snapchat): nobody else sees this count.
                     'views_count' => $story->user_id === $viewer->id ? $story->viewed_by_count : null,
+                    // The reaction total is public (everyone sees "12 reactions"
+                    // on a story, like Instagram); only the author can see who
+                    // reacted with what (see StoryReactionListController).
+                    'reactions_count' => $story->reactions_count,
+                    'my_reaction' => $story->reactions->first()?->type->value,
                 ])->values(),
             ])
             ->sortByDesc(fn ($group) => $group['is_mine'] ? 1 : 0)

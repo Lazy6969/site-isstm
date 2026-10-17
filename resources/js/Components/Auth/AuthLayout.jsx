@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import LanguageSwitcher from '../Layout/LanguageSwitcher';
+import DarkModeToggle from '../Layout/DarkModeToggle';
 
 export default function AuthLayout({ title, subtitle, children, background = null }) {
     return (
@@ -7,6 +9,11 @@ export default function AuthLayout({ title, subtitle, children, background = nul
                 <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-isstm-navy/40 blur-3xl" />
                 <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-isstm-gold/20 blur-3xl" />
                 {background}
+            </div>
+
+            <div className="absolute right-4 top-4 z-10 flex items-center gap-2 sm:right-6 sm:top-6">
+                <LanguageSwitcher />
+                <DarkModeToggle className="text-white/90 hover:text-isstm-gold" />
             </div>
 
             <div className="relative w-full max-w-md">

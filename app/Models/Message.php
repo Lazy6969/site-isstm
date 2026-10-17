@@ -14,6 +14,7 @@ class Message extends Model
         'sender_id',
         'reply_to_id',
         'forwarded_from_id',
+        'story_id',
         'body',
         'edited_at',
         'deleted_at',
@@ -46,6 +47,11 @@ class Message extends Model
     public function forwardedFrom(): BelongsTo
     {
         return $this->belongsTo(Message::class, 'forwarded_from_id');
+    }
+
+    public function story(): BelongsTo
+    {
+        return $this->belongsTo(Story::class);
     }
 
     public function attachments(): HasMany

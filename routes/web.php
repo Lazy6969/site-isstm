@@ -52,6 +52,9 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StaffMessageController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\StoryReactionController;
+use App\Http\Controllers\StoryReactionListController;
+use App\Http\Controllers\StoryReplyController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -182,6 +185,9 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('stories', [StoryController::class, 'index'])->middleware('access:stories.view')->name('stories.index');
     Route::post('stories', [StoryController::class, 'store'])->middleware('access:stories.create')->name('stories.store');
     Route::post('stories/{story}/vue', [StoryController::class, 'view'])->middleware('access:stories.view')->name('stories.view');
+    Route::post('stories/{story}/reaction', [StoryReactionController::class, 'store'])->middleware('access:stories.view')->name('stories.reaction');
+    Route::get('stories/{story}/reactions', [StoryReactionListController::class, 'index'])->middleware('access:stories.view')->name('stories.reactions');
+    Route::post('stories/{story}/repondre', [StoryReplyController::class, 'store'])->middleware('access:messages.send')->name('stories.reply');
     Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
 
     Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');

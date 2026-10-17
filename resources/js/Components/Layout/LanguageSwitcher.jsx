@@ -9,7 +9,7 @@ const locales = [
     { code: 'mg', key: 'langue.mg' },
 ];
 
-export default function LanguageSwitcher({ className = '' }) {
+export default function LanguageSwitcher({ className = '', hideLabelOnMobile = false }) {
     const { t, locale } = useTranslations();
 
     function switchTo(code) {
@@ -24,7 +24,7 @@ export default function LanguageSwitcher({ className = '' }) {
                 aria-label="Changer de langue"
             >
                 <Languages className="h-3.5 w-3.5" />
-                {locale}
+                <span className={hideLabelOnMobile ? 'hidden sm:inline' : undefined}>{locale}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 {locales.map((item) => (

@@ -4,11 +4,14 @@ import {
     ArrowLeft,
     Briefcase,
     Cake,
+    Clock,
     ExternalLink,
     GraduationCap,
     Home,
     MapPin,
     Pencil,
+    UserCheck,
+    UserPlus,
 } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
@@ -26,11 +29,19 @@ function formatBirthday(dateString) {
     return new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
 }
 
-export default function Show({ profile, isOwnProfile, friendsCount, friendsPreview, postsCount, posts, photos }) {
+export default function Show({ profile, isOwnProfile, friendStatus, friendRequestId, friendsCount, friendsPreview, postsCount, posts, photos }) {
     const { t } = useTranslations();
     const { auth } = usePage().props;
     const [tab, setTab] = useState('tout');
     const isCommunityViewer = ['admin', 'enseignant', 'etudiant'].includes(auth?.user?.role);
+
+    function sendFriendRequest() {
+        router.post(`/amis/${profile.id}`, {}, { preserveScroll: true });
+    }
+
+    function cancelFriendRequest() {
+        router.delete(`/amis/demandes/${friendRequestId}`, { preserveScroll: true });
+    }
 
     const roleLabels = {
         admin: t('profil.role_admin', 'Administrateur'),
@@ -236,12 +247,52 @@ export default function Show({ profile, isOwnProfile, friendsCount, friendsPrevi
                                 {t('nav.tableau_bord', 'Tableau de bord')}
                             </Link>
                             <Link
-                                href="/profil/modifier"
+                                href="/profil"
                                 className="flex items-center gap-1.5 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700/50"
                             >
                                 <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                                 {t('profil.modifier', 'Modifier')}
                             </Link>
+                        </div>
+                    )}
+
+                    {!isOwnProfile && auth?.user && friendStatus && (
+                        <div className="mt-4 flex justify-center border-t border-slate-100 pt-4 dark:border-slate-700">
+                            {friendStatus === 'aucune' && (
+                                <button
+                                    type="button"
+                                    onClick={sendFriendRequest}
+                                    className="flex items-center gap-1.5 rounded-full bg-isstm-navy px-4 py-2 text-sm font-semibold text-white hover:bg-isstm-navy-dark"
+                                >
+                                    <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('profil.ajouter_ami', 'Ajouter comme ami')}
+                                </button>
+                            )}
+                            {friendStatus === 'envoyee' && (
+                                <button
+                                    type="button"
+                                    onClick={cancelFriendRequest}
+                                    className="flex items-center gap-1.5 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-400 dark:hover:bg-slate-700/50"
+                                >
+                                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('amis.demande_envoyee', 'Demande envoyée')}
+                                </button>
+                            )}
+                            {friendStatus === 'recue' && (
+                                <Link
+                                    href="/amis?tab=recues"
+                                    className="flex items-center gap-1.5 rounded-full bg-isstm-gold/15 px-4 py-2 text-sm font-semibold text-isstm-navy hover:bg-isstm-gold/25 dark:text-isstm-gold"
+                                >
+                                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('profil.demande_recue', 'Demande reçue · répondre')}
+                                </Link>
+                            )}
+                            {friendStatus === 'amis' && (
+                                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                    <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {t('profil.deja_amis', 'Déjà amis')}
+                                </span>
+                            )}
                         </div>
                     )}
                 </div>

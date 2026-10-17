@@ -54,7 +54,62 @@ it('shows a public profile without requiring authentication', function () {
         ->assertInertia(fn ($page) => $page
             ->component('Profile/Show')
             ->where('profile.name', $user->name)
+            ->where('friendStatus', null)
         );
+});
+
+it('tells a logged-in visitor they are not yet friends with the profile they are viewing', function () {
+    $viewer = User::factory()->create();
+    $user = User::factory()->create();
+
+    $this->actingAs($viewer)->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page
+            ->where('friendStatus', 'aucune')
+            ->where('friendRequestId', null)
+        );
+});
+
+it('tells a logged-in visitor they already sent a friend request to the profile they are viewing', function () {
+    $viewer = User::factory()->create();
+    $user = User::factory()->create();
+    $friendRequest = FriendRequest::factory()->create(['sender_id' => $viewer->id, 'recipient_id' => $user->id]);
+
+    $this->actingAs($viewer)->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page
+            ->where('friendStatus', 'envoyee')
+            ->where('friendRequestId', $friendRequest->id)
+        );
+});
+
+it('tells a logged-in visitor they received a friend request from the profile they are viewing', function () {
+    $viewer = User::factory()->create();
+    $user = User::factory()->create();
+    $friendRequest = FriendRequest::factory()->create(['sender_id' => $user->id, 'recipient_id' => $viewer->id]);
+
+    $this->actingAs($viewer)->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page
+            ->where('friendStatus', 'recue')
+            ->where('friendRequestId', $friendRequest->id)
+        );
+});
+
+it('tells a logged-in visitor they are already friends with the profile they are viewing', function () {
+    $viewer = User::factory()->create();
+    $user = User::factory()->create();
+    $friendRequest = FriendRequest::factory()->accepted()->create(['sender_id' => $viewer->id, 'recipient_id' => $user->id]);
+
+    $this->actingAs($viewer)->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page
+            ->where('friendStatus', 'amis')
+            ->where('friendRequestId', $friendRequest->id)
+        );
+});
+
+it('does not expose a friend status when viewing your own profile', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get("/profil/{$user->id}")
+        ->assertInertia(fn ($page) => $page->where('friendStatus', null));
 });
 
 it('lets a user upload a cover photo', function () {
