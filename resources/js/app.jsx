@@ -70,7 +70,7 @@ function FloatingAccountGroup() {
     // container as an empty pill pinned to the corner of every page. Hidden
     // inside /console too — AdminHeader already has its own profile menu and
     // inline pencil there, same reasoning as QuickEditToggle/SitePrimaryColorPicker.
-    if (inCommunitySpace || url.startsWith('/console') || ! props.auth?.user) {
+    if (inCommunitySpace || url.startsWith('/console') || url.startsWith('/materiel') || ! props.auth?.user) {
         return null;
     }
 

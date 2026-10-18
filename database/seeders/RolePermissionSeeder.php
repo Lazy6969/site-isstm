@@ -76,13 +76,12 @@ class RolePermissionSeeder extends Seeder
             'classes.view', 'classes.create', 'classes.edit', 'classes.delete',
         ]);
 
-        // Every staff role must at least be able to open the admin dashboard,
+        // The teacher must at least be able to open the admin dashboard (the matériel
+        // manager has its own landing page and only holds the matériel permissions),
         // otherwise its accounts get a 403 on their very first admin page.
         // Additive on purpose: it never removes what the Super Admin granted
         // from the Roles screen.
-        foreach (['enseignant', 'responsable-materiel'] as $role) {
-            SpatieRole::findByName($role)->givePermissionTo('dashboard.view');
-        }
+        SpatieRole::findByName('enseignant')->givePermissionTo('dashboard.view');
 
         // Community space + finer scolarité actions: created after the syncs
         // above, since install() is additive and the syncs would wipe it.

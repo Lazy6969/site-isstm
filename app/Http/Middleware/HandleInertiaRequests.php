@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use App\EcolageStatus;
 use App\Http\Controllers\Admin\ContactFieldVisibilityController;
 use App\Models\EcolagePayment;
+use App\Models\MaterielEmprunt;
+use App\Models\MaterielIntervention;
 use App\Models\Setting;
 use App\Models\SiteContent;
 use App\PreinscriptionStatus;
@@ -59,6 +61,8 @@ class HandleInertiaRequests extends Middleware
                 'ecolage' => $request->user()?->can('payments.view')
                     ? EcolagePayment::where('status', EcolageStatus::EnAttente)->count()
                     : 0,
+                'materiel_retards' => $request->user()?->can('materiel.view') ? MaterielEmprunt::enRetard()->count() : 0,
+                'materiel_interventions' => $request->user()?->can('materiel.view') ? MaterielIntervention::ouvertes()->count() : 0,
             ],
             'locale' => app()->getLocale(),
             'translations' => fn () => SiteContent::translationsWithOverrides(),

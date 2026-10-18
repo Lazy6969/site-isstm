@@ -52,6 +52,16 @@ class PermissionCatalog
     public const ACTIVITY_LOG = ['activity-log.delete'];
 
     /**
+     * The matériel module: inventory, moves, loans and repairs of the ISSTM's equipment.
+     *
+     * @var array<int, string>
+     */
+    public const MATERIEL = [
+        'materiel.view', 'materiel.create', 'materiel.edit', 'materiel.delete',
+        'materiel.move', 'materiel.loan', 'materiel.maintain', 'materiel.export',
+    ];
+
+    /**
      * Reviewing the versements students declare — a scolarité task.
      *
      * @var array<int, string>
@@ -82,6 +92,7 @@ class PermissionCatalog
             ...self::ECOLAGE_STUDENT,
             ...self::PAYMENTS,
             ...self::ACTIVITY_LOG,
+            ...self::MATERIEL,
             ...array_merge(...array_values(self::INHERITED)),
         ]));
     }
@@ -124,6 +135,7 @@ class PermissionCatalog
         $grants = [
             'etudiant' => [...self::COMMUNITY, ...self::STUDENT_ONLY, ...self::ECOLAGE_STUDENT],
             'scolarite' => self::PAYMENTS,
+            'responsable-materiel' => self::MATERIEL,
             'enseignant' => self::COMMUNITY,
         ];
 

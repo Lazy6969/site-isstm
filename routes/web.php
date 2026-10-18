@@ -230,6 +230,7 @@ require __DIR__.'/evenements.php';
 require __DIR__.'/campus.php';
 require __DIR__.'/documents.php';
 require __DIR__.'/ecolage.php';
+require __DIR__.'/materiel.php';
 require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/activity-log.php';

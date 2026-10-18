@@ -23,7 +23,6 @@ import {
     Palette,
     ScrollText,
     ExternalLink,
-    Inbox,
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import AdminLayout from '../../Components/Layout/AdminLayout';
@@ -324,26 +323,6 @@ export default function Dashboard({
                             ))}
                         </ul>
                     </ChartCard>
-
-                    {can('preinscriptions.manage') && (
-                        <Link
-                            href="/console/preinscriptions"
-                            className="admin-card group flex items-center gap-4 p-5 transition-all duration-200 hover:!border-admin-accent/50"
-                        >
-                            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-admin-accent to-admin-accent/75 text-admin-accent-foreground shadow-md shadow-admin-accent/30">
-                                {stats.preinscriptions_en_attente > 0 ? <UserPlus className="h-6 w-6" aria-hidden="true" /> : <Inbox className="h-6 w-6" aria-hidden="true" />}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold text-admin-text">
-                                    {stats.preinscriptions_en_attente > 0
-                                        ? t('admin.dashboard.pending_title', ':count préinscription(s) à traiter').replace(':count', stats.preinscriptions_en_attente)
-                                        : t('admin.dashboard.pending_none', 'Aucune préinscription en attente')}
-                                </p>
-                                <p className="text-xs text-admin-muted">{t('admin.dashboard.pending_hint', 'Ouvrir la liste des dossiers')}</p>
-                            </div>
-                            <ArrowRight className="h-5 w-5 text-admin-muted transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                        </Link>
-                    )}
 
                     <ChartCard
                         title={

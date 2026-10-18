@@ -14,6 +14,7 @@ use App\Models\GalleryAlbum;
 use App\Models\GalleryPhoto;
 use App\Models\HeroSlide;
 use App\Models\Inscription;
+use App\Models\Materiel;
 use App\Models\NewsArticle;
 use App\Models\Partenaire;
 use App\Models\ReactivationRequest;
@@ -56,6 +57,7 @@ class TrashController extends Controller
         'classes' => ['model' => Classe::class, 'permission' => 'classes.delete', 'label' => 'Classe', 'title' => 'nom', 'files' => []],
         'inscriptions' => ['model' => Inscription::class, 'permission' => 'inscriptions.delete', 'label' => 'Inscription', 'title' => 'numero', 'files' => []],
         'ecolage' => ['model' => EcolagePayment::class, 'permission' => 'payments.delete', 'label' => "Versement d'écolage", 'title' => 'reference', 'files' => []],
+        'materiel' => ['model' => Materiel::class, 'permission' => 'materiel.delete', 'label' => 'Matériel', 'title' => 'nom', 'files' => [['field' => 'photo_path', 'folder' => 'materiel']]],
         'journal' => ['model' => ActivityLog::class, 'permission' => 'activity-log.delete', 'label' => "Journal d'activité", 'title' => 'description', 'files' => []],
         'reactivations' => ['model' => ReactivationRequest::class, 'permission' => 'reactivations.manage', 'label' => 'Demande de réactivation', 'title' => null, 'files' => []],
     ];

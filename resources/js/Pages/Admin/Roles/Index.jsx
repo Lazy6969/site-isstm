@@ -6,6 +6,7 @@ import {
     GraduationCap,
     Globe,
     Layers,
+    Package,
     Lock,
     MessagesSquare,
     RotateCcw,
@@ -74,6 +75,12 @@ const CATEGORIES = [
         ],
     },
     {
+        key: 'materiel',
+        label: 'Matériel',
+        icon: Package,
+        modules: [['materiel', 'Gestion du matériel', 'Inventaire, déplacements, prêts, pannes et maintenance du matériel de l’ISSTM.']],
+    },
+    {
         key: 'contenu',
         label: 'Site public',
         icon: Globe,
@@ -122,6 +129,9 @@ const ACTIONS = {
     approve: 'Approuver',
     refuse: 'Refuser',
     export: 'Exporter',
+    move: 'Déplacer',
+    loan: 'Gérer les prêts',
+    maintain: 'Pannes & maintenance',
     validate: 'Valider',
     pause: 'Mettre en pause',
 };
@@ -162,6 +172,14 @@ const PERMISSION_LABELS = {
     'payments.refuse': ['Refuser un versement', 'Refuser avec un motif envoyé à l’étudiant.'],
     'payments.export': ['Exporter en Excel', 'Télécharger la liste des versements.'],
     'payments.delete': ['Supprimer un versement', 'Supprimer définitivement un versement.'],
+    'materiel.view': ['Consulter le matériel', 'Voir l’inventaire, les prêts et l’historique.'],
+    'materiel.create': ['Ajouter du matériel', 'Enregistrer un nouveau matériel dans l’inventaire.'],
+    'materiel.edit': ['Modifier / réformer', 'Modifier une fiche ou réformer un matériel.'],
+    'materiel.delete': ['Supprimer', 'Mettre un matériel à la corbeille.'],
+    'materiel.move': ['Déplacer le matériel', 'Changer la localisation d’un matériel.'],
+    'materiel.loan': ['Gérer les prêts', 'Prêter, enregistrer les retours et prolonger.'],
+    'materiel.maintain': ['Pannes & maintenance', 'Signaler une panne, planifier ou terminer une intervention.'],
+    'materiel.export': ['Exporter l’inventaire', 'Télécharger l’inventaire en Excel.'],
     'dashboard.view': ['Voir le tableau de bord', 'Accéder à la page d’accueil de la console.'],
 };
 

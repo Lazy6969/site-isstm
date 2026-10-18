@@ -55,7 +55,8 @@ class RoleHome
         }
 
         if ($user->hasRole('responsable-materiel') || $user->hasLegacyRole(Role::Materiel)) {
-            return self::staffFallback($user);
+            // Their own workspace (inventory, loans, repairs) — not the generic console.
+            return $user->can('materiel.view') ? route('materiel.dashboard') : self::staffFallback($user);
         }
 
         return route('home');

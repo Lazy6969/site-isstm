@@ -10,7 +10,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // meant to focus on the form, not on how far down the page they've scrolled).
 // /rejoindre and /inscription are plain scrollable landing/info pages, not a
 // wizard step, so the robot stays visible there.
-const HIDDEN_PREFIXES = ['/console', '/preinscription', '/reinscription', '/mon-dossier'];
+const HIDDEN_PREFIXES = ['/console', '/materiel', '/preinscription', '/reinscription', '/mon-dossier'];
 
 function isHidden(url) {
     return HIDDEN_PREFIXES.some((prefix) => url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`));
