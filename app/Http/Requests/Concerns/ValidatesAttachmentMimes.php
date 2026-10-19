@@ -13,7 +13,9 @@ trait ValidatesAttachmentMimes
      */
     protected function attachmentMimes(): string
     {
-        return 'jpg,jpeg,png,webp,gif,mp4,webm,mov,pdf,ogg,mp3,wav,m4a,weba,'.
+        // heic/heif: the default photo format on iPhone since iOS 11 — must
+        // stay in sync with resources/js/lib/attachments.js's image group.
+        return 'jpg,jpeg,png,webp,gif,heic,heif,mp4,webm,mov,pdf,ogg,mp3,wav,m4a,weba,'.
             'doc,docx,xls,xlsx,ppt,pptx,txt,csv,xml,json,'.
             'zip,rar,7z,apk,exe,msi,dmg,iso,deb,dll,bin';
     }

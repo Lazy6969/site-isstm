@@ -1,11 +1,13 @@
 <?php
 
+use App\Models\Etudiant;
 use App\Models\ReactivationRequest;
 use App\Models\User;
 use App\Notifications\AccountReactivated;
 use App\Notifications\AccountReactivationRejected;
 use App\ReactivationStatus;
 use App\Role;
+use App\StatutEtudiant;
 use Illuminate\Support\Facades\Notification;
 
 it('forbids a non-admin from listing reactivation requests', function () {
@@ -44,6 +46,20 @@ it('reactivates the account and notifies the student when an admin approves', fu
     expect($reactivation->reviewed_at)->not->toBeNull();
 
     Notification::assertSentTo($former, AccountReactivated::class);
+});
+
+it('clears the étudiant dossier\'s suspended statut when an admin approves a reactivation', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $etudiant = Etudiant::factory()->create(['statut' => StatutEtudiant::Suspendu]);
+    $etudiant->user->forceFill(['is_active' => false])->save();
+    $reactivation = ReactivationRequest::factory()->create(['user_id' => $etudiant->user_id]);
+
+    $this->actingAs($admin)
+        ->post("/console/reactivations/{$reactivation->id}/approuver")
+        ->assertRedirect();
+
+    expect($etudiant->fresh()->statut)->toBe(StatutEtudiant::Actif);
+    expect($etudiant->user->fresh()->is_active)->toBeTrue();
 });
 
 it('refuses to approve an already-decided request', function () {

@@ -221,6 +221,48 @@ it('forbids a non-admin from pausing all étudiant accounts at once', function (
         ->assertForbidden();
 });
 
+it('reactivates every suspended étudiant at once and leaves the others untouched', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $suspendu1 = Etudiant::factory()->create(['statut' => StatutEtudiant::Suspendu]);
+    $suspendu2 = Etudiant::factory()->create(['statut' => StatutEtudiant::Suspendu]);
+    foreach ([$suspendu1, $suspendu2] as $etudiant) {
+        $etudiant->user->forceFill(['is_active' => false])->save();
+    }
+    $alreadyActif = Etudiant::factory()->create(['statut' => StatutEtudiant::Actif]);
+    $diplome = Etudiant::factory()->create(['statut' => StatutEtudiant::Diplome]);
+
+    $this->actingAs($admin)
+        ->post('/console/scolarite/etudiants/reactiver-tous')
+        ->assertRedirect();
+
+    expect($suspendu1->fresh()->statut)->toBe(StatutEtudiant::Actif);
+    expect($suspendu2->fresh()->statut)->toBe(StatutEtudiant::Actif);
+    expect($suspendu1->user->fresh()->is_active)->toBeTrue();
+    expect($suspendu2->user->fresh()->is_active)->toBeTrue();
+
+    expect($alreadyActif->fresh()->statut)->toBe(StatutEtudiant::Actif);
+    expect($diplome->fresh()->statut)->toBe(StatutEtudiant::Diplome);
+    expect($diplome->user->fresh()->is_active)->toBeTrue();
+});
+
+it('tells the admin plainly when there is nothing to reactivate', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    Etudiant::factory()->create(['statut' => StatutEtudiant::Actif]);
+
+    $this->actingAs($admin)
+        ->post('/console/scolarite/etudiants/reactiver-tous')
+        ->assertSessionHas('status', 'Aucun compte étudiant suspendu à réactiver.');
+});
+
+it('forbids a non-admin from reactivating all étudiant accounts at once', function () {
+    $other = User::factory()->role(Role::Etudiant)->create();
+    Etudiant::factory()->create(['statut' => StatutEtudiant::Suspendu]);
+
+    $this->actingAs($other)
+        ->post('/console/scolarite/etudiants/reactiver-tous')
+        ->assertForbidden();
+});
+
 it('blocks a suspended étudiant from logging in and sends them to the dedicated suspended-account page', function () {
     $etudiant = Etudiant::factory()->create(['statut' => StatutEtudiant::Suspendu]);
     $etudiant->user->forceFill(['is_active' => false])->save();

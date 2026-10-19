@@ -6,11 +6,30 @@ const RADIUS = 24;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 // Pages where this widget stays hidden: the admin console (its own chrome,
-// not the public site) and the actual multi-step wizards (the candidate is
-// meant to focus on the form, not on how far down the page they've scrolled).
-// /rejoindre and /inscription are plain scrollable landing/info pages, not a
-// wizard step, so the robot stays visible there.
-const HIDDEN_PREFIXES = ['/console', '/materiel', '/preinscription', '/reinscription', '/mon-dossier'];
+// not the public site), the actual multi-step wizards (the candidate is
+// meant to focus on the form, not on how far down the page they've scrolled),
+// the login screen (a short, centered card — nothing to scroll past), and the
+// whole espace étudiant/community space (fil communautaire, messages,
+// groupes, profils, amis, notifications, paramètres) — their own scrollable panes aren't
+// the page-level scroll this widget tracks, and the button would otherwise
+// float over message composers, comment forms, etc. /rejoindre and
+// /inscription are plain scrollable landing/info pages, not a wizard step,
+// so the robot stays visible there.
+const HIDDEN_PREFIXES = [
+    '/console',
+    '/materiel',
+    '/login',
+    '/preinscription',
+    '/reinscription',
+    '/mon-dossier',
+    '/communaute',
+    '/messages',
+    '/groupes',
+    '/profil',
+    '/amis',
+    '/notifications',
+    '/parametres',
+];
 
 function isHidden(url) {
     return HIDDEN_PREFIXES.some((prefix) => url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`));

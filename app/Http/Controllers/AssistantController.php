@@ -4,18 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\SiteContent;
+use App\Support\Search\TokenSearch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 /**
  * "Assistant ISSTM" — a dependency-free FAQ chatbot (no paid AI key), ported
  * from the ai_help.php assistant on github.com/Lazy6969/ISSTM: it matches the
  * visitor's question against a set of intents covering every public section
  * of the site (inscription, filières, campus, bibliothèque, associations...)
- * and an expanded FAQ, via a common-words overlap score tolerant to
- * accents/case and small typos (short Levenshtein distance).
+ * and an expanded FAQ, via TokenSearch::overlapScore() — a common-words
+ * overlap score tolerant to accents/case and small typos (short Levenshtein
+ * distance) shared with the site's own search bar (SearchController), so
+ * both read a question the same way.
  *
  * The inscription and contact intents pull their facts live from Setting /
  * SiteContent (the same source the admin's quick-edit and maintenance
@@ -24,12 +26,6 @@ use Illuminate\Support\Str;
  */
 class AssistantController extends Controller
 {
-    private const STOPWORDS = [
-        'le', 'la', 'les', 'de', 'des', 'du', 'un', 'une', 'et', 'a', 'au', 'aux', 'pour', 'dans', 'sur', 'ou', 'est',
-        'avec', 'ce', 'ces', 'je', 'tu', 'il', 'elle', 'vous', 'comment', 'quel', 'quelle', 'quels', 'quelles', 'que',
-        'qui', 'mon', 'ma', 'mes', 'y', 'en', 'notre', 'nos', 'votre', 'vos', 'se', 'sont', 'faut', 'peut', 'faire',
-    ];
-
     /**
      * @var array<int, array{question: string, reponse: string, lien?: string, lien_label?: string}>
      */
@@ -170,7 +166,7 @@ class AssistantController extends Controller
             ]);
         }
 
-        $questionWords = $this->words($question);
+        $questionWords = TokenSearch::fuzzyWords($question);
 
         $bestScore = 0;
         $bestReply = null;
@@ -178,7 +174,7 @@ class AssistantController extends Controller
         $bestLinkLabel = null;
 
         foreach ($this->intents() as $intent) {
-            $score = $this->overlapScore($questionWords, $intent['mots']);
+            $score = TokenSearch::overlapScore($questionWords, $intent['mots']);
             if ($score > $bestScore) {
                 $bestScore = $score;
                 $bestReply = $intent['reponse'];
@@ -188,7 +184,7 @@ class AssistantController extends Controller
         }
 
         foreach (self::FAQ as $faq) {
-            $score = $this->overlapScore($questionWords, $this->words($faq['question']));
+            $score = TokenSearch::overlapScore($questionWords, TokenSearch::fuzzyWords($faq['question']));
             if ($score > $bestScore) {
                 $bestScore = $score;
                 $bestReply = $faq['reponse'];
@@ -405,62 +401,5 @@ class AssistantController extends Controller
             'telephone' => $values->get('contact_telephone', ''),
             'adresse' => $values->get('contact_adresse', ''),
         ]);
-    }
-
-    private function normalize(string $text): string
-    {
-        return Str::lower(Str::ascii(trim($text)));
-    }
-
-    /**
-     * Splitting on apostrophes (so "s'inscrire"/"l'ISSTM" separate their
-     * article) leaves single-letter elision remnants ("s", "l", "j"...) that
-     * carry no meaning but still count as "exact matches" against each
-     * other across unrelated questions — dropped here rather than filtered
-     * only by the stopword list, which can't enumerate every one of them.
-     *
-     * @return array<int, string>
-     */
-    private function words(string $text): array
-    {
-        $normalized = $this->normalize($text);
-        $words = preg_split('/[\s,;?!\'"]+/', $normalized) ?: [];
-
-        return array_values(array_filter(
-            $words,
-            fn (string $w) => mb_strlen($w) >= 2 && ! in_array($w, self::STOPWORDS, true)
-        ));
-    }
-
-    /**
-     * For each question word, keeps the BEST match found anywhere in
-     * $targetWords (exact beats fuzzy) rather than stopping at the first
-     * target word that matches at all — otherwise a target list ordered
-     * ['enseignant', 'enseignants', ...] could let "enseignants" settle for
-     * a +1 fuzzy hit against "enseignant" (position 0) and never reach its
-     * own +2 exact match sitting right next to it (position 1).
-     *
-     * @param  array<int, string>  $questionWords
-     * @param  array<int, string>  $targetWords
-     */
-    private function overlapScore(array $questionWords, array $targetWords): int
-    {
-        $score = 0;
-        foreach ($questionWords as $qw) {
-            $best = 0;
-            foreach ($targetWords as $tw) {
-                if ($qw === $tw) {
-                    $best = 2;
-
-                    break;
-                }
-                if ($best < 1 && mb_strlen($qw) >= 4 && mb_strlen($tw) >= 4 && levenshtein($qw, $tw) <= 1) {
-                    $best = 1;
-                }
-            }
-            $score += $best;
-        }
-
-        return $score;
     }
 }

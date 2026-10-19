@@ -56,6 +56,7 @@ class ConversationListBuilder
                     'id' => $group->id,
                     'kind' => 'groupe',
                     'name' => $group->name,
+                    'photo_path' => $group->photo_path,
                     'last_message' => $lastMessage?->deleted_for_everyone_at ? null : $lastMessage?->body,
                     'last_message_at' => $lastMessage?->created_at,
                     'unread_count' => $group->unreadCountFor($user, $membership->last_read_at),

@@ -12,6 +12,7 @@ class ClassGroupMessage extends Model
     protected $fillable = [
         'class_group_id',
         'sender_id',
+        'reply_to_id',
         'body',
     ];
 
@@ -40,5 +41,15 @@ class ClassGroupMessage extends Model
     public function hiddenFor(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'class_group_message_hides', 'message_id');
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(ClassGroupMessage::class, 'reply_to_id');
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(ClassGroupMessageReaction::class);
     }
 }

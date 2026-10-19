@@ -10,6 +10,7 @@ use App\Models\Filiere;
 use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
+use App\Models\PageView;
 use App\Models\Partenaire;
 use App\Models\ReactivationRequest;
 use App\Models\Teacher;
@@ -42,6 +43,7 @@ class DashboardController extends Controller
                 'classes' => Classe::count(),
                 'preinscriptions_en_attente' => Candidat::where('status', PreinscriptionStatus::Soumis)->count(),
                 'inscriptions_validees' => Inscription::where('statut', StatutInscription::Validee)->count(),
+                'vues_site' => PageView::count(),
             ],
             'contentStats' => [
                 'filieres' => Filiere::count(),
@@ -58,6 +60,7 @@ class DashboardController extends Controller
                 'classes' => $this->monthlyTrend(Classe::query(), 'created_at'),
                 'preinscriptions_en_attente' => $this->monthlyTrend(Candidat::query(), 'created_at'),
                 'inscriptions_validees' => $this->monthlyTrend(Inscription::where('statut', StatutInscription::Validee), 'created_at'),
+                'vues_site' => $this->monthlyTrend(PageView::query(), 'created_at'),
                 'filieres' => $this->monthlyTrend(Filiere::query(), 'created_at'),
                 'enseignants' => $this->monthlyTrend(Teacher::query(), 'created_at'),
                 'actualites_publiees' => $this->monthlyTrend(NewsArticle::where('status', NewsStatus::Publie), 'published_at'),

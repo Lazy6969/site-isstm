@@ -13,7 +13,6 @@ use App\Models\NewsArticle;
 use App\Models\Teacher;
 use App\NewsStatus;
 use App\Support\Search\TokenSearch;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,72 +25,100 @@ class SearchController extends Controller
      * their own `/communaute/recherche` endpoint (CommunitySearchController),
      * so the public site search and the community search never mix, no
      * matter who's asking.
+     *
+     * Ranked with TokenSearch::rankByOverlap() — the same word-overlap,
+     * accent/typo-tolerant algorithm the Assistant ISSTM chatbot uses to read
+     * a question — rather than SQL `LIKE` patterns: every catalog searched
+     * here is small enough (at most a few dozen rows) to fetch whole and
+     * score in memory, which is what actually lets a misspelled or
+     * unaccented word still find its match.
      */
     public function index(Request $request): Response
     {
         $term = trim((string) $request->string('q'));
-        $tokens = TokenSearch::tokenize($term);
+        $queryWords = TokenSearch::fuzzyWords($term);
         $results = [];
 
-        if ($tokens !== []) {
-            $results['filieres'] = Filiere::query()
-                ->select(['slug', 'nom_fr as title', 'mention as subtitle'])
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['nom_fr', 'code', 'mention', 'description_fr', 'debouches_fr'], 'nom_fr'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'nom_fr', ['code', 'mention', 'description_fr', 'debouches_fr']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => "/filieres/{$item->slug}"]);
+        if ($queryWords !== []) {
+            $results['filieres'] = TokenSearch::rankByOverlap(
+                Filiere::query()->select(['slug', 'nom_fr', 'mention', 'code', 'description_fr', 'debouches_fr'])->latest()->get(),
+                $queryWords,
+                fn (Filiere $f) => $f->nom_fr,
+                fn (Filiere $f) => implode(' ', [$f->code, $f->mention, $f->description_fr, $f->debouches_fr]),
+            )->map(fn (Filiere $f) => [
+                'title' => $f->nom_fr,
+                'subtitle' => $f->mention,
+                'url' => "/filieres/{$f->slug}",
+            ])->values();
 
-            $results['enseignants'] = Teacher::query()
-                ->select(['name as title', 'specialty_fr as subtitle'])
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['name', 'specialty_fr', 'description_fr', 'departement'], 'name'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'name', ['specialty_fr', 'description_fr', 'departement']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => '/enseignants']);
+            $results['enseignants'] = TokenSearch::rankByOverlap(
+                Teacher::query()->select(['name', 'specialty_fr', 'description_fr', 'departement'])->latest()->get(),
+                $queryWords,
+                fn (Teacher $t) => $t->name,
+                fn (Teacher $t) => implode(' ', [$t->specialty_fr, $t->description_fr, $t->departement?->value]),
+            )->map(fn (Teacher $t) => [
+                'title' => $t->name,
+                'subtitle' => $t->specialty_fr,
+                'url' => '/enseignants',
+            ])->values();
 
-            $results['actualites'] = NewsArticle::query()
-                ->select(['slug', 'title', 'excerpt as subtitle'])
-                ->where('status', NewsStatus::Publie)
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'excerpt', 'content', 'author'], 'title'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['excerpt', 'content', 'author']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => "/actualites/{$item->slug}"]);
+            $results['actualites'] = TokenSearch::rankByOverlap(
+                NewsArticle::query()->select(['slug', 'title', 'excerpt', 'content', 'author'])
+                    ->where('status', NewsStatus::Publie)->latest()->get(),
+                $queryWords,
+                fn (NewsArticle $n) => $n->title,
+                fn (NewsArticle $n) => implode(' ', [$n->excerpt, $n->content, $n->author]),
+            )->map(fn (NewsArticle $n) => [
+                'title' => $n->title,
+                'subtitle' => $n->excerpt,
+                'url' => "/actualites/{$n->slug}",
+            ])->values();
 
-            $results['campus'] = CampusBloc::query()
-                ->select(['bloc_key', 'nom as title', 'signification as subtitle'])
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['nom', 'signification', 'slogan', 'fondateurs', 'objectifs', 'activites'], 'nom'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'nom', ['signification', 'slogan', 'fondateurs', 'objectifs', 'activites']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => "/campus/{$item->bloc_key}"]);
+            $results['campus'] = TokenSearch::rankByOverlap(
+                CampusBloc::query()->select(['bloc_key', 'nom', 'signification', 'slogan', 'fondateurs', 'objectifs', 'activites'])->latest()->get(),
+                $queryWords,
+                fn (CampusBloc $c) => $c->nom,
+                fn (CampusBloc $c) => implode(' ', [$c->signification, $c->slogan, $c->fondateurs, $c->objectifs, $c->activites]),
+            )->map(fn (CampusBloc $c) => [
+                'title' => $c->nom,
+                'subtitle' => $c->signification,
+                'url' => "/campus/{$c->bloc_key}",
+            ])->values();
 
-            $results['galerie'] = GalleryAlbum::query()
-                ->select(['slug', 'title', 'location as subtitle'])
-                ->where('status', GalleryStatus::Publie)
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'description', 'location', 'author'], 'title'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['description', 'location', 'author']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => "/galerie/{$item->slug}"]);
+            $results['galerie'] = TokenSearch::rankByOverlap(
+                GalleryAlbum::query()->select(['slug', 'title', 'description', 'location', 'author'])
+                    ->where('status', GalleryStatus::Publie)->latest()->get(),
+                $queryWords,
+                fn (GalleryAlbum $g) => $g->title,
+                fn (GalleryAlbum $g) => implode(' ', [$g->description, $g->location, $g->author]),
+            )->map(fn (GalleryAlbum $g) => [
+                'title' => $g->title,
+                'subtitle' => $g->location,
+                'url' => "/galerie/{$g->slug}",
+            ])->values();
 
-            $results['evenements'] = Evenement::query()
-                ->select(['titre as title', 'lieu as subtitle'])
-                ->where('status', EvenementStatus::Publie)
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['titre', 'description', 'lieu', 'categorie'], 'titre'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'titre', ['description', 'lieu', 'categorie']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => [...$item->toArray(), 'url' => '/evenements']);
+            $results['evenements'] = TokenSearch::rankByOverlap(
+                Evenement::query()->select(['titre', 'description', 'lieu', 'categorie'])
+                    ->where('status', EvenementStatus::Publie)->latest()->get(),
+                $queryWords,
+                fn (Evenement $e) => $e->titre,
+                fn (Evenement $e) => implode(' ', [$e->description, $e->lieu, $e->categorie]),
+            )->map(fn (Evenement $e) => [
+                'title' => $e->titre,
+                'subtitle' => $e->lieu,
+                'url' => '/evenements',
+            ])->values();
 
-            $results['documents'] = Document::query()
-                ->select(['title', 'category as subtitle', 'file_path'])
-                ->tap(fn (Builder $q) => TokenSearch::matchAll($q, $tokens, ['title', 'category'], 'title'))
-                ->tap(fn (Builder $q) => TokenSearch::orderByRelevance($q, $tokens, 'title', ['category']))
-                ->limit(5)
-                ->get()
-                ->map(fn ($item) => ['title' => $item->title, 'subtitle' => $item->subtitle, 'url' => "/{$item->file_path}"]);
+            $results['documents'] = TokenSearch::rankByOverlap(
+                Document::query()->select(['title', 'category', 'file_path'])->latest()->get(),
+                $queryWords,
+                fn (Document $d) => $d->title,
+                fn (Document $d) => (string) $d->category,
+            )->map(fn (Document $d) => [
+                'title' => $d->title,
+                'subtitle' => $d->category,
+                'url' => "/{$d->file_path}",
+            ])->values();
         }
 
         return Inertia::render('Search/Index', [

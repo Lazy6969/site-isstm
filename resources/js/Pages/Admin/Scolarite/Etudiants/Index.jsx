@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
-import { Ban, Check, CheckCircle2, Download, Eye, PauseOctagon, Plus, Search, Trash2, UserPlus, X } from 'lucide-react';
+import { Ban, Check, CheckCircle2, Download, Eye, PauseOctagon, Play, Plus, Search, Trash2, UserPlus, X } from 'lucide-react';
 import AdminLayout from '../../../../Components/Layout/AdminLayout';
 import ViewToggle from '../../../../Components/Admin/ViewToggle';
 import { Button } from '../../../../Components/ui/button';
@@ -217,10 +217,16 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
     }
 
     const activeCount = etudiants.filter((etudiant) => etudiant.statut === 'actif').length;
+    const suspendedCount = etudiants.filter((etudiant) => etudiant.statut === 'suspendu').length;
 
     async function pauseAll() {
         if (!(await confirmAction({ message: `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`, tone: 'warning', title: 'Mettre tous les comptes en pause ?', confirmLabel: 'Tout mettre en pause' }))) return;
         router.post(`${BASE_URL}/pause-tous`, {}, { preserveScroll: true });
+    }
+
+    async function reactivateAll() {
+        if (!(await confirmAction({ message: `Réactiver les ${suspendedCount} compte(s) étudiant(s) suspendu(s) ? Ils pourront de nouveau se connecter immédiatement.`, tone: 'info', title: 'Réactiver tous les comptes suspendus ?', confirmLabel: 'Tout réactiver' }))) return;
+        router.post(`${BASE_URL}/reactiver-tous`, {}, { preserveScroll: true });
     }
 
     async function destroy(etudiant) {
@@ -295,6 +301,12 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                         <Button onClick={pauseAll} className="h-10 bg-transparent text-amber-600 hover:bg-amber-500/10">
                             <PauseOctagon className="h-4 w-4" aria-hidden="true" />
                             {t('admin.etudiants.pause_tous', 'Mettre tous en pause')}
+                        </Button>
+                    )}
+                    {suspendedCount > 0 && (
+                        <Button onClick={reactivateAll} className="h-10 bg-transparent text-emerald-600 hover:bg-emerald-500/10">
+                            <Play className="h-4 w-4" aria-hidden="true" />
+                            {t('admin.etudiants.reactiver_tous', 'Tout réactiver')}
                         </Button>
                     )}
                     <a

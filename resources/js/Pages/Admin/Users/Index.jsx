@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { Ban, CheckCircle2, Mail, Pencil, Search, ShieldCheck, UserCheck, UserX, Users } from 'lucide-react';
+import { Ban, CheckCircle2, Key, Mail, Pencil, Phone, Search, Trash2, UserCheck, UserX, Users, Wifi } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import ViewToggle from '../../../Components/Admin/ViewToggle';
 import UserProfilePanel from '../../../Components/Admin/UserProfilePanel';
+import ResetPasswordDialog from '../../../Components/Admin/ResetPasswordDialog';
 import { Select } from '../../../Components/ui/select';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
 import { useConfirm } from '../../../lib/useConfirm';
-
-const ONLINE_WINDOW_MS = 5 * 60 * 1000;
 
 function roleLabels(t) {
     return {
@@ -112,17 +111,24 @@ function StatusPill({ active, t }) {
     );
 }
 
-function ActionIcons({ user, isSelf, onEdit, onToggle, t }) {
+const iconButton = 'flex h-8 w-8 items-center justify-center rounded-full text-admin-text-secondary transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100';
+
+function ActionIcons({ user, isSelf, onEdit, onToggle, onReset, onDelete, t }) {
     return (
         <div className="flex items-center gap-0.5">
-            <button
-                type="button"
-                onClick={onEdit}
-                title={t('admin.users.edit_profile', 'Modifier le profil de')}
-                aria-label={`${t('admin.users.edit_profile', 'Modifier le profil de')} ${user.name}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-admin-text-secondary transition hover:scale-110 hover:bg-admin-accent/10 hover:text-admin-accent"
-            >
+            <a href={`mailto:${user.email}`} title={t('admin.users.send_email', 'Envoyer un e-mail à')} aria-label={`${t('admin.users.send_email', 'Envoyer un e-mail à')} ${user.name}`} className={cn(iconButton, 'hover:bg-sky-500/10 hover:text-sky-500')}>
+                <Mail className="h-4 w-4" aria-hidden="true" />
+            </a>
+            {user.phone && (
+                <a href={`tel:${user.phone.replace(/[^0-9+]/g, '')}`} title={t('admin.users.call', 'Appeler')} aria-label={`${t('admin.users.call', 'Appeler')} ${user.name}`} className={cn(iconButton, 'hover:bg-emerald-500/10 hover:text-emerald-500')}>
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                </a>
+            )}
+            <button type="button" onClick={onEdit} title={t('admin.users.edit_profile', 'Modifier le profil de')} aria-label={`${t('admin.users.edit_profile', 'Modifier le profil de')} ${user.name}`} className={cn(iconButton, 'hover:bg-admin-accent/10 hover:text-admin-accent')}>
                 <Pencil className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button type="button" onClick={onReset} title={t('admin.users.reset_password', 'Réinitialiser le mot de passe de')} aria-label={`${t('admin.users.reset_password', 'Réinitialiser le mot de passe de')} ${user.name}`} className={cn(iconButton, 'hover:bg-violet-500/10 hover:text-violet-500')}>
+                <Key className="h-4 w-4" aria-hidden="true" />
             </button>
             <button
                 type="button"
@@ -130,12 +136,12 @@ function ActionIcons({ user, isSelf, onEdit, onToggle, t }) {
                 disabled={isSelf}
                 title={user.is_active ? t('admin.users.deactivate', 'Désactiver') : t('admin.users.reactivate', 'Réactiver')}
                 aria-label={user.is_active ? `${t('admin.users.deactivate', 'Désactiver')} ${user.name}` : `${t('admin.users.reactivate', 'Réactiver')} ${user.name}`}
-                className={cn(
-                    'flex h-8 w-8 items-center justify-center rounded-full text-admin-text-secondary transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100',
-                    user.is_active ? 'hover:bg-rose-500/10 hover:text-rose-500' : 'hover:bg-emerald-500/10 hover:text-emerald-500',
-                )}
+                className={cn(iconButton, user.is_active ? 'hover:bg-amber-500/10 hover:text-amber-500' : 'hover:bg-emerald-500/10 hover:text-emerald-500')}
             >
                 {user.is_active ? <Ban className="h-4 w-4" aria-hidden="true" /> : <CheckCircle2 className="h-4 w-4" aria-hidden="true" />}
+            </button>
+            <button type="button" onClick={onDelete} disabled={isSelf} title={t('admin.users.delete', 'Supprimer le compte de')} aria-label={`${t('admin.users.delete', 'Supprimer le compte de')} ${user.name}`} className={cn(iconButton, 'hover:bg-rose-500/10 hover:text-rose-500')}>
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
             </button>
         </div>
     );
@@ -152,16 +158,14 @@ export default function Index({ users, roles }) {
     const [statusFilter, setStatusFilter] = useState('');
     const [view, setView] = useState('list');
     const [editingId, setEditingId] = useState(null);
-
-    const now = Date.now();
-    const isOnline = (user) => user.last_activity && now - new Date(user.last_activity).getTime() < ONLINE_WINDOW_MS;
+    const [resettingUser, setResettingUser] = useState(null);
 
     const stats = useMemo(
         () => ({
             total: users.length,
             active: users.filter((user) => user.is_active).length,
             inactive: users.filter((user) => !user.is_active).length,
-            staff: users.filter((user) => user.role && user.role !== 'etudiant').length,
+            online: users.filter((user) => user.is_online).length,
         }),
         [users],
     );
@@ -175,7 +179,7 @@ export default function Index({ users, roles }) {
             if (statusFilter === 'inactive' && user.is_active) return false;
             if (!term) return true;
 
-            return user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term);
+            return user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term) || (user.phone ?? '').toLowerCase().includes(term);
         });
     }, [users, search, roleFilter, statusFilter]);
 
@@ -194,6 +198,25 @@ export default function Index({ users, roles }) {
                     .replace(':verb', verb)
                     .replace(':name', user.name), tone: 'warning', title: 'Confirmer cette action ?', confirmLabel: 'Confirmer' }))) return;
         router.post(`/console/users/${user.id}/toggle-active`, {}, { preserveScroll: true });
+    }
+
+    async function destroyUser(user) {
+        if (
+            !(await confirmAction({
+                message: t(
+                    'admin.users.confirm_delete',
+                    'Supprimer définitivement le compte de « :name » ? Toutes ses données (dossier, messages, publications, demandes...) seront effacées.',
+                ).replace(':name', user.name),
+                details: user.email,
+                tone: 'danger',
+                title: t('admin.users.confirm_delete_title', 'Action irréversible'),
+                confirmLabel: t('admin.common.delete', 'Supprimer'),
+            }))
+        ) {
+            return;
+        }
+        if (editingId === user.id) setEditingId(null);
+        router.delete(`/console/users/${user.id}`, { preserveScroll: true });
     }
 
     const roleSelect = (user, isSelf, className) => (
@@ -216,12 +239,12 @@ export default function Index({ users, roles }) {
     ];
 
     return (
-        <AdminLayout title={t('admin.users.title', 'Utilisateurs')}>
+        <AdminLayout title={t('admin.users.title', 'Comptes')}>
             <div className="-mt-2 mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
                 <StatCard icon={Users} label={t('admin.users.stat_total', 'Utilisateurs')} value={stats.total} tone="bg-admin-accent/15 text-admin-accent" glow="from-admin-accent/25" />
                 <StatCard icon={UserCheck} label={t('admin.users.stat_actifs', 'Comptes actifs')} value={stats.active} tone="bg-emerald-500/15 text-emerald-500" glow="from-emerald-500/25" />
                 <StatCard icon={UserX} label={t('admin.users.stat_inactifs', 'Désactivés')} value={stats.inactive} tone="bg-rose-500/15 text-rose-500" glow="from-rose-500/25" />
-                <StatCard icon={ShieldCheck} label={t('admin.users.stat_equipe', 'Équipe (hors étudiants)')} value={stats.staff} tone="bg-sky-500/15 text-sky-500" glow="from-sky-500/25" />
+                <StatCard icon={Wifi} label={t('admin.users.stat_en_ligne', 'Connectés en ce moment')} value={stats.online} tone="bg-sky-500/15 text-sky-500" glow="from-sky-500/25" />
             </div>
 
             <div className="mb-4 flex flex-col gap-3">
@@ -231,7 +254,7 @@ export default function Index({ users, roles }) {
                         <input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder={t('admin.users.search_placeholder', 'Rechercher par nom ou email...')}
+                            placeholder={t('admin.users.search_placeholder', 'Rechercher par nom, email ou téléphone...')}
                             className="h-10 w-full rounded-full border border-admin-border bg-admin-card pl-10 pr-4 text-sm text-admin-text outline-none transition focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
                         />
                     </div>
@@ -298,7 +321,7 @@ export default function Index({ users, roles }) {
                                     >
                                         <span className={cn('absolute inset-x-0 top-0 h-1', user.is_active ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-rose-500 to-orange-400')} aria-hidden="true" />
                                         <div className="flex items-start gap-3">
-                                            <UserAvatar user={user} size="h-12 w-12" online={isOnline(user)} />
+                                            <UserAvatar user={user} size="h-12 w-12" online={Boolean(user.is_online)} />
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-sm font-bold text-admin-text">
                                                     {user.name} {isSelf && <span className="text-xs font-medium text-admin-muted">{t('admin.users.you', '(vous)')}</span>}
@@ -321,7 +344,7 @@ export default function Index({ users, roles }) {
                                         </p>
                                         <div className="mt-auto flex items-center justify-between border-t border-admin-border pt-2.5">
                                             <RolePill role={user.role} label={user.role ? (ROLE_LABELS[user.role] ?? user.role) : t('admin.users.no_role', 'Aucun rôle')} />
-                                            <ActionIcons user={user} isSelf={isSelf} onEdit={() => setEditingId(user.id)} onToggle={() => toggleActive(user)} t={t} />
+                                            <ActionIcons user={user} isSelf={isSelf} onEdit={() => setEditingId(user.id)} onToggle={() => toggleActive(user)} onReset={() => setResettingUser(user)} onDelete={() => destroyUser(user)} t={t} />
                                         </div>
                                     </li>
                                 );
@@ -342,7 +365,7 @@ export default function Index({ users, roles }) {
                                     >
                                         <span className={cn('absolute inset-y-0 left-0 w-1', user.is_active ? 'bg-emerald-500' : 'bg-rose-500')} aria-hidden="true" />
                                         <div className="flex min-w-0 flex-1 items-center gap-3">
-                                            <UserAvatar user={user} online={isOnline(user)} />
+                                            <UserAvatar user={user} online={Boolean(user.is_online)} />
                                             <div className="min-w-0">
                                                 <p className="truncate text-sm font-bold text-admin-text">
                                                     {user.name} {isSelf && <span className="text-xs font-medium text-admin-muted">{t('admin.users.you', '(vous)')}</span>}
@@ -360,7 +383,7 @@ export default function Index({ users, roles }) {
                                                 {t('admin.users.created_at', 'Créé le')} {formatDate(user.created_at)}
                                             </p>
                                         </div>
-                                        <ActionIcons user={user} isSelf={isSelf} onEdit={() => setEditingId(user.id)} onToggle={() => toggleActive(user)} t={t} />
+                                        <ActionIcons user={user} isSelf={isSelf} onEdit={() => setEditingId(user.id)} onToggle={() => toggleActive(user)} onReset={() => setResettingUser(user)} onDelete={() => destroyUser(user)} t={t} />
                                     </li>
                                 );
                             })}
@@ -380,6 +403,7 @@ export default function Index({ users, roles }) {
                     </div>
                 )}
             </div>
+            <ResetPasswordDialog open={resettingUser !== null} onClose={() => setResettingUser(null)} user={resettingUser} />
         </AdminLayout>
     );
 }

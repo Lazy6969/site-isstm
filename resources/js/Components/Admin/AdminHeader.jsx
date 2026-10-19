@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, Search, ChevronDown, LogOut, User, Pencil, Globe } from 'lucide-react';
+import { Menu, Search, ChevronDown, LogOut, User, Pencil, Globe, ArrowLeft } from 'lucide-react';
 import AdminProfilePanel from './AdminProfilePanel';
 import DarkModeToggle from '../Layout/DarkModeToggle';
 import LanguageSwitcher from '../Layout/LanguageSwitcher';
@@ -42,7 +42,9 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
     const roleLabel = roleValue ? t(`admin.role.${roleValue}`, roleValue.replace(/[_-]+/g, ' ').replace(/^./, (c) => c.toUpperCase())) : null;
     const [profileOpen, setProfileOpen] = useState(false);
     const [query, setQuery] = useState('');
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const searchRef = useRef(null);
+    const mobileSearchRef = useRef(null);
 
     const permissions = auth?.permissions ?? [];
     const quickLinks = buildQuickLinks(t).filter((link) => permissions.includes(link.permission));
@@ -58,10 +60,20 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
                 searchRef.current.blur();
                 setQuery('');
             }
+            if (e.key === 'Escape' && document.activeElement === mobileSearchRef.current) {
+                setMobileSearchOpen(false);
+                setQuery('');
+            }
         }
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
     }, []);
+
+    useEffect(() => {
+        if (mobileSearchOpen) {
+            mobileSearchRef.current?.focus();
+        }
+    }, [mobileSearchOpen]);
 
     function logout(e) {
         e.preventDefault();
@@ -90,7 +102,7 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
                 </button>
             )}
 
-            <div className="relative w-full max-w-xl">
+            <div className="relative hidden w-full max-w-xl sm:block">
                 <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
                 <input
                     ref={searchRef}
@@ -120,14 +132,68 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
                 )}
             </div>
 
-            <div className="ml-auto flex items-center gap-1.5">
+            {mobileSearchOpen && (
+                <div className="absolute inset-0 z-40 flex items-center gap-2 bg-admin-chrome px-4 sm:hidden">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setMobileSearchOpen(false);
+                            setQuery('');
+                        }}
+                        aria-label={t('admin.header.close_search', 'Fermer la recherche')}
+                        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text"
+                    >
+                        <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+                    </button>
+                    <div className="relative min-w-0 flex-1">
+                        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-admin-muted" aria-hidden="true" />
+                        <input
+                            ref={mobileSearchRef}
+                            type="search"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder={t('admin.header.search_placeholder', 'Rechercher une page, un étudiant, un document...')}
+                            className="h-10 w-full rounded-xl border border-admin-border bg-admin-card/70 pl-10 pr-3 text-sm text-admin-text placeholder:text-admin-muted outline-none transition-all duration-200 focus:border-admin-accent/50 focus:ring-4 focus:ring-admin-accent/10"
+                        />
+                        {results.length > 0 && (
+                            <ul className="animate-in fade-in-0 zoom-in-95 slide-in-from-top-1 absolute left-0 right-0 top-full z-40 mt-1.5 overflow-hidden rounded-lg border border-admin-border bg-admin-card shadow-xl duration-150">
+                                {results.map((item) => (
+                                    <li key={item.href}>
+                                        <Link
+                                            href={item.href}
+                                            onClick={() => {
+                                                setQuery('');
+                                                setMobileSearchOpen(false);
+                                            }}
+                                            className="block px-3.5 py-2.5 text-sm text-admin-text transition-colors duration-150 hover:bg-admin-hover"
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+                <button
+                    type="button"
+                    onClick={() => setMobileSearchOpen(true)}
+                    aria-label={t('admin.header.search_placeholder', 'Rechercher une page, un étudiant, un document...')}
+                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text sm:hidden"
+                >
+                    <Search className="h-[18px] w-[18px]" aria-hidden="true" />
+                </button>
+
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <a
                             href="/"
                             target="isstm-site-preview"
                             rel="noopener noreferrer"
-                            className="flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text"
+                            className="flex h-9 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text sm:px-3"
                         >
                             <Globe className="h-[18px] w-[18px] flex-shrink-0" aria-hidden="true" />
                             <span className="hidden sm:inline">{t('admin.header.view_site', 'Voir le site')}</span>
@@ -138,7 +204,10 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
 
                 <DarkModeToggle className="text-admin-chrome-text-secondary hover:bg-admin-chrome-hover hover:text-admin-chrome-text" />
 
-                <LanguageSwitcher className="!border-admin-border !text-admin-chrome-text-secondary hover:!border-admin-accent hover:!text-admin-chrome-text" />
+                <LanguageSwitcher
+                    hideLabelOnMobile
+                    className="!border-admin-border !text-admin-chrome-text-secondary hover:!border-admin-accent hover:!text-admin-chrome-text"
+                />
 
                 {canEdit && (
                     <Tooltip>
@@ -174,7 +243,7 @@ export default function AdminHeader({ onOpenSidebar, sidebarHidden = false, onSh
                                 <span className="block text-sm font-semibold text-admin-chrome-text">{user.name}</span>
                                 {roleLabel && <span className="block text-xs text-admin-chrome-muted">{roleLabel}</span>}
                             </span>
-                            <ChevronDown className="h-3.5 w-3.5 text-admin-chrome-muted" aria-hidden="true" />
+                            <ChevronDown className="hidden h-3.5 w-3.5 text-admin-chrome-muted sm:block" aria-hidden="true" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56 bg-admin-card text-admin-text">
                             <div className="px-3 py-2">

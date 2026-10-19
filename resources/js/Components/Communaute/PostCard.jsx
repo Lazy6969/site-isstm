@@ -25,7 +25,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import CommentItem from './CommentItem';
 import ExpandableText from './ExpandableText';
-import PostMediaLightbox from './PostMediaLightbox';
+import MediaLightbox from '../Media/MediaLightbox';
 import ReportPostDialog from './ReportPostDialog';
 import EditPostDialog from './EditPostDialog';
 import ReactionsListDialog from './ReactionsListDialog';
@@ -52,6 +52,7 @@ function formatDate(dateString) {
 const MAX_VISIBLE_MEDIA = 4;
 
 function MediaGrid({ media, compact = false }) {
+    const { t } = useTranslations();
     const [lightboxIndex, setLightboxIndex] = useState(null);
 
     if (media.length === 0) return null;
@@ -69,7 +70,7 @@ function MediaGrid({ media, compact = false }) {
                     </button>
                 </div>
                 {lightboxIndex !== null && (
-                    <PostMediaLightbox
+                    <MediaLightbox
                         images={media}
                         index={lightboxIndex}
                         onClose={() => setLightboxIndex(null)}
@@ -82,7 +83,7 @@ function MediaGrid({ media, compact = false }) {
 
     // A photo album past 4 images shows only the first 4, with a "+N" counter
     // over the last tile (Facebook's grid pattern) — everything beyond that
-    // is reachable via PostMediaLightbox. Every pure-image grid (2-4 photos,
+    // is reachable via MediaLightbox. Every pure-image grid (2-4 photos,
     // with overflow or not, compact shared-post preview or not) opens the
     // same fullscreen lightbox on click. Mixed media (video/pdf alongside
     // images) keeps the old plain download links, since overlaying a click
@@ -132,7 +133,7 @@ function MediaGrid({ media, compact = false }) {
                                         href={`/storage/${m.path}`}
                                         download
                                         className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white"
-                                        aria-label="Télécharger la vidéo"
+                                        aria-label={t('communaute.telecharger_video', 'Télécharger la vidéo')}
                                     >
                                         <Download className="h-3.5 w-3.5" aria-hidden="true" />
                                     </a>
@@ -142,9 +143,14 @@ function MediaGrid({ media, compact = false }) {
                                 <div className="flex items-center gap-2 p-4 text-sm font-medium text-isstm-navy">
                                     <FileText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                                     <a href={`/storage/${m.path}`} target="_blank" rel="noopener" className="hover:underline">
-                                        Voir le document
+                                        {t('communaute.voir_document', 'Voir le document')}
                                     </a>
-                                    <a href={`/storage/${m.path}`} download className="ml-auto flex-shrink-0" aria-label="Télécharger le document">
+                                    <a
+                                        href={`/storage/${m.path}`}
+                                        download
+                                        className="ml-auto flex-shrink-0"
+                                        aria-label={t('communaute.telecharger_document', 'Télécharger le document')}
+                                    >
                                         <Download className="h-4 w-4" aria-hidden="true" />
                                     </a>
                                 </div>
@@ -155,7 +161,7 @@ function MediaGrid({ media, compact = false }) {
             </div>
 
             {allImages && lightboxIndex !== null && (
-                <PostMediaLightbox
+                <MediaLightbox
                     images={media}
                     index={lightboxIndex}
                     onClose={() => setLightboxIndex(null)}

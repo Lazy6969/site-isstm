@@ -53,19 +53,20 @@ export default function Index({ query, searchResults, friends, received, sent, s
         <AppLayout title={t('nav.amis', 'Amis')}>
             <Head title="Amis" />
 
-            <div className="mb-6 flex gap-1 border-b border-slate-200 dark:border-slate-700">
+            <div className="mb-6 flex gap-1 overflow-x-auto border-b border-slate-200 [scrollbar-width:thin] dark:border-slate-700">
                 {tabs.map((item) => (
                     <button
                         key={item.key}
                         onClick={() => setTab(item.key)}
-                        className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition ${
+                        aria-label={item.key === 'recherche' ? item.label : undefined}
+                        className={`flex flex-shrink-0 items-center gap-1.5 px-4 py-2 text-sm font-medium transition ${
                             tab === item.key
                                 ? 'border-b-2 border-isstm-gold text-isstm-navy dark:text-white'
                                 : 'text-slate-500 hover:text-isstm-navy dark:text-slate-400 dark:hover:text-white'
                         }`}
                     >
                         <item.icon className="h-4 w-4" aria-hidden="true" />
-                        {item.label}
+                        <span className={item.key === 'recherche' ? 'hidden sm:inline' : undefined}>{item.label}</span>
                         {counts[item.key] > 0 && <span className="ml-1.5 text-xs text-slate-400 dark:text-slate-500">({counts[item.key]})</span>}
                     </button>
                 ))}
@@ -136,7 +137,7 @@ export default function Index({ query, searchResults, friends, received, sent, s
                     {received.map((request) => (
                         <div key={request.id} ref={String(request.id) === highlightId ? highlightRef : null}>
                         <Card
-                            className={`flex items-center gap-3 p-4 ${
+                            className={`flex flex-wrap items-center gap-3 p-4 ${
                                 String(request.id) === highlightId ? 'bg-blue-500/10 ring-2 ring-blue-400' : ''
                             }`}
                         >

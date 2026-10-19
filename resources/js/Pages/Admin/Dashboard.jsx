@@ -23,6 +23,7 @@ import {
     Palette,
     ScrollText,
     ExternalLink,
+    Eye,
 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import AdminLayout from '../../Components/Layout/AdminLayout';
@@ -198,6 +199,13 @@ export default function Dashboard({
                     icon={ClipboardCheck}
                     hint={t('admin.dashboard.inscriptions_validated_hint', 'Année en cours')}
                     trend={trends.inscriptions_validees}
+                />
+                <StatCard
+                    label={t('admin.dashboard.site_views', 'Vues du site')}
+                    value={stats.vues_site}
+                    icon={Eye}
+                    hint={t('admin.dashboard.site_views_hint', 'Depuis le lancement')}
+                    trend={trends.vues_site}
                 />
             </div>
 

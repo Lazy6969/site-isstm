@@ -78,9 +78,29 @@ class PostPresenter
             'my_reaction' => $myReaction?->type->value,
             'is_saved' => ! $nested && $viewer !== null && $post->savedBy->contains('id', $viewer->id),
             'tagged_users' => $post->taggedUsers->map(fn (User $u) => ['id' => $u->id, 'name' => $u->name]),
-            'shared_post' => ! $nested && $post->sharedPost ? $this->present($post->sharedPost, $viewer, nested: true) : null,
+            'shared_post' => ! $nested && $this->rootSharedPost($post) ? $this->present($this->rootSharedPost($post), $viewer, nested: true) : null,
             'comments' => $nested ? [] : $post->comments->map(fn (Comment $comment) => $this->presentComment($comment, $viewer)),
         ];
+    }
+
+    /**
+     * Resharing a post that is itself already a share (B, a share of A)
+     * points the new post (C) at B, not at A — so without this, C would show
+     * an embedded preview of B which, once nested, hides its own shared_post
+     * (see `! $nested` above) and leaves B looking like an ordinary post with
+     * no indication A exists, no matter how many reshares deep the chain
+     * goes. Walking to the bottom of the chain here means every repost
+     * always surfaces the original content directly, Instagram/Twitter-style,
+     * instead of silently truncating after one level.
+     */
+    private function rootSharedPost(Post $post): ?Post
+    {
+        $current = $post->sharedPost;
+        while ($current !== null && $current->sharedPost !== null) {
+            $current = $current->sharedPost;
+        }
+
+        return $current;
     }
 
     /**

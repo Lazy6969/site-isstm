@@ -1,5 +1,18 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle2, Clock, FileClock, GraduationCap, PencilLine, XCircle } from 'lucide-react';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    ClipboardCheck,
+    Clock,
+    Eye,
+    FileClock,
+    FileText,
+    GraduationCap,
+    IdCard,
+    PencilLine,
+    Users,
+    XCircle,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import BackButton from '../../Components/Layout/BackButton';
@@ -25,6 +38,62 @@ function currentStepIndex(preinscription) {
     return preinscription.reviewed_at ? 1 : 0;
 }
 
+function formatDate(value) {
+    if (!value) return null;
+    return new Date(value).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// Mirrors the wizard's own 4 steps (see STEPS/STEP_FIELDS in
+// Preinscription/Create.jsx) so the read-only summary groups fields exactly
+// the way the candidate filled them in.
+const INFO_STEPS = [
+    { key: 'identite', label: 'Identité', icon: IdCard },
+    { key: 'famille', label: 'Famille', icon: Users },
+    { key: 'formation', label: 'Formation', icon: GraduationCap },
+    { key: 'validation', label: 'Validation', icon: ClipboardCheck },
+];
+
+const INFO_FIELDS = {
+    identite: [
+        ['civilite', 'Civilité'],
+        ['nom', 'Nom'],
+        ['prenoms', 'Prénoms'],
+        ['sexe', 'Sexe'],
+        ['date_naissance', 'Date de naissance', formatDate],
+        ['lieu_naissance', 'Lieu de naissance'],
+        ['cin', 'CIN (numéro)'],
+        ['nationalite', 'Nationalité'],
+        ['pays', 'Pays'],
+        ['email', 'E-mail'],
+        ['telephone', 'Téléphone'],
+        ['adresse', 'Adresse'],
+    ],
+    famille: [
+        ['nom_pere', 'Nom du père'],
+        ['nom_mere', 'Nom de la mère'],
+        ['contact_parents', 'Téléphone des parents'],
+        ['repondant_nom', 'Nom du répondant'],
+        ['repondant_lien', 'Lien avec le candidat'],
+        ['repondant_telephone', 'Téléphone du répondant'],
+    ],
+    formation: [
+        ['annee_bacc', 'Année du bac'],
+        ['serie_bacc', 'Série du bac'],
+        ['serie_bacc_autre', 'Précision sur la série'],
+        ['mention_bacc', 'Mention'],
+        ['code_redoublement', 'Code redoublement'],
+        ['niveau', 'Niveau souhaité'],
+    ],
+};
+
+const INFO_DOCUMENTS = [
+    ['photo_path', "Photo d'identité"],
+    ['cin_recto_path', 'CIN recto'],
+    ['cin_verso_path', 'CIN verso'],
+    ['diplome_attestation_path', 'Diplôme ou attestation'],
+    ['releve_bacc_path', 'Relevé de notes'],
+];
+
 export default function Dossier({ preinscription }) {
     const { flash, content } = usePage().props;
     const { t } = useTranslations();
@@ -33,6 +102,8 @@ export default function Dossier({ preinscription }) {
     // and a message they can scroll past wouldn't explain why.
     const [notice, setNotice] = useState(flash?.status ?? '');
     const [noticeOpen, setNoticeOpen] = useState(Boolean(flash?.status));
+    const [infoOpen, setInfoOpen] = useState(false);
+    const [infoStep, setInfoStep] = useState('identite');
 
     useEffect(() => {
         if (flash?.status) {
@@ -76,6 +147,17 @@ export default function Dossier({ preinscription }) {
                     {preinscription.numero_dossier && (
                         <p className="mt-1 text-sm font-medium text-isstm-gold">{t('dossier.numero', 'Dossier n°')} {preinscription.numero_dossier}</p>
                     )}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setInfoStep('identite');
+                            setInfoOpen(true);
+                        }}
+                        className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/20"
+                    >
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                        {t('dossier.voir_informations', 'Voir les informations de mon dossier')}
+                    </button>
                 </div>
             </div>
 
@@ -202,6 +284,109 @@ export default function Dossier({ preinscription }) {
                     <DialogFooter>
                         <Button type="button" onClick={() => setNoticeOpen(false)} className="bg-isstm-navy text-white hover:brightness-110">
                             {t('dossier.compris', 'J’ai compris')}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+                <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>{t('dossier.informations_titre', 'Les informations de mon dossier')}</DialogTitle>
+                        <DialogDescription>
+                            {t('dossier.informations_description', "Ce que vous avez renseigné à chacune des 4 étapes de votre préinscription.")}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="flex flex-wrap gap-1 rounded-full bg-slate-100 p-1 dark:bg-slate-800">
+                        {INFO_STEPS.map((s) => {
+                            const Icon = s.icon;
+                            const active = infoStep === s.key;
+                            return (
+                                <button
+                                    key={s.key}
+                                    type="button"
+                                    onClick={() => setInfoStep(s.key)}
+                                    className={
+                                        'flex flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition ' +
+                                        (active
+                                            ? 'bg-white text-isstm-navy shadow-sm dark:bg-slate-700 dark:text-white'
+                                            : 'text-slate-500 dark:text-slate-400')
+                                    }
+                                >
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
+                                    {t(`dossier.etape_wizard_${s.key}`, s.label)}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="mt-4">
+                        {infoStep !== 'validation' ? (
+                            <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                                {infoStep === 'formation' && preinscription.filiere?.nom_fr && (
+                                    <div>
+                                        <dt className="text-slate-500 dark:text-slate-400">{t('dossier.field_filiere', 'Filière souhaitée')}</dt>
+                                        <dd className="font-medium text-slate-800 dark:text-white">{preinscription.filiere.nom_fr}</dd>
+                                    </div>
+                                )}
+                                {INFO_FIELDS[infoStep].map(([key, label, formatter]) => {
+                                    const raw = preinscription[key];
+                                    if (!raw) return null;
+                                    return (
+                                        <div key={key}>
+                                            <dt className="text-slate-500 dark:text-slate-400">{t(`dossier.field_${key}`, label)}</dt>
+                                            <dd className="font-medium text-slate-800 dark:text-white">{formatter ? formatter(raw) : raw}</dd>
+                                        </div>
+                                    );
+                                })}
+                            </dl>
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                {INFO_DOCUMENTS.map(([key, label]) => {
+                                    const path = preinscription[key];
+                                    if (!path) {
+                                        return (
+                                            <div key={key} className="flex flex-col items-center gap-1.5">
+                                                <div className="flex h-24 w-full items-center justify-center rounded-lg border border-dashed border-slate-200 text-xs text-slate-400 dark:border-slate-700">
+                                                    {t('dossier.non_fourni', 'Non fourni')}
+                                                </div>
+                                                <p className="text-center text-xs text-slate-500 dark:text-slate-400">{t(`dossier.doc_${key}`, label)}</p>
+                                            </div>
+                                        );
+                                    }
+
+                                    const url = `/storage/${path}`;
+                                    const isPdf = /\.pdf$/i.test(path);
+
+                                    return (
+                                        <div key={key} className="flex flex-col items-center gap-1.5">
+                                            {isPdf ? (
+                                                <a
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 transition hover:brightness-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                                >
+                                                    <FileText className="h-6 w-6" aria-hidden="true" />
+                                                    <span className="text-xs font-medium">{t('dossier.voir_pdf', 'Voir le PDF')}</span>
+                                                </a>
+                                            ) : (
+                                                <a href={url} target="_blank" rel="noreferrer" className="block h-24 w-full overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <img src={url} alt={label} className="h-full w-full object-cover" />
+                                                </a>
+                                            )}
+                                            <p className="text-center text-xs text-slate-500 dark:text-slate-400">{t(`dossier.doc_${key}`, label)}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <DialogFooter>
+                        <Button type="button" onClick={() => setInfoOpen(false)} className="bg-isstm-navy text-white hover:brightness-110">
+                            {t('dossier.fermer', 'Fermer')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -17,7 +17,7 @@ export default function UserCard({ user, highlighted = false }) {
     }
 
     return (
-        <Card className={`flex items-center gap-3 p-4 ${highlighted ? 'bg-blue-500/10 ring-2 ring-blue-400' : ''}`}>
+        <Card className={`flex flex-wrap items-center gap-3 p-4 ${highlighted ? 'bg-blue-500/10 ring-2 ring-blue-400' : ''}`}>
             <Link href={`/profil/${user.id}`} className="relative flex-shrink-0">
                 <Avatar className="h-12 w-12">
                     <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />

@@ -6,6 +6,8 @@ use App\Http\Controllers\ClassGroupAnnouncementController;
 use App\Http\Controllers\ClassGroupController;
 use App\Http\Controllers\ClassGroupMemberController;
 use App\Http\Controllers\ClassGroupMessageController;
+use App\Http\Controllers\ClassGroupMessageForwardController;
+use App\Http\Controllers\ClassGroupMessageReactionController;
 use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommunitySearchController;
@@ -43,13 +45,18 @@ use App\Http\Controllers\PostReactionListController;
 use App\Http\Controllers\PostReportController;
 use App\Http\Controllers\PostSaveController;
 use App\Http\Controllers\PreinscriptionController;
+use App\Http\Controllers\QuickContactController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ReactivationRequestController;
+use App\Http\Controllers\ResultatController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StaffMessageController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\StoryReactionController;
+use App\Http\Controllers\StoryReactionListController;
+use App\Http\Controllers\StoryReplyController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +64,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('historique', [HistoriqueController::class, 'index'])->name('historique');
 Route::get('contact', [ContactController::class, 'index'])->name('contact');
+Route::post('contact/message-rapide', [QuickContactController::class, 'store'])->middleware('throttle:10,1')->name('contact.quick-message');
 Route::get('mot-du-directeur', [DirecteurController::class, 'index'])->name('directeur');
 Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 Route::post('newsletter', [NewsletterController::class, 'store'])->name('newsletter.store');
@@ -65,6 +73,8 @@ Route::get('filieres', [FiliereController::class, 'index'])->name('filieres.inde
 Route::get('filieres/{filiere:slug}', [FiliereController::class, 'show'])->name('filieres.show');
 
 Route::get('enseignants', [TeacherController::class, 'index'])->name('enseignants.index');
+
+Route::get('resultats', [ResultatController::class, 'index'])->name('resultats.index');
 
 Route::inertia('bourse', 'Bourse')->name('bourse');
 Route::inertia('faq', 'Faq')->name('faq');
@@ -159,6 +169,8 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::post('communaute', [PostController::class, 'store'])->middleware('access:community.post')->name('posts.store');
     Route::get('communaute/enregistres', [PostController::class, 'saved'])->middleware('access:community.view')->name('posts.saved');
     Route::get('communaute/archives', [PostController::class, 'archives'])->middleware('access:community.view')->name('posts.archives');
+    Route::get('communaute/reels', [PostController::class, 'reels'])->middleware('access:community.view')->name('posts.reels');
+    Route::get('communaute/souvenirs', [PostController::class, 'memories'])->middleware('access:community.view')->name('posts.memories');
     Route::get('communaute/recherche', [CommunitySearchController::class, 'index'])->middleware('access:community.view')->name('community-search');
     Route::get('communaute/{post}', [PostController::class, 'show'])->middleware('access:community.view')->name('posts.show');
     Route::patch('communaute/{post}', [PostController::class, 'update'])->name('posts.update');
@@ -175,6 +187,9 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('stories', [StoryController::class, 'index'])->middleware('access:stories.view')->name('stories.index');
     Route::post('stories', [StoryController::class, 'store'])->middleware('access:stories.create')->name('stories.store');
     Route::post('stories/{story}/vue', [StoryController::class, 'view'])->middleware('access:stories.view')->name('stories.view');
+    Route::post('stories/{story}/reaction', [StoryReactionController::class, 'store'])->middleware('access:stories.view')->name('stories.reaction');
+    Route::get('stories/{story}/reactions', [StoryReactionListController::class, 'index'])->middleware('access:stories.view')->name('stories.reactions');
+    Route::post('stories/{story}/repondre', [StoryReplyController::class, 'store'])->middleware('access:messages.send')->name('stories.reply');
     Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
 
     Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
@@ -189,10 +204,13 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('groupes/archives', [ClassGroupController::class, 'archives'])->middleware('access:groups.view')->name('class-groups.archives');
     Route::get('groupes/{group}', [ClassGroupController::class, 'show'])->middleware('access:groups.view')->name('class-groups.show');
     Route::delete('groupes/{group}', [ClassGroupController::class, 'destroy'])->middleware('access:groups.moderate')->name('class-groups.destroy');
+    Route::post('groupes/{group}/modifier', [ClassGroupController::class, 'update'])->middleware('access:groups.view')->name('class-groups.update');
     Route::post('groupes/{group}/archiver', [ClassGroupController::class, 'archive'])->middleware('access:groups.moderate')->name('class-groups.archive');
     Route::post('groupes/{group}/membres', [ClassGroupController::class, 'addMembers'])->middleware('access:groups.moderate')->name('class-groups.members.add');
     Route::post('groupes/{group}/messages', [ClassGroupMessageController::class, 'store'])->middleware('access:groups.message')->name('class-groups.messages.store');
     Route::delete('groupes/messages/{message}', [ClassGroupMessageController::class, 'destroy'])->name('class-groups.messages.destroy');
+    Route::post('groupes/messages/{message}/reaction', [ClassGroupMessageReactionController::class, 'store'])->middleware('access:groups.message')->name('class-groups.messages.reaction');
+    Route::post('groupes/messages/{message}/transferer', [ClassGroupMessageForwardController::class, 'store'])->middleware('access:messages.send')->name('class-groups.messages.forward');
     Route::post('groupes/{group}/annonces', [ClassGroupAnnouncementController::class, 'store'])->middleware('access:groups.announce')->name('class-groups.announcements.store');
     Route::delete('groupes/annonces/{announcement}', [ClassGroupAnnouncementController::class, 'destroy'])->name('class-groups.announcements.destroy');
     Route::get('groupes/{group}/presence', [ClassGroupPresenceController::class, 'index'])->middleware('access:groups.presence')->name('class-groups.presence.index');

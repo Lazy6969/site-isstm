@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\FriendRequestStatus;
-use App\Models\Candidat;
 use App\Models\FriendRequest;
 use App\Models\User;
 use App\Notifications\FriendRequestAccepted;
 use App\Notifications\FriendRequestReceived;
-use App\PreinscriptionStatus;
 use App\Role;
+use App\Services\FriendSuggestionService;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,6 +17,8 @@ use Inertia\Response;
 
 class FriendController extends Controller
 {
+    public function __construct(private readonly FriendSuggestionService $suggestions) {}
+
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -34,13 +34,13 @@ class FriendController extends Controller
                 ->orderBy('name')
                 ->limit(20)
                 ->get()
-                ->map(fn (User $candidate) => $this->presentUser($candidate, $user));
+                ->map(fn (User $candidate) => $this->suggestions->present($candidate, $user));
         }
 
         return Inertia::render('Amis/Index', [
             'query' => $query ?? '',
             'searchResults' => $searchResults,
-            'friends' => $user->friends()->map(fn (User $friend) => $this->presentUser($friend, $user)),
+            'friends' => $user->friends()->map(fn (User $friend) => $this->suggestions->present($friend, $user)),
             'received' => $user->receivedFriendRequests()
                 ->with('sender')
                 ->where('status', FriendRequestStatus::Pending)
@@ -48,7 +48,7 @@ class FriendController extends Controller
                 ->get()
                 ->map(fn (FriendRequest $friendRequest) => [
                     'id' => $friendRequest->id,
-                    'user' => $this->presentUser($friendRequest->sender, $user),
+                    'user' => $this->suggestions->present($friendRequest->sender, $user),
                 ]),
             'sent' => $user->sentFriendRequests()
                 ->with('recipient')
@@ -57,9 +57,9 @@ class FriendController extends Controller
                 ->get()
                 ->map(fn (FriendRequest $friendRequest) => [
                     'id' => $friendRequest->id,
-                    'user' => $this->presentUser($friendRequest->recipient, $user),
+                    'user' => $this->suggestions->present($friendRequest->recipient, $user),
                 ]),
-            'suggestions' => $this->suggestionsFor($user)->map(fn (User $candidate) => $this->presentUser($candidate, $user)),
+            'suggestions' => $this->suggestions->forUser($user)->map(fn (User $candidate) => $this->suggestions->present($candidate, $user)),
         ]);
     }
 
@@ -112,87 +112,5 @@ class FriendController extends Controller
         $friendRequest->delete();
 
         return back()->with('status', 'Relation supprimée.');
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function presentUser(User $candidate, User $viewer): array
-    {
-        $preinscription = $candidate->role === Role::Etudiant ? $candidate->approvedCandidat()?->load('filiere') : null;
-        $friendRequest = $viewer->friendshipWith($candidate);
-
-        return [
-            'id' => $candidate->id,
-            'name' => $candidate->name,
-            'avatar_path' => $candidate->avatar_path,
-            'role' => $candidate->role->value,
-            'role_label' => $candidate->role->label(),
-            'filiere' => $preinscription?->filiere?->nom_fr,
-            'status' => $this->relationshipStatus($friendRequest, $viewer),
-            'friend_request_id' => $friendRequest?->id,
-            'online' => $candidate->isOnline(),
-        ];
-    }
-
-    private function relationshipStatus(?FriendRequest $friendRequest, User $viewer): string
-    {
-        if ($friendRequest === null || $friendRequest->status === FriendRequestStatus::Declined) {
-            return 'aucune';
-        }
-
-        if ($friendRequest->status === FriendRequestStatus::Accepted) {
-            return 'amis';
-        }
-
-        return $friendRequest->sender_id === $viewer->id ? 'envoyee' : 'recue';
-    }
-
-    /**
-     * @return Collection<int, User>
-     */
-    private function suggestionsFor(User $user, int $limit = 8): Collection
-    {
-        $relatedIds = FriendRequest::query()
-            ->where('sender_id', $user->id)
-            ->orWhere('recipient_id', $user->id)
-            ->get()
-            ->flatMap(fn (FriendRequest $friendRequest) => [$friendRequest->sender_id, $friendRequest->recipient_id])
-            ->push($user->id)
-            ->unique();
-
-        $filiereId = $user->approvedCandidat()?->filiere_id;
-
-        $suggestions = new Collection;
-
-        if ($filiereId !== null) {
-            $sameFiliereUserIds = Candidat::query()
-                ->where('filiere_id', $filiereId)
-                ->where('status', PreinscriptionStatus::Accepte)
-                ->whereNotNull('user_id')
-                ->pluck('user_id');
-
-            $suggestions = User::query()
-                ->whereIn('role', [Role::Admin, Role::Enseignant, Role::Etudiant])
-                ->whereIn('id', $sameFiliereUserIds)
-                ->whereNotIn('id', $relatedIds)
-                ->inRandomOrder()
-                ->limit($limit)
-                ->get();
-        }
-
-        $remaining = $limit - $suggestions->count();
-        if ($remaining > 0) {
-            $more = User::query()
-                ->whereIn('role', [Role::Admin, Role::Enseignant, Role::Etudiant])
-                ->whereNotIn('id', $relatedIds->merge($suggestions->pluck('id')))
-                ->inRandomOrder()
-                ->limit($remaining)
-                ->get();
-
-            $suggestions = $suggestions->merge($more);
-        }
-
-        return $suggestions;
     }
 }

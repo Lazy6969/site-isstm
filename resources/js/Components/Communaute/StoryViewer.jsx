@@ -1,11 +1,21 @@
 import { router } from '@inertiajs/react';
-import { Eye, Trash2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Eye, Heart, Send, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import StoryReactionsDialog from './StoryReactionsDialog';
 import { useTranslations } from '../../lib/useTranslations';
 import { xsrfToken } from '../../lib/csrf';
 import { useConfirm } from '../../lib/useConfirm';
 
 const STORY_DURATION_MS = 5000;
+
+const REACTIONS = [
+    { value: 'like', emoji: '👍' },
+    { value: 'love', emoji: '❤️' },
+    { value: 'haha', emoji: '😂' },
+    { value: 'wouah', emoji: '😮' },
+    { value: 'triste', emoji: '😢' },
+    { value: 'grr', emoji: '😡' },
+];
 
 function timeAgo(dateString) {
     const minutes = Math.floor((Date.now() - new Date(dateString).getTime()) / 60000);
@@ -21,7 +31,10 @@ function timeAgo(dateString) {
  * Full-screen story viewer: one segmented progress bar per story in the
  * current author's group, auto-advancing every 5s, with left/right tap
  * zones to move within the group and roll over into the next/previous
- * author's group at the ends.
+ * author's group at the ends. Non-owners can react (a Facebook-style emoji
+ * picker) and reply, which starts/continues a direct conversation with the
+ * story's author; the author instead sees a reaction-count badge that opens
+ * the (owner-only) list of who reacted with what.
  */
 export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate, onClose, onDeleted }) {
     const confirmAction = useConfirm();
@@ -29,6 +42,21 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
     const group = groups[groupIndex];
     const story = group?.stories[storyIndex];
     const [paused, setPaused] = useState(false);
+    const [myReaction, setMyReaction] = useState(story?.my_reaction ?? null);
+    const [reactionsCount, setReactionsCount] = useState(story?.reactions_count ?? 0);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [reactionsDialogOpen, setReactionsDialogOpen] = useState(false);
+    const [reply, setReply] = useState('');
+    const [sendingReply, setSendingReply] = useState(false);
+    const replyInputRef = useRef(null);
+
+    useEffect(() => {
+        setMyReaction(story?.my_reaction ?? null);
+        setReactionsCount(story?.reactions_count ?? 0);
+        setPickerOpen(false);
+        setReply('');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [story?.id]);
 
     useEffect(() => {
         if (!story || paused) {
@@ -95,6 +123,33 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
         });
     }
 
+    function react(type) {
+        const wasReacted = myReaction === type;
+        setMyReaction(wasReacted ? null : type);
+        setReactionsCount((count) => count + (wasReacted ? -1 : myReaction ? 0 : 1));
+        setPickerOpen(false);
+
+        fetch(`/stories/${story.id}/reaction`, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfToken() },
+            body: JSON.stringify({ type }),
+        }).catch(() => {});
+    }
+
+    function sendReply(e) {
+        e.preventDefault();
+        if (!reply.trim() || sendingReply) return;
+
+        setSendingReply(true);
+        router.post(
+            `/stories/${story.id}/repondre`,
+            { body: reply },
+            { onFinish: () => setSendingReply(false) },
+        );
+    }
+
+    const activeReaction = REACTIONS.find((r) => r.value === myReaction);
+
     return (
         <div className="fixed inset-0 z-[100] flex flex-col bg-black">
             <div className="flex gap-1 px-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)]">
@@ -133,6 +188,16 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
                             {story.views_count}
                         </span>
                     )}
+                    {story.can_manage && reactionsCount > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setReactionsDialogOpen(true)}
+                            className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90 transition hover:bg-white/20"
+                        >
+                            <Heart className="h-3.5 w-3.5" aria-hidden="true" />
+                            {reactionsCount}
+                        </button>
+                    )}
                     {story.can_manage && (
                         <button
                             type="button"
@@ -164,13 +229,80 @@ export default function StoryViewer({ groups, groupIndex, storyIndex, onNavigate
                     onTouchStart={() => setPaused(true)}
                     onTouchEnd={() => setPaused(false)}
                 />
-                <button type="button" onClick={goPrev} aria-label={t('stories.precedent', 'Story précédente')} className="absolute inset-y-0 left-0 w-1/3" />
-                <button type="button" onClick={goNext} aria-label={t('stories.suivant', 'Story suivante')} className="absolute inset-y-0 right-0 w-1/3" />
+                {!pickerOpen && (
+                    <>
+                        <button type="button" onClick={goPrev} aria-label={t('stories.precedent', 'Story précédente')} className="absolute inset-y-0 left-0 w-1/3" />
+                        <button type="button" onClick={goNext} aria-label={t('stories.suivant', 'Story suivante')} className="absolute inset-y-0 right-0 w-1/3" />
+                    </>
+                )}
             </div>
 
             {story.caption && (
-                <p className="px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] text-center text-sm text-white/90">{story.caption}</p>
+                <p className="px-4 pb-3 text-center text-sm text-white/90">{story.caption}</p>
             )}
+
+            {!story.can_manage && (
+                <form
+                    onSubmit={sendReply}
+                    className="flex items-center gap-2 px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] pt-1"
+                >
+                    <input
+                        ref={replyInputRef}
+                        type="text"
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                        onFocus={() => setPaused(true)}
+                        onBlur={() => setPaused(false)}
+                        placeholder={t('stories.repondre_placeholder', 'Répondre à la story…')}
+                        maxLength={2000}
+                        className="h-11 flex-1 min-w-0 rounded-full border border-white/30 bg-transparent px-4 text-sm text-white placeholder:text-white/60 focus:border-white/60 focus:outline-none"
+                    />
+
+                    <div className="relative flex-shrink-0">
+                        {pickerOpen && (
+                            <div className="absolute bottom-full right-0 mb-2 flex gap-1 rounded-full bg-white p-1.5 shadow-xl">
+                                {REACTIONS.map((r) => (
+                                    <button
+                                        key={r.value}
+                                        type="button"
+                                        onClick={() => react(r.value)}
+                                        className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition hover:scale-125 ${
+                                            myReaction === r.value ? 'bg-isstm-navy/10' : ''
+                                        }`}
+                                    >
+                                        {r.emoji}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => (activeReaction ? react(activeReaction.value) : setPickerOpen((v) => !v))}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                setPickerOpen((v) => !v);
+                            }}
+                            aria-label={t('stories.reagir', 'Réagir')}
+                            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/10"
+                        >
+                            {activeReaction ? <span className="text-lg">{activeReaction.emoji}</span> : <Heart className="h-5 w-5" aria-hidden="true" />}
+                        </button>
+                    </div>
+
+                    {reply.trim() && (
+                        <button
+                            type="submit"
+                            disabled={sendingReply}
+                            aria-label={t('communaute.envoyer', 'Envoyer')}
+                            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-isstm-gold text-isstm-navy-dark transition hover:brightness-110 disabled:opacity-50"
+                        >
+                            <Send className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                    )}
+                </form>
+            )}
+
+            <StoryReactionsDialog open={reactionsDialogOpen} onClose={() => setReactionsDialogOpen(false)} storyId={story.id} />
         </div>
     );
 }

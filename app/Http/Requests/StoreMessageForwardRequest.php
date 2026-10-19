@@ -25,7 +25,8 @@ class StoreMessageForwardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'conversation_id' => ['required', 'integer', 'exists:conversations,id'],
+            'conversation_id' => ['required_without:user_id', 'nullable', 'integer', 'exists:conversations,id'],
+            'user_id' => ['required_without:conversation_id', 'nullable', 'integer', 'exists:users,id'],
         ];
     }
 }

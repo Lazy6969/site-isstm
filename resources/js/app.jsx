@@ -15,6 +15,8 @@ import Toaster from './Components/Layout/Toaster';
 import FloatingAccountButton from './Components/Layout/FloatingAccountButton';
 import LogoutConfirmDialog from './Components/Layout/LogoutConfirmDialog';
 import ScrollProgressRobot from './Components/Layout/ScrollProgressRobot';
+import InstallPwaPrompt from './Components/Layout/InstallPwaPrompt';
+import CookieConsentBanner from './Components/Layout/CookieConsentBanner';
 import QuickEditOverlay from './Components/QuickEdit/QuickEditOverlay';
 import SitePrimaryColorPicker from './Components/QuickEdit/SitePrimaryColorPicker';
 import HomeLoadingSkeleton from './Components/Home/HomeLoadingSkeleton';
@@ -34,6 +36,12 @@ function CommunitySkeletonBridge() {
 
 const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/notifications'];
 
+// /profil (edit + public view) and /parametres already have their own clear
+// way back (a header/back link) and the account menu this group opens leads
+// right back to those same pages — showing it there is pure redundant clutter
+// and it visually crowds forms/content on narrower screens.
+const FLOATING_ACCOUNT_HIDDEN_PATHS = ['/profil', '/parametres'];
+
 // CommunityHeader (the espace étudiant's own header) renders its own inline
 // FloatingAccountButton at the end of its nav — this global floating copy
 // would otherwise show up a second time on top of it.
@@ -48,6 +56,7 @@ const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/noti
 function FloatingAccountGroup() {
     const { props, url } = usePage();
     const inCommunitySpace = COMMUNITY_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
+    const onProfileOrSettings = FLOATING_ACCOUNT_HIDDEN_PATHS.some((path) => url === path || url.startsWith(`${path}/`) || url.startsWith(`${path}?`));
     const [open, setOpen] = useState(false);
     const containerRef = useRef(null);
 
@@ -70,7 +79,7 @@ function FloatingAccountGroup() {
     // container as an empty pill pinned to the corner of every page. Hidden
     // inside /console too — AdminHeader already has its own profile menu and
     // inline pencil there, same reasoning as QuickEditToggle/SitePrimaryColorPicker.
-    if (inCommunitySpace || url.startsWith('/console') || url.startsWith('/materiel') || ! props.auth?.user) {
+    if (inCommunitySpace || onProfileOrSettings || url.startsWith('/console') || url.startsWith('/materiel') || ! props.auth?.user) {
         return null;
     }
 
@@ -103,12 +112,23 @@ createInertiaApp({
         const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true });
         const page = pages[`./Pages/${name}.jsx`];
 
+        // resolve() can run more than once for the very same page module
+        // (import.meta.glob's eager mode returns one shared module object,
+        // and Inertia may call resolve() again for the same page — e.g. on
+        // prefetch). Without this guard, a second call would read back the
+        // *already-wrapped* layout as `existingLayout` and wrap it a second
+        // time, mounting every provider/global widget below twice (seen as
+        // two ScrollProgressRobot buttons, two cookie banners, etc.).
+        if (page.default.layout?.isGlobalProvidersLayout) {
+            return page;
+        }
+
         // usePage()/useForm() only work inside Inertia's own <App> tree, so the
         // quick-edit and toast contexts have to wrap each page from here (a
         // persistent layout), not wrap <App> itself in setup() below — that
         // renders it as an ancestor of <App>, outside the context it needs.
         const existingLayout = page.default.layout;
-        page.default.layout = (children) => (
+        const globalProvidersLayout = (children) => (
             <ToastProvider>
                 <QuickEditProvider>
                   <ConfirmProvider>
@@ -121,6 +141,8 @@ createInertiaApp({
                         */}
                         <FloatingAccountGroup />
                         <ScrollProgressRobot />
+                        <InstallPwaPrompt />
+                        <CookieConsentBanner />
                         <SitePrimaryColorPicker />
                         <QuickEditOverlay />
                         <FlashToastBridge />
@@ -134,6 +156,8 @@ createInertiaApp({
                 </QuickEditProvider>
             </ToastProvider>
         );
+        globalProvidersLayout.isGlobalProvidersLayout = true;
+        page.default.layout = globalProvidersLayout;
 
         return page;
     },

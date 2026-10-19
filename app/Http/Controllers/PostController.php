@@ -12,7 +12,10 @@ use App\Notifications\NewPostPublished;
 use App\PostType;
 use App\Role;
 use App\Services\ConversationListBuilder;
+use App\Services\FriendSuggestionService;
 use App\Services\PostPresenter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -21,20 +24,16 @@ use Inertia\Response;
 
 class PostController extends Controller
 {
-    public function __construct(private readonly PostPresenter $presenter) {}
+    public function __construct(
+        private readonly PostPresenter $presenter,
+        private readonly FriendSuggestionService $suggestions,
+    ) {}
 
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $friendIds = $user->friends()->pluck('id');
 
-        $posts = Post::query()
-            ->whereDoesntHave('hiddenBy', fn ($query) => $query->where('users.id', $user->id))
-            ->whereNull('archived_at')
-            ->where(fn ($query) => $query
-                ->where('visibility', 'public')
-                ->orWhere('user_id', $user->id)
-                ->orWhere(fn ($friendsOnly) => $friendsOnly->where('visibility', 'amis')->whereIn('user_id', $friendIds)))
+        $posts = $this->visiblePosts(Post::query(), $user)
             ->with($this->presenter->eagerLoad())
             ->withCount('viewedBy')
             ->orderByRaw('pinned_at is null')
@@ -55,7 +54,97 @@ class PostController extends Controller
                 'avatar_path' => $friend->avatar_path,
             ])->values(),
             'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(10)->values(),
+            'suggestions' => fn () => $this->suggestions->forUser($user, 5)->map(fn (User $candidate) => $this->suggestions->present($candidate, $user)),
         ]);
+    }
+
+    /**
+     * Vertical-scroll, video-only feed drawn from the same posts the viewer
+     * could otherwise see in their feed — not a separate content type, just
+     * a different lens onto post_media rows already uploaded with the
+     * community feed's own composer.
+     */
+    public function reels(Request $request): Response
+    {
+        $user = $request->user();
+
+        $videos = PostMedia::query()
+            ->where('type', MediaType::Video)
+            ->whereHas('post', fn (Builder $query) => $this->visiblePosts($query, $user))
+            ->with(['post.user:id,name,avatar_path'])
+            ->latest('id')
+            ->paginate(6)
+            ->withQueryString();
+
+        $videos->getCollection()->transform(fn (PostMedia $media) => [
+            'id' => $media->id,
+            'path' => $media->path,
+            'post' => [
+                'id' => $media->post->id,
+                'body' => $media->post->body,
+                'created_at' => $media->post->created_at,
+                'user' => [
+                    'id' => $media->post->user->id,
+                    'name' => $media->post->user->name,
+                    'avatar_path' => $media->post->user->avatar_path,
+                ],
+            ],
+        ]);
+
+        return Inertia::render('Communaute/Reels', [
+            'videos' => $videos,
+        ]);
+    }
+
+    /**
+     * "Souvenirs" — the viewer's own posts published on this same day in a
+     * previous year, fetched on demand (like /stories) rather than loaded
+     * on every feed visit, since most days turn up nothing.
+     */
+    public function memories(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $today = now();
+
+        $posts = Post::query()
+            ->where('user_id', $user->id)
+            ->whereNull('archived_at')
+            ->whereYear('created_at', '<', $today->year)
+            ->whereMonth('created_at', $today->month)
+            ->whereDay('created_at', $today->day)
+            ->with('media')
+            ->latest()
+            ->get()
+            ->map(fn (Post $post) => [
+                'id' => $post->id,
+                'body' => $post->body,
+                'created_at' => $post->created_at,
+                'years_ago' => $today->year - $post->created_at->year,
+                'media' => $post->media->map(fn (PostMedia $media) => [
+                    'id' => $media->id,
+                    'path' => $media->path,
+                    'type' => $media->type->value,
+                ]),
+            ]);
+
+        return response()->json(['memories' => $posts]);
+    }
+
+    /**
+     * The community feed's visibility rule, shared by index() and reels():
+     * public posts, the viewer's own, and friends-only posts from a friend.
+     */
+    private function visiblePosts(Builder $query, User $user): Builder
+    {
+        $friendIds = $user->friends()->pluck('id');
+
+        return $query
+            ->whereDoesntHave('hiddenBy', fn ($hidden) => $hidden->where('users.id', $user->id))
+            ->whereNull('archived_at')
+            ->where(fn ($visibility) => $visibility
+                ->where('visibility', 'public')
+                ->orWhere('user_id', $user->id)
+                ->orWhere(fn ($friendsOnly) => $friendsOnly->where('visibility', 'amis')->whereIn('user_id', $friendIds)));
     }
 
     public function show(Request $request, Post $post): Response

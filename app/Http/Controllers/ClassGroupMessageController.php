@@ -17,9 +17,15 @@ class ClassGroupMessageController extends Controller
         $membership = $group->memberFor($user);
         abort_if($membership === null || $membership->is_banned, 403);
 
+        $replyToId = $request->validated('reply_to_id');
+        if ($replyToId !== null) {
+            abort_unless(ClassGroupMessage::where('id', $replyToId)->where('class_group_id', $group->id)->exists(), 422);
+        }
+
         $message = ClassGroupMessage::create([
             'class_group_id' => $group->id,
             'sender_id' => $user->id,
+            'reply_to_id' => $replyToId,
             'body' => $request->validated('body'),
         ]);
 

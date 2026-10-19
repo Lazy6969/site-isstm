@@ -1,11 +1,12 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowLeft, Check, LogOut, Moon, Save, Sun, User } from 'lucide-react';
+import { ArrowLeft, Check, Film, LogOut, Moon, Save, Sun, User } from 'lucide-react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import { Card } from '../../Components/ui/card';
 import LanguageSwitcher from '../../Components/Layout/LanguageSwitcher';
 import { useTranslations } from '../../lib/useTranslations';
 import { useDarkMode } from '../../lib/useDarkMode';
 import { ACCENT_COLORS, useAccentColor } from '../../lib/useAccentColor';
+import { useAutoplayVideos } from '../../lib/useAutoplayVideos';
 import { useLogoutConfirm } from '../../lib/useLogoutConfirm';
 import { useToast } from '../../lib/useToast';
 
@@ -23,6 +24,7 @@ export default function Index() {
     const user = auth?.user;
     const [dark, setDark] = useDarkMode();
     const [accent, setAccent] = useAccentColor();
+    const [autoplay, setAutoplay] = useAutoplayVideos();
     const { requestLogout } = useLogoutConfirm();
     const { toast } = useToast();
 
@@ -110,6 +112,29 @@ export default function Index() {
             <Card className="mt-6 flex items-center justify-between p-5">
                 <span className="text-sm font-semibold text-isstm-navy dark:text-white">{t('parametres.langue', "Langue de l'application")}</span>
                 <LanguageSwitcher className="!border-slate-200 !text-isstm-navy hover:!border-community-accent hover:!text-community-accent dark:!border-slate-600 dark:!text-white" />
+            </Card>
+
+            <Card className="mt-6 flex items-center justify-between p-5">
+                <div className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300">
+                    <Film className="h-4 w-4" aria-hidden="true" />
+                    <span>
+                        <span className="block font-semibold text-isstm-navy dark:text-white">
+                            {t('parametres.lecture_auto_videos', 'Lecture automatique des vidéos')}
+                        </span>
+                        <span className="block text-xs text-slate-400">
+                            {t('parametres.lecture_auto_videos_description', 'Pour les Reels, lors du défilement.')}
+                        </span>
+                    </span>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setAutoplay((v) => !v)}
+                    aria-pressed={autoplay}
+                    aria-label={t('parametres.lecture_auto_videos', 'Lecture automatique des vidéos')}
+                    className={`relative h-6 w-11 flex-shrink-0 rounded-full transition ${autoplay ? 'bg-community-accent' : 'bg-slate-300 dark:bg-slate-600'}`}
+                >
+                    <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${autoplay ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                </button>
             </Card>
 
             <button

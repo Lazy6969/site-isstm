@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\Story;
 use App\Models\User;
 use App\Role;
@@ -90,4 +92,110 @@ it('only exposes the story view count to its own author', function () {
 
     $asViewer = $this->actingAs($viewer)->getJson('/stories')->json('groups');
     expect($asViewer[0]['stories'][0]['views_count'])->toBeNull();
+});
+
+it('lets a viewer react to a story, toggling the same reaction off again', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($viewer)->postJson("/stories/{$story->id}/reaction", ['type' => 'love'])
+        ->assertOk()
+        ->assertJson(['my_reaction' => 'love']);
+    expect($story->reactions()->count())->toBe(1);
+
+    $this->actingAs($viewer)->postJson("/stories/{$story->id}/reaction", ['type' => 'love'])
+        ->assertOk()
+        ->assertJson(['my_reaction' => null]);
+    expect($story->reactions()->count())->toBe(0);
+});
+
+it('exposes the total reaction count and the viewer\'s own reaction to everyone', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+    $story->reactions()->create(['user_id' => $viewer->id, 'type' => 'haha']);
+
+    $groups = $this->actingAs($viewer)->getJson('/stories')->json('groups');
+    expect($groups[0]['stories'][0]['reactions_count'])->toBe(1)
+        ->and($groups[0]['stories'][0]['my_reaction'])->toBe('haha');
+});
+
+it('only lets the story\'s own author see who reacted with what', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+    $story->reactions()->create(['user_id' => $viewer->id, 'type' => 'wouah']);
+
+    $this->actingAs($viewer)->getJson("/stories/{$story->id}/reactions")->assertForbidden();
+
+    $response = $this->actingAs($author)->getJson("/stories/{$story->id}/reactions")->assertOk();
+    expect($response->json('reactions'))->toHaveCount(1)
+        ->and($response->json('reactions.0.user.id'))->toBe($viewer->id)
+        ->and($response->json('reactions.0.emoji'))->toBe('😮');
+});
+
+it('lets a viewer reply to a story, starting a direct conversation with its author', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($viewer)->post("/stories/{$story->id}/repondre", ['body' => 'Belle photo !'])
+        ->assertRedirect();
+
+    $conversation = Conversation::first();
+    expect($conversation)->not->toBeNull()
+        ->and($conversation->involves($viewer))->toBeTrue()
+        ->and($conversation->involves($author))->toBeTrue();
+    expect(Message::where('conversation_id', $conversation->id)->sole())
+        ->sender_id->toBe($viewer->id)
+        ->body->toBe('Belle photo !')
+        ->story_id->toBe($story->id);
+});
+
+it('shows the story reply in the conversation with the story thumbnail attached', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create(['media_path' => 'stories/photo.jpg']);
+
+    $this->actingAs($viewer)->post("/stories/{$story->id}/repondre", ['body' => 'Belle photo !']);
+    $conversation = Conversation::first();
+
+    $this->actingAs($author)->get("/messages/{$conversation->id}")->assertInertia(fn ($page) => $page
+        ->where('messages.0.story_reply.id', $story->id)
+        ->where('messages.0.story_reply.media_path', 'stories/photo.jpg')
+    );
+});
+
+it('no longer shows the story thumbnail once the story has been deleted', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($viewer)->post("/stories/{$story->id}/repondre", ['body' => 'Belle photo !']);
+    $conversation = Conversation::first();
+    $story->delete();
+
+    $this->actingAs($author)->get("/messages/{$conversation->id}")->assertInertia(fn ($page) => $page
+        ->where('messages.0.story_reply', null)
+        ->where('messages.0.body', 'Belle photo !')
+    );
+});
+
+it('does not require an existing friendship to reply to a story', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $viewer = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($viewer)->post("/stories/{$story->id}/repondre", ['body' => 'Salut !'])->assertRedirect();
+
+    expect(Conversation::count())->toBe(1);
+});
+
+it('refuses to let an author reply to their own story', function () {
+    $author = User::factory()->role(Role::Etudiant)->create();
+    $story = Story::factory()->for($author)->create();
+
+    $this->actingAs($author)->post("/stories/{$story->id}/repondre", ['body' => 'Coucou moi-même'])
+        ->assertStatus(422);
 });

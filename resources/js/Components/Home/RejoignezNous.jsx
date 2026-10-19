@@ -18,8 +18,12 @@ import { useTranslations } from '../../lib/useTranslations';
  */
 export default function RejoignezNous() {
     const { t } = useTranslations();
-    const { content, contentStyles } = usePage().props;
+    const { content, contentStyles, admissionsOpen } = usePage().props;
     const image = content.accueil_rejoindre_image_path ?? 'images/accueil-rejoindre.png';
+    const eyebrowKey = admissionsOpen ? 'accueil_rejoindre_eyebrow_ouvert' : 'accueil_rejoindre_eyebrow_ferme';
+    const eyebrowDefault = admissionsOpen
+        ? t('accueil.rejoindre_eyebrow_ouvert', 'Admissions ouvertes')
+        : t('accueil.rejoindre_eyebrow_ferme', 'Admissions fermées');
 
     return (
         <>
@@ -38,22 +42,36 @@ export default function RejoignezNous() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <EditableImage contentKey="accueil_rejoindre_image_path" value={image} className="absolute top-3 right-3 z-20" />
 
-            <EditableButton
-                contentKey="accueil_rejoindre_aide_bouton"
-                href="/aide-inscription"
-                defaultLabel={t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
-                icon={CircleHelp}
-                className="absolute top-14 right-3 z-20 flex items-center gap-2 rounded-full bg-isstm-navy px-4 py-1.5 text-sm font-semibold text-white shadow-md transition hover:brightness-110"
-            />
+            {/* EditableButton wraps its own <Link> in an edit-mode <span
+                className="relative inline-flex"> once quick-edit is on — a
+                position:absolute className on the button (needed here to
+                place it in this section's top-right corner) would then
+                resolve against that wrapper span instead of this section,
+                and since the span has no in-flow content of its own it
+                collapses to 0×0 at the top of the flex row, pushing the
+                button off past the section's left edge where
+                overflow-hidden clips it entirely. Keeping the positioning
+                on this wrapping div (and only the visual classes on the
+                button itself) keeps the button correctly placed in both
+                states. */}
+            <div className="absolute top-14 right-3 z-20">
+                <EditableButton
+                    contentKey="accueil_rejoindre_aide_bouton"
+                    href="/aide-inscription"
+                    defaultLabel={t('rejoindre.aide_lien', "Aide pour Comment s'inscrire à l'ISSTM ?")}
+                    icon={CircleHelp}
+                    className="flex items-center gap-2 rounded-full bg-isstm-navy px-4 py-1.5 text-sm font-semibold text-white shadow-md transition hover:brightness-110"
+                />
+            </div>
 
             <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
                 <div className="max-w-lg">
                     <EditableText
                         as="p"
-                        contentKey="accueil_rejoindre_eyebrow"
+                        contentKey={eyebrowKey}
                         className="text-xs font-semibold tracking-[0.2em] text-isstm-gold uppercase"
                     >
-                        {content.accueil_rejoindre_eyebrow ?? t('accueil.rejoindre_eyebrow', 'Admissions ouvertes')}
+                        {content[eyebrowKey] ?? eyebrowDefault}
                     </EditableText>
                     <h2 className="mt-3 text-3xl leading-tight font-bold text-balance sm:text-4xl">
                         <EditableText as="span" contentKey="accueil_rejoindre_titre">

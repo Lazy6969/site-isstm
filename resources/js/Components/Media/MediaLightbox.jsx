@@ -1,15 +1,26 @@
 import { ChevronLeft, ChevronRight, Download, X } from 'lucide-react';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { useTranslations } from '../../lib/useTranslations';
 
 /**
- * Full-screen image viewer for a post's photos, opened by clicking any image
- * tile in MediaGrid (see PostCard.jsx) — single photo, small grid, or the
- * "+N" overflow tile of a larger album all open the same viewer, letting a
- * visitor browse every photo past what the grid shows. Mirrors
- * Galerie/Show.jsx's lightbox (prev/next/download/close, arrow-key + Escape
- * support).
+ * Full-screen image viewer — opened by clicking a photo in the fil
+ * communautaire (MediaGrid, see PostCard.jsx) or an image attached to a chat
+ * message (AttachmentPreview.jsx, Messages/Index.jsx), so neither context
+ * forces the browser's own download-on-click behavior just to look at a
+ * picture up close. `images` takes any array of `{ path }` objects; a
+ * single-image call (messages) passes a one-item array and no next/previous
+ * controls render.
+ *
+ * Rendered through a portal to document.body: left in place, a post Card's
+ * own `:hover { transform: … }` (see app.css, .community-shell rounded-2xl
+ * cards) would make this `fixed` overlay a descendant of a transformed
+ * ancestor — CSS then scopes `position: fixed` to that ancestor's box
+ * instead of the viewport, and the "full-screen" lightbox would only ever
+ * cover the card it was opened from.
  */
-export default function PostMediaLightbox({ images, index, onClose, onNavigate }) {
+export default function MediaLightbox({ images, index, onClose, onNavigate, downloadName }) {
+    const { t } = useTranslations();
     const current = images[index];
 
     useEffect(() => {
@@ -27,9 +38,9 @@ export default function PostMediaLightbox({ images, index, onClose, onNavigate }
         return null;
     }
 
-    return (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-6" onClick={onClose}>
-            <img src={`/storage/${current.path}`} alt="" className="max-h-[80vh] max-w-full rounded-lg object-contain" />
+    return createPortal(
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90" onClick={onClose}>
+            <img src={`/storage/${current.path}`} alt="" className="max-h-screen max-w-screen object-contain" />
 
             {images.length > 1 && (
                 <>
@@ -39,7 +50,7 @@ export default function PostMediaLightbox({ images, index, onClose, onNavigate }
                             e.stopPropagation();
                             onNavigate((index - 1 + images.length) % images.length);
                         }}
-                        aria-label="Image précédente"
+                        aria-label={t('media.image_precedente', 'Image précédente')}
                         className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:left-6"
                     >
                         <ChevronLeft className="h-6 w-6" aria-hidden="true" />
@@ -50,7 +61,7 @@ export default function PostMediaLightbox({ images, index, onClose, onNavigate }
                             e.stopPropagation();
                             onNavigate((index + 1) % images.length);
                         }}
-                        aria-label="Image suivante"
+                        aria-label={t('media.image_suivante', 'Image suivante')}
                         className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 sm:right-6"
                     >
                         <ChevronRight className="h-6 w-6" aria-hidden="true" />
@@ -64,24 +75,25 @@ export default function PostMediaLightbox({ images, index, onClose, onNavigate }
             <div className="absolute right-6 top-6 flex items-center gap-2">
                 <a
                     href={`/storage/${current.path}`}
-                    download
+                    download={downloadName ?? current.original_name ?? true}
                     onClick={(e) => e.stopPropagation()}
-                    aria-label="Télécharger"
+                    aria-label={t('media.telecharger', 'Télécharger')}
                     className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20"
                 >
                     <Download className="h-4 w-4" aria-hidden="true" />
-                    Télécharger
+                    {t('media.telecharger', 'Télécharger')}
                 </a>
                 <button
                     type="button"
                     onClick={onClose}
-                    aria-label="Fermer"
+                    aria-label={t('media.fermer', 'Fermer')}
                     className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20"
                 >
                     <X className="h-4 w-4" aria-hidden="true" />
-                    Fermer
+                    {t('media.fermer', 'Fermer')}
                 </button>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }

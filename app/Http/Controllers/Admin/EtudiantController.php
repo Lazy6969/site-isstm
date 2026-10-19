@@ -204,6 +204,28 @@ class EtudiantController extends Controller
     }
 
     /**
+     * Counterpart to pauseAll(): brings every suspended dossier back to
+     * Actif in one click, mirroring the same batched update/forceLogout
+     * shape — forceLogout is a no-op here since reactivating never needs to
+     * end an active session.
+     */
+    public function reactivateAll(): RedirectResponse
+    {
+        $etudiants = Etudiant::where('statut', StatutEtudiant::Suspendu)->get(['id', 'user_id']);
+
+        if ($etudiants->isEmpty()) {
+            return back()->with('status', 'Aucun compte étudiant suspendu à réactiver.');
+        }
+
+        Etudiant::whereIn('id', $etudiants->pluck('id'))->update(['statut' => StatutEtudiant::Actif]);
+        User::whereIn('id', $etudiants->pluck('user_id'))->update(['is_active' => true]);
+
+        ActivityLog::record('etudiants_reactivation_globale', "Réactivation groupée de {$etudiants->count()} compte(s) étudiant(s).");
+
+        return back()->with('status', "{$etudiants->count()} compte(s) étudiant(s) réactivé(s).");
+    }
+
+    /**
      * Deletes the student's whole account, not just the dossier — every foreign
      * key that touches `users` cascades from there (etudiant, inscriptions,
      * posts, messages, friend requests, notifications, etc.), so the account

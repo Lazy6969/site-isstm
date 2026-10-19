@@ -8,7 +8,10 @@ export const MAX_ATTACHMENTS = 5;
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 export const ATTACHMENT_GROUPS = {
-    image: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    // heic/heif: the default photo format on iPhone since iOS 11 — without
+    // these, every photo picked straight from an iPhone's camera roll (not
+    // converted to jpg first) was silently refused as "unaccepted file type".
+    image: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'heic', 'heif'],
     video: ['mp4', 'webm', 'mov'],
     audio: ['ogg', 'mp3', 'wav', 'm4a', 'weba'],
     pdf: ['pdf'],

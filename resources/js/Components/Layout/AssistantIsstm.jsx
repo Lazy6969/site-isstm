@@ -1,5 +1,6 @@
 import { Bot, SendHorizontal, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { xsrfToken } from '../../lib/csrf';
 import { useTranslations } from '../../lib/useTranslations';
 
@@ -17,18 +18,43 @@ export default function AssistantIsstm() {
     const [input, setInput] = useState('');
     const [sending, setSending] = useState(false);
     const [messages, setMessages] = useState([]);
+    const [panelPos, setPanelPos] = useState(null);
     const ref = useRef(null);
+    const panelRef = useRef(null);
     const messagesRef = useRef(null);
 
     useEffect(() => {
         function onClickOutside(e) {
-            if (ref.current && !ref.current.contains(e.target)) {
+            // panelRef is checked too since the panel itself is portaled to
+            // <body> (see render below), so it is no longer a DOM descendant
+            // of `ref` even though it's still a React child.
+            if (ref.current && !ref.current.contains(e.target) && !panelRef.current?.contains(e.target)) {
                 setOpen(false);
             }
         }
         document.addEventListener('mousedown', onClickOutside);
         return () => document.removeEventListener('mousedown', onClickOutside);
     }, []);
+
+    // Portaled straight to <body> so it always stacks above the floating
+    // account/scroll widgets — those are fixed at the document root with
+    // their own z-index, and a dropdown nested inside this sticky header
+    // would otherwise be capped by the header's own (lower) stacking
+    // context no matter its own z-index. That means it's no longer
+    // positioned by CSS relative to this button, so coordinates are
+    // computed here instead.
+    function updatePanelPosition() {
+        if (!ref.current) return;
+        const rect = ref.current.getBoundingClientRect();
+        setPanelPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+
+    useEffect(() => {
+        if (!open) return undefined;
+        updatePanelPosition();
+        window.addEventListener('resize', updatePanelPosition);
+        return () => window.removeEventListener('resize', updatePanelPosition);
+    }, [open]);
 
     useEffect(() => {
         if (messagesRef.current) {
@@ -92,8 +118,12 @@ export default function AssistantIsstm() {
                 <Bot className="h-[18px] w-4" aria-hidden="true" />
             </button>
 
-            {open && (
-                <div className="absolute right-0 z-50 mt-2 flex h-[28rem] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700">
+            {open && panelPos && createPortal(
+                <div
+                    ref={panelRef}
+                    className="fixed z-[70] flex h-[28rem] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-white text-slate-900 shadow-xl ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-700"
+                    style={{ top: panelPos.top, right: panelPos.right }}
+                >
                     <div className="flex items-center justify-between bg-isstm-navy px-4 py-3 text-white">
                         <span className="flex items-center gap-2 text-sm font-semibold">
                             <Bot className="h-4 w-4 text-isstm-gold" aria-hidden="true" />
@@ -156,7 +186,8 @@ export default function AssistantIsstm() {
                             <SendHorizontal className="h-4 w-4" aria-hidden="true" />
                         </button>
                     </form>
-                </div>
+                </div>,
+                document.body,
             )}
         </div>
     );

@@ -7,6 +7,7 @@ use App\MediaType;
 use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\User;
+use App\Services\FriendSuggestionService;
 use App\Services\PostPresenter;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -14,7 +15,10 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    public function __construct(private readonly PostPresenter $presenter) {}
+    public function __construct(
+        private readonly PostPresenter $presenter,
+        private readonly FriendSuggestionService $suggestions,
+    ) {}
 
     public function edit(): Response
     {
@@ -61,7 +65,13 @@ class ProfileController extends Controller
 
         $posts->getCollection()->transform(fn (Post $post) => $this->presenter->present($post, $viewer));
 
+        $friendship = $viewer !== null && $viewer->id !== $user->id
+            ? $this->suggestions->present($user, $viewer)
+            : null;
+
         return Inertia::render('Profile/Show', [
+            'friendStatus' => $friendship['status'] ?? null,
+            'friendRequestId' => $friendship['friend_request_id'] ?? null,
             'profile' => $user->only([
                 'id', 'name', 'role', 'avatar_path', 'cover_path', 'bio', 'city', 'birth_date',
                 'interests', 'profession', 'employer', 'education', 'hometown',
