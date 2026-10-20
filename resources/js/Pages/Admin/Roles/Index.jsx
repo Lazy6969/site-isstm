@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import {
+    Boxes,
     ChevronDown,
     ChevronsUpDown,
     GraduationCap,
@@ -103,6 +104,14 @@ const CATEGORIES = [
             ['roles', 'Rôles & permissions', 'Droits de chaque rôle.'],
             ['activity-log', "Journal d'activité", "Historique des actions de l'administration."],
             ['settings', 'Apparence & réglages', "Couleurs et options de l'interface."],
+        ],
+    },
+    {
+        key: 'materiel',
+        label: 'Matériel',
+        icon: Boxes,
+        modules: [
+            ['materiel', 'Gestion du matériel', 'Fiches, emprunts entre lieux et maintenance de l’inventaire.'],
         ],
     },
 ];

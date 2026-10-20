@@ -252,6 +252,7 @@ require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
 require __DIR__.'/activity-log.php';
 require __DIR__.'/archives.php';
+require __DIR__.'/materiel.php';
 require __DIR__.'/settings.php';
 require __DIR__.'/statistics.php';
 require __DIR__.'/hero-slides.php';

@@ -55,7 +55,10 @@ class RoleHome
         }
 
         if ($user->hasRole('responsable-materiel') || $user->hasLegacyRole(Role::Materiel)) {
-            return self::staffFallback($user);
+            // Its own dedicated space (/materiel), not the admin console — this
+            // role has nothing else to do there. Falls back only if the
+            // permission was ever revoked from under it.
+            return $user->can('materiel.view') ? route('materiel.index') : self::staffFallback($user);
         }
 
         return route('home');

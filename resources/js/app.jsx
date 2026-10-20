@@ -77,9 +77,11 @@ function FloatingAccountGroup() {
 
     // Both children render nothing for a signed-out visitor, which left this
     // container as an empty pill pinned to the corner of every page. Hidden
-    // inside /console too — AdminHeader already has its own profile menu and
-    // inline pencil there, same reasoning as QuickEditToggle/SitePrimaryColorPicker.
-    if (inCommunitySpace || onProfileOrSettings || url.startsWith('/console') || ! props.auth?.user) {
+    // inside /console (and /materiel, which has the same AdminHeader-style
+    // chrome via MaterielHeader) too — their own header already has its own
+    // profile menu and inline pencil there, same reasoning as
+    // QuickEditToggle/SitePrimaryColorPicker.
+    if (inCommunitySpace || onProfileOrSettings || url.startsWith('/console') || url.startsWith('/materiel') || ! props.auth?.user) {
         return null;
     }
 

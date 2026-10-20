@@ -24,7 +24,7 @@ export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'righ
     const hasPendingPreinscription = props.hasPendingPreinscription;
     const isCommunityMember = ['admin', 'enseignant', 'etudiant'].includes(user?.role);
 
-    if (!user || url.startsWith('/console')) {
+    if (!user || url.startsWith('/console') || url.startsWith('/materiel')) {
         return null;
     }
 

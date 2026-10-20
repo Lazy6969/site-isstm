@@ -17,6 +17,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 // so the robot stays visible there.
 const HIDDEN_PREFIXES = [
     '/console',
+    '/materiel',
     '/login',
     '/preinscription',
     '/reinscription',

@@ -67,6 +67,14 @@ class PermissionCatalog
     public const RESULTATS = ['resultats.view', 'resultats.import', 'resultats.create', 'resultats.edit', 'resultats.delete', 'resultats.export'];
 
     /**
+     * Inventaire du matériel : fiches, emprunts entre lieux et historique de
+     * maintenance — la seule tâche du rôle `responsable-materiel`.
+     *
+     * @var array<int, string>
+     */
+    public const MATERIEL = ['materiel.view', 'materiel.create', 'materiel.edit', 'materiel.delete'];
+
+    /**
      * Deleting an account from the "Gestion des comptes" screen — a step
      * above `users.edit`, which only lets an admin correct a profile.
      *
@@ -98,6 +106,7 @@ class PermissionCatalog
             ...self::ECOLAGE_STUDENT,
             ...self::PAYMENTS,
             ...self::RESULTATS,
+            ...self::MATERIEL,
             ...self::ACCOUNTS,
             ...self::ACTIVITY_LOG,
             ...array_merge(...array_values(self::INHERITED)),
@@ -143,6 +152,7 @@ class PermissionCatalog
             'etudiant' => [...self::COMMUNITY, ...self::STUDENT_ONLY, ...self::ECOLAGE_STUDENT],
             'scolarite' => [...self::PAYMENTS, ...self::RESULTATS],
             'enseignant' => self::COMMUNITY,
+            'responsable-materiel' => self::MATERIEL,
         ];
 
         foreach ($grants as $roleName => $permissions) {

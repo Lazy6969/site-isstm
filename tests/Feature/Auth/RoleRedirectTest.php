@@ -53,12 +53,12 @@ it('sends a student to the community feed', function () {
     loginAs($user)->assertRedirect(route('posts.index'));
 });
 
-it('sends a materiel account to the admin dashboard it is allowed to open', function () {
+it('sends a materiel account straight to its own dedicated Matériel page', function () {
     $user = User::factory()->create();
     $user->assignRole('responsable-materiel');
 
-    loginAs($user)->assertRedirect(route('admin.dashboard'));
-    $this->actingAs($user)->get(route('admin.dashboard'))->assertOk();
+    loginAs($user)->assertRedirect(route('materiel.index'));
+    $this->actingAs($user)->get(route('materiel.index'))->assertOk();
 });
 
 it('never gives a 403 on the landing page of a staff account', function () {

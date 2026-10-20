@@ -4,10 +4,14 @@ import { useTranslations } from '../../lib/useTranslations';
 
 const DISMISS_KEY = 'cookieNoticeAcknowledged';
 
-// Hidden on /console: the admin backend has its own chrome, same reasoning
-// as FloatingAccountGroup/QuickEditToggle excluding it elsewhere in app.jsx.
+// Hidden on /console and /materiel: both have their own admin-style chrome
+// with a sticky header, same reasoning as FloatingAccountGroup/QuickEditToggle
+// excluding /console elsewhere in app.jsx.
 function isHidden(url) {
-    return url === '/console' || url.startsWith('/console/') || url.startsWith('/console?');
+    return (
+        url === '/console' || url.startsWith('/console/') || url.startsWith('/console?') ||
+        url === '/materiel' || url.startsWith('/materiel/') || url.startsWith('/materiel?')
+    );
 }
 
 /**

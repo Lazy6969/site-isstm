@@ -16,6 +16,7 @@ const SHOW_DELAY_MS = 2500;
 // not someone already deep in their own space.
 const HIDDEN_PREFIXES = [
     '/console',
+    '/materiel',
     '/login',
     '/communaute',
     '/amis',

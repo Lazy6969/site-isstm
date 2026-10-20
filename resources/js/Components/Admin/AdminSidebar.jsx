@@ -24,6 +24,7 @@ import {
     History,
     Palette,
     BarChart3,
+    Boxes,
     Network,
     GalleryHorizontal,
     ChevronDown,
@@ -89,6 +90,12 @@ function buildNavGroups(t) {
                 { href: '/console/roles', label: t('admin.nav.roles', 'Rôles'), icon: ShieldCheck, permission: 'roles.view' },
                 { href: '/console/activity-log', label: t('admin.nav.activity_log', "Journal d'activité"), icon: History, permission: 'activity-log.view' },
                 { href: '/console/corbeille', label: t('admin.nav.corbeille', 'Corbeille'), icon: Trash2, permission: 'dashboard.view' },
+            ],
+        },
+        {
+            label: t('admin.nav.group_materiel', 'Matériel'),
+            items: [
+                { href: '/console/materiel', label: t('admin.nav.materiel', 'Matériel'), icon: Boxes, permission: 'materiel.view' },
             ],
         },
         {
