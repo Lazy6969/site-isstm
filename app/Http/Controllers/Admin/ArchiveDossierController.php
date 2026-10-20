@@ -25,8 +25,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class ArchiveDossierController extends Controller
 {
-    private const NIVEAU_ORDER = ['L1', 'L2', 'L3', 'M1', 'M2'];
-
     private const EXPORT_COLUMNS = ['Nom', 'Prénom(s)', 'Niveau', 'Filière', 'Année'];
 
     private const EXPORT_COLUMN_WEIGHTS = [2.5, 2, 1, 2.5, 1.5];
@@ -39,7 +37,7 @@ class ArchiveDossierController extends Controller
             'dossiers' => $this->filteredDossiers($filters),
             'filters' => $filters,
             'filieres' => Filiere::orderBy('nom_fr')->get(['id', 'nom_fr']),
-            'niveaux' => $this->niveaux(),
+            'annees' => $this->annees(),
         ]);
     }
 
@@ -146,55 +144,46 @@ class ArchiveDossierController extends Controller
     }
 
     /**
-     * @return array{filiere_id: ?int, niveau: ?string, q: ?string}
+     * @return array{annee: ?int, q: ?string}
      */
     private function filters(Request $request): array
     {
         $validated = $request->validate([
-            'filiere_id' => ['nullable', 'integer', 'exists:filieres,id'],
-            'niveau' => ['nullable', 'string', 'max:10'],
+            'annee' => ['nullable', 'integer', 'min:2000', 'max:2100'],
             'q' => ['nullable', 'string', 'max:100'],
         ]);
 
         return [
-            'filiere_id' => isset($validated['filiere_id']) ? (int) $validated['filiere_id'] : null,
-            'niveau' => $validated['niveau'] ?? null,
+            'annee' => isset($validated['annee']) ? (int) $validated['annee'] : null,
             'q' => isset($validated['q']) && trim($validated['q']) !== '' ? trim($validated['q']) : null,
         ];
     }
 
     /**
-     * A dossier matches the search when its own name matches, or when one of
-     * its résultats' name does — so searching "Rakoto" finds the dossier
-     * that candidate is filed under, not just a dossier literally named
-     * that. The niveau/filière filters work the same way: they describe a
-     * dossier's members, not the dossier itself, so a dossier matches when
-     * at least one of its résultats does.
+     * The search and the year filter both look at the dossier itself (its name,
+     * its date) — never at the résultats filed inside it.
      *
-     * @param  array{filiere_id: ?int, niveau: ?string, q: ?string}  $filters
+     * @param  array{annee: ?int, q: ?string}  $filters
      * @return Collection<int, ArchiveDossier>
      */
     private function filteredDossiers(array $filters): Collection
     {
         return ArchiveDossier::withCount('resultats')
             ->with(['resultats' => fn ($query) => $query->with('filiere:id,nom_fr')->orderBy('nom')])
-            ->when($filters['q'], fn ($query, $term) => $query->where(fn ($outer) => $outer
-                ->where('nom', 'like', "%{$term}%")
-                ->orWhereHas('resultats', fn ($inner) => $inner
-                    ->where('nom', 'like', "%{$term}%")
-                    ->orWhere('prenoms', 'like', "%{$term}%"))))
-            ->when($filters['niveau'], fn ($query, $niveau) => $query->whereHas('resultats', fn ($inner) => $inner->where('niveau', $niveau)))
-            ->when($filters['filiere_id'], fn ($query, $id) => $query->whereHas('resultats', fn ($inner) => $inner->where('filiere_id', $id)))
+            ->when($filters['q'], fn ($query, $term) => $query->where('nom', 'like', "%{$term}%"))
+            ->when($filters['annee'], fn ($query, $annee) => $query->whereYear('date', $annee))
             ->orderByDesc('date')
             ->orderByDesc('id')
             ->get();
     }
 
-    /** @return array<int, string> */
-    private function niveaux(): array
+    /** @return array<int, int> */
+    private function annees(): array
     {
-        return ResultatAdmission::query()->whereNotNull('archive_dossier_id')->whereNotNull('niveau')->distinct()->pluck('niveau')
-            ->sortBy(fn (string $niveau) => [array_search($niveau, self::NIVEAU_ORDER, true) === false ? PHP_INT_MAX : array_search($niveau, self::NIVEAU_ORDER, true), $niveau])
+        return ArchiveDossier::query()->whereNotNull('date')->pluck('date')
+            ->map(fn ($date) => (int) $date->format('Y'))
+            ->unique()
+            ->sortDesc()
             ->values()
             ->all();
     }

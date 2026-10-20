@@ -171,6 +171,10 @@ const PERMISSION_LABELS = {
     'payments.refuse': ['Refuser un versement', 'Refuser avec un motif envoyé à l’étudiant.'],
     'payments.export': ['Exporter en Excel', 'Télécharger la liste des versements.'],
     'payments.delete': ['Supprimer un versement', 'Supprimer définitivement un versement.'],
+    'materiel.view': ['Consulter le matériel', 'Voir l’inventaire, les emprunts et l’historique de maintenance.'],
+    'materiel.create': ['Ajouter du matériel', 'Enregistrer un nouveau matériel dans l’inventaire.'],
+    'materiel.edit': ['Modifier le matériel', 'Modifier une fiche, un emprunt ou ajouter une intervention.'],
+    'materiel.delete': ['Supprimer', 'Supprimer un matériel ou une entrée de l’historique.'],
     'dashboard.view': ['Voir le tableau de bord', 'Accéder à la page d’accueil de la console.'],
 };
 

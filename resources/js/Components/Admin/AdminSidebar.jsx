@@ -109,7 +109,9 @@ function buildNavGroups(t) {
     ];
 }
 
-function isActive(url, href) {
+function isActive(url, href, exact = false) {
+    if (exact) return url === href || url.startsWith(`${href}?`);
+
     return url === href || url.startsWith(`${href}/`) || url.startsWith(`${href}?`);
 }
 
@@ -180,7 +182,7 @@ function NavGroup({ group, index, url, collapsed, onNavigate }) {
                 }`}
             >
                 {group.items.map((item) => (
-                    <NavItem key={item.href} item={item} active={isActive(url, item.href)} collapsed={collapsed} onNavigate={onNavigate} />
+                    <NavItem key={item.href} item={item} active={isActive(url, item.href, item.exact)} collapsed={collapsed} onNavigate={onNavigate} />
                 ))}
             </ul>
         </div>

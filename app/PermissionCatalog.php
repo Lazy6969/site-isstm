@@ -151,8 +151,8 @@ class PermissionCatalog
         $grants = [
             'etudiant' => [...self::COMMUNITY, ...self::STUDENT_ONLY, ...self::ECOLAGE_STUDENT],
             'scolarite' => [...self::PAYMENTS, ...self::RESULTATS],
-            'enseignant' => self::COMMUNITY,
             'responsable-materiel' => self::MATERIEL,
+            'enseignant' => self::COMMUNITY,
         ];
 
         foreach ($grants as $roleName => $permissions) {

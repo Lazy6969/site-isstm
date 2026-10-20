@@ -53,12 +53,23 @@ it('sends a student to the community feed', function () {
     loginAs($user)->assertRedirect(route('posts.index'));
 });
 
-it('sends a materiel account straight to its own dedicated Matériel page', function () {
+it('sends a materiel account straight to its own dedicated Matériel page, which is all its role gives access to', function () {
     $user = User::factory()->create();
     $user->assignRole('responsable-materiel');
 
     loginAs($user)->assertRedirect(route('materiel.index'));
     $this->actingAs($user)->get(route('materiel.index'))->assertOk();
+    $this->actingAs($user)->get(route('admin.dashboard'))->assertForbidden();
+    $this->actingAs($user)->get(route('admin.users.index'))->assertForbidden();
+});
+
+it('sends a materiel account whose role lost the matériel permission to the public site instead of a forbidden page', function () {
+    $user = User::factory()->create();
+    $user->assignRole('responsable-materiel');
+    $user->roles->first()->revokePermissionTo('materiel.view');
+    $user->forceFill(['is_messagerie' => false])->save();
+
+    loginAs($user)->assertRedirect(route('home'));
 });
 
 it('never gives a 403 on the landing page of a staff account', function () {
