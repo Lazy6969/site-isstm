@@ -17,10 +17,6 @@ import {
     FileText,
     Download,
     Wallet,
-    Package,
-    Boxes,
-    ClipboardList,
-    Wrench,
     UsersRound,
     MessageCircle,
     Archive,
@@ -55,16 +51,6 @@ function buildNavGroups(t) {
                 { href: '/communaute', label: t('admin.nav.fil_communautaire', 'Fil communautaire'), icon: Newspaper, permission: 'community.view' },
                 { href: '/groupes', label: t('admin.nav.groupes', 'Groupes de classe'), icon: UsersRound, permission: 'groups.view' },
                 { href: '/messages', label: t('admin.nav.messages_prives', 'Messages'), icon: MessageCircle, permission: 'messages.view' },
-            ],
-        },
-        {
-            label: t('admin.nav.group_materiel', 'Matériel'),
-            items: [
-                { href: '/materiel', exact: true, label: t('admin.nav.materiel_dashboard', 'Tableau de bord'), icon: Boxes, permission: 'materiel.view' },
-                { href: '/materiel/inventaire', label: t('admin.nav.materiel_inventaire', 'Inventaire'), icon: Package, permission: 'materiel.view' },
-                { href: '/materiel/emprunts', label: t('admin.nav.materiel_emprunts', 'Prêts & retours'), icon: ClipboardList, permission: 'materiel.view', badge: 'materiel_retards' },
-                { href: '/materiel/interventions', label: t('admin.nav.materiel_interventions', 'Pannes & maintenance'), icon: Wrench, permission: 'materiel.view', badge: 'materiel_interventions' },
-                { href: '/materiel/historique', label: t('admin.nav.materiel_historique', 'Historique'), icon: History, permission: 'materiel.view' },
             ],
         },
         {

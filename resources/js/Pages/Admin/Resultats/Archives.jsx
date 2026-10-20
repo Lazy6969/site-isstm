@@ -220,6 +220,31 @@ function MemberActions({ resultat, onEdit, onDestroy, t }) {
  * cards depending on `view` — each still editable or removable individually. */
 function DossierCard({ dossier, view, onEdit, onRestore, onDestroy, onEditResultat, onDestroyResultat, t }) {
     const [open, setOpen] = useState(false);
+    const [filter, setFilter] = useState({ q: '', annee: '', niveau: '', filiere: '' });
+
+    const members = dossier.resultats;
+    const options = {
+        annees: [...new Set(members.map((r) => formatYear(r.date)).filter((y) => y !== '—'))].sort().reverse(),
+        niveaux: [...new Set(members.map((r) => r.niveau).filter(Boolean))].sort(),
+        filieres: [...new Set(members.map((r) => r.filiere?.nom_fr).filter(Boolean))].sort(),
+    };
+    const term = filter.q.trim().toLowerCase();
+    const visible = members.filter(
+        (r) =>
+            (!term || `${r.nom} ${r.prenoms ?? ''}`.toLowerCase().includes(term)) &&
+            (!filter.annee || formatYear(r.date) === filter.annee) &&
+            (!filter.niveau || r.niveau === filter.niveau) &&
+            (!filter.filiere || r.filiere?.nom_fr === filter.filiere),
+    );
+    const isFiltering = Object.values(filter).some((v) => v !== '');
+
+    function patchFilter(patch) {
+        setFilter((current) => ({ ...current, ...patch }));
+        setOpen(true);
+    }
+
+    const miniSelect =
+        'h-8 rounded-lg border border-admin-border bg-admin-card px-2 text-xs text-admin-text outline-none focus:border-admin-accent/60';
 
     return (
         <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
@@ -233,12 +258,43 @@ function DossierCard({ dossier, view, onEdit, onRestore, onDestroy, onEditResult
                     <span className="min-w-0">
                         <span className="block truncate text-sm font-semibold text-admin-text">{dossier.nom}</span>
                         <span className="block text-xs text-admin-muted">
-                            {formatYear(dossier.date)} · {dossier.resultats_count} résultat(s)
+                            {formatYear(dossier.date)} · {isFiltering ? `${visible.length} / ${dossier.resultats_count}` : dossier.resultats_count} résultat(s)
                         </span>
                     </span>
                 </button>
 
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex min-w-[260px] flex-1 flex-wrap items-center justify-end gap-1.5">
+                    <input
+                        value={filter.q}
+                        onChange={(e) => patchFilter({ q: e.target.value })}
+                        placeholder={t('admin.resultats.filtrer_nom', 'Nom ou prénom...')}
+                        aria-label={t('admin.resultats.filtrer_nom', 'Nom ou prénom...')}
+                        className={`${miniSelect} w-36`}
+                    />
+                    <select value={filter.annee} onChange={(e) => patchFilter({ annee: e.target.value })} className={miniSelect} aria-label={t('admin.resultats.annee', 'Année')}>
+                        <option value="">{t('admin.resultats.toutes_annees', 'Toutes les années')}</option>
+                        {options.annees.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                        ))}
+                    </select>
+                    <select value={filter.niveau} onChange={(e) => patchFilter({ niveau: e.target.value })} className={miniSelect} aria-label={t('admin.resultats.niveau', 'Niveau')}>
+                        <option value="">{t('admin.resultats.tous_niveaux', 'Tous les niveaux')}</option>
+                        {options.niveaux.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                        ))}
+                    </select>
+                    <select value={filter.filiere} onChange={(e) => patchFilter({ filiere: e.target.value })} className={`${miniSelect} max-w-44`} aria-label={t('admin.resultats.filiere', 'Filière')}>
+                        <option value="">{t('admin.resultats.toutes_filieres', 'Toutes les filières')}</option>
+                        {options.filieres.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                        ))}
+                    </select>
+                    {isFiltering && (
+                        <button type="button" onClick={() => setFilter({ q: '', annee: '', niveau: '', filiere: '' })} className="h-8 rounded-lg px-2 text-xs font-medium text-admin-accent hover:bg-admin-hover">
+                            {t('admin.resultats.reinitialiser', 'Réinitialiser')}
+                        </button>
+                    )}
+                    <span className="mx-0.5 hidden h-5 w-px bg-admin-border sm:block" aria-hidden="true" />
                     <a
                         href={`${ARCHIVES_URL}/${dossier.id}/export/excel`}
                         className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
@@ -285,7 +341,7 @@ function DossierCard({ dossier, view, onEdit, onRestore, onDestroy, onEditResult
 
             {open && (view === 'grid' ? (
                 <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {dossier.resultats.map((resultat) => (
+                    {visible.map((resultat) => (
                         <div key={resultat.id} className="flex flex-col gap-2 rounded-lg border border-admin-border p-3">
                             <div>
                                 <p className="truncate text-sm font-medium text-admin-text">
@@ -316,7 +372,7 @@ function DossierCard({ dossier, view, onEdit, onRestore, onDestroy, onEditResult
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {dossier.resultats.map((resultat) => (
+                        {visible.map((resultat) => (
                             <TableRow key={resultat.id}>
                                 <TableCell className="font-medium">{resultat.nom}</TableCell>
                                 <TableCell>{resultat.prenoms ?? '—'}</TableCell>
@@ -338,12 +394,11 @@ function DossierCard({ dossier, view, onEdit, onRestore, onDestroy, onEditResult
 /**
  * The Archives page: every dossier an admin has created from the active
  * Résultats list's "Archiver" dialog (see ArchiveDossier's docblock) — a
- * folder per named, dated batch, searchable and filterable by niveau/
- * filière (a dossier matches when it or one of its members does),
+ * folder per named, dated batch, searchable by name and filterable by year,
  * individually viewable, renameable, restorable back to the public list,
  * deletable, and exportable to Excel or PDF.
  */
-export default function Archives({ dossiers, filieres, niveaux = [], filters = {} }) {
+export default function Archives({ dossiers, filieres, annees = [], filters = {} }) {
     const confirmAction = useConfirm();
     const { t } = useTranslations();
     const [editingDossier, setEditingDossier] = useState(null);
@@ -352,7 +407,7 @@ export default function Archives({ dossiers, filieres, niveaux = [], filters = {
     const [view, setView] = useState('list');
     const searchTimer = useRef(null);
 
-    const current = { filiere_id: filters.filiere_id ?? '', niveau: filters.niveau ?? '', q: filters.q ?? '' };
+    const current = { annee: filters.annee ?? '', q: filters.q ?? '' };
 
     function applyFilters(next) {
         router.get(`${ARCHIVES_URL}${queryString(next)}`, {}, { preserveState: true, preserveScroll: true, replace: true });
@@ -424,25 +479,16 @@ export default function Archives({ dossiers, filieres, niveaux = [], filters = {
                     <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder={t('admin.resultats.rechercher_archives', 'Rechercher un dossier ou un nom...')}
+                        placeholder={t('admin.resultats.rechercher_archives', 'Rechercher un dossier...')}
                         className={`${selectClass} w-full pr-3 pl-10 placeholder:text-admin-muted`}
                     />
                 </div>
 
-                <Select value={current.niveau} onChange={(e) => setFilter('niveau', e.target.value)} className={selectClass}>
-                    <option value="">{t('admin.resultats.tous_niveaux', 'Tous les niveaux')}</option>
-                    {niveaux.map((niveau) => (
-                        <option key={niveau} value={niveau}>
-                            {niveau}
-                        </option>
-                    ))}
-                </Select>
-
-                <Select value={current.filiere_id} onChange={(e) => setFilter('filiere_id', e.target.value)} className={selectClass}>
-                    <option value="">{t('admin.resultats.toutes_filieres', 'Toutes les filières')}</option>
-                    {filieres.map((f) => (
-                        <option key={f.id} value={f.id}>
-                            {f.nom_fr}
+                <Select value={current.annee} onChange={(e) => setFilter('annee', e.target.value)} className={selectClass}>
+                    <option value="">{t('admin.resultats.toutes_annees', 'Toutes les années')}</option>
+                    {annees.map((annee) => (
+                        <option key={annee} value={annee}>
+                            {annee}
                         </option>
                     ))}
                 </Select>

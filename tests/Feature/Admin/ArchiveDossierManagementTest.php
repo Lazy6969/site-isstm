@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\ArchiveDossier;
-use App\Models\Filiere;
 use App\Models\ResultatAdmission;
 use App\Models\User;
 use App\Role;
@@ -60,28 +59,25 @@ it('lists dossiers with their members, most recently dated first', function () {
     );
 });
 
-it('finds a dossier by searching a member\'s name, not just the dossier\'s own name', function () {
+it('searches dossiers by their own name only, not by their members', function () {
     $admin = User::factory()->role(Role::Admin)->create();
     $dossier = ArchiveDossier::factory()->create(['nom' => 'Promotion 2026']);
-    ResultatAdmission::factory()->archived($dossier)->create(['nom' => 'RAKOTO']);
+    ResultatAdmission::factory()->archived($dossier)->create(['nom' => 'RABE']);
     $other = ArchiveDossier::factory()->create(['nom' => 'Promotion 2025']);
-    ResultatAdmission::factory()->archived($other)->create(['nom' => 'RABE']);
+    ResultatAdmission::factory()->archived($other)->create(['nom' => 'RAKOTO']);
 
-    $this->actingAs($admin)->get('/console/scolarite/resultats/archives?q=RAKOTO')->assertInertia(fn ($page) => $page
+    $this->actingAs($admin)->get('/console/scolarite/resultats/archives?q=2026')->assertInertia(fn ($page) => $page
         ->has('dossiers', 1)
         ->where('dossiers.0.id', $dossier->id)
     );
 });
 
-it('filters dossiers by a member\'s niveau or filière', function () {
+it('filters dossiers by year', function () {
     $admin = User::factory()->role(Role::Admin)->create();
-    $filiere = Filiere::factory()->create();
-    $match = ArchiveDossier::factory()->create();
-    ResultatAdmission::factory()->archived($match)->create(['niveau' => 'M1', 'filiere_id' => $filiere->id]);
-    $noMatch = ArchiveDossier::factory()->create();
-    ResultatAdmission::factory()->archived($noMatch)->create(['niveau' => 'L1']);
+    $match = ArchiveDossier::factory()->create(['date' => '2025-03-10']);
+    ArchiveDossier::factory()->create(['date' => '2024-03-10']);
 
-    $this->actingAs($admin)->get("/console/scolarite/resultats/archives?niveau=M1&filiere_id={$filiere->id}")->assertInertia(fn ($page) => $page
+    $this->actingAs($admin)->get('/console/scolarite/resultats/archives?annee=2025')->assertInertia(fn ($page) => $page
         ->has('dossiers', 1)
         ->where('dossiers.0.id', $match->id)
     );

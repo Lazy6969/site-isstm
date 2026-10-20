@@ -14,8 +14,6 @@ import BannerBackground from '../../Components/QuickEdit/BannerBackground';
 const team = [
     { key: 'equipe_membre_1', featured: true, hasHighlight: true, iconDefault: 'Crown' },
     { key: 'equipe_membre_2', featured: false, hasHighlight: false, iconDefault: 'Server' },
-    { key: 'equipe_membre_3', featured: false, hasHighlight: false, iconDefault: 'Sparkles' },
-    { key: 'equipe_membre_4', featured: false, hasHighlight: false, iconDefault: 'Wrench' },
 ];
 
 export default function Index() {
