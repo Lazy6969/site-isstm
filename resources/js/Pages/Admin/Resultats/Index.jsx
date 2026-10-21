@@ -262,10 +262,10 @@ export default function Index({ resultats, filieres, niveaux = [], filters = {} 
     async function destroy(resultat) {
         if (
             !(await confirmAction({
-                message: 'Ce résultat sera placé dans la corbeille.',
-                title: 'Supprimer ce résultat ?',
+                message: t('admin.auto.ce_resultat_sera_place_dans_la_corbeille_0ae7', 'Ce résultat sera placé dans la corbeille.'),
+                title: t('admin.auto.supprimer_ce_resultat_d3a6', 'Supprimer ce résultat ?'),
                 details: `${resultat.nom} ${resultat.prenoms ?? ''}`,
-                confirmLabel: 'Supprimer',
+                confirmLabel: t('admin.auto.supprimer_ccfd', 'Supprimer'),
             }))
         ) {
             return;
@@ -276,9 +276,9 @@ export default function Index({ resultats, filieres, niveaux = [], filters = {} 
     async function destroyAll() {
         if (
             !(await confirmAction({
-                message: 'Tous les résultats (actifs et archivés, pas seulement ceux affichés par les filtres) seront placés dans la corbeille.',
-                title: 'Supprimer tous les résultats ?',
-                confirmLabel: 'Tout supprimer',
+                message: t('admin.auto.tous_les_resultats_actifs_et_archives_pa_d086', 'Tous les résultats (actifs et archivés, pas seulement ceux affichés par les filtres) seront placés dans la corbeille.'),
+                title: t('admin.auto.supprimer_tous_les_resultats_42a3', 'Supprimer tous les résultats ?'),
+                confirmLabel: t('admin.auto.tout_supprimer_0df7', 'Tout supprimer'),
             }))
         ) {
             return;

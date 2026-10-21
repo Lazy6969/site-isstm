@@ -224,7 +224,7 @@ export default function Index({ classes, filieres, membres = [] }) {
     }
 
     async function destroy(classe) {
-        if (!(await confirmAction({ message: 'Cette classe sera placée dans la corbeille.', title: 'Supprimer cette classe ?', details: classe.nom, confirmLabel: 'Supprimer' }))) return;
+        if (!(await confirmAction({ message: t('admin.auto.ce_niveau_sera_place_dans_la_corbeille_6aaf', 'Ce niveau sera placé dans la corbeille.'), title: t('admin.auto.supprimer_ce_niveau_67b1', 'Supprimer ce niveau ?'), details: classe.nom, confirmLabel: t('admin.auto.supprimer_ccfd', 'Supprimer') }))) return;
         router.delete(`/console/scolarite/classes/${classe.id}`, { preserveScroll: true });
     }
 
@@ -256,7 +256,7 @@ export default function Index({ classes, filieres, membres = [] }) {
                         {classes.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={6} className="py-8 text-center text-admin-muted">
-                                    {t('admin.classes.empty', 'Aucune classe pour le moment.')}
+                                    {t('admin.classes.empty', 'Aucun niveau pour le moment.')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -301,7 +301,7 @@ export default function Index({ classes, filieres, membres = [] }) {
                     <DialogHeader>
                         <DialogTitle>
                             {editing
-                                ? t('admin.classes.modifier_titre', 'Modifier la classe')
+                                ? t('admin.classes.modifier_titre', 'Modifier le niveau')
                                 : t('admin.classes.nouvelle', 'Nouvelle classe')}
                         </DialogTitle>
                     </DialogHeader>

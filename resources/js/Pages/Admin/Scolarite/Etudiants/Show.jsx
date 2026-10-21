@@ -84,14 +84,14 @@ export default function Show({ etudiant, classes }) {
     }
 
     async function destroy() {
-        if (!(await confirmAction({ message: 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.', title: 'Supprimer ce compte étudiant ?', details: etudiant.user.name, confirmLabel: 'Supprimer définitivement' }))) return;
+        if (!(await confirmAction({ message: t('admin.auto.il_ne_pourra_plus_se_connecter_et_toutes_0b6a', 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.'), title: t('admin.auto.supprimer_ce_compte_etudiant_ad79', 'Supprimer ce compte étudiant ?'), details: etudiant.user.name, confirmLabel: t('admin.auto.supprimer_definitivement_022b', 'Supprimer définitivement') }))) return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`);
     }
 
     async function togglePause() {
         const suspending = etudiant.statut === 'actif';
         const verb = suspending ? 'mettre en pause' : 'réactiver';
-        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: 'Confirmer cette action ?', details: etudiant.user.name, confirmLabel: 'Confirmer' }))) return;
+        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: t('admin.auto.confirmer_cette_action_263c', 'Confirmer cette action ?'), details: etudiant.user.name, confirmLabel: t('admin.auto.confirmer_303a', 'Confirmer') }))) return;
         router.post(`/console/scolarite/etudiants/${etudiant.id}/pause`, {}, { preserveScroll: true });
     }
 

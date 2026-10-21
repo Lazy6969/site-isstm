@@ -32,7 +32,6 @@ import {
     Wrench,
 } from 'lucide-react';
 import AdminLayout from '../../Components/Layout/AdminLayout';
-import MaterielLayout from '../../Components/Layout/MaterielLayout';
 import StatCard from '../../Components/Admin/StatCard';
 import { Badge } from '../../Components/ui/badge';
 import { Button } from '../../Components/ui/button';
@@ -731,7 +730,7 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
             {tab === 'liste' && (
                 <>
                     <div className="mb-5 flex flex-wrap items-end gap-3">
-                        {embedded && (
+                        {(
                             <div className="min-w-[220px] flex-1">
                                 <Label htmlFor="materiel-recherche-embedded">{t('materiel.recherche_label', 'Rechercher')}</Label>
                                 <div className="relative mt-1.5">
@@ -939,23 +938,9 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
         </>
     );
 
-    if (embedded) {
-        return (
-            <AdminLayout title={t('materiel.titre', 'Matériel')} actions={actions}>
-                {content}
-            </AdminLayout>
-        );
-    }
-
     return (
-        <MaterielLayout
-            title={t('materiel.titre', 'Matériel')}
-            search={search}
-            onSearchChange={setSearch}
-            searchPlaceholder={t('materiel.recherche_placeholder', 'Rechercher un matériel, un lieu...')}
-            actions={actions}
-        >
+        <AdminLayout title={t('materiel.titre', 'Matériel')} actions={actions}>
             {content}
-        </MaterielLayout>
+        </AdminLayout>
     );
 }

@@ -216,14 +216,14 @@ function LivePreview({ mode, setMode, picks }) {
                         <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: menu, color: lightText(menu) }}>
                             <span className="font-bold">ISSTM</span>
                             <span className="flex gap-2 opacity-90">
-                                <span>Accueil</span>
-                                <span>Filières</span>
-                                <span>Contact</span>
+                                <span>{t('admin.auto.accueil_74fe', 'Accueil')}</span>
+                                <span>{t('admin.auto.filieres_f987', 'Filières')}</span>
+                                <span>{t('admin.auto.contact_bbaf', 'Contact')}</span>
                             </span>
                         </div>
                         <div className="px-4 py-5" style={{ backgroundColor: primary, color: '#fff' }}>
-                            <p className="text-sm font-bold">Bienvenue à l’ISSTM</p>
-                            <p className="mt-0.5 opacity-80">Former aujourd’hui les compétences de demain.</p>
+                            <p className="text-sm font-bold">{t('admin.auto.bienvenue_a_l_isstm_a566', 'Bienvenue à l’ISSTM')}</p>
+                            <p className="mt-0.5 opacity-80">{t('admin.auto.former_aujourd_hui_les_competences_de_de_e9a3', 'Former aujourd’hui les compétences de demain.')}</p>
                             <span className="mt-2 inline-block rounded px-2 py-1 font-semibold" style={{ backgroundColor: picks.siteAccent, color: lightText(picks.siteAccent ?? '#d4a017') === '#0f172a' ? '#0f172a' : primaryDark }}>
                                 Découvrir
                             </span>

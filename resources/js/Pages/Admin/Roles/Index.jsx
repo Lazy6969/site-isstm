@@ -35,10 +35,10 @@ function roleLabels(t) {
 
 const ROLE_BLURBS = {
     'super-admin': 'Accès total à la plateforme. Ses permissions ne sont pas modifiables.',
-    enseignant: 'Équipe pédagogique : groupes de classe, annonces, leçons et échanges avec les étudiants.',
+    enseignant: 'Équipe pédagogique : groupes de niveau, annonces, leçons et échanges avec les étudiants.',
     scolarite: 'Gestion administrative : préinscriptions, inscriptions, réactivations et dossiers étudiants.',
     'responsable-materiel': 'Suivi du matériel et accès de base à la console.',
-    etudiant: "Espace étudiant : fil communautaire, messages, groupes de classe et réinscription.",
+    etudiant: "Espace étudiant : fil communautaire, messages, groupes de niveau et réinscription.",
 };
 
 /**
@@ -56,7 +56,7 @@ const CATEGORIES = [
             ['reactivations', 'Réactivations', "Demandes de réactivation d'anciens étudiants."],
             ['etudiants', 'Étudiants', 'Fiches et dossiers des étudiants.'],
             ['inscriptions', 'Inscriptions', 'Inscriptions et réinscriptions par année.'],
-            ['classes', 'Niveaux & classes', 'Niveaux, classes et affectations.'],
+            ['classes', 'Niveaux', 'Niveaux et affectations.'],
             ['payments', 'Écolage (gestion)', 'Vérifier et valider les versements déclarés par les étudiants.'],
             ['reinscription', 'Réinscription en ligne', "Dépôt du dossier de réinscription par l'étudiant."],
         ],
@@ -71,7 +71,7 @@ const CATEGORIES = [
             ['friends', 'Amis', "Demandes d'amis et liste de contacts."],
             ['messages', 'Messagerie privée', 'Conversations privées entre membres.'],
             ['ecolage', 'Mon écolage', "Page de l'étudiant pour déclarer ses versements."],
-            ['groups', 'Groupes de classe', 'Messages, annonces, leçons, présence et modération.'],
+            ['groups', 'Groupes de niveau', 'Messages, annonces, leçons, présence et modération.'],
         ],
     },
     {
@@ -146,8 +146,8 @@ const PERMISSION_LABELS = {
     'friends.manage': ['Gérer ses amis', "Envoyer, accepter ou refuser des demandes d'amis."],
     'messages.view': ['Lire les messages', 'Accéder à la messagerie privée.'],
     'messages.send': ['Envoyer des messages', 'Écrire, transférer et réagir dans les conversations.'],
-    'groups.view': ['Voir les groupes', 'Accéder aux groupes de classe dont on est membre.'],
-    'groups.create': ['Créer un groupe', 'Ouvrir un nouveau groupe de classe.'],
+    'groups.view': ['Voir les groupes', 'Accéder aux groupes de niveau dont on est membre.'],
+    'groups.create': ['Créer un groupe', 'Ouvrir un nouveau groupe de niveau.'],
     'groups.join': ['Rejoindre un groupe', "Entrer dans un groupe avec un code d'invitation."],
     'groups.message': ['Écrire dans le groupe', 'Envoyer des messages et des fichiers dans le groupe.'],
     'groups.announce': ['Publier annonces & leçons', 'Poster annonces, leçons, devoirs et documents.'],
@@ -175,6 +175,10 @@ const PERMISSION_LABELS = {
     'materiel.create': ['Ajouter du matériel', 'Enregistrer un nouveau matériel dans l’inventaire.'],
     'materiel.edit': ['Modifier le matériel', 'Modifier une fiche, un emprunt ou ajouter une intervention.'],
     'materiel.delete': ['Supprimer', 'Supprimer un matériel ou une entrée de l’historique.'],
+    'materiel.export': ['Exporter', 'Exporter l’inventaire du matériel.'],
+    'materiel.move': ['Déplacer', 'Déplacer un matériel d’un lieu à un autre.'],
+    'materiel.loan': ['Prêter', 'Enregistrer un prêt et son retour.'],
+    'materiel.maintain': ['Maintenance', 'Déclarer une panne et suivre les interventions.'],
     'dashboard.view': ['Voir le tableau de bord', 'Accéder à la page d’accueil de la console.'],
 };
 
@@ -408,7 +412,7 @@ export default function Index({ roles, permissions }) {
     );
 
     async function selectRole(role) {
-        if (dirty && !(await confirmAction({ message: t('admin.roles.unsaved_confirm', 'Des modifications ne sont pas enregistrées. Changer de rôle les annulera.'), tone: 'warning', title: 'Modifications non enregistrées', confirmLabel: 'Changer de rôle' }))) return;
+        if (dirty && !(await confirmAction({ message: t('admin.roles.unsaved_confirm', 'Des modifications ne sont pas enregistrées. Changer de rôle les annulera.'), tone: 'warning', title: t('admin.auto.modifications_non_enregistrees_3d9d', 'Modifications non enregistrées'), confirmLabel: t('admin.auto.changer_de_role_2dbb', 'Changer de rôle') }))) return;
         setSelectedId(role.id);
         form.setData('permissions', [...role.permissions]);
         form.clearErrors();

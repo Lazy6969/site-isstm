@@ -110,6 +110,7 @@ function Avatar({ student, size = 'h-10 w-10' }) {
 }
 
 function ProofPanel({ title, icon: Icon, src, isPdf }) {
+    const { t } = useTranslations();
     const [zoom, setZoom] = useState(false);
 
     return (
@@ -138,7 +139,7 @@ function ProofPanel({ title, icon: Icon, src, isPdf }) {
             {zoom && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setZoom(false)} role="dialog" aria-label={title}>
                     <img src={src} alt={title} className="max-h-full max-w-full rounded-xl shadow-2xl" />
-                    <button type="button" onClick={() => setZoom(false)} aria-label="Fermer" className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/30">
+                    <button type="button" onClick={() => setZoom(false)} aria-label={t('admin.auto.fermer_7d20', 'Fermer')} className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/30">
                         <X className="h-5 w-5" aria-hidden="true" />
                     </button>
                 </div>
@@ -234,7 +235,7 @@ function ReviewPanel({ payment, options, onClose, startRefusing = false }) {
     const checklist = [
         ['receipt_ok', t('admin.ecolage.check_recu', 'Le reçu est lisible et authentique')],
         ['card_ok', t('admin.ecolage.check_carte', "Le nom et le matricule du reçu correspondent à la carte d'étudiant")],
-        ['amount_ok', t('admin.ecolage.check_montant', `Le montant (${formatAmount(payment.amount)}) et la référence correspondent au reçu`)],
+        ['amount_ok', t('admin.ecolage.check_montant', 'Le montant ({amount}) et la référence correspondent au reçu').replace('{amount}', formatAmount(payment.amount))],
     ];
 
     return (
@@ -339,7 +340,7 @@ function ReviewPanel({ payment, options, onClose, startRefusing = false }) {
                                     rows={3}
                                     maxLength={500}
                                     className="w-full rounded-xl border border-admin-border bg-admin-bg/50 p-3 text-sm text-admin-text outline-none focus:border-rose-500/50 focus:ring-4 focus:ring-rose-500/10"
-                                    placeholder="Ex. reçu illisible, nom différent de la carte…"
+                                    placeholder={t('admin.auto.ex_recu_illisible_nom_different_de_la_ca_359d', 'Ex. reçu illisible, nom différent de la carte…')}
                                 />
                                 {errors.motif_refus && <p className="text-xs text-rose-500">{errors.motif_refus}</p>}
                                 <div className="flex justify-end gap-2">

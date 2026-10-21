@@ -57,7 +57,7 @@ export default function Show({ preinscription }) {
     const isDecided = !['en_attente', 'en_cours_examen', 'a_completer'].includes(preinscription.status);
 
     async function approve() {
-        if (!(await confirmAction({ message: t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'), tone: 'info', title: 'Créer le compte étudiant ?', confirmLabel: 'Créer le compte' }))) {
+        if (!(await confirmAction({ message: t('preinscriptions_admin.confirmer_approbation', 'Créer le compte étudiant pour cette préinscription ?'), tone: 'info', title: t('admin.auto.creer_le_compte_etudiant_2521', 'Créer le compte étudiant ?'), confirmLabel: t('admin.auto.creer_le_compte_6096', 'Créer le compte') }))) {
             return;
         }
 

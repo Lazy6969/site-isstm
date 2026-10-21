@@ -185,7 +185,7 @@ export default function Dashboard({
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard label={t('admin.dashboard.students', 'Étudiants')} value={stats.etudiants} icon={GraduationCap} hint={t('admin.dashboard.students_hint', 'Dossiers actifs')} trend={trends.etudiants} />
-                <StatCard label={t('admin.dashboard.classes', 'Classes')} value={stats.classes} icon={School} hint={t('admin.dashboard.classes_hint', 'Toutes années confondues')} trend={trends.classes} />
+                <StatCard label={t('admin.dashboard.classes', 'Niveaux')} value={stats.classes} icon={School} hint={t('admin.dashboard.classes_hint', 'Toutes années confondues')} trend={trends.classes} />
                 <StatCard
                     label={t('admin.dashboard.preinscriptions', 'Préinscriptions')}
                     value={stats.preinscriptions_en_attente}

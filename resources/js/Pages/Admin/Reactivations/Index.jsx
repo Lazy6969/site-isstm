@@ -21,6 +21,7 @@ function formatDate(value) {
 }
 
 function ReactivationRow({ reactivation, compact = false }) {
+    const { t } = useTranslations();
     const confirmAction = useConfirm();
     const [refusing, setRefusing] = useState(false);
     const [motif, setMotif] = useState('');
@@ -47,7 +48,7 @@ function ReactivationRow({ reactivation, compact = false }) {
     }
 
     async function destroy() {
-        if (!(await confirmAction({ message: 'Cette demande sera placée dans la corbeille, d’où vous pourrez la restaurer.', title: 'Supprimer cette demande ?', details: reactivation.user?.name, confirmLabel: 'Supprimer' }))) return;
+        if (!(await confirmAction({ message: t('admin.auto.cette_demande_sera_placee_dans_la_corbei_622a', 'Cette demande sera placée dans la corbeille, d’où vous pourrez la restaurer.'), title: t('admin.auto.supprimer_cette_demande_f225', 'Supprimer cette demande ?'), details: reactivation.user?.name, confirmLabel: t('admin.auto.supprimer_ccfd', 'Supprimer') }))) return;
         setProcessing(true);
         router.delete(`/console/reactivations/${reactivation.id}`, { preserveScroll: true, onFinish: () => setProcessing(false) });
     }
@@ -110,7 +111,7 @@ function ReactivationRow({ reactivation, compact = false }) {
                     <Textarea
                         value={motif}
                         onChange={(e) => setMotif(e.target.value)}
-                        placeholder="Motif du refus (optionnel)"
+                        placeholder={t('admin.auto.motif_du_refus_optionnel_5322', 'Motif du refus (optionnel)')}
                         rows={3}
                         autoFocus
                     />

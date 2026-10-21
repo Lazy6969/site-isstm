@@ -428,9 +428,9 @@ export default function Archives({ dossiers, filieres, annees = [], filters = {}
         if (
             !(await confirmAction({
                 message: `Les ${dossier.resultats_count} résultat(s) de ce dossier seront remis dans la liste active et redeviendront visibles publiquement. Le dossier sera ensuite supprimé.`,
-                title: 'Restaurer ce dossier ?',
+                title: t('admin.auto.restaurer_ce_dossier_a375', 'Restaurer ce dossier ?'),
                 details: dossier.nom,
-                confirmLabel: 'Restaurer',
+                confirmLabel: t('admin.auto.restaurer_1f76', 'Restaurer'),
             }))
         ) {
             return;
@@ -442,9 +442,9 @@ export default function Archives({ dossiers, filieres, annees = [], filters = {}
         if (
             !(await confirmAction({
                 message: `Ce dossier et ses ${dossier.resultats_count} résultat(s) seront placés dans la corbeille.`,
-                title: 'Supprimer ce dossier ?',
+                title: t('admin.auto.supprimer_ce_dossier_ffca', 'Supprimer ce dossier ?'),
                 details: dossier.nom,
-                confirmLabel: 'Supprimer',
+                confirmLabel: t('admin.auto.supprimer_ccfd', 'Supprimer'),
             }))
         ) {
             return;
@@ -455,10 +455,10 @@ export default function Archives({ dossiers, filieres, annees = [], filters = {}
     async function destroyResultat(resultat) {
         if (
             !(await confirmAction({
-                message: 'Ce résultat sera placé dans la corbeille.',
-                title: 'Supprimer ce résultat ?',
+                message: t('admin.auto.ce_resultat_sera_place_dans_la_corbeille_0ae7', 'Ce résultat sera placé dans la corbeille.'),
+                title: t('admin.auto.supprimer_ce_resultat_d3a6', 'Supprimer ce résultat ?'),
                 details: `${resultat.nom} ${resultat.prenoms ?? ''}`,
-                confirmLabel: 'Supprimer',
+                confirmLabel: t('admin.auto.supprimer_ccfd', 'Supprimer'),
             }))
         ) {
             return;

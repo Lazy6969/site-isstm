@@ -148,7 +148,7 @@ export default function Index({ logs }) {
     async function deleteSelected() {
         const ids = [...selected];
         const confirmed = await confirmAction({
-            title: t('admin.activity_log.delete_many_title', `Supprimer ${ids.length} entrée(s) ?`),
+            title: t('admin.activity_log.delete_many_title', 'Supprimer {n} entrée(s) ?').replace('{n}', ids.length),
             message: t('admin.activity_log.delete_text', 'Elle sera placée dans la corbeille, d’où vous pourrez la restaurer ou la supprimer définitivement.'),
             confirmLabel: t('admin.activity_log.delete_confirm', 'Mettre à la corbeille'),
         });

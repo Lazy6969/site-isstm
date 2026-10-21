@@ -51,7 +51,7 @@ function buildNavGroups(t) {
             label: t('admin.nav.group_communaute', 'Communauté'),
             items: [
                 { href: '/communaute', embed: true, label: t('admin.nav.fil_communautaire', 'Fil communautaire'), icon: Newspaper, permission: 'community.view' },
-                { href: '/groupes', embed: true, label: t('admin.nav.groupes', 'Groupes de classe'), icon: UsersRound, permission: 'groups.view' },
+                { href: '/groupes', embed: true, label: t('admin.nav.groupes', 'Groupes de niveau'), icon: UsersRound, permission: 'groups.view' },
                 { href: '/messages', embed: true, label: t('admin.nav.messages_prives', 'Messages'), icon: MessageCircle, permission: 'messages.view' },
             ],
         },
@@ -96,7 +96,7 @@ function buildNavGroups(t) {
         {
             label: t('admin.nav.group_materiel', 'Matériel'),
             items: [
-                { href: '/console/materiel', label: t('admin.nav.materiel', 'Matériel'), icon: Boxes, permission: 'materiel.view' },
+                { href: '/console/materiel', alsoActive: ['/materiel'], label: t('admin.nav.materiel', 'Matériel'), icon: Boxes, permission: 'materiel.view' },
             ],
         },
         {
@@ -186,7 +186,7 @@ function NavGroup({ group, index, url, collapsed, onNavigate }) {
                 }`}
             >
                 {group.items.map((item) => (
-                    <NavItem key={item.href} item={item} active={isActive(url, item.href, item.exact)} collapsed={collapsed} onNavigate={onNavigate} />
+                    <NavItem key={item.href} item={item} active={isActive(url, item.href, item.exact) || (item.alsoActive ?? []).some((extra) => isActive(url, extra))} collapsed={collapsed} onNavigate={onNavigate} />
                 ))}
             </ul>
         </div>

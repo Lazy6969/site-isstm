@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import { AlertCircle, Camera, CalendarDays, Clock, Mail, Phone, Save, ShieldCheck, User as UserIcon, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useTranslations } from '../../lib/useTranslations';
 
 function initials(name) {
     return (name ?? '?')
@@ -73,6 +74,7 @@ const inputClass =
  * endpoint as the dialog it replaces.
  */
 export default function UserProfilePanel({ user, roleLabel, isSelf, onClose }) {
+    const { t } = useTranslations();
     const form = useForm({ name: user.name, email: user.email, phone: user.phone ?? '', avatar: null });
     const [preview, setPreview] = useState(null);
     const [dragging, setDragging] = useState(false);
@@ -127,7 +129,7 @@ export default function UserProfilePanel({ user, roleLabel, isSelf, onClose }) {
         <aside className="relative overflow-hidden rounded-2xl border border-admin-border bg-admin-card shadow-lg" aria-label={`Modifier le profil de ${user.name}`}>
             <div className="relative h-24 bg-gradient-to-br from-admin-accent via-admin-accent/90 to-sky-500">
                 <span className="pointer-events-none absolute -right-8 -top-10 h-36 w-36 rounded-full bg-white/20 blur-2xl" />
-                <button type="button" onClick={onClose} aria-label="Fermer" className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur transition hover:bg-white/35">
+                <button type="button" onClick={onClose} aria-label={t('admin.auto.fermer_7d20', 'Fermer')} className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur transition hover:bg-white/35">
                     <X className="h-4 w-4" aria-hidden="true" />
                 </button>
             </div>
@@ -201,19 +203,19 @@ export default function UserProfilePanel({ user, roleLabel, isSelf, onClose }) {
                 </dl>
 
                 <div className="mt-5 space-y-4">
-                    <Field icon={UserIcon} label="Nom complet" error={form.errors.name}>
+                    <Field icon={UserIcon} label={t('admin.auto.nom_complet_bcdc', 'Nom complet')} error={form.errors.name}>
                         <input value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} className={inputClass} autoComplete="off" />
                     </Field>
                     <Field icon={Mail} label="E-mail" error={form.errors.email}>
                         <input type="email" value={form.data.email} onChange={(e) => form.setData('email', e.target.value)} className={inputClass} autoComplete="off" />
                     </Field>
-                    <Field icon={Phone} label="Téléphone" error={form.errors.phone}>
+                    <Field icon={Phone} label={t('admin.auto.telephone_301d', 'Téléphone')} error={form.errors.phone}>
                         <input value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} className={inputClass} autoComplete="off" />
                     </Field>
                 </div>
 
                 <div className="mt-5 flex items-center justify-between gap-3 border-t border-admin-border pt-4">
-                    <span className={cn('text-xs font-semibold text-amber-600 transition-opacity', dirty ? 'opacity-100' : 'opacity-0')}>Modifications non enregistrées</span>
+                    <span className={cn('text-xs font-semibold text-amber-600 transition-opacity', dirty ? 'opacity-100' : 'opacity-0')}>{t('admin.auto.modifications_non_enregistrees_3d9d', 'Modifications non enregistrées')}</span>
                     <div className="flex gap-2">
                         <button type="button" onClick={onClose} className="rounded-full border border-admin-border px-4 py-2 text-sm font-semibold text-admin-text-secondary transition hover:bg-admin-hover">
                             Annuler

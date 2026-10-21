@@ -98,7 +98,7 @@ class ClasseController extends Controller
 
     public function destroy(Classe $classe): RedirectResponse
     {
-        abort_if($classe->etudiants()->exists(), 409, 'Impossible de supprimer une classe qui a des étudiants.');
+        abort_if($classe->etudiants()->exists(), 409, 'Impossible de supprimer un niveau qui a des étudiants.');
 
         $classe->delete();
 

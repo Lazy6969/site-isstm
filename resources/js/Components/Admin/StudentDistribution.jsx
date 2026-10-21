@@ -27,7 +27,7 @@ function EmptyDistribution({ canManage }) {
             <div>
                 <p className="text-sm font-semibold text-admin-text">{t('admin.dashboard.no_students_in_class', 'Aucun étudiant affecté à une classe.')}</p>
                 <p className="mx-auto mt-1 max-w-xs text-xs text-admin-text-secondary">
-                    {t('admin.dashboard.distribution_empty_hint', 'Dès que des étudiants seront inscrits dans une classe, leur répartition apparaîtra ici.')}
+                    {t('admin.dashboard.distribution_empty_hint', 'Dès que des étudiants seront inscrits dans un niveau, leur répartition apparaîtra ici.')}
                 </p>
             </div>
             {canManage && (

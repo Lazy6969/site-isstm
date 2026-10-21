@@ -86,6 +86,7 @@ function StatCard({ icon: Icon, label, value, tone, glow }) {
 }
 
 function UserAvatar({ user, size = 'h-11 w-11', online = false }) {
+    const { t } = useTranslations();
     return (
         <span className={cn('relative flex-shrink-0', size)}>
             {user.avatar_path ? (
@@ -93,7 +94,7 @@ function UserAvatar({ user, size = 'h-11 w-11', online = false }) {
             ) : (
                 <span className={cn('flex items-center justify-center rounded-full bg-gradient-to-br from-admin-accent to-sky-500 text-xs font-bold text-white', size)}>{initials(user.name)}</span>
             )}
-            {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-admin-card" title="En ligne" />}
+            {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-admin-card" title={t('admin.auto.en_ligne_f260', 'En ligne')} />}
         </span>
     );
 }
@@ -196,7 +197,7 @@ export default function Index({ users, roles }) {
             : t('admin.users.reactivate_verb', 'réactiver');
         if (!(await confirmAction({ message: t('admin.users.confirm_toggle', 'Voulez-vous vraiment :verb le compte de « :name » ?')
                     .replace(':verb', verb)
-                    .replace(':name', user.name), tone: 'warning', title: 'Confirmer cette action ?', confirmLabel: 'Confirmer' }))) return;
+                    .replace(':name', user.name), tone: 'warning', title: t('admin.auto.confirmer_cette_action_263c', 'Confirmer cette action ?'), confirmLabel: t('admin.auto.confirmer_303a', 'Confirmer') }))) return;
         router.post(`/console/users/${user.id}/toggle-active`, {}, { preserveScroll: true });
     }
 

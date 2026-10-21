@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { markNotificationRead, notificationLink } from '../../lib/notifications';
+import { useTranslations } from '../../lib/useTranslations';
 
 function timeAgo(dateString) {
     const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
@@ -29,6 +30,7 @@ function notificationText(notification) {
 }
 
 export default function AdminNotificationBell() {
+    const { t } = useTranslations();
     const { auth } = usePage().props;
     const [open, setOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -89,7 +91,7 @@ export default function AdminNotificationBell() {
                 <TooltipTrigger asChild>
                     <DropdownMenuTrigger
                         className="relative flex h-9 w-9 items-center justify-center rounded-full text-admin-chrome-text-secondary transition-colors duration-200 hover:bg-admin-chrome-hover hover:text-admin-chrome-text focus:outline-none"
-                        aria-label="Notifications"
+                        aria-label={t('admin.auto.notifications_a274', 'Notifications')}
                     >
                         <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
                         {unreadCount > 0 && (
@@ -99,11 +101,11 @@ export default function AdminNotificationBell() {
                         )}
                     </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Notifications</TooltipContent>
+                <TooltipContent>{t('admin.auto.notifications_a274', 'Notifications')}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent className="w-80 bg-admin-card p-0 text-admin-text">
                 <div className="flex items-center justify-between px-3 py-2.5">
-                    <p className="text-sm font-semibold text-admin-text">Notifications</p>
+                    <p className="text-sm font-semibold text-admin-text">{t('admin.auto.notifications_a274', 'Notifications')}</p>
                     <div className="flex items-center gap-2">
                         {unreadCount > 0 && (
                             <button type="button" onClick={markAllRead} className="text-xs font-medium text-admin-accent hover:underline">
@@ -114,8 +116,8 @@ export default function AdminNotificationBell() {
                             <button
                                 type="button"
                                 onClick={() => setConfirmingAll(true)}
-                                aria-label="Supprimer toutes les notifications"
-                                title="Supprimer toutes les notifications"
+                                aria-label={t('admin.auto.supprimer_toutes_les_notifications_f4ff', 'Supprimer toutes les notifications')}
+                                title={t('admin.auto.supprimer_toutes_les_notifications_f4ff', 'Supprimer toutes les notifications')}
                                 className="flex h-7 w-7 items-center justify-center rounded-md text-admin-muted transition hover:bg-red-500/10 hover:text-red-500"
                             >
                                 <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -125,7 +127,7 @@ export default function AdminNotificationBell() {
                 </div>
                 {confirmingAll && (
                     <div className="animate-in fade-in-0 flex items-center justify-between gap-2 border-t border-admin-border bg-red-500/5 px-3 py-2 duration-150">
-                        <p className="text-xs font-medium text-admin-text">Supprimer toutes les notifications ?</p>
+                        <p className="text-xs font-medium text-admin-text">{t('admin.auto.supprimer_toutes_les_notifications_1867', 'Supprimer toutes les notifications ?')}</p>
                         <div className="flex gap-1.5">
                             <button
                                 type="button"
@@ -143,14 +145,14 @@ export default function AdminNotificationBell() {
                 <DropdownMenuSeparator className="bg-admin-border" />
 
                 <div className="max-h-96 overflow-y-auto">
-                    {loading && <p className="px-3 py-6 text-center text-sm text-admin-muted">Chargement…</p>}
+                    {loading && <p className="px-3 py-6 text-center text-sm text-admin-muted">{t('admin.auto.chargement_8f54', 'Chargement…')}</p>}
 
                     {!loading && failed && (
-                        <p className="px-3 py-6 text-center text-sm text-red-500">Impossible de charger les notifications. Réessayez dans un instant.</p>
+                        <p className="px-3 py-6 text-center text-sm text-red-500">{t('admin.auto.impossible_de_charger_les_notifications__9102', 'Impossible de charger les notifications. Réessayez dans un instant.')}</p>
                     )}
 
                     {!loading && !failed && notifications.length === 0 && (
-                        <p className="px-3 py-6 text-center text-sm text-admin-muted">Aucune notification pour le moment.</p>
+                        <p className="px-3 py-6 text-center text-sm text-admin-muted">{t('admin.auto.aucune_notification_pour_le_moment_ada5', 'Aucune notification pour le moment.')}</p>
                     )}
 
                     {!loading &&
@@ -171,8 +173,8 @@ export default function AdminNotificationBell() {
                                 <button
                                     type="button"
                                     onClick={() => deleteNotification(notification)}
-                                    aria-label="Supprimer cette notification"
-                                    title="Supprimer cette notification"
+                                    aria-label={t('admin.auto.supprimer_cette_notification_e7fb', 'Supprimer cette notification')}
+                                    title={t('admin.auto.supprimer_cette_notification_e7fb', 'Supprimer cette notification')}
                                     className="mr-2 mt-2 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-admin-muted transition hover:bg-red-500/10 hover:text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-admin-accent/40"
                                 >
                                     <X className="h-4 w-4" aria-hidden="true" />

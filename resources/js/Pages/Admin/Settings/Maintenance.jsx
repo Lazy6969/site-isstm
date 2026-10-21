@@ -6,6 +6,7 @@ import { Label } from '../../../Components/ui/label';
 import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
 import { cn } from '../../../lib/utils';
+import { useTranslations } from '../../../lib/useTranslations';
 
 /** Big on/off switch used by the three sections — same toggling logic as before, new look. */
 function PowerSwitch({ on, onChange, labelOn, labelOff, tone }) {
@@ -119,6 +120,7 @@ function StatePill({ good, children }) {
 }
 
 function SaveButton({ processing, dirty }) {
+    const { t } = useTranslations();
     return (
         <div className="flex items-center gap-3">
             <button
@@ -129,7 +131,7 @@ function SaveButton({ processing, dirty }) {
                 <Save className="h-4 w-4" aria-hidden="true" />
                 Enregistrer
             </button>
-            {dirty && <span className="text-xs font-semibold text-amber-600">Modifications non enregistrées</span>}
+            {dirty && <span className="text-xs font-semibold text-amber-600">{t('admin.auto.modifications_non_enregistrees_3d9d', 'Modifications non enregistrées')}</span>}
         </div>
     );
 }
@@ -166,6 +168,7 @@ function Counter({ value, max }) {
 }
 
 export default function Maintenance({ settings, templates, inscriptionSettings, admissionsOpen }) {
+    const { t } = useTranslations();
     const form = useForm({
         enabled: settings.enabled,
         template: settings.template,
@@ -237,13 +240,13 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
     const inscriptionsDirty = inscriptionForm.data.closed !== inscriptionSettings.closed || inscriptionForm.data.message !== inscriptionSettings.message;
 
     const tiles = [
-        { key: 'maintenance', icon: Globe, title: 'Site public', state: form.data.enabled ? 'En maintenance' : 'Accessible à tous', good: !form.data.enabled },
-        { key: 'inscriptions', icon: inscriptionForm.data.closed ? DoorClosed : DoorOpen, title: 'Préinscription & réactivation', state: inscriptionForm.data.closed ? 'Fermées' : 'Ouvertes', good: !inscriptionForm.data.closed },
-        { key: 'admissions', icon: GraduationCap, title: 'Admissions', state: admissionsOpenState ? 'Ouvertes' : 'Fermées', good: admissionsOpenState },
+        { key: 'maintenance', icon: Globe, title: t('admin.auto.site_public_5b01', 'Site public'), state: form.data.enabled ? 'En maintenance' : 'Accessible à tous', good: !form.data.enabled },
+        { key: 'inscriptions', icon: inscriptionForm.data.closed ? DoorClosed : DoorOpen, title: t('admin.auto.preinscription_reactivation_029f', 'Préinscription & réactivation'), state: inscriptionForm.data.closed ? 'Fermées' : 'Ouvertes', good: !inscriptionForm.data.closed },
+        { key: 'admissions', icon: GraduationCap, title: t('admin.auto.admissions_fff3', 'Admissions'), state: admissionsOpenState ? 'Ouvertes' : 'Fermées', good: admissionsOpenState },
     ];
 
     return (
-        <AdminLayout title="Maintenance">
+        <AdminLayout title={t('admin.auto.maintenance_10d0', 'Maintenance')}>
             <div className="relative -mt-2 mb-5 overflow-hidden rounded-3xl bg-gradient-to-br from-admin-accent via-admin-accent/90 to-sky-500 p-5 text-white shadow-lg shadow-admin-accent/20 sm:p-6">
                 <span className="pointer-events-none absolute -right-10 -top-16 h-52 w-52 rounded-full bg-white/15 blur-3xl" />
                 <span className="pointer-events-none absolute -bottom-20 left-1/3 h-44 w-44 rounded-full bg-sky-300/30 blur-3xl" />
@@ -252,7 +255,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                         <Wrench className="h-7 w-7" aria-hidden="true" />
                     </span>
                     <div>
-                        <h2 className="text-lg font-bold sm:text-xl">Maintenance & accès au site</h2>
+                        <h2 className="text-lg font-bold sm:text-xl">{t('admin.auto.maintenance_acces_au_site_d1d0', 'Maintenance & accès au site')}</h2>
                         <p className="mt-0.5 max-w-2xl text-sm text-white/85">
                             Coupe temporairement l'accès au site public. Le personnel autorisé à gérer ces réglages continue de voir le site normalement et peut toujours se connecter pour le rétablir.
                         </p>
@@ -270,7 +273,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                 <div className="space-y-5">
                     <SectionHeader
                         icon={Globe}
-                        title="Mode maintenance"
+                        title={t('admin.auto.mode_maintenance_ea15', 'Mode maintenance')}
                         description="Affiche une page d'information à la place du site pour tous les visiteurs."
                         statusNode={<StatePill good={!form.data.enabled}>{form.data.enabled ? 'En maintenance' : 'Accessible à tous'}</StatePill>}
                         switchNode={
@@ -284,7 +287,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                     <form onSubmit={submit} className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
                         <div className="space-y-5 rounded-2xl border border-admin-border bg-admin-card p-5 shadow-sm">
                             <div>
-                                <Label className="mb-2 block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">Message affiché aux visiteurs</Label>
+                                <Label className="mb-2 block text-xs font-bold uppercase tracking-wider text-admin-text-secondary">{t('admin.auto.message_affiche_aux_visiteurs_a772', 'Message affiché aux visiteurs')}</Label>
                                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                                     {templates.map((template) => (
                                         <TemplateCard key={template.value} template={template} selected={form.data.template === template.value} onSelect={() => pickTemplate(template)} />
@@ -294,7 +297,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
 
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="maintenance-title">Titre</Label>
+                                    <Label htmlFor="maintenance-title">{t('admin.auto.titre_99fb', 'Titre')}</Label>
                                     <Counter value={form.data.title?.length ?? 0} max={120} />
                                 </div>
                                 <Input id="maintenance-title" value={form.data.title} onChange={(e) => form.setData('title', e.target.value)} className="mt-1.5 rounded-xl" />
@@ -303,7 +306,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
 
                             <div>
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="maintenance-message">Message</Label>
+                                    <Label htmlFor="maintenance-message">{t('admin.auto.message_4c2a', 'Message')}</Label>
                                     <Counter value={form.data.message?.length ?? 0} max={1000} />
                                 </div>
                                 <Textarea id="maintenance-message" value={form.data.message} onChange={(e) => form.setData('message', e.target.value)} rows={4} className="mt-1.5 rounded-xl" />
@@ -325,7 +328,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                                     <span className="ml-2 flex-1 truncate rounded-md bg-admin-card px-2 py-0.5 text-[10px] text-admin-muted">votre-site/</span>
                                 </div>
-                                <iframe key={previewKey} src={previewUrl} title="Aperçu de la page de maintenance" className="h-[420px] w-full" />
+                                <iframe key={previewKey} src={previewUrl} title={t('admin.auto.apercu_de_la_page_de_maintenance_bd46', 'Aperçu de la page de maintenance')} className="h-[420px] w-full" />
                             </div>
                             <p className="mt-2 text-xs text-admin-muted">
                                 Cet aperçu reflète le formulaire ci-contre, pas encore ce qui est enregistré — testez toutes les combinaisons avant d'activer la maintenance pour de vrai.
@@ -339,7 +342,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                 <div className="space-y-5">
                     <SectionHeader
                         icon={inscriptionForm.data.closed ? DoorClosed : DoorOpen}
-                        title="Préinscription & réactivation"
+                        title={t('admin.auto.preinscription_reactivation_029f', 'Préinscription & réactivation')}
                         description="Ferme temporairement l'accès aux formulaires de préinscription et de réactivation de compte (bouton « Ancien étudiant »), indépendamment de la maintenance générale du site. Les dossiers déjà en brouillon restent accessibles à leur auteur pour être terminés."
                         statusNode={<StatePill good={!inscriptionForm.data.closed}>{inscriptionForm.data.closed ? 'Fermées' : 'Ouvertes'}</StatePill>}
                         switchNode={
@@ -353,7 +356,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                     <form onSubmit={submitInscriptions} className="max-w-2xl space-y-4 rounded-2xl border border-admin-border bg-admin-card p-5 shadow-sm">
                         <div>
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="inscriptions-message">Message affiché aux visiteurs lorsque c'est fermé</Label>
+                                <Label htmlFor="inscriptions-message">{t('admin.auto.message_affiche_aux_visiteurs_lorsque_c__e61d', 'Message affiché aux visiteurs lorsque c\'est fermé')}</Label>
                                 <Counter value={inscriptionForm.data.message?.length ?? 0} max={500} />
                             </div>
                             <Textarea
@@ -361,7 +364,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                                 value={inscriptionForm.data.message}
                                 onChange={(e) => inscriptionForm.setData('message', e.target.value)}
                                 rows={3}
-                                placeholder="Les inscriptions sont actuellement fermées."
+                                placeholder={t('admin.auto.les_inscriptions_sont_actuellement_ferme_125d', 'Les inscriptions sont actuellement fermées.')}
                                 className="mt-1.5 rounded-xl"
                             />
                             {inscriptionForm.errors.message && <p className="mt-1 text-sm text-red-500">{inscriptionForm.errors.message}</p>}
@@ -376,7 +379,7 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                 <div className="space-y-5">
                     <SectionHeader
                         icon={GraduationCap}
-                        title="Admissions"
+                        title={t('admin.auto.admissions_fff3', 'Admissions')}
                         description="Bascule la bannière « Admissions ouvertes / fermées » affichée sur l'accueil. Le titre, le texte et l'image de chaque état se modifient directement sur la page via le crayon."
                         statusNode={<StatePill good={admissionsOpenState}>{admissionsOpenState ? 'Ouvertes' : 'Fermées'}</StatePill>}
                         switchNode={

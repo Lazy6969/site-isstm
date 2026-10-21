@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useTranslations } from '../../lib/useTranslations';
 
 /**
  * Lets a Super Admin (users.edit) set a new password for any account — the
@@ -12,6 +13,7 @@ import { Label } from '../ui/label';
  * account nobody actually reads mail for.
  */
 export default function ResetPasswordDialog({ open, onClose, user }) {
+    const { t } = useTranslations();
     const form = useForm({ password: '', password_confirmation: '' });
 
     useEffect(() => {
@@ -42,7 +44,7 @@ export default function ResetPasswordDialog({ open, onClose, user }) {
                 </DialogHeader>
                 <form onSubmit={submit} className="space-y-4">
                     <div className="space-y-1">
-                        <Label htmlFor="password">Nouveau mot de passe</Label>
+                        <Label htmlFor="password">{t('admin.auto.nouveau_mot_de_passe_d383', 'Nouveau mot de passe')}</Label>
                         <Input
                             id="password"
                             type="password"
@@ -54,7 +56,7 @@ export default function ResetPasswordDialog({ open, onClose, user }) {
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="password_confirmation">Confirmer le mot de passe</Label>
+                        <Label htmlFor="password_confirmation">{t('admin.auto.confirmer_le_mot_de_passe_1edd', 'Confirmer le mot de passe')}</Label>
                         <Input
                             id="password_confirmation"
                             type="password"

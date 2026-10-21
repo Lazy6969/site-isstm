@@ -212,7 +212,7 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
     async function togglePause(etudiant) {
         const suspending = etudiant.statut === 'actif';
         const verb = suspending ? 'mettre en pause' : 'réactiver';
-        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: 'Confirmer cette action ?', details: etudiant.user?.name, confirmLabel: 'Confirmer' }))) return;
+        if (!(await confirmAction({ message: `Voulez-vous vraiment ${verb} le compte de cet étudiant ?`, tone: 'warning', title: t('admin.auto.confirmer_cette_action_263c', 'Confirmer cette action ?'), details: etudiant.user?.name, confirmLabel: t('admin.auto.confirmer_303a', 'Confirmer') }))) return;
         router.post(`${BASE_URL}/${etudiant.id}/pause`, {}, { preserveScroll: true });
     }
 
@@ -220,17 +220,17 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
     const suspendedCount = etudiants.filter((etudiant) => etudiant.statut === 'suspendu').length;
 
     async function pauseAll() {
-        if (!(await confirmAction({ message: `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`, tone: 'warning', title: 'Mettre tous les comptes en pause ?', confirmLabel: 'Tout mettre en pause' }))) return;
+        if (!(await confirmAction({ message: `Mettre en pause les ${activeCount} compte(s) étudiant(s) actif(s) ? Ils ne pourront plus se connecter et devront faire une demande de réinscription pour récupérer l'accès.`, tone: 'warning', title: t('admin.auto.mettre_tous_les_comptes_en_pause_b2e3', 'Mettre tous les comptes en pause ?'), confirmLabel: t('admin.auto.tout_mettre_en_pause_a59e', 'Tout mettre en pause') }))) return;
         router.post(`${BASE_URL}/pause-tous`, {}, { preserveScroll: true });
     }
 
     async function reactivateAll() {
-        if (!(await confirmAction({ message: `Réactiver les ${suspendedCount} compte(s) étudiant(s) suspendu(s) ? Ils pourront de nouveau se connecter immédiatement.`, tone: 'info', title: 'Réactiver tous les comptes suspendus ?', confirmLabel: 'Tout réactiver' }))) return;
+        if (!(await confirmAction({ message: `Réactiver les ${suspendedCount} compte(s) étudiant(s) suspendu(s) ? Ils pourront de nouveau se connecter immédiatement.`, tone: 'info', title: t('admin.auto.reactiver_tous_les_comptes_suspendus_5e7d', 'Réactiver tous les comptes suspendus ?'), confirmLabel: t('admin.auto.tout_reactiver_1967', 'Tout réactiver') }))) return;
         router.post(`${BASE_URL}/reactiver-tous`, {}, { preserveScroll: true });
     }
 
     async function destroy(etudiant) {
-        if (!(await confirmAction({ message: 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.', title: 'Supprimer ce compte étudiant ?', details: etudiant.user?.name, confirmLabel: 'Supprimer définitivement' }))) return;
+        if (!(await confirmAction({ message: t('admin.auto.il_ne_pourra_plus_se_connecter_et_toutes_0b6a', 'Il ne pourra plus se connecter et toutes ses données (dossier, inscriptions, publications, messages…) seront effacées. Cette action est irréversible.'), title: t('admin.auto.supprimer_ce_compte_etudiant_ad79', 'Supprimer ce compte étudiant ?'), details: etudiant.user?.name, confirmLabel: t('admin.auto.supprimer_definitivement_022b', 'Supprimer définitivement') }))) return;
         router.delete(`/console/scolarite/etudiants/${etudiant.id}`, { preserveScroll: true });
     }
 

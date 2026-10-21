@@ -6,6 +6,7 @@ import { Select } from '../../../Components/ui/select';
 import { Badge } from '../../../Components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { useConfirm } from '../../../lib/useConfirm';
+import { useTranslations } from '../../../lib/useTranslations';
 
 function formatDate(value) {
     if (!value) return '—';
@@ -14,6 +15,7 @@ function formatDate(value) {
 }
 
 export default function Index({ items }) {
+    const { t } = useTranslations();
     const confirmAction = useConfirm();
     const [typeFilter, setTypeFilter] = useState('');
 
@@ -31,19 +33,19 @@ export default function Index({ items }) {
     }
 
     async function forceDelete(item) {
-        if (!(await confirmAction({ message: 'Cette action est irréversible : l’élément et son fichier associé seront effacés pour toujours.', title: 'Attention : suppression définitive', details: item.title, confirmLabel: 'Supprimer définitivement' }))) return;
+        if (!(await confirmAction({ message: t('admin.auto.cette_action_est_irreversible_l_element__1c42', 'Cette action est irréversible : l’élément et son fichier associé seront effacés pour toujours.'), title: t('admin.auto.attention_suppression_definitive_c6c8', 'Attention : suppression définitive'), details: item.title, confirmLabel: t('admin.auto.supprimer_definitivement_022b', 'Supprimer définitivement') }))) return;
         router.delete(`/console/corbeille/${item.type}/${item.id}`, { preserveScroll: true });
     }
 
     return (
-        <AdminLayout title="Corbeille">
+        <AdminLayout title={t('admin.auto.corbeille_50f2', 'Corbeille')}>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-admin-text-secondary">
                     {items.length} élément(s) supprimé(s) — restaurables ou effaçables définitivement.
                 </p>
                 {types.length > 1 && (
                     <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-56">
-                        <option value="">Tous les types</option>
+                        <option value="">{t('admin.auto.tous_les_types_42da', 'Tous les types')}</option>
                         {types.map((t) => (
                             <option key={t.type} value={t.type}>
                                 {t.label}
@@ -57,10 +59,10 @@ export default function Index({ items }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Élément</TableHead>
-                            <TableHead>Supprimé le</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t('admin.auto.type_a1fa', 'Type')}</TableHead>
+                            <TableHead>{t('admin.auto.element_39df', 'Élément')}</TableHead>
+                            <TableHead>{t('admin.auto.supprime_le_3374', 'Supprimé le')}</TableHead>
+                            <TableHead className="text-right">{t('admin.auto.actions_06df', 'Actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
