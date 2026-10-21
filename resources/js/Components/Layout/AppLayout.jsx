@@ -1,7 +1,17 @@
 import CommunityHeader from './CommunityHeader';
 import CommunityMobileTabBar from './CommunityMobileTabBar';
+import AdminLayout from './AdminLayout';
+import { isAdminEmbedded } from '../../lib/adminEmbed';
 
 export default function AppLayout({ children, title }) {
+    if (isAdminEmbedded()) {
+        return (
+            <AdminLayout title={title} showTitle={Boolean(title)}>
+                <div className="community-shell rounded-2xl">{children}</div>
+            </AdminLayout>
+        );
+    }
+
     return (
         <div className="community-shell flex min-h-screen flex-col">
             <CommunityHeader />

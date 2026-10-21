@@ -39,7 +39,6 @@ import { Button } from '../../Components/ui/button';
 import { Input } from '../../Components/ui/input';
 import { Label } from '../../Components/ui/label';
 import { Select } from '../../Components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../Components/ui/dialog';
 import { useTranslations } from '../../lib/useTranslations';
 import { useConfirm } from '../../lib/useConfirm';
 
@@ -60,6 +59,8 @@ const ETAT_COLOR = {
 const emptyForm = { lieu: '', nom: '', quantite: 1, etat: 'bon_etat', observation: '' };
 
 const VIEW_MODE_KEY = 'materiel-view-mode';
+
+const ALL_LIEUX = '__all__';
 
 function readViewMode() {
     try {
@@ -577,6 +578,10 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
     const [open, setOpen] = useState(false);
     const [editing, setEditing] = useState(null);
     const [statFiltre, setStatFiltre] = useState(null);
+    const [dateType, setDateType] = useState('ajout');
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const hasExtraFilter = Boolean(statFiltre || dateFrom || dateTo);
     const [viewMode, setViewMode] = useState(readViewMode);
     const form = useForm(emptyForm);
 
@@ -607,14 +612,26 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
     const visibleItems = useMemo(() => {
         let rows = materiels;
         if (statFiltre) rows = rows.filter((m) => m.etat === statFiltre);
+        if (dateFrom || dateTo) {
+            const inRange = (value) => {
+                const day = String(value ?? '').slice(0, 10);
+                return day !== '' && (!dateFrom || day >= dateFrom) && (!dateTo || day <= dateTo);
+            };
+            rows = rows.filter((m) => {
+                if (dateType === 'deplacement') return m.deplacements.some((d) => inRange(d.created_at));
+                if (dateType === 'maintenance') return m.maintenances.some((x) => inRange(x.created_at));
+                return inRange(m.created_at);
+            });
+        }
         if (term) {
             return rows.filter((m) => [m.nom, m.lieu, m.observation].some((f) => (f ?? '').toLowerCase().includes(term)));
         }
+        if (currentLieu === ALL_LIEUX) return rows;
         return rows.filter((m) => m.lieu === currentLieu);
-    }, [materiels, term, currentLieu, statFiltre]);
+    }, [materiels, term, currentLieu, statFiltre, dateType, dateFrom, dateTo]);
 
     const incomingLoans = useMemo(() => {
-        if (term || !currentLieu) return [];
+        if (term || !currentLieu || currentLieu === ALL_LIEUX) return [];
         const rows = [];
         materiels.forEach((m) => {
             m.deplacements
@@ -627,7 +644,7 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
     function openCreate() {
         setEditing(null);
         form.reset();
-        form.setData({ ...emptyForm, lieu: currentLieu ?? '' });
+        form.setData({ ...emptyForm, lieu: currentLieu && currentLieu !== ALL_LIEUX ? currentLieu : '' });
         form.clearErrors();
         setOpen(true);
     }
@@ -742,6 +759,7 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
                                 disabled={lieux.length === 0}
                             >
                                 {lieux.length === 0 && <option value="">{t('materiel.aucun_lieu', 'Aucun lieu')}</option>}
+                                {lieux.length > 0 && <option value={ALL_LIEUX}>{t('materiel.tous_lieux', 'Tous les lieux')} ({materiels.length})</option>}
                                 {lieux.map((l) => (
                                     <option key={l.lieu} value={l.lieu}>
                                         {l.lieu} ({l.nb}){l.pannes > 0 ? ` — ${l.pannes} ${t('materiel.en_panne_abbr', 'en panne')}` : ''}
@@ -778,6 +796,52 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
                         </div>
                     </div>
 
+                    <div className="mb-5 flex flex-wrap items-end gap-3 rounded-xl border border-admin-border bg-admin-card p-3">
+                        <div>
+                            <Label htmlFor="filtre-etat">{t('materiel.filtre_etat', 'État')}</Label>
+                            <Select id="filtre-etat" value={statFiltre ?? ''} onChange={(e) => setStatFiltre(e.target.value || null)} className="mt-1.5">
+                                <option value="">{t('materiel.tous_etats', 'Tous les états')}</option>
+                                {etats.map((e) => (
+                                    <option key={e.value} value={e.value}>
+                                        {e.label}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div>
+                            <Label htmlFor="filtre-date-type">{t('materiel.filtre_date', 'Date de')}</Label>
+                            <Select id="filtre-date-type" value={dateType} onChange={(e) => setDateType(e.target.value)} className="mt-1.5">
+                                <option value="ajout">{t('materiel.date_ajout', "l'ajout")}</option>
+                                <option value="deplacement">{t('materiel.date_deplacement', 'un déplacement / prêt')}</option>
+                                <option value="maintenance">{t('materiel.date_maintenance', 'une maintenance')}</option>
+                            </Select>
+                        </div>
+                        <div>
+                            <Label htmlFor="filtre-du">{t('materiel.filtre_du', 'Du')}</Label>
+                            <Input id="filtre-du" type="date" value={dateFrom} max={dateTo || undefined} onChange={(e) => setDateFrom(e.target.value)} className="mt-1.5" />
+                        </div>
+                        <div>
+                            <Label htmlFor="filtre-au">{t('materiel.filtre_au', 'Au')}</Label>
+                            <Input id="filtre-au" type="date" value={dateTo} min={dateFrom || undefined} onChange={(e) => setDateTo(e.target.value)} className="mt-1.5" />
+                        </div>
+                        {hasExtraFilter && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setStatFiltre(null);
+                                    setDateFrom('');
+                                    setDateTo('');
+                                }}
+                                className="mb-1 h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover"
+                            >
+                                {t('materiel.filtres_reinitialiser', 'Réinitialiser')}
+                            </button>
+                        )}
+                        <span className="mb-2 ml-auto text-xs text-admin-muted">
+                            {visibleItems.length} {t('materiel.resultats', 'résultat(s)')}
+                        </span>
+                    </div>
+
                     {visibleItems.length === 0 && incomingLoans.length === 0 ? (
                         <p className="admin-card py-10 text-center text-sm text-admin-muted">{t('materiel.aucun', 'Aucun matériel pour le moment.')}</p>
                     ) : (
@@ -796,12 +860,39 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
             {tab === 'stats' && <StatsTab materiels={materiels} etats={etats} />}
             {tab === 'historique' && <HistoriqueTab materiels={materiels} can={can} />}
 
-            <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>{editing ? t('materiel.modifier_titre', 'Modifier le matériel') : t('materiel.ajouter_titre', 'Ajouter un matériel')}</DialogTitle>
-                    </DialogHeader>
-                    <form onSubmit={submit} className="space-y-4">
+            <div className={`fixed inset-0 z-50 ${open ? '' : 'pointer-events-none'}`} aria-hidden={!open}>
+                <div
+                    onClick={() => setOpen(false)}
+                    className={`absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}
+                />
+                <aside
+                    role="dialog"
+                    aria-modal="true"
+                    className={`absolute top-0 right-0 flex h-full w-full max-w-md flex-col bg-admin-card shadow-2xl transition-transform duration-300 ease-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+                >
+                    <div className="relative overflow-hidden border-b border-admin-border bg-gradient-to-br from-admin-accent/15 via-admin-card to-admin-card px-6 py-5">
+                        <div className="flex items-center gap-3">
+                            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-admin-accent/15 text-admin-accent">
+                                {editing ? <Pencil className="h-5 w-5" aria-hidden="true" /> : <Plus className="h-5 w-5" aria-hidden="true" />}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                                <h2 className="text-base font-semibold text-admin-text">
+                                    {editing ? t('materiel.modifier_titre', 'Modifier le matériel') : t('materiel.ajouter_titre', 'Ajouter un matériel')}
+                                </h2>
+                                <p className="text-xs text-admin-muted">{t('materiel.panneau_sous_titre', "Renseignez les informations de l'équipement")}</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(false)}
+                                aria-label={t('admin.common.cancel', 'Annuler')}
+                                className="flex h-8 w-8 items-center justify-center rounded-full text-admin-text-secondary transition hover:bg-admin-hover hover:text-admin-text"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                    <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
+                        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
                         <div>
                             <Label htmlFor="lieu">{t('materiel.champ_lieu', 'Lieu')}</Label>
                             <Input id="lieu" list="materiel-lieux-datalist" value={form.data.lieu} onChange={(e) => form.setData('lieu', e.target.value)} className="mt-1.5" />
@@ -833,17 +924,18 @@ export default function Index({ materiels, etats, stats, can, embedded = false }
                             <Label htmlFor="observation">{t('materiel.champ_observation', 'Observation')}</Label>
                             <Input id="observation" value={form.data.observation} onChange={(e) => form.setData('observation', e.target.value)} className="mt-1.5" />
                         </div>
-                        <DialogFooter>
+                        </div>
+                        <div className="flex items-center justify-end gap-2 border-t border-admin-border bg-admin-hover/40 px-6 py-4">
                             <Button type="button" onClick={() => setOpen(false)} className="bg-admin-hover text-admin-text hover:bg-admin-hover/70">
                                 {t('admin.common.cancel', 'Annuler')}
                             </Button>
                             <Button type="submit" disabled={form.processing} className="bg-admin-text text-admin-bg hover:bg-admin-text/90">
                                 {editing ? t('admin.common.save', 'Enregistrer') : t('admin.common.create', 'Créer')}
                             </Button>
-                        </DialogFooter>
+                        </div>
                     </form>
-                </DialogContent>
-            </Dialog>
+                </aside>
+            </div>
         </>
     );
 

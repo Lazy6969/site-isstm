@@ -35,6 +35,7 @@ import {
     IdCard,
 } from 'lucide-react';
 import { useTranslations } from '../../lib/useTranslations';
+import { setAdminEmbedded } from '../../lib/adminEmbed';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
@@ -49,9 +50,9 @@ function buildNavGroups(t) {
         {
             label: t('admin.nav.group_communaute', 'Communauté'),
             items: [
-                { href: '/communaute', label: t('admin.nav.fil_communautaire', 'Fil communautaire'), icon: Newspaper, permission: 'community.view' },
-                { href: '/groupes', label: t('admin.nav.groupes', 'Groupes de classe'), icon: UsersRound, permission: 'groups.view' },
-                { href: '/messages', label: t('admin.nav.messages_prives', 'Messages'), icon: MessageCircle, permission: 'messages.view' },
+                { href: '/communaute', embed: true, label: t('admin.nav.fil_communautaire', 'Fil communautaire'), icon: Newspaper, permission: 'community.view' },
+                { href: '/groupes', embed: true, label: t('admin.nav.groupes', 'Groupes de classe'), icon: UsersRound, permission: 'groups.view' },
+                { href: '/messages', embed: true, label: t('admin.nav.messages_prives', 'Messages'), icon: MessageCircle, permission: 'messages.view' },
             ],
         },
         {
@@ -121,7 +122,10 @@ function NavItem({ item, active, collapsed, onNavigate }) {
     const link = (
         <Link
             href={item.href}
-            onClick={onNavigate}
+            onClick={() => {
+                setAdminEmbedded(Boolean(item.embed));
+                onNavigate?.();
+            }}
             aria-current={active ? 'page' : undefined}
             className={`group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 collapsed ? 'justify-center px-0 py-2.5' : ''
