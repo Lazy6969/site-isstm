@@ -100,7 +100,7 @@ class HomeContentSeeder extends Seeder
             'vie_etudiante_associations_slide_2' => 'images/portal_assoc_5.jpg',
             'vie_etudiante_associations_slide_3' => 'images/portal_assoc_6.jpg',
             'equipe_membre_1_photo' => 'images/etudiant/mirindra.jpeg',
-            'equipe_membre_2_photo' => 'images/etudiant/safidy.jpg',
+            'equipe_membre_2_photo' => 'images/etudiant/safidy1-visage.jpg',
             'equipe_membre_3_photo' => 'images/etudiant/jameelah.jpg',
             'equipe_membre_4_photo' => 'images/etudiant/tanael.jpg',
             'footer_logo_isstm' => 'images/logo-isstm.svg',
@@ -1563,7 +1563,7 @@ class HomeContentSeeder extends Seeder
             [
                 'author_name' => 'Safidy Thierry',
                 'program' => 'Génie Civil',
-                'image_path' => 'images/etudiant/safidy.jpg',
+                'image_path' => 'images/etudiant/safidy1-visage.jpg',
                 'quote_fr' => "J'ai pu développer ma créativité et ma rigueur technique grâce à des projets stimulants et un encadrement de qualité.",
                 'quote_en' => 'I was able to develop my creativity and technical rigor thanks to stimulating projects and quality supervision.',
                 'quote_mg' => 'Afaka nampivelatra ny fahaizako mamorona sy ny fahaizako ara-teknika aho noho ny tetikasa mandrisika sy ny fanaraha-maso kalitao.',
