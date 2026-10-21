@@ -2298,5 +2298,19 @@
     "admin.roles.category.scolarite": "Registrar",
     "admin.roles.category.communaute": "Community",
     "admin.roles.category.contenu": "Public site",
-    "admin.roles.category.systeme": "Administration"
+    "admin.roles.category.systeme": "Administration",
+    "materiel.etat.bon_etat": "Good condition",
+    "materiel.etat.en_marche": "Working",
+    "materiel.etat.mauvais_etat": "Poor condition",
+    "materiel.etat.en_panne": "Broken down",
+    "materiel.statut.en_cours": "Ongoing",
+    "materiel.statut.retourne": "Returned",
+    "Matériel ajouté.": "Equipment added.",
+    "Matériel mis à jour.": "Equipment updated.",
+    "Matériel supprimé.": "Equipment deleted.",
+    "Intervention enregistrée.": "Intervention recorded.",
+    "Matériel emprunté.": "Equipment loaned.",
+    "Matériel retourné.": "Equipment returned.",
+    "Entrée de l'historique supprimée.": "History entry deleted.",
+    "Historique vidé.": "History cleared."
 }

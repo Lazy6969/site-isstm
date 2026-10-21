@@ -69,8 +69,10 @@ function readViewMode() {
     }
 }
 
-function formatDateTime(value) {
-    return new Date(value).toLocaleString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const DATE_LOCALES = { fr: 'fr-FR', en: 'en-GB', mg: 'fr-MG' };
+
+function formatDateTime(value, locale = 'fr') {
+    return new Date(value).toLocaleString(DATE_LOCALES[locale] ?? 'fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 /**
@@ -80,7 +82,7 @@ function formatDateTime(value) {
  * their own small add-form.
  */
 function MaterielCard({ item, lieux, etats, can, onEdit, onDelete, compact = false }) {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
     const [quantite, setQuantite] = useState(item.quantite);
     const [observation, setObservation] = useState(item.observation ?? '');
     const [panel, setPanel] = useState(null); // null | 'maintenance' | 'emprunt'
@@ -240,7 +242,7 @@ function MaterielCard({ item, lieux, etats, can, onEdit, onDelete, compact = fal
                         <ul className="mb-2 space-y-1.5">
                             {item.maintenances.map((m) => (
                                 <li key={m.id} className="text-xs text-admin-text-secondary">
-                                    <span className="text-admin-muted">{formatDateTime(m.created_at)}</span> — {m.description}
+                                    <span className="text-admin-muted">{formatDateTime(m.created_at, locale)}</span> — {m.description}
                                     {m.etat_apres_label && (
                                         <Badge variant={ETAT_VARIANT[m.etat_apres]} className="ml-1.5">
                                             {m.etat_apres_label}
@@ -285,7 +287,7 @@ function MaterielCard({ item, lieux, etats, can, onEdit, onDelete, compact = fal
                             {item.deplacements.map((d) => (
                                 <li key={d.id} className="flex items-center justify-between gap-2 text-xs text-admin-text-secondary">
                                     <span>
-                                        <span className="text-admin-muted">{formatDateTime(d.created_at)}</span> — {d.emprunteur} : {d.lieu_origine} → {d.lieu_destination} ({d.quantite})
+                                        <span className="text-admin-muted">{formatDateTime(d.created_at, locale)}</span> — {d.emprunteur} : {d.lieu_origine} → {d.lieu_destination} ({d.quantite})
                                     </span>
                                     {d.statut === 'en_cours' ? (
                                         <button onClick={() => retourner(d.id)} className="flex items-center gap-1 rounded-md border border-admin-border px-1.5 py-0.5 text-admin-text-secondary hover:bg-admin-hover">
@@ -348,7 +350,7 @@ function MaterielCard({ item, lieux, etats, can, onEdit, onDelete, compact = fal
 
 /** A loan currently sitting in this lieu, but owned by another lieu's fiche. */
 function IncomingLoanCard({ loan, onRetourner, onGoToOrigine }) {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
     return (
         <div className="admin-card flex flex-col gap-2 border-amber-300/60 p-4 dark:border-amber-500/30">
             <div className="flex items-start justify-between gap-2">
@@ -359,7 +361,7 @@ function IncomingLoanCard({ loan, onRetourner, onGoToOrigine }) {
                 {t('materiel.carte_provenance', 'Depuis')} <strong>{loan.lieu_origine}</strong> · {loan.quantite}x · {loan.emprunteur}
             </p>
             {loan.motif && <p className="text-xs text-admin-muted">{loan.motif}</p>}
-            <p className="text-xs text-admin-muted">{formatDateTime(loan.created_at)}</p>
+            <p className="text-xs text-admin-muted">{formatDateTime(loan.created_at, locale)}</p>
             <div className="flex items-center gap-2 border-t border-admin-border pt-2">
                 <button onClick={() => onGoToOrigine(loan.lieu_origine)} className="text-xs text-admin-text-secondary hover:underline">
                     {t('materiel.voir_lieu_origine', "Voir le lieu d'origine")}
@@ -374,7 +376,7 @@ function IncomingLoanCard({ loan, onRetourner, onGoToOrigine }) {
 }
 
 function StatsTab({ materiels, etats }) {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
 
     const repartition = useMemo(
         () =>
@@ -446,7 +448,7 @@ function StatsTab({ materiels, etats }) {
 }
 
 function HistoriqueTab({ materiels, can }) {
-    const { t } = useTranslations();
+    const { t, locale } = useTranslations();
     const confirmAction = useConfirm();
     const [search, setSearch] = useState('');
     const [statutFiltre, setStatutFiltre] = useState('tous');
@@ -545,7 +547,7 @@ function HistoriqueTab({ materiels, can }) {
                                 </Badge>
                                 <strong>{d.materiel_nom}</strong> — {d.emprunteur} : {d.lieu_origine} → {d.lieu_destination} ({d.quantite})
                                 {d.motif && <span className="text-admin-muted"> — {d.motif}</span>}
-                                <p className="mt-0.5 text-xs text-admin-muted">{formatDateTime(d.created_at)}</p>
+                                <p className="mt-0.5 text-xs text-admin-muted">{formatDateTime(d.created_at, locale)}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 {d.statut === 'en_cours' && can.edit && (
@@ -568,8 +570,19 @@ function HistoriqueTab({ materiels, can }) {
     );
 }
 
-export default function Index({ materiels, etats, stats, can, embedded = false }) {
-    const { t } = useTranslations();
+export default function Index({ materiels: rawMateriels, etats: rawEtats, stats, can, embedded = false }) {
+    const { t, locale } = useTranslations();
+    const etats = useMemo(() => rawEtats.map((e) => ({ ...e, label: t(`materiel.etat.${e.value}`, e.label) })), [rawEtats, locale]);
+    const materiels = useMemo(
+        () =>
+            rawMateriels.map((m) => ({
+                ...m,
+                etat_label: t(`materiel.etat.${m.etat}`, m.etat_label),
+                maintenances: m.maintenances.map((x) => ({ ...x, etat_apres_label: x.etat_apres ? t(`materiel.etat.${x.etat_apres}`, x.etat_apres_label) : x.etat_apres_label })),
+                deplacements: m.deplacements.map((d) => ({ ...d, statut_label: t(`materiel.statut.${d.statut}`, d.statut_label) })),
+            })),
+        [rawMateriels, locale],
+    );
     const confirmAction = useConfirm();
     const [tab, setTab] = useState('liste');
     const [search, setSearch] = useState('');

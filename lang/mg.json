@@ -2263,5 +2263,19 @@
     "admin.roles.category.scolarite": "Sampan’ny fisoratana",
     "admin.roles.category.communaute": "Vondrom-piarahamonina",
     "admin.roles.category.contenu": "Tranokala ho an’ny daholobe",
-    "admin.roles.category.systeme": "Fitantanana"
+    "admin.roles.category.systeme": "Fitantanana",
+    "materiel.etat.bon_etat": "Tsara toetra",
+    "materiel.etat.en_marche": "Mandeha",
+    "materiel.etat.mauvais_etat": "Ratsy toetra",
+    "materiel.etat.en_panne": "Simba",
+    "materiel.statut.en_cours": "Mbola mandeha",
+    "materiel.statut.retourne": "Naverina",
+    "Matériel ajouté.": "Nampiana ny fitaovana.",
+    "Matériel mis à jour.": "Nohavaozina ny fitaovana.",
+    "Matériel supprimé.": "Voafafa ny fitaovana.",
+    "Intervention enregistrée.": "Voarakitra ny fanatsarana.",
+    "Matériel emprunté.": "Nindrana ny fitaovana.",
+    "Matériel retourné.": "Naverina ny fitaovana.",
+    "Entrée de l'historique supprimée.": "Voafafa ny fampidirana ao amin’ny tantara.",
+    "Historique vidé.": "Nafafa ny tantara."
 }

@@ -72,21 +72,21 @@ class MaterielController extends Controller
             'ajoute_par' => $request->user()->id,
         ]);
 
-        return back()->with('status', 'Matériel ajouté.');
+        return back()->with('status', __('Matériel ajouté.'));
     }
 
     public function update(UpdateMaterielRequest $request, Materiel $materiel): RedirectResponse
     {
         $materiel->update($request->validated());
 
-        return back()->with('status', 'Matériel mis à jour.');
+        return back()->with('status', __('Matériel mis à jour.'));
     }
 
     public function destroy(Materiel $materiel): RedirectResponse
     {
         $materiel->delete();
 
-        return back()->with('status', 'Matériel supprimé.');
+        return back()->with('status', __('Matériel supprimé.'));
     }
 
     public function storeMaintenance(StoreMaterielMaintenanceRequest $request, Materiel $materiel): RedirectResponse
@@ -102,7 +102,7 @@ class MaterielController extends Controller
             $materiel->update(['etat' => $validated['etat_apres']]);
         }
 
-        return back()->with('status', 'Intervention enregistrée.');
+        return back()->with('status', __('Intervention enregistrée.'));
     }
 
     public function emprunter(StoreMaterielDeplacementRequest $request, Materiel $materiel): RedirectResponse
@@ -125,7 +125,7 @@ class MaterielController extends Controller
 
         $materiel->decrement('quantite', $quantiteEmprunt);
 
-        return back()->with('status', 'Matériel emprunté.');
+        return back()->with('status', __('Matériel emprunté.'));
     }
 
     public function retourner(MaterielDeplacement $deplacement): RedirectResponse
@@ -135,7 +135,7 @@ class MaterielController extends Controller
         $deplacement->update(['statut' => MaterielDeplacementStatut::Retourne, 'date_retour' => now()]);
         $deplacement->materiel->increment('quantite', $deplacement->quantite);
 
-        return back()->with('status', 'Matériel retourné.');
+        return back()->with('status', __('Matériel retourné.'));
     }
 
     public function destroyDeplacement(MaterielDeplacement $deplacement): RedirectResponse
@@ -146,7 +146,7 @@ class MaterielController extends Controller
 
         $deplacement->delete();
 
-        return back()->with('status', "Entrée de l'historique supprimée.");
+        return back()->with('status', __("Entrée de l'historique supprimée."));
     }
 
     public function destroyAllHistorique(): RedirectResponse
@@ -157,6 +157,6 @@ class MaterielController extends Controller
 
         MaterielDeplacement::query()->delete();
 
-        return back()->with('status', 'Historique vidé.');
+        return back()->with('status', __('Historique vidé.'));
     }
 }

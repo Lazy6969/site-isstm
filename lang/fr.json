@@ -2201,5 +2201,11 @@
     "admin.roles.perm.materiel.maintain.hint": "Déclarer une panne et suivre les interventions.",
     "admin.roles.module.materiel": "Gestion du matériel",
     "admin.roles.module.materiel.hint": "Fiches, emprunts entre lieux et maintenance de l’inventaire.",
-    "admin.roles.category.materiel": "Matériel"
+    "admin.roles.category.materiel": "Matériel",
+    "materiel.etat.bon_etat": "Bon état",
+    "materiel.etat.en_marche": "En marche",
+    "materiel.etat.mauvais_etat": "Mauvais état",
+    "materiel.etat.en_panne": "En panne",
+    "materiel.statut.en_cours": "En cours",
+    "materiel.statut.retourne": "Retourné"
 }
