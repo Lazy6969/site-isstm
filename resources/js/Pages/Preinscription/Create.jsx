@@ -639,7 +639,7 @@ export default function Create({ filieres, draft, initialStep }) {
                         <BackButton />
                         <h1 className="text-2xl font-bold sm:text-3xl">
                             <EditableText as="span" contentKey="preinscription_titre">
-                                {content.preinscription_titre ?? t('preinscription.titre', 'Votre dossier d’inscription')}
+                                {content.preinscription_titre ?? t('preinscription.titre', 'Formulaire de dossier candidat')}
                             </EditableText>
                         </h1>
                         <p className="mt-2 text-white/80">

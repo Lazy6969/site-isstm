@@ -739,7 +739,7 @@ class HomeContentSeeder extends Seeder
             // — renamed from its earlier, now-unused wording to match what the
             // page actually shows today, so wiring it to EditableText doesn't
             // silently change the visible text.
-            'preinscription_titre' => ["Votre dossier d'inscription", 'Your application file', 'Ny antontan-taratasinao fisoratana anarana'],
+            'preinscription_titre' => ['Formulaire de dossier candidat', 'Candidate application form', "Taratasy fangatahan'ny kandidà"],
             'preinscription_soustitre' => [
                 'Les champs avec un astérisque sont obligatoires. Créez votre compte candidat pour commencer.',
                 'Fields marked with an asterisk are required. Create your candidate account to get started.',
