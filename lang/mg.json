@@ -2277,5 +2277,17 @@
     "Matériel emprunté.": "Nindrana ny fitaovana.",
     "Matériel retourné.": "Naverina ny fitaovana.",
     "Entrée de l'historique supprimée.": "Voafafa ny fampidirana ao amin’ny tantara.",
-    "Historique vidé.": "Nafafa ny tantara."
+    "Historique vidé.": "Nafafa ny tantara.",
+    "admin.roles.via_role": "amin’ny andraikitra",
+    "admin.roles.unsaved_confirm_action": "Tohizo",
+    "admin.roles.mode": "Fomba",
+    "admin.roles.mode_role": "Araka ny andraikitra",
+    "admin.roles.mode_user": "Araka ny kaonty",
+    "admin.roles.search_user": "Hikaroka kaonty (anarana, mailaka)…",
+    "admin.roles.accounts_suffix": "kaonty",
+    "admin.roles.no_account": "Tsy misy kaonty mifanaraka.",
+    "admin.roles.no_role": "Tsy misy andraikitra",
+    "admin.roles.pick_account": "Fidio kaonty eo ankavia handefasana alalana aminy.",
+    "admin.roles.pick_account_hint": "Ireo alalana ireo dia fanampiny ireo efa nomen’ny andraikiny.",
+    "admin.roles.user_subtitle": "alalana fanampiny, ankoatra ny andraikiny."
 }

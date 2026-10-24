@@ -2312,5 +2312,17 @@
     "Matériel emprunté.": "Equipment loaned.",
     "Matériel retourné.": "Equipment returned.",
     "Entrée de l'historique supprimée.": "History entry deleted.",
-    "Historique vidé.": "History cleared."
+    "Historique vidé.": "History cleared.",
+    "admin.roles.via_role": "via role",
+    "admin.roles.unsaved_confirm_action": "Continue",
+    "admin.roles.mode": "Mode",
+    "admin.roles.mode_role": "By role",
+    "admin.roles.mode_user": "By account",
+    "admin.roles.search_user": "Search an account (name, e-mail)…",
+    "admin.roles.accounts_suffix": "account(s)",
+    "admin.roles.no_account": "No account matches.",
+    "admin.roles.no_role": "No role",
+    "admin.roles.pick_account": "Pick an account on the left to grant it permissions.",
+    "admin.roles.pick_account_hint": "These permissions add to those already granted by its role.",
+    "admin.roles.user_subtitle": "additional permissions, on top of its role."
 }

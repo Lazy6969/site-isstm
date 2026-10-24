@@ -2207,5 +2207,17 @@
     "materiel.etat.mauvais_etat": "Mauvais état",
     "materiel.etat.en_panne": "En panne",
     "materiel.statut.en_cours": "En cours",
-    "materiel.statut.retourne": "Retourné"
+    "materiel.statut.retourne": "Retourné",
+    "admin.roles.via_role": "via rôle",
+    "admin.roles.unsaved_confirm_action": "Continuer",
+    "admin.roles.mode": "Mode",
+    "admin.roles.mode_role": "Par rôle",
+    "admin.roles.mode_user": "Par compte",
+    "admin.roles.search_user": "Rechercher un compte (nom, e-mail)…",
+    "admin.roles.accounts_suffix": "compte(s)",
+    "admin.roles.no_account": "Aucun compte ne correspond.",
+    "admin.roles.no_role": "Aucun rôle",
+    "admin.roles.pick_account": "Choisissez un compte à gauche pour lui attribuer des permissions.",
+    "admin.roles.pick_account_hint": "Ces permissions s’ajoutent à celles déjà accordées par son rôle.",
+    "admin.roles.user_subtitle": "permissions supplémentaires, en plus de son rôle."
 }
