@@ -9,6 +9,9 @@ import { Select } from '../../../Components/ui/select';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
 import { useConfirm } from '../../../lib/useConfirm';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 function roleLabels(t) {
     return {
@@ -171,10 +174,12 @@ export default function Index({ users, roles }) {
         [users],
     );
 
+    const range = useDateRange();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
 
         return users.filter((user) => {
+            if (!range.matches(user.created_at)) return false;
             if (roleFilter && user.role !== roleFilter) return false;
             if (statusFilter === 'active' && !user.is_active) return false;
             if (statusFilter === 'inactive' && user.is_active) return false;
@@ -182,7 +187,7 @@ export default function Index({ users, roles }) {
 
             return user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term) || (user.phone ?? '').toLowerCase().includes(term);
         });
-    }, [users, search, roleFilter, statusFilter]);
+    }, [users, search, roleFilter, statusFilter, range]);
 
     const editing = users.find((user) => user.id === editingId) ?? null;
 
@@ -297,6 +302,10 @@ export default function Index({ users, roles }) {
                     ))}
                 </div>
             </div>
+
+            <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch}>
+            <DateRangeFilter range={range} label={t('admin.dates.created_on', 'Compte créé le')} />
+            </FilterPanel>
 
             <div className={cn('grid gap-5', editing && 'xl:grid-cols-[minmax(0,1fr)_420px]')}>
                 <div className={cn('min-w-0', editing && 'hidden xl:block')}>

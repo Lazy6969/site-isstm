@@ -22,6 +22,9 @@ import { buttonVariants } from '../../../Components/ui/button';
 import { Input } from '../../../Components/ui/input';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const STATUS_LABELS = {
     en_attente: 'Soumis',
@@ -92,10 +95,12 @@ export default function Index({ preinscriptions, brouillons }) {
     const [search, setSearch] = useState('');
     const [view, setView] = useState('list');
 
+    const range = useDateRange();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        if (!term) return preinscriptions;
-        return preinscriptions.filter(
+        const inRange = preinscriptions.filter((p) => range.matches(p.created_at));
+        if (!term) return inRange;
+        return inRange.filter(
             (p) =>
                 p.nom?.toLowerCase().includes(term) ||
                 p.prenoms?.toLowerCase().includes(term) ||
@@ -103,7 +108,7 @@ export default function Index({ preinscriptions, brouillons }) {
                 p.numero_dossier?.toLowerCase().includes(term) ||
                 p.filiere?.nom_fr?.toLowerCase().includes(term),
         );
-    }, [preinscriptions, search]);
+    }, [preinscriptions, search, range]);
 
     const countByStatus = (status) => preinscriptions.filter((p) => p.status === status).length;
 
@@ -163,6 +168,10 @@ export default function Index({ preinscriptions, brouillons }) {
                     </a>
                 </div>
             </div>
+
+            <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch}>
+            <DateRangeFilter range={range} label={t('admin.dates.filed_on', 'Date de dépôt')} />
+            </FilterPanel>
 
             {filtered.length === 0 ? (
                 <EmptyState

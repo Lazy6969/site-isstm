@@ -7,6 +7,9 @@ import { Label } from '../../../Components/ui/label';
 import { Select } from '../../../Components/ui/select';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 10;
 
@@ -254,6 +257,11 @@ export default function Index({ teachers }) {
     const [confirmId, setConfirmId] = useState(null);
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [departementFilter, setDepartementFilter] = useState('');
+    const [specialtyFilter, setSpecialtyFilter] = useState('');
+    const [photoFilter, setPhotoFilter] = useState('');
+    const [emailFilter, setEmailFilter] = useState('');
+    const range = useDateRange();
     const [sort, setSort] = useState({ field: 'display_order', dir: 'asc' });
     const [page, setPage] = useState(1);
     const [selected, setSelected] = useState(() => new Set());
@@ -264,12 +272,37 @@ export default function Index({ teachers }) {
         return result;
     }, [teachers]);
 
+    const choices = useMemo(() => {
+        const unique = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b)));
+
+        return {
+            departements: unique(teachers.map((teacher) => teacher.departement)),
+            specialties: unique(teachers.map((teacher) => teacher.specialty_fr)),
+        };
+    }, [teachers]);
+    const extraFilters = [departementFilter, specialtyFilter, photoFilter, emailFilter].filter(Boolean).length + Number(range.active);
+
+    function resetExtraFilters() {
+        setDepartementFilter('');
+        setSpecialtyFilter('');
+        setPhotoFilter('');
+        setEmailFilter('');
+        range.reset();
+    }
+
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
         const rows = teachers.filter((teacher) => {
             if (categoryFilter && teacher.category !== categoryFilter) return false;
+            if (departementFilter === '__none' ? teacher.departement : departementFilter && teacher.departement !== departementFilter) return false;
+            if (specialtyFilter && teacher.specialty_fr !== specialtyFilter) return false;
+            if (photoFilter === 'with' && !teacher.photo_path) return false;
+            if (photoFilter === 'without' && teacher.photo_path) return false;
+            if (emailFilter === 'with' && !teacher.email) return false;
+            if (emailFilter === 'without' && teacher.email) return false;
+            if (!range.matches(teacher.created_at)) return false;
             if (!term) return true;
-            return [teacher.name, teacher.email, teacher.specialty_fr, teacher.specialty_en, teacher.specialty_mg].some((field) => (field ?? '').toLowerCase().includes(term));
+            return [teacher.name, teacher.email, teacher.departement, teacher.specialty_fr, teacher.specialty_en, teacher.specialty_mg, teacher.description_fr].some((field) => (field ?? '').toLowerCase().includes(term));
         });
         const direction = sort.dir === 'asc' ? 1 : -1;
         return rows.sort((a, b) => {
@@ -278,9 +311,9 @@ export default function Index({ teachers }) {
             if (typeof left === 'number' && typeof right === 'number') return (left - right) * direction;
             return String(left).localeCompare(String(right), undefined, { numeric: true }) * direction;
         });
-    }, [teachers, search, categoryFilter, sort]);
+    }, [teachers, search, categoryFilter, departementFilter, specialtyFilter, photoFilter, emailFilter, range, sort]);
 
-    useEffect(() => setPage(1), [search, categoryFilter, sort]);
+    useEffect(() => setPage(1), [search, categoryFilter, departementFilter, specialtyFilter, photoFilter, emailFilter, range, sort]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
@@ -381,6 +414,54 @@ export default function Index({ teachers }) {
                     </button>
                 ))}
             </div>
+
+            <FilterPanel activeCount={extraFilters} search={search} onSearch={setSearch}>
+            <div className="flex flex-wrap items-center gap-2">
+                {[
+                    [
+                        departementFilter,
+                        setDepartementFilter,
+                        t('admin.enseignants.filtre_departement', 'Tous les départements'),
+                        [['__none', t('admin.enseignants.filtre_sans_departement', 'Sans département')], ...choices.departements.map((value) => [value, value])],
+                    ],
+                    [specialtyFilter, setSpecialtyFilter, t('admin.enseignants.filtre_specialite', 'Toutes les spécialités'), choices.specialties.map((value) => [value, value])],
+                    [
+                        photoFilter,
+                        setPhotoFilter,
+                        t('admin.enseignants.filtre_photo', 'Photo : toutes'),
+                        [['with', t('admin.enseignants.filtre_avec_photo', 'Avec photo')], ['without', t('admin.enseignants.filtre_sans_photo', 'Sans photo')]],
+                    ],
+                    [
+                        emailFilter,
+                        setEmailFilter,
+                        t('admin.enseignants.filtre_email', 'E-mail : tous'),
+                        [['with', t('admin.enseignants.filtre_avec_email', 'Avec e-mail')], ['without', t('admin.enseignants.filtre_sans_email', 'Sans e-mail')]],
+                    ],
+                ].map(([value, setValue, placeholder, entries]) => (
+                    <select
+                        key={placeholder}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        aria-label={placeholder}
+                        className="h-9 max-w-56 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                    >
+                        <option value="">{placeholder}</option>
+                        {entries.map(([key, label]) => (
+                            <option key={key} value={key}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                ))}
+                {extraFilters > 0 && (
+                    <button type="button" onClick={resetExtraFilters} className="h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover">
+                        {t('admin.enseignants.filtre_reset', 'Réinitialiser les filtres')}
+                    </button>
+                )}
+            </div>
+
+            <DateRangeFilter range={range} label={t('admin.enseignants.filtre_date', "Date d'ajout")} />
+            </FilterPanel>
 
             <div className={`grid grid-cols-1 gap-5 ${panel ? 'xl:grid-cols-[minmax(0,1fr)_440px]' : ''}`}>
                 <div className="admin-card min-w-0 overflow-hidden !p-0">

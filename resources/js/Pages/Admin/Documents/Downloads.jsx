@@ -5,6 +5,9 @@ import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Input } from '../../../Components/ui/input';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 10;
 
@@ -291,18 +294,20 @@ export default function Downloads({ downloads, documents, stats, daily }) {
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
+    const range = useDateRange();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        if (!term) return downloads;
+        const inRange = downloads.filter((download) => range.matches(download.created_at));
+        if (!term) return inRange;
 
-        return downloads.filter(
+        return inRange.filter(
             (download) =>
                 download.document_title?.toLowerCase().includes(term) ||
                 download.user_name?.toLowerCase().includes(term) ||
                 download.user_email?.toLowerCase().includes(term) ||
                 download.ip_address?.toLowerCase().includes(term),
         );
-    }, [downloads, search]);
+    }, [downloads, search, range]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
@@ -411,6 +416,13 @@ export default function Downloads({ downloads, documents, stats, daily }) {
                         />
                     </div>
                 </div>
+
+                <FilterPanel activeCount={Number(range.active)} search={search} onSearch={(value) => {
+                    setSearch(value);
+                    setPage(1);
+                }}>
+                <DateRangeFilter range={range} label={t('admin.dates.download_date', 'Date du téléchargement')} />
+                </FilterPanel>
 
                 {visible.length === 0 ? (
                     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-admin-border bg-admin-card px-6 py-14 text-center">

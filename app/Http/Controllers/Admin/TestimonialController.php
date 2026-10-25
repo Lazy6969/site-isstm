@@ -19,7 +19,7 @@ class TestimonialController extends Controller
     {
         return Inertia::render('Admin/Temoignages/Index', [
             'testimonials' => Testimonial::orderBy('display_order')
-                ->get(['id', 'author_name', 'program', 'image_path', 'quote_fr', 'quote_en', 'quote_mg', 'display_order']),
+                ->get(['id', 'author_name', 'program', 'image_path', 'quote_fr', 'quote_en', 'quote_mg', 'display_order', 'created_at']),
         ]);
     }
 

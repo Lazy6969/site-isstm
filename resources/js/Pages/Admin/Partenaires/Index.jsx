@@ -5,6 +5,9 @@ import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Input } from '../../../Components/ui/input';
 import { Label } from '../../../Components/ui/label';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 10;
 
@@ -58,6 +61,19 @@ function hostOf(url) {
     } catch {
         return url;
     }
+}
+
+/** Last label of the site's host (".mg", ".fr", ".org"…), or '' with no usable site. */
+function domainOf(url) {
+    if (!url) return '';
+    const parts = hostOf(url).split('.');
+
+    return parts.length > 1 ? `.${parts.at(-1)}` : '';
+}
+
+/** First word of the name, a rough "kind" of partner (Université, Département, Institut…). */
+function kindOf(nom) {
+    return (nom ?? '').trim().split(/\s+/)[0] ?? '';
 }
 
 function LogoBox({ partenaire, size = 'h-11 w-11' }) {
@@ -185,6 +201,12 @@ export default function Index({ partenaires }) {
     const [panel, setPanel] = useState(null); // null | { partenaire: object|null }
     const [confirmId, setConfirmId] = useState(null);
     const [search, setSearch] = useState('');
+    const [logoFilter, setLogoFilter] = useState('');
+    const [siteFilter, setSiteFilter] = useState('');
+    const [domainFilter, setDomainFilter] = useState('');
+    const [kindFilter, setKindFilter] = useState('');
+    const [letterFilter, setLetterFilter] = useState('');
+    const range = useDateRange();
     const [sort, setSort] = useState({ field: 'display_order', dir: 'asc' });
     const [page, setPage] = useState(1);
     const [selected, setSelected] = useState(() => new Set());
@@ -193,9 +215,40 @@ export default function Index({ partenaires }) {
     const withSite = partenaires.filter((p) => p.site_url).length;
     const ordered = useMemo(() => [...partenaires].sort((a, b) => (a.display_order ?? 9999) - (b.display_order ?? 9999)), [partenaires]);
 
+    const choices = useMemo(() => {
+        const unique = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+        return {
+            domains: unique(partenaires.map((p) => domainOf(p.site_url))),
+            kinds: unique(partenaires.map((p) => kindOf(p.nom))),
+            letters: unique(partenaires.map((p) => (p.nom ?? '').trim().charAt(0).toUpperCase())),
+        };
+    }, [partenaires]);
+    const extraFilters = [logoFilter, siteFilter, domainFilter, kindFilter, letterFilter].filter(Boolean).length + Number(range.active);
+
+    function resetExtraFilters() {
+        setLogoFilter('');
+        setSiteFilter('');
+        setDomainFilter('');
+        setKindFilter('');
+        setLetterFilter('');
+        range.reset();
+    }
+
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        const rows = term ? partenaires.filter((p) => [p.nom, p.site_url].some((field) => (field ?? '').toLowerCase().includes(term))) : [...partenaires];
+        const matchesFilters = (p) => {
+            if (logoFilter === 'with' && !p.logo_path) return false;
+            if (logoFilter === 'without' && p.logo_path) return false;
+            if (siteFilter === 'with' && !p.site_url) return false;
+            if (siteFilter === 'without' && p.site_url) return false;
+            if (domainFilter && domainOf(p.site_url) !== domainFilter) return false;
+            if (kindFilter && kindOf(p.nom) !== kindFilter) return false;
+            if (letterFilter && (p.nom ?? '').trim().charAt(0).toUpperCase() !== letterFilter) return false;
+
+            return range.matches(p.created_at);
+        };
+        const rows = (term ? partenaires.filter((p) => [p.nom, p.site_url].some((field) => (field ?? '').toLowerCase().includes(term))) : [...partenaires]).filter(matchesFilters);
         const direction = sort.dir === 'asc' ? 1 : -1;
         return rows.sort((a, b) => {
             const left = a[sort.field] ?? '';
@@ -203,9 +256,9 @@ export default function Index({ partenaires }) {
             if (typeof left === 'number' && typeof right === 'number') return (left - right) * direction;
             return String(left).localeCompare(String(right), undefined, { numeric: true }) * direction;
         });
-    }, [partenaires, search, sort]);
+    }, [partenaires, search, logoFilter, siteFilter, domainFilter, kindFilter, letterFilter, range, sort]);
 
-    useEffect(() => setPage(1), [search, sort]);
+    useEffect(() => setPage(1), [search, logoFilter, siteFilter, domainFilter, kindFilter, letterFilter, range, sort]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
@@ -339,6 +392,50 @@ export default function Index({ partenaires }) {
                     {t('admin.partenaires.new_partner', 'Nouveau partenaire')}
                 </button>
             </div>
+
+            <FilterPanel activeCount={extraFilters} search={search} onSearch={setSearch}>
+            <div className="flex flex-wrap items-center gap-2">
+                {[
+                    [
+                        logoFilter,
+                        setLogoFilter,
+                        t('admin.partenaires.filtre_logo', 'Logo : tous'),
+                        [['with', t('admin.partenaires.filtre_avec_logo', 'Avec logo')], ['without', t('admin.partenaires.filtre_sans_logo', 'Sans logo')]],
+                    ],
+                    [
+                        siteFilter,
+                        setSiteFilter,
+                        t('admin.partenaires.filtre_site', 'Site web : tous'),
+                        [['with', t('admin.partenaires.filtre_avec_site', 'Avec site web')], ['without', t('admin.partenaires.filtre_sans_site', 'Sans site web')]],
+                    ],
+                    [domainFilter, setDomainFilter, t('admin.partenaires.filtre_domaine', 'Tous les domaines'), choices.domains.map((value) => [value, value])],
+                    [kindFilter, setKindFilter, t('admin.partenaires.filtre_type', 'Tous les types'), choices.kinds.map((value) => [value, value])],
+                    [letterFilter, setLetterFilter, t('admin.partenaires.filtre_lettre', 'Initiale : toutes'), choices.letters.map((value) => [value, value])],
+                ].map(([value, setValue, placeholder, entries]) => (
+                    <select
+                        key={placeholder}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        aria-label={placeholder}
+                        className="h-9 max-w-52 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                    >
+                        <option value="">{placeholder}</option>
+                        {entries.map(([key, label]) => (
+                            <option key={key} value={key}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                ))}
+                {extraFilters > 0 && (
+                    <button type="button" onClick={resetExtraFilters} className="h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover">
+                        {t('admin.partenaires.filtre_reset', 'Réinitialiser les filtres')}
+                    </button>
+                )}
+            </div>
+
+            <DateRangeFilter range={range} label={t('admin.partenaires.filtre_date', "Date d'ajout")} />
+            </FilterPanel>
 
             <div className={`grid grid-cols-1 gap-5 ${panel ? 'xl:grid-cols-[minmax(0,1fr)_400px]' : ''}`}>
                 <div className="admin-card min-w-0 overflow-hidden !p-0">

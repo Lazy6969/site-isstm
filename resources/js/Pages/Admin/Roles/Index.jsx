@@ -725,36 +725,37 @@ export default function Index({ roles, permissions, users }) {
 
                 {hasSelection && (
                     <form onSubmit={submit} className="min-w-0 space-y-4 pb-20">
-                        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-admin-accent via-admin-accent/90 to-sky-500 p-5 text-white shadow-xl shadow-admin-accent/20">
-                            <span className="roles-blob pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-white/15 blur-3xl" style={{ animation: 'roles-float 9s ease-in-out infinite' }} />
-                            <span className="roles-blob pointer-events-none absolute -bottom-20 left-1/4 h-48 w-48 rounded-full bg-sky-300/30 blur-3xl" style={{ animation: 'roles-float 12s ease-in-out infinite reverse' }} />
+                        <div className="relative overflow-hidden rounded-2xl border border-admin-border bg-admin-card p-5 pl-6 text-admin-text shadow-lg shadow-admin-accent/5">
+                            <span className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-admin-accent to-sky-500" aria-hidden="true" />
+                            <span className="roles-blob pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-admin-accent/15 blur-3xl" style={{ animation: 'roles-float 9s ease-in-out infinite' }} />
+                            <span className="roles-blob pointer-events-none absolute -bottom-20 left-1/4 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" style={{ animation: 'roles-float 12s ease-in-out infinite reverse' }} />
                             <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-                                <span className="flex-shrink-0 rounded-full bg-white/15 p-1.5 ring-1 ring-white/30 backdrop-blur">
-                                    <ProgressRing percent={percent} size={80} onDark />
+                                <span className="flex-shrink-0 rounded-full bg-admin-accent/10 p-1.5 ring-1 ring-admin-accent/25">
+                                    <ProgressRing percent={percent} size={80} />
                                 </span>
                                 <div className="min-w-0 flex-1">
                                     <div className="flex flex-wrap items-center gap-2">
                                         <h2 className="text-2xl font-bold tracking-tight">{mode === 'role' ? (ROLE_LABELS[selectedRole.name] ?? selectedRole.name) : selectedUser.name}</h2>
                                         {locked && (
-                                            <span className="flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold backdrop-blur">
+                                            <span className="flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-500">
                                                 <Lock className="h-3 w-3" aria-hidden="true" />
                                                 {t('admin.roles.locked', 'Verrouillé')}
                                             </span>
                                         )}
                                     </div>
                                     {mode === 'role' ? (
-                                        <p className="mt-1 max-w-xl text-sm text-white/85">{t(`admin.roles.blurb.${selectedRole.name}`, ROLE_BLURBS[selectedRole.name] ?? '')}</p>
+                                        <p className="mt-1 max-w-xl text-sm text-admin-text-secondary">{t(`admin.roles.blurb.${selectedRole.name}`, ROLE_BLURBS[selectedRole.name] ?? '')}</p>
                                     ) : (
-                                        <p className="mt-1 max-w-xl text-sm text-white/85">
+                                        <p className="mt-1 max-w-xl text-sm text-admin-text-secondary">
                                             {selectedUser.email} —{' '}
                                             {t('admin.roles.user_subtitle', 'permissions supplémentaires, en plus de son rôle.')}
                                         </p>
                                     )}
                                     <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
-                                        <span className="rounded-full bg-white/20 px-3 py-1 backdrop-blur">
+                                        <span className="rounded-full border border-admin-border bg-admin-hover/60 px-3 py-1 text-admin-text-secondary">
                                             {granted.size} / {permissions.length} {t('admin.roles.permissions_suffix', 'permissions')}
                                         </span>
-                                        <span className="rounded-full bg-white/20 px-3 py-1 backdrop-blur">
+                                        <span className="rounded-full border border-admin-border bg-admin-hover/60 px-3 py-1 text-admin-text-secondary">
                                             {mode === 'role' ? `${selectedRole.users_count} ${t('admin.roles.users_suffix', 'utilisateur(s)')}` : (ROLE_LABELS[selectedUser.role] ?? selectedUser.role ?? t('admin.roles.no_role', 'Aucun rôle'))}
                                         </span>
                                     </div>

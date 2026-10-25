@@ -20,7 +20,7 @@ class EcolagePaymentController extends Controller
 {
     public function index(): Response
     {
-        $payments = EcolagePayment::with(['etudiant.user:id,name,email,avatar_path', 'etudiant.classe.filiere:id,nom_fr', 'reviewer:id,name'])
+        $payments = EcolagePayment::with(['etudiant.user:id,name,email,avatar_path', 'etudiant.user.candidats:id,user_id,numero_dossier', 'etudiant.classe.filiere:id,nom_fr', 'reviewer:id,name'])
             ->latest('created_at')
             ->limit(500)
             ->get();
@@ -37,6 +37,7 @@ class EcolagePaymentController extends Controller
                     'email' => $payment->etudiant->user?->email,
                     'avatar_path' => $payment->etudiant->user?->avatar_path,
                     'matricule' => $payment->etudiant->matricule,
+                    'numero_dossier' => $payment->etudiant->user?->candidats->pluck('numero_dossier')->filter()->first(),
                     'telephone' => $payment->etudiant->telephone,
                     'niveau' => $payment->etudiant->classe?->niveau,
                     'classe' => $payment->etudiant->classe?->nom,

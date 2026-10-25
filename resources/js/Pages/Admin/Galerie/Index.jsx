@@ -8,6 +8,7 @@ import { Label } from '../../../Components/ui/label';
 import { Select } from '../../../Components/ui/select';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateField from '../../../Components/Admin/DateField';
 
 const PAGE_SIZE = 12;
 
@@ -203,7 +204,7 @@ function AlbumPanel({ editing, categories, canPublish, onClose }) {
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <Label htmlFor="event_date">{t('admin.galerie.date_optional', 'Date (optionnel)')}</Label>
-                    <Input id="event_date" type="date" value={form.data.event_date ?? ''} onChange={(e) => form.setData('event_date', e.target.value)} className="mt-1.5" />
+                    <DateField id="event_date" wrapperClassName="block" value={form.data.event_date ?? ''} onChange={(e) => form.setData('event_date', e.target.value)} className="mt-1.5" />
                 </div>
                 <div>
                     <Label htmlFor="location">{t('admin.galerie.location_optional', 'Lieu (optionnel)')}</Label>

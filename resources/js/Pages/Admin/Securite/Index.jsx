@@ -8,6 +8,9 @@ import { Badge } from '../../../Components/ui/badge';
 import { Button } from '../../../Components/ui/button';
 import { useTranslations } from '../../../lib/useTranslations';
 import { useConfirm } from '../../../lib/useConfirm';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const STATUS_VARIANT = { en_attente: 'warning', accepte: 'success', refuse: 'danger' };
 const DATE_LOCALES = { fr: 'fr-FR', en: 'en-GB', mg: 'fr-MG' };
@@ -16,6 +19,7 @@ export default function Index({ requests }) {
     const { t, locale } = useTranslations();
     const confirmAction = useConfirm();
     const [tab, setTab] = useState('en_attente');
+    const [search, setSearch] = useState('');
 
     const counts = useMemo(
         () => ({
@@ -25,7 +29,9 @@ export default function Index({ requests }) {
         }),
         [requests],
     );
-    const visible = tab === 'tous' ? requests : requests.filter((r) => r.status === tab);
+    const range = useDateRange();
+    const visible = (tab === 'tous' ? requests : requests.filter((r) => r.status === tab)).filter((r) => range.matches(r.created_at))
+        .filter((r) => !search.trim() || `${r.user.name} ${r.user.email}`.toLowerCase().includes(search.trim().toLowerCase()));
     const statusLabels = {
         en_attente: t('admin.securite.status_en_attente', 'En attente'),
         accepte: t('admin.securite.status_accepte', 'Acceptée'),
@@ -87,6 +93,10 @@ export default function Index({ requests }) {
                     </button>
                 ))}
             </div>
+
+            <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch} searchPlaceholder={t('admin.securite.search', 'Rechercher par nom ou e-mail...')}>
+            <DateRangeFilter range={range} label={t('admin.dates.request_date', 'Date de la demande')} />
+            </FilterPanel>
 
             {visible.length === 0 ? (
                 <div className="admin-card flex flex-col items-center gap-2 py-12 text-center">

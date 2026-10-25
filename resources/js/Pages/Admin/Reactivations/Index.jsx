@@ -9,6 +9,9 @@ import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
 import { useConfirm } from '../../../lib/useConfirm';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const STATUS_BADGE = {
     en_attente: { label: 'En attente', className: 'bg-admin-hover text-admin-text-secondary' },
@@ -135,13 +138,15 @@ export default function Index({ reactivations }) {
     const [view, setView] = useState('list');
     const pendingCount = reactivations.filter((r) => r.status === 'en_attente').length;
 
+    const range = useDateRange();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        if (!term) return reactivations;
-        return reactivations.filter(
+        const inRange = reactivations.filter((r) => range.matches(r.created_at));
+        if (!term) return inRange;
+        return inRange.filter(
             (r) => r.user?.name?.toLowerCase().includes(term) || r.user?.email?.toLowerCase().includes(term),
         );
-    }, [reactivations, search]);
+    }, [reactivations, search, range]);
 
     return (
         <AdminLayout title={t('reactivations_admin.titre', 'Réactivations de compte')}>
@@ -162,6 +167,10 @@ export default function Index({ reactivations }) {
                     <ViewToggle view={view} onChange={setView} />
                 </div>
             </div>
+
+            <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch}>
+            <DateRangeFilter range={range} label={t('admin.dates.request_date', 'Date de la demande')} />
+            </FilterPanel>
 
             {filtered.length === 0 ? (
                 <div className="rounded-xl border border-admin-border bg-admin-card p-8 text-center text-sm text-admin-muted">

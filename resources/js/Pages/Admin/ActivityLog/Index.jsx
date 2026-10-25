@@ -4,6 +4,8 @@ import { Search, SlidersHorizontal, Download, Eye, EyeOff, ChevronLeft, ChevronR
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { useTranslations } from '../../../lib/useTranslations';
 import { useConfirm } from '../../../lib/useConfirm';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
 
 const PAGE_SIZE = 15;
 
@@ -90,25 +92,27 @@ export default function Index({ logs }) {
     const actions = useMemo(() => [...new Set(logs.map((log) => log.action))].sort(), [logs]);
     const roles = useMemo(() => [...new Set(logs.map((log) => log.user_role).filter(Boolean))].sort(), [logs]);
 
+    const range = useDateRange();
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
         return logs.filter((log) => {
+            if (!range.matches(log.created_at)) return false;
             if (actionFilter && log.action !== actionFilter) return false;
             if (roleFilter && log.user_role !== roleFilter) return false;
             if (!term) return true;
             return [log.description, log.user_name, log.action, log.ip_address].some((field) => (field ?? '').toLowerCase().includes(term));
         });
-    }, [logs, search, actionFilter, roleFilter]);
+    }, [logs, search, actionFilter, roleFilter, range]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
     const rows = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
     const allOnPageSelected = rows.length > 0 && rows.every((log) => selected.has(log.id));
-    const activeFilters = Number(Boolean(actionFilter)) + Number(Boolean(roleFilter));
+    const activeFilters = Number(Boolean(actionFilter)) + Number(Boolean(roleFilter)) + Number(range.active);
 
     useEffect(() => {
         setPage(1);
-    }, [search, actionFilter, roleFilter]);
+    }, [search, actionFilter, roleFilter, range]);
 
     function toggleRow(id) {
         setSelected((prev) => {
@@ -253,12 +257,14 @@ export default function Index({ logs }) {
                             </option>
                         ))}
                     </select>
+                    <DateRangeFilter range={range} label={t('admin.dates.action_date', "Date de l'action")} className="" />
                     {activeFilters > 0 && (
                         <button
                             type="button"
                             onClick={() => {
                                 setActionFilter('');
                                 setRoleFilter('');
+                                range.reset();
                             }}
                             className="text-sm font-medium text-admin-accent hover:underline"
                         >

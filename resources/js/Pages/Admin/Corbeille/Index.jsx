@@ -7,6 +7,9 @@ import { Badge } from '../../../Components/ui/badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../Components/ui/table';
 import { useConfirm } from '../../../lib/useConfirm';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 function formatDate(value) {
     if (!value) return '—';
@@ -18,6 +21,7 @@ export default function Index({ items }) {
     const { t } = useTranslations();
     const confirmAction = useConfirm();
     const [typeFilter, setTypeFilter] = useState('');
+    const [search, setSearch] = useState('');
 
     const types = useMemo(() => {
         const seen = new Map();
@@ -26,7 +30,11 @@ export default function Index({ items }) {
         return Array.from(seen, ([type, label]) => ({ type, label }));
     }, [items]);
 
-    const visibleItems = typeFilter ? items.filter((item) => item.type === typeFilter) : items;
+    const range = useDateRange();
+    const term = search.trim().toLowerCase();
+    const visibleItems = items.filter(
+        (item) => (!typeFilter || item.type === typeFilter) && range.matches(item.deleted_at) && (!term || [item.title, item.label].some((field) => String(field ?? '').toLowerCase().includes(term))),
+    );
 
     function restore(item) {
         router.post(`/console/corbeille/${item.type}/${item.id}/restaurer`, {}, { preserveScroll: true });
@@ -54,6 +62,10 @@ export default function Index({ items }) {
                     </Select>
                 )}
             </div>
+
+            <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch} searchPlaceholder={t('admin.corbeille.search', 'Rechercher un élément supprimé...')}>
+            <DateRangeFilter range={range} label={t('admin.dates.deleted_on', 'Supprimé le')} />
+            </FilterPanel>
 
             <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
                 <Table>

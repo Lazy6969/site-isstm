@@ -7,6 +7,9 @@ import { Label } from '../../../Components/ui/label';
 import { Select } from '../../../Components/ui/select';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 10;
 
@@ -301,17 +304,56 @@ export default function Index({ evenements }) {
     const [timeFilter, setTimeFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [placeFilter, setPlaceFilter] = useState('');
+    const [monthFilter, setMonthFilter] = useState('');
+    const [durationFilter, setDurationFilter] = useState('');
+    const [imageFilter, setImageFilter] = useState('');
+    const [validatorFilter, setValidatorFilter] = useState('');
+    const range = useDateRange();
     const [visible, setVisible] = useState(PAGE_SIZE);
 
-    useEffect(() => setVisible(PAGE_SIZE), [search, timeFilter, statusFilter, categoryFilter]);
+    useEffect(
+        () => setVisible(PAGE_SIZE),
+        [search, timeFilter, statusFilter, categoryFilter, placeFilter, monthFilter, durationFilter, imageFilter, validatorFilter, range],
+    );
 
     const now = Date.now();
     const isUpcoming = (event) => new Date(event.date_fin ?? event.date_debut).getTime() >= now;
     const upcomingCount = evenements.filter(isUpcoming).length;
 
+    const monthKey = (event) => String(event.date_debut ?? '').slice(0, 7);
+    const isMultiDay = (event) => Boolean(event.date_fin) && String(event.date_fin).slice(0, 10) !== String(event.date_debut).slice(0, 10);
+    const choices = useMemo(() => {
+        const unique = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+        return {
+            places: unique(evenements.map((event) => event.lieu)),
+            months: unique(evenements.map((event) => monthKey(event))).reverse(),
+            validators: unique(evenements.map((event) => event.validator?.name)),
+        };
+    }, [evenements]);
+    const extraFilters = [placeFilter, monthFilter, durationFilter, imageFilter, validatorFilter].filter(Boolean).length + Number(range.active);
+
+    function resetExtraFilters() {
+        setPlaceFilter('');
+        setMonthFilter('');
+        setDurationFilter('');
+        setImageFilter('');
+        setValidatorFilter('');
+        range.reset();
+    }
+
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
         return evenements.filter((event) => {
+            if (placeFilter && event.lieu !== placeFilter) return false;
+            if (monthFilter && monthKey(event) !== monthFilter) return false;
+            if (durationFilter === 'single' && isMultiDay(event)) return false;
+            if (durationFilter === 'multi' && !isMultiDay(event)) return false;
+            if (imageFilter === 'with' && !event.image_path) return false;
+            if (imageFilter === 'without' && event.image_path) return false;
+            if (validatorFilter && event.validator?.name !== validatorFilter) return false;
+            if (!range.matches(event.date_debut)) return false;
             if (timeFilter === 'upcoming' && !isUpcoming(event)) return false;
             if (timeFilter === 'past' && isUpcoming(event)) return false;
             if (statusFilter && event.status !== statusFilter) return false;
@@ -320,7 +362,7 @@ export default function Index({ evenements }) {
             return [event.titre, event.lieu, event.description].some((field) => (field ?? '').toLowerCase().includes(term));
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [evenements, search, timeFilter, statusFilter, categoryFilter]);
+    }, [evenements, search, timeFilter, statusFilter, categoryFilter, placeFilter, monthFilter, durationFilter, imageFilter, validatorFilter, range]);
 
     const chips = [
         ['', t('admin.actualites.all', 'Tous'), evenements.length],
@@ -391,6 +433,60 @@ export default function Index({ evenements }) {
                     </button>
                 ))}
             </div>
+
+            <FilterPanel activeCount={extraFilters} search={search} onSearch={setSearch}>
+            <div className="flex flex-wrap items-center gap-2">
+                {[
+                    [placeFilter, setPlaceFilter, t('admin.evenements.filtre_lieu', 'Tous les lieux'), choices.places.map((value) => [value, value])],
+                    [
+                        monthFilter,
+                        setMonthFilter,
+                        t('admin.evenements.filtre_mois', 'Tous les mois'),
+                        choices.months.map((value) => [value, new Date(`${value}-01T00:00:00`).toLocaleDateString(dateLocale, { month: 'long', year: 'numeric' })]),
+                    ],
+                    [
+                        durationFilter,
+                        setDurationFilter,
+                        t('admin.evenements.filtre_duree', 'Durée : toutes'),
+                        [['single', t('admin.evenements.filtre_une_journee', 'Une journée')], ['multi', t('admin.evenements.filtre_plusieurs_jours', 'Plusieurs jours')]],
+                    ],
+                    [
+                        imageFilter,
+                        setImageFilter,
+                        t('admin.evenements.filtre_image', 'Image : toutes'),
+                        [['with', t('admin.evenements.filtre_avec_image', 'Avec image')], ['without', t('admin.evenements.filtre_sans_image', 'Sans image')]],
+                    ],
+                    ...(choices.validators.length > 0
+                        ? [[validatorFilter, setValidatorFilter, t('admin.evenements.filtre_validateur', 'Validé par : tous'), choices.validators.map((value) => [value, value])]]
+                        : []),
+                ].map(([value, setValue, placeholder, entries]) => (
+                    <select
+                        key={placeholder}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        aria-label={placeholder}
+                        className="h-9 max-w-52 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                    >
+                        <option value="">{placeholder}</option>
+                        {entries.map(([key, label]) => (
+                            <option key={key} value={key}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                ))}
+                {extraFilters > 0 && (
+                    <button type="button" onClick={resetExtraFilters} className="h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover">
+                        {t('admin.evenements.filtre_reset', 'Réinitialiser les filtres')}
+                    </button>
+                )}
+                <span className="ml-auto text-xs text-admin-muted">
+                    {filtered.length} {t('admin.evenements.filtre_resultats', 'événement(s)')}
+                </span>
+            </div>
+
+            <DateRangeFilter range={range} label={t('admin.evenements.filtre_date', "Date de l'événement")} />
+            </FilterPanel>
 
             <div className={`grid grid-cols-1 gap-5 ${panel ? 'xl:grid-cols-[minmax(0,1fr)_420px]' : ''}`}>
                 <div>

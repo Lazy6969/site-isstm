@@ -24,7 +24,7 @@ class TeacherController extends Controller
             'teachers' => Teacher::orderBy('display_order')->get([
                 'id', 'name', 'category', 'departement', 'specialty_fr', 'specialty_en', 'specialty_mg',
                 'description_fr', 'description_en', 'description_mg',
-                'photo_path', 'email', 'display_order',
+                'photo_path', 'email', 'display_order', 'created_at',
             ]),
         ]);
     }

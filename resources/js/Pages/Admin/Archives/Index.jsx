@@ -3,6 +3,7 @@ import { router, useForm } from '@inertiajs/react';
 import { AlertTriangle, ArrowRight, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Download, Fingerprint, KeyRound, Lock, LockOpen, MessageSquarePlus, RotateCcw, Search, ShieldCheck, SlidersHorizontal, Users, X, Zap } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateField from '../../../Components/Admin/DateField';
 
 const PILL = {
     success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-500',
@@ -491,11 +492,11 @@ export default function Index({ archives, filters, options, stats, security, res
                     </select>
                     <label className="text-xs text-admin-muted">
                         {t('admin.archives.from', 'Du')}
-                        <input type="date" value={filters.from ?? ''} onChange={(e) => apply({ from: e.target.value })} className={`${selectClass} mt-1 block`} />
+                        <DateField value={filters.from ?? ''} onChange={(e) => apply({ from: e.target.value })} className={`${selectClass} mt-1 block`} wrapperClassName="block" />
                     </label>
                     <label className="text-xs text-admin-muted">
                         {t('admin.archives.to', 'Au')}
-                        <input type="date" value={filters.to ?? ''} onChange={(e) => apply({ to: e.target.value })} className={`${selectClass} mt-1 block`} />
+                        <DateField value={filters.to ?? ''} onChange={(e) => apply({ to: e.target.value })} className={`${selectClass} mt-1 block`} wrapperClassName="block" />
                     </label>
                     {activeFilters > 0 && (
                         <button type="button" onClick={() => apply({ user: '', module: '', action: '', outcome: '', from: '', to: '' })} className="pb-2 text-sm font-medium text-admin-accent hover:underline">

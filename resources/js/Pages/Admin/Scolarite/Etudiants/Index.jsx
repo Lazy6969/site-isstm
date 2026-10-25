@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from '../../../../Components/ui/avatar';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../../../Components/ui/table';
 import { useTranslations } from '../../../../lib/useTranslations';
 import { useConfirm } from '../../../../lib/useConfirm';
+import DateField from '../../../../Components/Admin/DateField';
 
 const statutVariants = {
     actif: 'success',
@@ -272,11 +273,11 @@ export default function Index({ etudiants, classes, eligibleUsers, filieres = []
                 </select>
                 <label className="flex items-center gap-2 text-sm text-admin-text-secondary">
                     {t('admin.etudiants.date_du', 'Du')}
-                    <input type="date" value={current.date_from} max={current.date_to || undefined} onChange={(e) => setFilter('date_from', e.target.value)} className={selectClass} />
+                    <DateField value={current.date_from} max={current.date_to || undefined} onChange={(e) => setFilter('date_from', e.target.value)} className={selectClass} />
                 </label>
                 <label className="flex items-center gap-2 text-sm text-admin-text-secondary">
                     {t('admin.etudiants.date_au', 'au')}
-                    <input type="date" value={current.date_to} min={current.date_from || undefined} onChange={(e) => setFilter('date_to', e.target.value)} className={selectClass} />
+                    <DateField value={current.date_to} min={current.date_from || undefined} onChange={(e) => setFilter('date_to', e.target.value)} className={selectClass} />
                 </label>
                 {hasFilters && (
                     <button

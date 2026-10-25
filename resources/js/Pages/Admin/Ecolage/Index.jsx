@@ -28,6 +28,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import ViewToggle from '../../../Components/Admin/ViewToggle';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 8;
 
@@ -438,16 +441,62 @@ export default function Index({ payments, stats, options }) {
     const [toDelete, setToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
 
+    const [typeFilter, setTypeFilter] = useState('');
+    const [modeFilter, setModeFilter] = useState('');
+    const [niveauFilter, setNiveauFilter] = useState('');
+    const [filiereFilter, setFiliereFilter] = useState('');
+    const [anneeFilter, setAnneeFilter] = useState('');
+    const [duplicatesOnly, setDuplicatesOnly] = useState(false);
+
     const term = search.trim().toLowerCase();
+    const range = useDateRange();
+    const choices = useMemo(() => {
+        const unique = (values) => [...new Set(values.filter(Boolean))].sort();
+
+        return {
+            niveaux: unique(payments.map((payment) => payment.student.niveau)),
+            filieres: unique(payments.map((payment) => payment.student.filiere)),
+            annees: unique(payments.map((payment) => payment.annee_universitaire)).reverse(),
+        };
+    }, [payments]);
+    const extraFilters = [typeFilter, modeFilter, niveauFilter, filiereFilter, anneeFilter].filter(Boolean).length + Number(duplicatesOnly);
+
+    function resetExtraFilters() {
+        setTypeFilter('');
+        setModeFilter('');
+        setNiveauFilter('');
+        setFiliereFilter('');
+        setAnneeFilter('');
+        setDuplicatesOnly(false);
+        setPage(1);
+    }
     const filtered = useMemo(
         () =>
             payments.filter((payment) => {
                 if (filter !== 'all' && payment.status !== filter) return false;
+                if (!range.matches(payment.paid_at)) return false;
+                if (typeFilter && payment.type !== typeFilter) return false;
+                if (modeFilter && payment.mode !== modeFilter) return false;
+                if (niveauFilter && payment.student.niveau !== niveauFilter) return false;
+                if (filiereFilter && payment.student.filiere !== filiereFilter) return false;
+                if (anneeFilter && payment.annee_universitaire !== anneeFilter) return false;
+                if (duplicatesOnly && !payment.duplicate_reference) return false;
                 if (!term) return true;
 
-                return `${payment.student.name} ${payment.student.matricule} ${payment.reference}`.toLowerCase().includes(term);
+                return [
+                    payment.student.name,
+                    payment.student.email,
+                    payment.student.matricule,
+                    payment.student.numero_dossier,
+                    payment.student.telephone,
+                    payment.student.classe,
+                    payment.reference,
+                    payment.amount,
+                    options.types[payment.type],
+                    options.modes[payment.mode],
+                ].some((field) => String(field ?? '').toLowerCase().includes(term));
             }),
-        [payments, filter, term],
+        [payments, filter, term, range, typeFilter, modeFilter, niveauFilter, filiereFilter, anneeFilter, duplicatesOnly, options],
     );
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -563,7 +612,7 @@ export default function Index({ payments, stats, options }) {
                                 setSearch(e.target.value);
                                 setPage(1);
                             }}
-                            placeholder={t('admin.ecolage.recherche', 'Nom, matricule ou référence…')}
+                            placeholder={t('admin.ecolage.recherche', 'Nom, e-mail, matricule, dossier, référence…')}
                             className="h-10 w-full rounded-full border border-admin-border bg-admin-card pl-10 pr-4 text-sm text-admin-text outline-none transition focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
                         />
                     </div>
@@ -574,6 +623,61 @@ export default function Index({ payments, stats, options }) {
                     </a>
                 </div>
             </div>
+
+            <FilterPanel activeCount={extraFilters} search={search} onSearch={(value) => {
+                    setSearch(value);
+                    setPage(1);
+                }}>
+            <div className="flex flex-wrap items-center gap-2">
+                {[
+                    [typeFilter, setTypeFilter, t('admin.ecolage.filtre_type', 'Tous les types'), Object.entries(options.types)],
+                    [modeFilter, setModeFilter, t('admin.ecolage.filtre_mode', 'Tous les modes'), Object.entries(options.modes)],
+                    [niveauFilter, setNiveauFilter, t('admin.ecolage.filtre_niveau', 'Tous les niveaux'), choices.niveaux.map((value) => [value, value])],
+                    [filiereFilter, setFiliereFilter, t('admin.ecolage.filtre_filiere', 'Toutes les filières'), choices.filieres.map((value) => [value, value])],
+                    [anneeFilter, setAnneeFilter, t('admin.ecolage.filtre_annee', 'Toutes les années'), choices.annees.map((value) => [value, value])],
+                ].map(([value, setValue, placeholder, entries]) => (
+                    <select
+                        key={placeholder}
+                        value={value}
+                        onChange={(e) => {
+                            setValue(e.target.value);
+                            setPage(1);
+                        }}
+                        aria-label={placeholder}
+                        className="h-9 max-w-52 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                    >
+                        <option value="">{placeholder}</option>
+                        {entries.map(([key, label]) => (
+                            <option key={key} value={key}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                ))}
+                <label className="flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text-secondary">
+                    <input
+                        type="checkbox"
+                        checked={duplicatesOnly}
+                        onChange={(e) => {
+                            setDuplicatesOnly(e.target.checked);
+                            setPage(1);
+                        }}
+                        className="h-4 w-4 accent-[var(--color-admin-accent)]"
+                    />
+                    {t('admin.ecolage.filtre_doublons', 'Références en double')}
+                </label>
+                {extraFilters > 0 && (
+                    <button type="button" onClick={resetExtraFilters} className="h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover">
+                        {t('admin.ecolage.filtre_reset', 'Réinitialiser les filtres')}
+                    </button>
+                )}
+                <span className="ml-auto text-xs text-admin-muted">
+                    {filtered.length} {t('admin.ecolage.filtre_resultats', 'versement(s)')}
+                </span>
+            </div>
+
+            <DateRangeFilter range={range} label={t('admin.dates.payment_date', 'Date du versement')} />
+            </FilterPanel>
 
             <div className={cn('grid gap-5', opened && 'xl:grid-cols-[minmax(0,1fr)_minmax(0,600px)]')}>
             <div className={cn('min-w-0', opened && 'hidden xl:block')}>

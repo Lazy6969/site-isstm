@@ -40,6 +40,7 @@ import { Label } from '../../Components/ui/label';
 import { Select } from '../../Components/ui/select';
 import { useTranslations } from '../../lib/useTranslations';
 import { useConfirm } from '../../lib/useConfirm';
+import DateField from '../../Components/Admin/DateField';
 
 const ETAT_VARIANT = {
     bon_etat: 'success',
@@ -830,11 +831,11 @@ export default function Index({ materiels: rawMateriels, etats: rawEtats, stats,
                         </div>
                         <div>
                             <Label htmlFor="filtre-du">{t('materiel.filtre_du', 'Du')}</Label>
-                            <Input id="filtre-du" type="date" value={dateFrom} max={dateTo || undefined} onChange={(e) => setDateFrom(e.target.value)} className="mt-1.5" />
+                            <DateField id="filtre-du" value={dateFrom} max={dateTo || undefined} onChange={(e) => setDateFrom(e.target.value)} className="mt-1.5" />
                         </div>
                         <div>
                             <Label htmlFor="filtre-au">{t('materiel.filtre_au', 'Au')}</Label>
-                            <Input id="filtre-au" type="date" value={dateTo} min={dateFrom || undefined} onChange={(e) => setDateTo(e.target.value)} className="mt-1.5" />
+                            <DateField id="filtre-au" value={dateTo} min={dateFrom || undefined} onChange={(e) => setDateTo(e.target.value)} className="mt-1.5" />
                         </div>
                         {hasExtraFilter && (
                             <button

@@ -1,6 +1,7 @@
 <?php
 
 use App\EcolageStatus;
+use App\Models\Candidat;
 use App\Models\EcolagePayment;
 use App\Models\Etudiant;
 use App\Models\User;
@@ -248,4 +249,17 @@ it('frees the reference of a deleted versement', function () {
     EcolagePayment::factory()->create(['reference' => 'BV-2026-0001'])->delete();
 
     $this->actingAs($user)->post('/ecolage', validPaymentInput())->assertSessionDoesntHaveErrors();
+});
+
+it('gives the admin page the student’s file number and e-mail to search on', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    $student = User::factory()->role(Role::Etudiant)->create();
+    $etudiant = Etudiant::factory()->create(['user_id' => $student->id]);
+    Candidat::factory()->create(['user_id' => $student->id, 'numero_dossier' => 'DOS-2026-0042']);
+    EcolagePayment::factory()->create(['etudiant_id' => $etudiant->id]);
+
+    $this->actingAs($admin)->get('/console/ecolage')->assertInertia(fn ($page) => $page
+        ->where('payments.0.student.numero_dossier', 'DOS-2026-0042')
+        ->where('payments.0.student.email', $student->email)
+    );
 });

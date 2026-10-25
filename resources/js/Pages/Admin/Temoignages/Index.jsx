@@ -6,6 +6,9 @@ import { Input } from '../../../Components/ui/input';
 import { Label } from '../../../Components/ui/label';
 import { Textarea } from '../../../Components/ui/textarea';
 import { useTranslations } from '../../../lib/useTranslations';
+import DateRangeFilter from '../../../Components/Admin/DateRangeFilter';
+import { useDateRange } from '../../../lib/dateRange';
+import FilterPanel from '../../../Components/Admin/FilterPanel';
 
 const PAGE_SIZE = 10;
 
@@ -218,15 +221,46 @@ export default function Index({ testimonials }) {
     const [panel, setPanel] = useState(null); // null | { testimonial: object|null }
     const [confirmId, setConfirmId] = useState(null);
     const [search, setSearch] = useState('');
+    const [programFilter, setProgramFilter] = useState('');
+    const [photoFilter, setPhotoFilter] = useState('');
+    const [translationFilter, setTranslationFilter] = useState('');
+    const [lengthFilter, setLengthFilter] = useState('');
+    const range = useDateRange();
     const [sort, setSort] = useState({ field: 'display_order', dir: 'asc' });
     const [page, setPage] = useState(1);
     const [selected, setSelected] = useState(() => new Set());
 
+    const programs = useMemo(() => [...new Set(testimonials.map((item) => item.program).filter(Boolean))].sort((a, b) => a.localeCompare(b)), [testimonials]);
+    const extraFilters = [programFilter, photoFilter, translationFilter, lengthFilter].filter(Boolean).length + Number(range.active);
+
+    function resetExtraFilters() {
+        setProgramFilter('');
+        setPhotoFilter('');
+        setTranslationFilter('');
+        setLengthFilter('');
+        range.reset();
+    }
+
     const filtered = useMemo(() => {
         const term = search.trim().toLowerCase();
-        const rows = term
+        const quoteLength = (item) => (item.quote_fr ?? '').length;
+        const matchesFilters = (item) => {
+            if (programFilter && item.program !== programFilter) return false;
+            if (photoFilter === 'with' && !item.image_path) return false;
+            if (photoFilter === 'without' && item.image_path) return false;
+            if (translationFilter === 'missing_en' && item.quote_en) return false;
+            if (translationFilter === 'missing_mg' && item.quote_mg) return false;
+            if (translationFilter === 'complete' && !(item.quote_en && item.quote_mg)) return false;
+            if (lengthFilter === 'short' && quoteLength(item) >= 100) return false;
+            if (lengthFilter === 'medium' && (quoteLength(item) < 100 || quoteLength(item) > 200)) return false;
+            if (lengthFilter === 'long' && quoteLength(item) <= 200) return false;
+
+            return range.matches(item.created_at);
+        };
+        const rows = (term
             ? testimonials.filter((item) => [item.author_name, item.program, item.quote_fr, item.quote_en, item.quote_mg].some((field) => (field ?? '').toLowerCase().includes(term)))
-            : [...testimonials];
+            : [...testimonials]
+        ).filter(matchesFilters);
         const direction = sort.dir === 'asc' ? 1 : -1;
         return rows.sort((a, b) => {
             const left = a[sort.field] ?? '';
@@ -234,9 +268,9 @@ export default function Index({ testimonials }) {
             if (typeof left === 'number' && typeof right === 'number') return (left - right) * direction;
             return String(left).localeCompare(String(right), undefined, { numeric: true }) * direction;
         });
-    }, [testimonials, search, sort]);
+    }, [testimonials, search, programFilter, photoFilter, translationFilter, lengthFilter, range, sort]);
 
-    useEffect(() => setPage(1), [search, sort]);
+    useEffect(() => setPage(1), [search, programFilter, photoFilter, translationFilter, lengthFilter, range, sort]);
 
     const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
@@ -316,6 +350,62 @@ export default function Index({ testimonials }) {
                     {t('admin.temoignages.new_testimonial', 'Nouveau témoignage')}
                 </button>
             </div>
+
+            <FilterPanel activeCount={extraFilters} search={search} onSearch={setSearch}>
+            <div className="flex flex-wrap items-center gap-2">
+                {[
+                    [programFilter, setProgramFilter, t('admin.temoignages.filtre_programme', 'Tous les programmes'), programs.map((value) => [value, value])],
+                    [
+                        photoFilter,
+                        setPhotoFilter,
+                        t('admin.temoignages.filtre_photo', 'Photo : toutes'),
+                        [['with', t('admin.temoignages.filtre_avec_photo', 'Avec photo')], ['without', t('admin.temoignages.filtre_sans_photo', 'Sans photo')]],
+                    ],
+                    [
+                        translationFilter,
+                        setTranslationFilter,
+                        t('admin.temoignages.filtre_traduction', 'Traductions : toutes'),
+                        [
+                            ['complete', t('admin.temoignages.filtre_complet', 'Traduits en EN et MG')],
+                            ['missing_en', t('admin.temoignages.filtre_manque_en', "Sans traduction anglaise")],
+                            ['missing_mg', t('admin.temoignages.filtre_manque_mg', 'Sans traduction malgache')],
+                        ],
+                    ],
+                    [
+                        lengthFilter,
+                        setLengthFilter,
+                        t('admin.temoignages.filtre_longueur', 'Longueur : toutes'),
+                        [
+                            ['short', t('admin.temoignages.filtre_courte', 'Courte (moins de 100 caractères)')],
+                            ['medium', t('admin.temoignages.filtre_moyenne', 'Moyenne (100 à 200)')],
+                            ['long', t('admin.temoignages.filtre_longue', 'Longue (plus de 200)')],
+                        ],
+                    ],
+                ].map(([value, setValue, placeholder, entries]) => (
+                    <select
+                        key={placeholder}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        aria-label={placeholder}
+                        className="h-9 max-w-60 rounded-lg border border-admin-border bg-admin-card px-3 text-sm text-admin-text outline-none focus:border-admin-accent/60 focus:ring-4 focus:ring-admin-accent/10"
+                    >
+                        <option value="">{placeholder}</option>
+                        {entries.map(([key, label]) => (
+                            <option key={key} value={key}>
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                ))}
+                {extraFilters > 0 && (
+                    <button type="button" onClick={resetExtraFilters} className="h-9 rounded-lg px-3 text-sm font-medium text-admin-accent hover:bg-admin-hover">
+                        {t('admin.temoignages.filtre_reset', 'Réinitialiser les filtres')}
+                    </button>
+                )}
+            </div>
+
+            <DateRangeFilter range={range} label={t('admin.temoignages.filtre_date', "Date d'ajout")} />
+            </FilterPanel>
 
             <div className={`grid grid-cols-1 gap-5 ${panel ? 'xl:grid-cols-[minmax(0,1fr)_440px]' : ''}`}>
                 <div className="admin-card min-w-0 overflow-hidden !p-0">

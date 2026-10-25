@@ -19,7 +19,7 @@ class PartenaireController extends Controller
     {
         return Inertia::render('Admin/Partenaires/Index', [
             'partenaires' => Partenaire::orderBy('display_order')
-                ->get(['id', 'nom', 'logo_path', 'site_url', 'display_order']),
+                ->get(['id', 'nom', 'logo_path', 'site_url', 'display_order', 'created_at']),
         ]);
     }
 
