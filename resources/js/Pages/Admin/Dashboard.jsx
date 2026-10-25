@@ -28,6 +28,7 @@ import {
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import AdminLayout from '../../Components/Layout/AdminLayout';
 import StatCard from '../../Components/Admin/StatCard';
+import SiteTrafficCard from '../../Components/Admin/SiteTrafficCard';
 import ChartCard from '../../Components/Admin/ChartCard';
 import ActivityList from '../../Components/Admin/ActivityList';
 import StudentDistribution from '../../Components/Admin/StudentDistribution';
@@ -96,6 +97,7 @@ export default function Dashboard({
     stats,
     contentStats,
     trends,
+    trafic,
     preinscriptionsParMois,
     etudiantsParNiveau,
     etudiantsParFiliere,
@@ -166,6 +168,7 @@ export default function Dashboard({
                     hint={t('admin.dashboard.site_views_hint', 'Depuis le lancement')}
                     trend={trends.vues_site}
                 />
+                {trafic && <SiteTrafficCard trafic={trafic} />}
             </div>
 
             <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">

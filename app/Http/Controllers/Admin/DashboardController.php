@@ -68,6 +68,7 @@ class DashboardController extends Controller
                 'temoignages' => $this->monthlyTrend(Testimonial::query(), 'created_at'),
                 'partenaires' => $this->monthlyTrend(Partenaire::query(), 'created_at'),
             ],
+            'trafic' => $this->trafic(),
             'preinscriptionsParMois' => $this->preinscriptionsParMois(),
             'etudiantsParNiveau' => $this->etudiantsParNiveau(),
             'etudiantsParFiliere' => $this->etudiantsParFiliere(),
@@ -76,6 +77,46 @@ class DashboardController extends Controller
             'dossiersParType' => $this->dossiersParType(),
             'aTraiter' => $this->aTraiter(),
         ]);
+    }
+
+    /**
+     * Real visit counts from the page-view log: the last 14 days day by day, the
+     * 7-day total against the 7 days before it, and the most-visited pages of the
+     * last week. Nothing here is estimated — an empty log gives zeros.
+     *
+     * @return array{jours: array<int, array{jour: string, total: int}>, aujourdhui: int, hier: int, sept_jours: int, sept_jours_precedents: int, pages: array<int, array{path: string, total: int}>}
+     */
+    private function trafic(): array
+    {
+        $debut = now()->subDays(13)->startOfDay();
+
+        $parJour = PageView::where('created_at', '>=', $debut)
+            ->get(['created_at'])
+            ->countBy(fn (PageView $vue) => $vue->created_at->format('Y-m-d'));
+
+        $jours = collect(range(13, 0))->map(function (int $i) use ($parJour) {
+            $jour = now()->subDays($i);
+
+            return ['jour' => $jour->format('d/m'), 'total' => (int) ($parJour[$jour->format('Y-m-d')] ?? 0)];
+        })->values();
+
+        $pages = PageView::where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->selectRaw('path, count(*) as total')
+            ->groupBy('path')
+            ->orderByDesc('total')
+            ->limit(4)
+            ->get()
+            ->map(fn ($row) => ['path' => $row->path ?: '/', 'total' => (int) $row->total])
+            ->all();
+
+        return [
+            'jours' => $jours->all(),
+            'aujourdhui' => $jours->last()['total'],
+            'hier' => $jours->slice(-2, 1)->first()['total'],
+            'sept_jours' => $jours->slice(-7)->sum('total'),
+            'sept_jours_precedents' => $jours->slice(0, 7)->sum('total'),
+            'pages' => $pages,
+        ];
     }
 
     /**

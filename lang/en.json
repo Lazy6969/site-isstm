@@ -2324,5 +2324,14 @@
     "admin.roles.no_role": "No role",
     "admin.roles.pick_account": "Pick an account on the left to grant it permissions.",
     "admin.roles.pick_account_hint": "These permissions add to those already granted by its role.",
-    "admin.roles.user_subtitle": "additional permissions, on top of its role."
+    "admin.roles.user_subtitle": "additional permissions, on top of its role.",
+    "admin.dashboard.traffic_title": "Site traffic",
+    "admin.dashboard.traffic_subtitle": "Last 14 days — real visits to the public site",
+    "admin.dashboard.traffic_week": "visits over 7 days",
+    "admin.dashboard.traffic_visits": "Visits",
+    "admin.dashboard.traffic_today": "Today",
+    "admin.dashboard.traffic_yesterday": "Yesterday",
+    "admin.dashboard.traffic_best": "Best day",
+    "admin.dashboard.traffic_top_pages": "Most viewed pages (7 d)",
+    "admin.dashboard.traffic_empty": "No visit recorded."
 }

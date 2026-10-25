@@ -8,6 +8,7 @@ use App\Models\Filiere;
 use App\Models\GalleryAlbum;
 use App\Models\Inscription;
 use App\Models\NewsArticle;
+use App\Models\PageView;
 use App\Models\Partenaire;
 use App\Models\ReactivationRequest;
 use App\Models\Teacher;
@@ -219,4 +220,25 @@ it('does not record hiding an activity in the action archive', function () {
     $this->actingAs($admin)->delete('/console/dashboard/activites/masquees');
 
     expect(ActionArchive::count())->toBe($before);
+});
+
+it('reports real site traffic over the last 14 days', function () {
+    $admin = User::factory()->role(Role::Admin)->create();
+    PageView::insert([
+        ['path' => '/filieres', 'created_at' => now()],
+        ['path' => '/filieres', 'created_at' => now()],
+        ['path' => '/contact', 'created_at' => now()->subDay()],
+        ['path' => '/', 'created_at' => now()->subDays(9)],
+        ['path' => '/vieux', 'created_at' => now()->subDays(40)],
+    ]);
+
+    $this->actingAs($admin)->get('/console/dashboard')->assertInertia(fn ($page) => $page
+        ->has('trafic.jours', 14)
+        ->where('trafic.aujourdhui', 2)
+        ->where('trafic.hier', 1)
+        ->where('trafic.sept_jours', 3)
+        ->where('trafic.sept_jours_precedents', 1)
+        ->where('trafic.pages.0.path', '/filieres')
+        ->where('trafic.pages.0.total', 2)
+    );
 });

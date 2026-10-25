@@ -2219,5 +2219,14 @@
     "admin.roles.no_role": "Aucun rôle",
     "admin.roles.pick_account": "Choisissez un compte à gauche pour lui attribuer des permissions.",
     "admin.roles.pick_account_hint": "Ces permissions s’ajoutent à celles déjà accordées par son rôle.",
-    "admin.roles.user_subtitle": "permissions supplémentaires, en plus de son rôle."
+    "admin.roles.user_subtitle": "permissions supplémentaires, en plus de son rôle.",
+    "admin.dashboard.traffic_title": "Fréquentation du site",
+    "admin.dashboard.traffic_subtitle": "14 derniers jours — visites réelles du site public",
+    "admin.dashboard.traffic_week": "visites sur 7 jours",
+    "admin.dashboard.traffic_visits": "Visites",
+    "admin.dashboard.traffic_today": "Aujourd'hui",
+    "admin.dashboard.traffic_yesterday": "Hier",
+    "admin.dashboard.traffic_best": "Meilleur jour",
+    "admin.dashboard.traffic_top_pages": "Pages les plus vues (7 j)",
+    "admin.dashboard.traffic_empty": "Aucune visite enregistrée."
 }

@@ -2289,5 +2289,14 @@
     "admin.roles.no_role": "Tsy misy andraikitra",
     "admin.roles.pick_account": "Fidio kaonty eo ankavia handefasana alalana aminy.",
     "admin.roles.pick_account_hint": "Ireo alalana ireo dia fanampiny ireo efa nomen’ny andraikiny.",
-    "admin.roles.user_subtitle": "alalana fanampiny, ankoatra ny andraikiny."
+    "admin.roles.user_subtitle": "alalana fanampiny, ankoatra ny andraikiny.",
+    "admin.dashboard.traffic_title": "Fitsidihana ny tranokala",
+    "admin.dashboard.traffic_subtitle": "Andro 14 farany — fitsidihana tena izy ny tranokala",
+    "admin.dashboard.traffic_week": "fitsidihana tao anatin’ny 7 andro",
+    "admin.dashboard.traffic_visits": "Fitsidihana",
+    "admin.dashboard.traffic_today": "Androany",
+    "admin.dashboard.traffic_yesterday": "Omaly",
+    "admin.dashboard.traffic_best": "Andro tsara indrindra",
+    "admin.dashboard.traffic_top_pages": "Pejy hita indrindra (7 andro)",
+    "admin.dashboard.traffic_empty": "Tsy misy fitsidihana voarakitra."
 }
