@@ -157,6 +157,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Etudiant::class);
     }
 
+    public function passwordResetRequests(): HasMany
+    {
+        return $this->hasMany(PasswordResetRequest::class);
+    }
+
     public function candidats(): HasMany
     {
         return $this->hasMany(Candidat::class);

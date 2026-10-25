@@ -75,6 +75,14 @@ class PermissionCatalog
     public const MATERIEL = ['materiel.view', 'materiel.create', 'materiel.edit', 'materiel.delete'];
 
     /**
+     * The "Sécurité" screen: accepting or refusing the students' password-reset
+     * requests. Super Admin only by default — it hands out access to accounts.
+     *
+     * @var array<int, string>
+     */
+    public const SECURITY = ['security.manage'];
+
+    /**
      * Deleting an account from the "Gestion des comptes" screen — a step
      * above `users.edit`, which only lets an admin correct a profile.
      *
@@ -108,6 +116,7 @@ class PermissionCatalog
             ...self::RESULTATS,
             ...self::MATERIEL,
             ...self::ACCOUNTS,
+            ...self::SECURITY,
             ...self::ACTIVITY_LOG,
             ...array_merge(...array_values(self::INHERITED)),
         ]));

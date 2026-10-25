@@ -251,6 +251,7 @@ require __DIR__.'/ecolage.php';
 require __DIR__.'/materiel.php';
 require __DIR__.'/users.php';
 require __DIR__.'/roles.php';
+require __DIR__.'/security.php';
 require __DIR__.'/activity-log.php';
 require __DIR__.'/archives.php';
 require __DIR__.'/materiel.php';

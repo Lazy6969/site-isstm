@@ -285,7 +285,7 @@ export default function Index({ partenaires }) {
                     {ordered.length === 0 ? (
                         <p className="py-6 text-center text-sm text-admin-muted">{t('admin.partenaires.empty', 'Aucun partenaire pour le moment.')}</p>
                     ) : (
-                        <ul className="flex flex-wrap gap-2.5 rounded-xl bg-white p-3">
+                        <ul className="flex flex-wrap gap-2.5 rounded-xl border border-admin-border bg-admin-hover/40 p-3">
                             {ordered.map((partenaire) => (
                                 <li key={partenaire.id}>
                                     <button
@@ -293,7 +293,7 @@ export default function Index({ partenaires }) {
                                         onClick={() => setPanel({ partenaire })}
                                         title={partenaire.nom}
                                         className={`flex h-16 w-24 items-center justify-center rounded-lg border bg-white p-1.5 transition hover:scale-105 hover:border-admin-accent hover:shadow-md ${
-                                            panel?.partenaire?.id === partenaire.id ? 'border-admin-accent ring-2 ring-admin-accent/40' : 'border-slate-200'
+                                            panel?.partenaire?.id === partenaire.id ? 'border-admin-accent ring-2 ring-admin-accent/40' : 'border-admin-border'
                                         }`}
                                     >
                                         {partenaire.logo_path ? (

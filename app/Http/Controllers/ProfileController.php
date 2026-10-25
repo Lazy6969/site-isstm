@@ -24,6 +24,7 @@ class ProfileController extends Controller
     {
         return Inertia::render('Profile/Edit', [
             'user' => request()->user(),
+            'passwordResetPending' => request()->user()->passwordResetRequests()->enAttente()->exists(),
         ]);
     }
 

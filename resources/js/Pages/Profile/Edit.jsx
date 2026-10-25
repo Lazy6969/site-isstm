@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { Check, Circle, KeyRound, Save } from 'lucide-react';
+import { Check, Circle, Clock, KeyRound, LifeBuoy, Save } from 'lucide-react';
 import SiteHeader from '../../Components/Layout/SiteHeader';
 import Footer from '../../Components/Home/Footer';
 import AppLayout from '../../Components/Layout/AppLayout';
@@ -8,7 +8,7 @@ import { Card } from '../../Components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 
-export default function Edit({ user }) {
+export default function Edit({ user, passwordResetPending = false }) {
     const { t } = useTranslations();
     const isCommunityViewer = ['admin', 'enseignant', 'etudiant'].includes(user.role);
     const { data, setData, post, processing, errors } = useForm({
@@ -39,6 +39,12 @@ export default function Edit({ user }) {
         password: '',
         password_confirmation: '',
     });
+
+    const resetRequestForm = useForm({});
+
+    function requestPasswordReset() {
+        resetRequestForm.post('/profil/demande-reinitialisation', { preserveScroll: true });
+    }
 
     const passwordCriteria = [
         { key: 'length', label: t('auth.critere_longueur', 'Au moins 8 caractères'), met: passwordForm.data.password.length >= 8 },
@@ -226,14 +232,33 @@ export default function Edit({ user }) {
                             required
                         />
 
-                        <button
-                            type="submit"
-                            disabled={passwordForm.processing}
-                            className="flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
-                        >
-                            <KeyRound className="h-4 w-4" aria-hidden="true" />
-                            {t('profil.enregistrer_mot_de_passe', 'Modifier le mot de passe')}
-                        </button>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                type="submit"
+                                disabled={passwordForm.processing}
+                                className="flex items-center gap-2 rounded-full bg-isstm-navy px-6 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                            >
+                                <KeyRound className="h-4 w-4" aria-hidden="true" />
+                                {t('profil.enregistrer_mot_de_passe', 'Modifier le mot de passe')}
+                            </button>
+
+                            {passwordResetPending ? (
+                                <span className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-xs font-semibold text-amber-800 dark:bg-amber-500/15 dark:text-amber-300">
+                                    <Clock className="h-4 w-4" aria-hidden="true" />
+                                    {t('profil.reinit_en_attente', "Demande de réinitialisation en attente de validation de l'administrateur")}
+                                </span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={requestPasswordReset}
+                                    disabled={resetRequestForm.processing}
+                                    className="inline-flex items-center gap-2 rounded-full border border-isstm-navy/30 px-4 py-2 text-xs font-semibold text-isstm-navy transition hover:bg-isstm-navy/5 disabled:opacity-60 dark:border-white/30 dark:text-white dark:hover:bg-white/10"
+                                >
+                                    <LifeBuoy className="h-4 w-4" aria-hidden="true" />
+                                    {t('profil.reinit_demander', 'Mot de passe oublié ? Demander une réinitialisation')}
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </Card>
         </>

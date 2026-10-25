@@ -24,6 +24,8 @@ function notificationText(notification) {
             return `Nouvelle préinscription de ${notification.candidate_name ?? 'un candidat'}`;
         case 'nouvelle_reactivation':
             return `Demande de réactivation de ${notification.candidate_name ?? 'un ancien étudiant'}`;
+        case 'demande_reinitialisation':
+            return `${notification.candidate_name ?? 'Un étudiant'} demande la réinitialisation de son mot de passe`;
         default:
             return notification.actor?.name ? `${notification.actor.name} a une activité à signaler` : 'Nouvelle notification';
     }

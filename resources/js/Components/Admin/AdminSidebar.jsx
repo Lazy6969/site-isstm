@@ -25,6 +25,7 @@ import {
     Palette,
     BarChart3,
     Boxes,
+    KeyRound,
     Network,
     GalleryHorizontal,
     ChevronDown,
@@ -91,6 +92,12 @@ function buildNavGroups(t) {
                 { href: '/console/roles', label: t('admin.nav.roles', 'Rôles'), icon: ShieldCheck, permission: 'roles.view' },
                 { href: '/console/activity-log', label: t('admin.nav.activity_log', "Journal d'activité"), icon: History, permission: 'activity-log.view' },
                 { href: '/console/corbeille', label: t('admin.nav.corbeille', 'Corbeille'), icon: Trash2, permission: 'dashboard.view' },
+            ],
+        },
+        {
+            label: t('admin.nav.group_securite', 'Sécurité'),
+            items: [
+                { href: '/console/securite', label: t('admin.nav.securite_reinitialisations', 'Réinitialisations'), icon: KeyRound, permission: 'security.manage', badge: 'security_resets' },
             ],
         },
         {

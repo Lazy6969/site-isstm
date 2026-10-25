@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\EcolageStatus;
 use App\Http\Controllers\Admin\ContactFieldVisibilityController;
 use App\Models\EcolagePayment;
+use App\Models\PasswordResetRequest;
 use App\Models\Setting;
 use App\Models\SiteContent;
 use App\PreinscriptionStatus;
@@ -58,6 +59,9 @@ class HandleInertiaRequests extends Middleware
             'adminBadges' => fn () => [
                 'ecolage' => $request->user()?->can('payments.view')
                     ? EcolagePayment::where('status', EcolageStatus::EnAttente)->count()
+                    : 0,
+                'security_resets' => $request->user()?->can('security.manage')
+                    ? PasswordResetRequest::enAttente()->count()
                     : 0,
             ],
             'locale' => app()->getLocale(),

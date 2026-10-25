@@ -30,6 +30,8 @@ export function notificationLink(notification) {
                 : '/console/preinscriptions';
         case 'nouvelle_reactivation':
             return '/console/reactivations';
+        case 'demande_reinitialisation':
+            return '/console/securite';
         default:
             return '/notifications';
     }
