@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { ArrowUp, Download, FileImage, FileText, Lock, Pencil } from 'lucide-react';
+import { ArrowDown, ArrowUp, Download, FileImage, FileText, Lock, Pencil } from 'lucide-react';
 import { useState } from 'react';
 import SiteHeader from '../Components/Layout/SiteHeader';
 import Footer from '../Components/Home/Footer';
@@ -112,10 +112,8 @@ export default function Parcours({ orgPeople = {}, orgDocuments = {} }) {
                             canEdit={canEditOrg}
                             onEditPerson={onEditPerson}
                         />
-                        <div className="flex justify-center">
-                            <span className="text-slate-300 dark:text-slate-600" aria-hidden="true">
-                                &#8595;
-                            </span>
+                        <div className="flex justify-center py-1">
+                            <ArrowDown className="h-6 w-6 animate-bounce text-isstm-gold" aria-hidden="true" />
                         </div>
                         <OrgNode
                             node={{ key: 'directeur' }}
