@@ -44,7 +44,7 @@ export default function OrgNode({ node, people, t, content = {}, contentStyles =
                     type="button"
                     onClick={() => hasChildren && setOpen((v) => !v)}
                     aria-expanded={hasChildren ? open : undefined}
-                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
+                    className={`flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left transition ${
                         emphasize ? 'border-isstm-navy bg-isstm-navy hover:brightness-110' : colorClass
                     } ${hasChildren ? 'cursor-pointer' : 'cursor-default'}`}
                 >
@@ -52,17 +52,26 @@ export default function OrgNode({ node, people, t, content = {}, contentStyles =
                         <img
                             src={`/${photo}`}
                             alt=""
-                            className="h-10 w-10 shrink-0 rounded-full border border-white object-cover dark:border-slate-700"
+                            className="h-16 w-16 shrink-0 rounded-full border-2 border-white object-cover shadow-sm dark:border-slate-700"
                         />
                     )}
                     <span className="min-w-0 flex-1">
-                        <span className={`block text-sm font-semibold ${emphasize ? 'text-white' : 'text-isstm-navy dark:text-white'}`}>
-                            {title}
-                        </span>
-                        <span className={`block truncate text-xs ${emphasize ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {name}
-                            {suffix ? ` · ${suffix}` : ''}
-                        </span>
+                        {name ? (
+                            <>
+                                <span className={`block truncate text-base font-bold ${emphasize ? 'text-white' : 'text-isstm-navy dark:text-white'}`}>
+                                    {name}
+                                </span>
+                                <span className={`block truncate text-xs font-medium ${emphasize ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {title}
+                                    {suffix ? ` · ${suffix}` : ''}
+                                </span>
+                            </>
+                        ) : (
+                            <span className={`block text-sm font-semibold ${emphasize ? 'text-white' : 'text-isstm-navy dark:text-white'}`}>
+                                {title}
+                                {suffix ? ` · ${suffix}` : ''}
+                            </span>
+                        )}
                     </span>
                     {hasChildren && (
                         <ChevronDown

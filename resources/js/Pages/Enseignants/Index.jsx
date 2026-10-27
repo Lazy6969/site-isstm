@@ -71,8 +71,7 @@ function FilterPill({ active, onClick, children }) {
  * Both faces occupy the same grid cell ([grid-area:1/1]) so the card's
  * height always matches its tallest face, on both sides of the flip.
  */
-function TeacherCard({ teacher, categoryLabel, canEdit, onEdit }) {
-    const [flipped, setFlipped] = useState(false);
+function TeacherCard({ teacher, categoryLabel, canEdit, onEdit, flipped, onToggleFlip }) {
     const hasBackContent = Boolean(teacher.description || teacher.email);
 
     return (
@@ -80,11 +79,11 @@ function TeacherCard({ teacher, categoryLabel, canEdit, onEdit }) {
             <div
                 role={hasBackContent ? 'button' : undefined}
                 tabIndex={hasBackContent ? 0 : undefined}
-                onClick={() => hasBackContent && setFlipped((prev) => !prev)}
+                onClick={() => hasBackContent && onToggleFlip()}
                 onKeyDown={(e) => {
                     if (hasBackContent && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault();
-                        setFlipped((prev) => !prev);
+                        onToggleFlip();
                     }
                 }}
                 className={`relative grid transition-transform duration-500 [transform-style:preserve-3d] ${
@@ -150,6 +149,7 @@ export default function Index({ teachers }) {
     const [departement, setDepartement] = useState('all');
     const [layout, setLayout] = useState('grid');
     const [editing, setEditing] = useState(null);
+    const [flippedId, setFlippedId] = useState(null);
 
     const categoryLabels = {
         permanent: t('enseignants.permanent', 'Permanent'),
@@ -256,6 +256,8 @@ export default function Index({ teachers }) {
                                 categoryLabel={categoryLabels[teacher.category] ?? teacher.category}
                                 canEdit={canEditTeachers}
                                 onEdit={() => setEditing(teacher)}
+                                flipped={flippedId === teacher.id}
+                                onToggleFlip={() => setFlippedId((prev) => (prev === teacher.id ? null : teacher.id))}
                             />
                         ))}
                     </div>

@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { Bot } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const RADIUS = 24;
@@ -36,9 +36,9 @@ function isHidden(url) {
 }
 
 /**
- * Fixed bottom-right scroll-progress indicator — a ring around a small robot
- * that fills as the visitor scrolls down the page, with the percentage in the
- * middle. Doubles as a "back to top" button, a natural affordance once
+ * Fixed bottom-right scroll-progress indicator — a ring around a small
+ * up-arrow that fills as the visitor scrolls down the page, with the
+ * percentage in the middle. Doubles as a "back to top" button, a natural affordance once
  * something already tracks how far down the page you are.
  */
 export default function ScrollProgressRobot() {
@@ -103,7 +103,7 @@ export default function ScrollProgressRobot() {
                 />
             </svg>
             <span className="relative flex flex-col items-center leading-none text-isstm-navy dark:text-white">
-                <Bot className="h-4 w-4" aria-hidden="true" />
+                <ArrowUp className="h-4 w-4" aria-hidden="true" />
                 <span className="mt-0.5 text-[10px] font-bold tabular-nums">{percent}%</span>
             </span>
         </button>
