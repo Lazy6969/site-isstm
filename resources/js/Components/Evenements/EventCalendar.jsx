@@ -75,7 +75,7 @@ export default function EventCalendar({ evenements }) {
                 </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 px-4 pt-3 text-center text-[11px] font-medium text-slate-400 dark:text-slate-500">
+            <div className="grid grid-cols-7 gap-1 px-4 pt-3 text-center text-[11px] font-medium text-black dark:text-white">
                 {WEEKDAY_KEYS.map((key) => (
                     <span key={key}>{t(`evenements.jour_${key}`, key.slice(0, 3))}</span>
                 ))}
@@ -101,10 +101,10 @@ export default function EventCalendar({ evenements }) {
                                 isSelected
                                     ? 'bg-isstm-navy text-white'
                                     : isToday
-                                      ? 'bg-isstm-gold/15 font-semibold text-isstm-navy dark:text-isstm-gold'
+                                      ? 'bg-isstm-gold/15 font-semibold text-black dark:text-white'
                                       : hasEvents
-                                        ? 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700'
-                                        : 'cursor-default text-slate-300 dark:text-slate-600'
+                                        ? 'text-black hover:bg-slate-100 dark:text-white dark:hover:bg-slate-700'
+                                        : 'cursor-default text-black dark:text-white'
                             }`}
                         >
                             {date.getDate()}

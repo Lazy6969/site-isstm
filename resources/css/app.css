@@ -321,6 +321,45 @@ html[data-community-accent='amber'] .community-shell { --color-isstm-navy: #d977
     }
 }
 
+/* Gentle idle float for the ISSTMeet mark at the start of CommunityHeader —
+   a slow bob, not a flashy effect, so it reads as "alive" without competing
+   with the nav links next to it. */
+.community-logo-mark {
+    animation: community-logo-float 3.2s ease-in-out infinite;
+}
+
+@keyframes community-logo-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .community-logo-mark {
+        animation: none;
+    }
+}
+
+/* Blinking caret next to the ISSTMeet wordmark's typewriter loop (see
+   CommunityHeader.jsx's useTypewriterLoop) — the loop itself is JS-driven
+   and already skipped under prefers-reduced-motion, so the caret doesn't
+   render there at all; no reduced-motion override needed here. */
+.community-caret {
+    animation: community-caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes community-caret-blink {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 0;
+    }
+}
+
 /* Per-letter reveal (see LetterRevealText.jsx) — each character fades/slides
    in with its own animation-delay set inline, so this single rule staggers
    the whole phrase. */
