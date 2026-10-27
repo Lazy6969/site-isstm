@@ -2,10 +2,13 @@ import { usePage } from '@inertiajs/react';
 import EditableImage from './EditableImage';
 import { imageStyleToCss } from '../../lib/imageStyle';
 
+// Shown behind every page banner until an admin uploads a photo of their own
+// for that specific banner via the pencil.
+const DEFAULT_BANNER = 'images/vision.jpg';
+
 /**
- * Optional photo behind a page's navy title banner. Absent by default — every
- * banner keeps looking exactly as before (plain navy) until an admin uploads
- * one via the pencil.
+ * Photo behind a page's navy title banner — defaults to DEFAULT_BANNER, and
+ * switches to whatever an admin uploads via the pencil for that banner.
  *
  * The overlay is a neutral black gradient, not the site's theme color: the
  * site's primary color (see SitePrimaryColorPicker.jsx) is meant to tint UI
@@ -21,25 +24,21 @@ import { imageStyleToCss } from '../../lib/imageStyle';
  */
 export default function BannerBackground({ contentKey }) {
     const { content, contentStyles } = usePage().props;
-    const path = content?.[contentKey];
+    const path = content?.[contentKey] || DEFAULT_BANNER;
 
     return (
         <>
-            {path && (
-                <>
-                    <img
-                        src={`/${path}`}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover"
-                        style={imageStyleToCss(contentStyles?.[contentKey])}
-                    />
-                    <div
-                        className="absolute inset-0"
-                        style={{ backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)' }}
-                        aria-hidden="true"
-                    />
-                </>
-            )}
+            <img
+                src={`/${path}`}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                style={imageStyleToCss(contentStyles?.[contentKey])}
+            />
+            <div
+                className="absolute inset-0"
+                style={{ backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)' }}
+                aria-hidden="true"
+            />
             <EditableImage contentKey={contentKey} value={path} className="absolute top-3 right-3 z-20" />
         </>
     );

@@ -9,6 +9,8 @@ import ShortcutsSidebar from '../../Components/Communaute/ShortcutsSidebar';
 import MessagesSidebar from '../../Components/Communaute/MessagesSidebar';
 import GroupsSidebar from '../../Components/Communaute/GroupsSidebar';
 import SuggestionsSidebar from '../../Components/Communaute/SuggestionsSidebar';
+import ProfileMiniCard from '../../Components/Communaute/ProfileMiniCard';
+import FriendsSidebar from '../../Components/Communaute/FriendsSidebar';
 import ComposePostModal from '../../Components/Communaute/ComposePostModal';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
@@ -21,7 +23,7 @@ const GREETINGS = {
     soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
 };
 
-export default function Index({ posts, canPublish, postTypes, friends, conversations, suggestions }) {
+export default function Index({ posts, canPublish, postTypes, friends, conversations, suggestions, profile }) {
     const { t } = useTranslations();
     const { auth } = usePage().props;
     const [pageLoading, setPageLoading] = useState(false);
@@ -69,7 +71,9 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
             </div>
 
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
-                <aside className="hidden lg:sticky lg:top-20 lg:block">
+                <aside className="hidden lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:space-y-4 lg:overflow-y-auto lg:pb-4">
+                    <ProfileMiniCard profile={profile} />
+                    <FriendsSidebar friends={friends ?? []} />
                     <nav className="space-y-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                         <Link
                             href="/communaute/enregistres"
@@ -189,7 +193,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
             )}
                 </div>
 
-                <aside className="hidden xl:sticky xl:top-20 xl:block xl:space-y-4">
+                <aside className="hidden xl:sticky xl:top-20 xl:block xl:max-h-[calc(100vh-6rem)] xl:space-y-4 xl:overflow-y-auto xl:pb-4">
                     <ShortcutsSidebar />
                     <MessagesSidebar conversations={conversations ?? []} />
                     <GroupsSidebar conversations={conversations ?? []} />

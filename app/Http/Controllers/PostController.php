@@ -53,6 +53,10 @@ class PostController extends Controller
                 'name' => $friend->name,
                 'avatar_path' => $friend->avatar_path,
             ])->values(),
+            // The left sidebar's own mini profile card — same shape as a friend
+            // suggestion (see FriendSuggestionService::present), just presented
+            // about the viewer instead of a candidate to befriend.
+            'profile' => fn () => $this->suggestions->present($user, $user),
             'conversations' => fn () => app(ConversationListBuilder::class)->forUser($user)->take(10)->values(),
             'suggestions' => fn () => $this->suggestions->forUser($user, 5)->map(fn (User $candidate) => $this->suggestions->present($candidate, $user)),
         ]);
