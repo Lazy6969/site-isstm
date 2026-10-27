@@ -26,6 +26,7 @@ Route::middleware(['auth'])->prefix('console')->name('admin.')->group(function (
     Route::middleware('can:dashboard.view')->prefix('corbeille')->name('trash.')->group(function () {
         Route::get('/', [TrashController::class, 'index'])->name('index');
         Route::post('{type}/{id}/restaurer', [TrashController::class, 'restore'])->name('restore');
+        Route::delete('vider', [TrashController::class, 'emptyAll'])->name('empty-all');
         Route::delete('{type}/{id}', [TrashController::class, 'forceDelete'])->name('force-delete');
     });
 });

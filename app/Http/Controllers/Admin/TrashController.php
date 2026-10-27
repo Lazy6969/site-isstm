@@ -115,6 +115,34 @@ class TrashController extends Controller
         $model = $config['model'];
         $record = $model::onlyTrashed()->findOrFail($id);
 
+        $this->purgeRecord($type, $config, $record);
+
+        return back()->with('status', "{$config['label']} supprimé(e) définitivement.");
+    }
+
+    /**
+     * Permanently erases every trashed record the current user is allowed to
+     * delete, across every type — the "Vider la corbeille" action.
+     */
+    public function emptyAll(): RedirectResponse
+    {
+        collect(self::TYPES)
+            ->filter(fn (array $type) => request()->user()->can($type['permission']))
+            ->each(function (array $config, string $type) {
+                /** @var class-string<Model> $model */
+                $model = $config['model'];
+
+                $model::onlyTrashed()->get()->each(fn (Model $record) => $this->purgeRecord($type, $config, $record));
+            });
+
+        return back()->with('status', 'Corbeille vidée.');
+    }
+
+    /**
+     * @param  array{model: class-string<Model>, permission: string, label: string, title: ?string, files: mixed}  $config
+     */
+    private function purgeRecord(string $type, array $config, Model $record): void
+    {
         if ($type === 'albums-galerie') {
             /** @var GalleryAlbum $record */
             foreach ($record->photos()->onlyTrashed()->get() as $photo) {
@@ -130,8 +158,6 @@ class TrashController extends Controller
 
         $this->deleteFiles($record, $config['files']);
         $record->forceDelete();
-
-        return back()->with('status', "{$config['label']} supprimé(e) définitivement.");
     }
 
     /**

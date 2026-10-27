@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { router } from '@inertiajs/react';
-import { RotateCcw, Trash2 } from 'lucide-react';
+import { RotateCcw, Trash2, Trash } from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Select } from '../../../Components/ui/select';
 import { Badge } from '../../../Components/ui/badge';
@@ -45,22 +45,47 @@ export default function Index({ items }) {
         router.delete(`/console/corbeille/${item.type}/${item.id}`, { preserveScroll: true });
     }
 
+    async function emptyTrash() {
+        if (
+            !(await confirmAction({
+                message: t('admin.auto.vider_corbeille_message', 'Cette action est irréversible : tous les éléments de la corbeille et leurs fichiers associés seront effacés pour toujours.'),
+                title: t('admin.auto.vider_corbeille_titre', 'Attention : vider la corbeille'),
+                details: `${items.length} élément(s)`,
+                confirmLabel: t('admin.auto.vider_corbeille_confirmer', 'Vider la corbeille'),
+            }))
+        ) {
+            return;
+        }
+        router.delete('/console/corbeille/vider', { preserveScroll: true });
+    }
+
     return (
         <AdminLayout title={t('admin.auto.corbeille_50f2', 'Corbeille')}>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-admin-text-secondary">
                     {items.length} élément(s) supprimé(s) — restaurables ou effaçables définitivement.
                 </p>
-                {types.length > 1 && (
-                    <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-56">
-                        <option value="">{t('admin.auto.tous_les_types_42da', 'Tous les types')}</option>
-                        {types.map((t) => (
-                            <option key={t.type} value={t.type}>
-                                {t.label}
-                            </option>
-                        ))}
-                    </Select>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                    {types.length > 1 && (
+                        <Select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="w-56">
+                            <option value="">{t('admin.auto.tous_les_types_42da', 'Tous les types')}</option>
+                            {types.map((t) => (
+                                <option key={t.type} value={t.type}>
+                                    {t.label}
+                                </option>
+                            ))}
+                        </Select>
+                    )}
+                    <button
+                        type="button"
+                        onClick={emptyTrash}
+                        disabled={items.length === 0}
+                        className="flex h-10 items-center gap-2 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3.5 text-sm font-semibold text-rose-500 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        <Trash className="h-4 w-4" aria-hidden="true" />
+                        {t('admin.auto.vider_corbeille_bouton', 'Vider la corbeille')}
+                    </button>
+                </div>
             </div>
 
             <FilterPanel activeCount={Number(range.active)} search={search} onSearch={setSearch} searchPlaceholder={t('admin.corbeille.search', 'Rechercher un élément supprimé...')}>

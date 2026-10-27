@@ -114,3 +114,36 @@ it('only shows and allows acting on trashed items a scolarité account has permi
 
     $this->actingAs($scolarite)->post("/console/corbeille/actualites/{$article->id}/restaurer")->assertForbidden();
 });
+
+it('empties the whole corbeille, erasing every trashed item and its files', function () {
+    Storage::fake('public');
+    $admin = User::factory()->role(Role::Admin)->create();
+    Storage::disk('public')->put('news/old.jpg', 'fake');
+    Storage::disk('public')->put('galerie/cover.jpg', 'fake');
+    $article = NewsArticle::factory()->create(['image_path' => 'storage/news/old.jpg']);
+    $article->delete();
+    $album = GalleryAlbum::factory()->create(['cover_image' => 'storage/galerie/cover.jpg']);
+    $album->delete();
+
+    $this->actingAs($admin)->delete('/console/corbeille/vider')->assertRedirect();
+
+    expect(NewsArticle::onlyTrashed()->find($article->id))->toBeNull();
+    expect(GalleryAlbum::onlyTrashed()->find($album->id))->toBeNull();
+    Storage::disk('public')->assertMissing('news/old.jpg');
+    Storage::disk('public')->assertMissing('galerie/cover.jpg');
+});
+
+it('only erases, when emptying the corbeille, the types a scolarité account has permission for', function () {
+    Storage::fake('public');
+    $scolarite = User::factory()->create();
+    $scolarite->assignRole('scolarite');
+    $article = NewsArticle::factory()->create();
+    $article->delete();
+    $reactivation = ReactivationRequest::factory()->create();
+    $reactivation->delete();
+
+    $this->actingAs($scolarite)->delete('/console/corbeille/vider')->assertRedirect();
+
+    expect(NewsArticle::onlyTrashed()->find($article->id))->not->toBeNull();
+    expect(ReactivationRequest::onlyTrashed()->find($reactivation->id))->toBeNull();
+});
