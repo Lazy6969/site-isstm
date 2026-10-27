@@ -35,10 +35,13 @@ export default function FriendsSidebar({ friends }) {
                         href={`/profil/${friend.id}`}
                         className="flex items-center gap-2.5 rounded-xl px-2 py-2 transition hover:bg-slate-50 dark:hover:bg-slate-700/50"
                     >
-                        <Avatar className="h-8 w-8 flex-shrink-0">
-                            <AvatarImage src={friend.avatar_path ? `/storage/${friend.avatar_path}` : undefined} alt="" />
-                            <AvatarFallback>{friend.name?.[0]}</AvatarFallback>
-                        </Avatar>
+                        <span className="relative flex-shrink-0">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage src={friend.avatar_path ? `/storage/${friend.avatar_path}` : undefined} alt="" />
+                                <AvatarFallback>{friend.name?.[0]}</AvatarFallback>
+                            </Avatar>
+                            {friend.online && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
+                        </span>
                         <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-200">{friend.name}</p>
                     </Link>
                 ))}

@@ -35,10 +35,13 @@ export default function SuggestionsSidebar({ suggestions }) {
                 {suggestions.map((user) => (
                     <div key={user.id} className="flex items-center gap-2.5 rounded-xl px-2 py-2">
                         <Link href={`/profil/${user.id}`} className="flex min-w-0 flex-1 items-center gap-2.5">
-                            <Avatar className="h-9 w-9 flex-shrink-0">
-                                <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />
-                                <AvatarFallback>{user.name?.[0]}</AvatarFallback>
-                            </Avatar>
+                            <span className="relative flex-shrink-0">
+                                <Avatar className="h-9 w-9">
+                                    <AvatarImage src={user.avatar_path ? `/storage/${user.avatar_path}` : undefined} alt="" />
+                                    <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+                                </Avatar>
+                                {user.online && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
+                            </span>
                             <div className="min-w-0">
                                 <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-200">{user.name}</p>
                                 <p className="truncate text-xs text-slate-400">{user.role_label}{user.filiere ? ` · ${user.filiere}` : ''}</p>

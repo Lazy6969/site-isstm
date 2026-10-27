@@ -36,14 +36,17 @@ export default function FloatingAccountButton({ size = 'h-12 w-12', side = 'righ
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
-                className={`flex ${size} items-center justify-center overflow-hidden rounded-full transition hover:scale-105 focus:outline-none`}
+                className={`relative flex ${size} items-center justify-center rounded-full transition hover:scale-105 focus:outline-none`}
                 aria-label={t('profil.mon_compte', 'Mon compte')}
             >
                 <img
                     src={user.avatar_path ? `/storage/${user.avatar_path}` : '/images/logo-isstm.jpg'}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="h-full w-full rounded-full object-cover"
                 />
+                {user.show_online_status && (
+                    <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 dark:border-slate-800" />
+                )}
             </DropdownMenuTrigger>
             <DropdownMenuContent side={side} align={align}>
                 {hasConsoleAccess && (

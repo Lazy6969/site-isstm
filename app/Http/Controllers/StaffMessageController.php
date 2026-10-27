@@ -190,7 +190,7 @@ class StaffMessageController extends Controller
                 'id' => $other->id,
                 'name' => $other->name,
                 'avatar_path' => $other->avatar_path,
-                'online' => $other->isOnline(),
+                'online' => $other->isVisiblyOnline(),
             ])
             ->all();
     }

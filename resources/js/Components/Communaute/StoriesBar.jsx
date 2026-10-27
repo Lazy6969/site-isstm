@@ -130,11 +130,14 @@ export default function StoriesBar() {
                 >
                     <img src={`/storage/${group.stories[0].media_path}`} alt="" className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
-                    <img
-                        src={group.user.avatar_path ? `/storage/${group.user.avatar_path}` : '/images/logo-isstm.jpg'}
-                        alt=""
-                        className="absolute left-2 top-2 h-8 w-8 rounded-full object-cover ring-2 ring-community-accent"
-                    />
+                    <span className="absolute left-2 top-2">
+                        <img
+                            src={group.user.avatar_path ? `/storage/${group.user.avatar_path}` : '/images/logo-isstm.jpg'}
+                            alt=""
+                            className="h-8 w-8 rounded-full object-cover ring-2 ring-community-accent"
+                        />
+                        {group.user.online && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />}
+                    </span>
                     {group.stories.length > 1 && (
                         <span className="absolute right-2 top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white/80">
                             {group.stories.length}

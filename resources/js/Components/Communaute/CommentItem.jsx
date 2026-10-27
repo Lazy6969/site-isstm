@@ -68,11 +68,12 @@ function CommentBubble({ postId, comment, replyingToName, indented, highlighted 
     return (
         <div ref={bubbleRef} className={indented ? 'ml-8 mt-3' : 'mt-3'}>
             <div className="flex items-start gap-2.5">
-                <Link href={`/profil/${comment.user.id}`} className="flex-shrink-0">
-                    <Avatar className="mt-0.5 h-8 w-8">
+                <Link href={`/profil/${comment.user.id}`} className="relative mt-0.5 flex-shrink-0">
+                    <Avatar className="h-8 w-8">
                         <AvatarImage src={comment.user.avatar_path ? `/storage/${comment.user.avatar_path}` : undefined} alt="" />
                         <AvatarFallback>{comment.user.name?.[0]}</AvatarFallback>
                     </Avatar>
+                    {comment.user.online && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
                 </Link>
                 <div className="min-w-0 flex-1">
                     <div className={highlighted ? 'inline-block rounded-2xl bg-blue-500/10 px-3.5 py-2 ring-2 ring-blue-400' : ''}>

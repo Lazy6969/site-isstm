@@ -42,6 +42,7 @@ use Spatie\Permission\Traits\HasRoles;
     'tiktok_handle',
     'avatar_path',
     'cover_path',
+    'show_online_status',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
@@ -62,6 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'role' => Role::class,
             'is_messagerie' => 'boolean',
             'is_active' => 'boolean',
+            'show_online_status' => 'boolean',
             'birth_date' => 'date',
             'last_activity' => 'datetime',
         ];
@@ -70,6 +72,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isOnline(): bool
     {
         return $this->last_activity !== null && $this->last_activity->gt(now()->subSeconds(25));
+    }
+
+    /**
+     * Online, and willing to show it — honours the "Statut en ligne" toggle a
+     * user can switch off for themselves (see OnlineStatusToggleController).
+     * Peer-facing presence dots (friends, conversations, suggestions) use
+     * this; the admin accounts screen deliberately keeps using isOnline()
+     * directly, since staff there see the real status regardless.
+     */
+    public function isVisiblyOnline(): bool
+    {
+        return $this->show_online_status && $this->isOnline();
     }
 
     /**

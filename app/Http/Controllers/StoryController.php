@@ -16,7 +16,7 @@ class StoryController extends Controller
 
         $groups = Story::query()
             ->active()
-            ->with(['user:id,name,avatar_path', 'reactions' => fn ($query) => $query->where('user_id', $viewer->id)])
+            ->with(['user:id,name,avatar_path,last_activity,show_online_status', 'reactions' => fn ($query) => $query->where('user_id', $viewer->id)])
             ->withCount(['viewedBy', 'reactions'])
             ->oldest()
             ->get()
@@ -26,6 +26,7 @@ class StoryController extends Controller
                     'id' => $stories->first()->user->id,
                     'name' => $stories->first()->user->name,
                     'avatar_path' => $stories->first()->user->avatar_path,
+                    'online' => $stories->first()->user->isVisiblyOnline(),
                 ],
                 'is_mine' => $stories->first()->user_id === $viewer->id,
                 'stories' => $stories->map(fn (Story $story) => [

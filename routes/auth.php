@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\OnlineStatusToggleController;
 use App\Http\Controllers\PasswordResetRequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profil', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profil/mot-de-passe', [PasswordController::class, 'update'])->name('password.update');
+    Route::patch('profil/statut-en-ligne', [OnlineStatusToggleController::class, 'toggle'])->name('profile.toggle-online-status');
     Route::post('profil/demande-reinitialisation', [PasswordResetRequestController::class, 'store'])
         ->middleware('throttle:5,60')
         ->name('password.reset-request');

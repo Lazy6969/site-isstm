@@ -83,7 +83,7 @@ class FriendSuggestionService
             'filiere' => $preinscription?->filiere?->nom_fr,
             'status' => $this->relationshipStatus($friendRequest, $viewer),
             'friend_request_id' => $friendRequest?->id,
-            'online' => $candidate->isOnline(),
+            'online' => $candidate->isVisiblyOnline(),
         ];
     }
 

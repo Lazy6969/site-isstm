@@ -176,11 +176,12 @@ function SharedPostPreview({ post }) {
     return (
         <div className="mt-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
             <div className="flex items-center gap-2.5">
-                <Link href={`/profil/${post.user.id}`}>
+                <Link href={`/profil/${post.user.id}`} className="relative flex-shrink-0">
                     <Avatar className="h-7 w-7">
                         <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                         <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                     </Avatar>
+                    {post.user.online && <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
                 </Link>
                 <div>
                     <Link href={`/profil/${post.user.id}`} className="text-sm font-semibold text-slate-800 hover:text-isstm-navy dark:text-slate-100">
@@ -280,11 +281,12 @@ export default function PostCard({ post, highlightCommentId = null }) {
         <Card className="p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2.5">
-                    <Link href={`/profil/${post.user.id}`} className="flex-shrink-0">
+                    <Link href={`/profil/${post.user.id}`} className="relative flex-shrink-0">
                         <Avatar className="h-9 w-9">
                             <AvatarImage src={post.user.avatar_path ? `/storage/${post.user.avatar_path}` : undefined} alt="" />
                             <AvatarFallback>{post.user.name?.[0]}</AvatarFallback>
                         </Avatar>
+                        {post.user.online && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800" />}
                     </Link>
                     <div className="min-w-0">
                         <p className="font-semibold text-slate-800 dark:text-slate-100">

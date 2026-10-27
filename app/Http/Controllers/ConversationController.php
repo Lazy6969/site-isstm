@@ -72,7 +72,7 @@ class ConversationController extends Controller
         $other = $conversation->otherUser($user);
 
         return response()->json([
-            'online' => $other->isOnline(),
+            'online' => $other->isVisiblyOnline(),
             'typing' => Cache::has($this->typingCacheKey($conversation, $other)),
         ]);
     }
@@ -127,7 +127,7 @@ class ConversationController extends Controller
                 'id' => $friend->id,
                 'name' => $friend->name,
                 'avatar_path' => $friend->avatar_path,
-                'online' => $friend->isOnline(),
+                'online' => $friend->isVisiblyOnline(),
             ]),
         ];
 
@@ -139,7 +139,7 @@ class ConversationController extends Controller
                     'id' => $active->otherUser($user)->id,
                     'name' => $active->otherUser($user)->name,
                     'avatar_path' => $active->otherUser($user)->avatar_path,
-                    'online' => $active->otherUser($user)->isOnline(),
+                    'online' => $active->otherUser($user)->isVisiblyOnline(),
                 ],
             ];
 

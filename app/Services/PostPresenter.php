@@ -66,6 +66,7 @@ class PostPresenter
                 'name' => $post->user->name,
                 'avatar_path' => $post->user->avatar_path,
                 'role_label' => $post->user->role->label(),
+                'online' => $post->user->isVisiblyOnline(),
             ],
             'can_manage' => ! $nested && $viewer !== null && ($viewer->isAdministrator() || $post->user_id === $viewer->id),
             'media' => $post->media->map(fn (PostMedia $media) => [
@@ -118,6 +119,7 @@ class PostPresenter
                 'id' => $comment->user->id,
                 'name' => $comment->user->name,
                 'avatar_path' => $comment->user->avatar_path,
+                'online' => $comment->user->isVisiblyOnline(),
             ],
             'replies' => $comment->replies->map(fn (Comment $reply) => $this->presentComment($reply, $viewer)),
         ];

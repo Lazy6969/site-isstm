@@ -36,7 +36,7 @@ class ConversationListBuilder
                     'id' => $conversation->otherUser($user)->id,
                     'name' => $conversation->otherUser($user)->name,
                     'avatar_path' => $conversation->otherUser($user)->avatar_path,
-                    'online' => $conversation->otherUser($user)->isOnline(),
+                    'online' => $conversation->otherUser($user)->isVisiblyOnline(),
                 ],
                 'last_message' => $conversation->messages->first()?->body,
                 'last_message_at' => $conversation->messages->first()?->created_at,

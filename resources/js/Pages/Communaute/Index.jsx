@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Archive, Bookmark, Image as ImageIcon, LayoutDashboard } from 'lucide-react';
+import { Archive, Bookmark, Hand, Image as ImageIcon, LayoutDashboard, Moon, Sun } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import SitePreloader from '../../Components/Layout/SitePreloader';
@@ -11,16 +11,19 @@ import GroupsSidebar from '../../Components/Communaute/GroupsSidebar';
 import SuggestionsSidebar from '../../Components/Communaute/SuggestionsSidebar';
 import ProfileMiniCard from '../../Components/Communaute/ProfileMiniCard';
 import FriendsSidebar from '../../Components/Communaute/FriendsSidebar';
+import OnlineStatusBadge from '../../Components/Communaute/OnlineStatusBadge';
 import ComposePostModal from '../../Components/Communaute/ComposePostModal';
 import PostCardSkeleton from '../../Components/Loading/PostCardSkeleton';
 import { Avatar, AvatarImage, AvatarFallback } from '../../Components/ui/avatar';
 import { useTranslations } from '../../lib/useTranslations';
 import { greetingPeriod } from '../../lib/greeting';
 
+// Icon stands in for the emoji this greeting used to end with (👋/☀️/🌙) —
+// rendered as a lucide-react icon instead, see the <h1> below.
 const GREETINGS = {
-    matin: { key: 'communaute.salutation_matin', fallback: 'Bonjour {name} 👋' },
-    apresmidi: { key: 'communaute.salutation_apresmidi', fallback: 'Bonne après-midi {name} ☀️' },
-    soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name} 🌙' },
+    matin: { key: 'communaute.salutation_matin', fallback: 'Bonjour {name}', icon: Hand },
+    apresmidi: { key: 'communaute.salutation_apresmidi', fallback: 'Bonne après-midi {name}', icon: Sun },
+    soir: { key: 'communaute.salutation_soir', fallback: 'Bonsoir {name}', icon: Moon },
 };
 
 export default function Index({ posts, canPublish, postTypes, friends, conversations, suggestions, profile }) {
@@ -41,11 +44,11 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
         };
     }, []);
 
-    const greeting = useMemo(() => {
+    const { greeting, GreetingIcon } = useMemo(() => {
         const firstName = auth?.user?.name?.split(' ')[0] ?? '';
-        const { key, fallback } = GREETINGS[greetingPeriod()];
+        const { key, fallback, icon } = GREETINGS[greetingPeriod()];
 
-        return t(key, fallback).replace('{name}', firstName);
+        return { greeting: t(key, fallback).replace('{name}', firstName), GreetingIcon: icon };
     }, [auth?.user?.name, t]);
 
     function goToPage(url) {
@@ -59,7 +62,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
     }
 
     return (
-        <AppLayout>
+        <AppLayout fullWidth>
             <Head title="Communauté" />
 
             {feedPreloaderMounted && <SitePreloader hidden={feedPreloaderHidden} />}
@@ -67,11 +70,17 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
             <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-community-accent/15 via-isstm-gold/10 to-transparent p-6 dark:from-community-accent/20 dark:via-isstm-gold/10">
                 <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-community-accent/20 blur-3xl dark:bg-community-accent/25" aria-hidden="true" />
                 <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-isstm-gold/20 blur-3xl dark:bg-isstm-gold/15" aria-hidden="true" />
-                <h1 className="relative text-2xl font-bold text-isstm-navy dark:text-white">{greeting}</h1>
+                <div className="relative flex items-center justify-between gap-4">
+                    <h1 className="flex items-center gap-2 text-2xl font-bold text-isstm-navy dark:text-white">
+                        {greeting}
+                        <GreetingIcon className="h-6 w-6 flex-shrink-0 text-isstm-gold" aria-hidden="true" />
+                    </h1>
+                    <OnlineStatusBadge user={auth?.user} />
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_260px]">
-                <aside className="hidden lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:space-y-4 lg:overflow-y-auto lg:pb-4">
+            <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_280px]">
+                <aside className="scrollbar-hide hidden lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:space-y-4 lg:overflow-y-auto lg:pb-4">
                     <ProfileMiniCard profile={profile} />
                     <FriendsSidebar friends={friends ?? []} />
                     <nav className="space-y-1 rounded-2xl border border-slate-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -193,7 +202,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
             )}
                 </div>
 
-                <aside className="hidden xl:sticky xl:top-20 xl:block xl:max-h-[calc(100vh-6rem)] xl:space-y-4 xl:overflow-y-auto xl:pb-4">
+                <aside className="scrollbar-hide hidden xl:sticky xl:top-20 xl:block xl:max-h-[calc(100vh-6rem)] xl:space-y-4 xl:overflow-y-auto xl:pr-2 xl:pb-4">
                     <ShortcutsSidebar />
                     <MessagesSidebar conversations={conversations ?? []} />
                     <GroupsSidebar conversations={conversations ?? []} />

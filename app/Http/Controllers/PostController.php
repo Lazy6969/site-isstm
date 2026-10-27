@@ -52,6 +52,7 @@ class PostController extends Controller
                 'id' => $friend->id,
                 'name' => $friend->name,
                 'avatar_path' => $friend->avatar_path,
+                'online' => $friend->isVisiblyOnline(),
             ])->values(),
             // The left sidebar's own mini profile card — same shape as a friend
             // suggestion (see FriendSuggestionService::present), just presented

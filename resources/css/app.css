@@ -181,6 +181,20 @@ html.dark:has(.admin-shell)::-webkit-scrollbar-thumb:hover,
     background-color: rgba(255, 255, 255, 0.28);
 }
 
+/* Scrolling stays enabled, the scrollbar itself just isn't drawn — used by the
+   Communauté feed's two sticky sidebars (see Communaute/Index.jsx), which
+   scroll their own overflow instead of the page when their content runs
+   taller than the viewport. scrollbar-width/-ms-overflow-style are the
+   standard/legacy properties (Firefox, old Edge); ::-webkit-scrollbar is the
+   fallback for Chromium/Safari, which don't support scrollbar-width yet. */
+.scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
 /* Espace étudiant personal accent colors (see useAccentColor.js / Settings/Index.jsx).
    Picking one also overrides isstm-navy/-dark, but only inside .community-shell: this
    is what repaints the headings/links/buttons there (they're isstm-navy, not merely

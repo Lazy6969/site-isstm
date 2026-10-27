@@ -158,7 +158,7 @@ class ClassGroupController extends Controller
                 'id' => $friend->id,
                 'name' => $friend->name,
                 'avatar_path' => $friend->avatar_path,
-                'online' => $friend->isOnline(),
+                'online' => $friend->isVisiblyOnline(),
             ])->values(),
             'conversations' => app(ConversationListBuilder::class)->forUser($user)
                 ->filter(fn (array $item) => $item['kind'] === 'dm')
