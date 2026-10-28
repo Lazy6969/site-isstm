@@ -32,6 +32,8 @@ export function notificationLink(notification) {
             return '/console/reactivations';
         case 'demande_reinitialisation':
             return '/console/securite';
+        case 'fichier_a_valider':
+            return notification.document_category ? `/communaute-fichiers/${notification.document_category}s` : '/communaute';
         default:
             return '/notifications';
     }

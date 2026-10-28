@@ -32,6 +32,8 @@ function notificationText(notification) {
             return `${actor} a accepté votre demande d'ami`;
         case 'nouveau_message':
             return `${actor} vous a envoyé un message`;
+        case 'fichier_a_valider':
+            return `${actor} a envoyé un fichier à valider`;
         default:
             return `${actor} a publié dans le fil communautaire`;
     }

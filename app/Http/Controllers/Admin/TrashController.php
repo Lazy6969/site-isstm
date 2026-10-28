@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\ArchiveDossier;
 use App\Models\CampusBloc;
 use App\Models\Classe;
+use App\Models\CommunityDocument;
 use App\Models\Document;
 use App\Models\EcolagePayment;
 use App\Models\Evenement;
@@ -61,6 +62,7 @@ class TrashController extends Controller
         'journal' => ['model' => ActivityLog::class, 'permission' => 'activity-log.delete', 'label' => "Journal d'activité", 'title' => 'description', 'files' => []],
         'reactivations' => ['model' => ReactivationRequest::class, 'permission' => 'reactivations.manage', 'label' => 'Demande de réactivation', 'title' => null, 'files' => []],
         'resultats' => ['model' => ResultatAdmission::class, 'permission' => 'resultats.delete', 'label' => 'Résultat', 'title' => 'nom', 'files' => []],
+        'lecons-sujets' => ['model' => CommunityDocument::class, 'permission' => 'lecons-sujets.delete', 'label' => 'Leçon/Sujet', 'title' => 'title', 'files' => [['field' => 'file_path', 'folder' => 'lecons-sujets']]],
         'archives-resultats' => ['model' => ArchiveDossier::class, 'permission' => 'resultats.delete', 'label' => 'Dossier archivé', 'title' => 'nom', 'files' => []],
     ];
 

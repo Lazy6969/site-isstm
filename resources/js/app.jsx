@@ -34,7 +34,7 @@ function CommunitySkeletonBridge() {
     return navigatingToCommunity ? <CommunitySkeleton /> : null;
 }
 
-const COMMUNITY_PATHS = ['/communaute', '/amis', '/messages', '/groupes', '/notifications'];
+const COMMUNITY_PATHS = ['/communaute', '/communaute-fichiers', '/amis', '/messages', '/groupes', '/notifications'];
 
 // /profil (edit + public view) and /parametres already have their own clear
 // way back (a header/back link) and the account menu this group opens leads

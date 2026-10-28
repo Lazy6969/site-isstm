@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Archive, Bookmark, Hand, Image as ImageIcon, LayoutDashboard, Moon, Sun } from 'lucide-react';
+import { Archive, Bookmark, BookOpen, FileText, Hand, Image as ImageIcon, LayoutDashboard, Moon, Sun } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import AppLayout from '../../Components/Layout/AppLayout';
 import SitePreloader from '../../Components/Layout/SitePreloader';
@@ -65,7 +65,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
         <AppLayout fullWidth>
             <Head title="Communauté" />
 
-            {feedPreloaderMounted && <SitePreloader hidden={feedPreloaderHidden} />}
+            {feedPreloaderMounted && <SitePreloader hidden={feedPreloaderHidden} logo="/images/isstmeet-logo.png" />}
 
             <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-community-accent/15 via-isstm-gold/10 to-transparent p-6 dark:from-community-accent/20 dark:via-isstm-gold/10">
                 <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-community-accent/20 blur-3xl dark:bg-community-accent/25" aria-hidden="true" />
@@ -107,14 +107,28 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
                             <LayoutDashboard className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                             {t('nav.tableau_bord', 'Tableau de bord')}
                         </Link>
+                        <Link
+                            href="/communaute-fichiers/lecons"
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                        >
+                            <BookOpen className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {t('communaute.lecons_court', 'Leçons')}
+                        </Link>
+                        <Link
+                            href="/communaute-fichiers/sujets"
+                            className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                        >
+                            <FileText className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                            {t('communaute.sujets_court', 'Sujets')}
+                        </Link>
                     </nav>
                 </aside>
 
                 <div className="min-w-0">
-                    <div className="mb-4 flex gap-4 overflow-x-auto pb-1 lg:hidden">
+                    <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
                         <Link
                             href="/communaute/enregistres"
-                            className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-isstm-navy transition hover:border-isstm-navy/40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         >
                             <Bookmark className="h-4 w-4" aria-hidden="true" />
                             {t('communaute.enregistres_court', 'Enregistrés')}
@@ -122,7 +136,7 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
                         {canPublish && (
                             <Link
                                 href="/communaute/archives"
-                                className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                                className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-isstm-navy transition hover:border-isstm-navy/40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                             >
                                 <Archive className="h-4 w-4" aria-hidden="true" />
                                 {t('communaute.archives_court', 'Archivés')}
@@ -130,10 +144,24 @@ export default function Index({ posts, canPublish, postTypes, friends, conversat
                         )}
                         <Link
                             href="/tableau-de-bord"
-                            className="flex flex-shrink-0 items-center gap-1.5 text-sm font-medium text-isstm-navy hover:underline dark:text-white"
+                            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-isstm-navy transition hover:border-isstm-navy/40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         >
                             <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
                             {t('nav.tableau_bord', 'Tableau de bord')}
+                        </Link>
+                        <Link
+                            href="/communaute-fichiers/lecons"
+                            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-isstm-navy transition hover:border-isstm-navy/40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        >
+                            <BookOpen className="h-4 w-4" aria-hidden="true" />
+                            {t('communaute.lecons_court', 'Leçons')}
+                        </Link>
+                        <Link
+                            href="/communaute-fichiers/sujets"
+                            className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-isstm-navy transition hover:border-isstm-navy/40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                        >
+                            <FileText className="h-4 w-4" aria-hidden="true" />
+                            {t('communaute.sujets_court', 'Sujets')}
                         </Link>
                     </div>
 

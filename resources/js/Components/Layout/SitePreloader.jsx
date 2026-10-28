@@ -11,14 +11,14 @@ import { useTranslations } from '../../lib/useTranslations';
  * can never trap this `position: fixed` overlay inside a card's box — the
  * same issue MediaLightbox works around.
  */
-export default function SitePreloader({ hidden = false }) {
+export default function SitePreloader({ hidden = false, logo = '/images/logo-isstm.svg' }) {
     const { t } = useTranslations();
 
     return createPortal(
         <div className={`site-preloader${hidden ? ' is-hidden' : ''}`} aria-hidden="true">
             <div className="site-preloader-visual">
                 <div className="site-preloader-ring" />
-                <img src="/images/logo-isstm.svg" alt="ISSTM" className="site-preloader-logo" />
+                <img src={logo} alt="ISSTM" className="site-preloader-logo" />
             </div>
             <p className="site-preloader-text">
                 {t('preloader.chargement', 'Chargement')}

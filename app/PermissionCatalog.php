@@ -83,6 +83,16 @@ class PermissionCatalog
     public const SECURITY = ['security.manage'];
 
     /**
+     * Leçons/Sujets in the community feed's sidebar: any community member can
+     * upload one (gated by `access:community.post`, not a permission of its
+     * own — see routes/web.php), but approving/rejecting it, or deleting it
+     * from the Corbeille, is Super Admin only by default.
+     *
+     * @var array<int, string>
+     */
+    public const COMMUNITY_DOCUMENTS = ['lecons-sujets.moderate', 'lecons-sujets.delete'];
+
+    /**
      * Deleting an account from the "Gestion des comptes" screen — a step
      * above `users.edit`, which only lets an admin correct a profile.
      *
@@ -118,6 +128,7 @@ class PermissionCatalog
             ...self::ACCOUNTS,
             ...self::SECURITY,
             ...self::ACTIVITY_LOG,
+            ...self::COMMUNITY_DOCUMENTS,
             ...array_merge(...array_values(self::INHERITED)),
         ]));
     }

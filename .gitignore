@@ -30,3 +30,7 @@ Thumbs.db
 
 # Fichier local avec identifiants : ne jamais versionner
 clé
+
+# Démarrage automatique du worker de file d'attente (propre à cette machine)
+/queue-worker.bat
+/queue-worker-silent.vbs

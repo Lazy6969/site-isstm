@@ -105,6 +105,7 @@ const CATEGORIES = [
             ['roles', 'Rôles & permissions', 'Droits de chaque rôle.'],
             ['security', 'Sécurité', 'Réinitialisation des mots de passe des étudiants.'],
             ['activity-log', "Journal d'activité", "Historique des actions de l'administration."],
+            ['lecons-sujets', 'Leçons & Sujets', "Validation des fichiers que les étudiants et enseignants partagent dans le fil communautaire."],
             ['settings', 'Apparence & réglages', "Couleurs et options de l'interface."],
         ],
     },

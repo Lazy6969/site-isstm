@@ -43,6 +43,8 @@ export default function Index({ groups, pagination }) {
                 return `${actor} ${t('notifications.ami_accepte', 'a accepté votre demande d\'ami')}`;
             case 'nouveau_message':
                 return `${actor} ${t('notifications.nouveau_message', 'vous a envoyé un message')}`;
+            case 'fichier_a_valider':
+                return `${actor} ${t('notifications.fichier_a_valider', 'a envoyé un fichier à valider')}`;
             default:
                 return `${actor} ${t('notifications.a_publie', 'a publié :')} « ${notification.post_excerpt ?? ''} »`;
         }

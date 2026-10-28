@@ -128,6 +128,9 @@ class NotificationController extends Controller
                 'conversation_id' => $notification->data['conversation_id'] ?? null,
                 'preinscription_id' => $notification->data['preinscription_id'] ?? null,
                 'candidate_name' => $notification->data['candidate_name'] ?? null,
+                'document_id' => $notification->data['document_id'] ?? null,
+                'document_category' => $notification->data['document_category'] ?? null,
+                'document_title' => $notification->data['document_title'] ?? null,
             ];
         });
     }

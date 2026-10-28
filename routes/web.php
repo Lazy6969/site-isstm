@@ -10,6 +10,7 @@ use App\Http\Controllers\ClassGroupMessageForwardController;
 use App\Http\Controllers\ClassGroupMessageReactionController;
 use App\Http\Controllers\ClassGroupPresenceController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommunityDocumentController;
 use App\Http\Controllers\CommunitySearchController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ConversationController;
@@ -191,6 +192,14 @@ Route::middleware(['auth', 'role:admin,enseignant,etudiant', 'activity'])->group
     Route::get('stories/{story}/reactions', [StoryReactionListController::class, 'index'])->middleware('access:stories.view')->name('stories.reactions');
     Route::post('stories/{story}/repondre', [StoryReplyController::class, 'store'])->middleware('access:messages.send')->name('stories.reply');
     Route::delete('stories/{story}', [StoryController::class, 'destroy'])->name('stories.destroy');
+
+    Route::get('communaute-fichiers/lecons', [CommunityDocumentController::class, 'lecons'])->middleware('access:community.view')->name('community-documents.lecons');
+    Route::get('communaute-fichiers/sujets', [CommunityDocumentController::class, 'sujets'])->middleware('access:community.view')->name('community-documents.sujets');
+    Route::post('communaute-fichiers', [CommunityDocumentController::class, 'store'])->middleware('access:community.post')->name('community-documents.store');
+    Route::put('communaute-fichiers/{communityDocument}', [CommunityDocumentController::class, 'update'])->middleware('access:community.post')->name('community-documents.update');
+    Route::delete('communaute-fichiers/{communityDocument}', [CommunityDocumentController::class, 'destroy'])->middleware('access:community.post')->name('community-documents.destroy');
+    Route::post('communaute-fichiers/{communityDocument}/approuver', [CommunityDocumentController::class, 'approve'])->middleware('can:lecons-sujets.moderate')->name('community-documents.approve');
+    Route::post('communaute-fichiers/{communityDocument}/rejeter', [CommunityDocumentController::class, 'reject'])->middleware('can:lecons-sujets.moderate')->name('community-documents.reject');
 
     Route::get('parametres', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('tableau-de-bord', [DashboardController::class, 'index'])->name('dashboard.index');

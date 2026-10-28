@@ -23,6 +23,7 @@ const HIDDEN_PREFIXES = [
     '/reinscription',
     '/mon-dossier',
     '/communaute',
+    '/communaute-fichiers',
     '/messages',
     '/groupes',
     '/profil',

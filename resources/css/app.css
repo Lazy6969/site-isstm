@@ -360,6 +360,57 @@ html[data-community-accent='amber'] .community-shell { --color-isstm-navy: #d977
     }
 }
 
+/* Lecons/Sujets banner photo (see Communaute/Documents.jsx) — object-contain
+   leaves a hard rectangular silhouette where the photo meets the navy
+   background on its left/right; a mask fades both edges to transparent so
+   the photo blends in instead of reading as a pasted sticker. A slow,
+   barely-there zoom/pan keeps the banner from feeling like a static image. */
+.lecons-sujets-banner-img {
+    mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    animation: lecons-sujets-banner-pan 22s ease-in-out infinite alternate;
+}
+
+@keyframes lecons-sujets-banner-pan {
+    from {
+        transform: scale(1.04) translateX(-0.5%);
+    }
+    to {
+        transform: scale(1.1) translateX(0.5%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lecons-sujets-banner-img {
+        animation: none;
+    }
+}
+
+/* Decorative stationery floating over the same two banners (see
+   BannerFloatingIcons in Communaute/Documents.jsx) — each icon sets its own
+   animation-delay/-duration inline so the set drifts out of sync instead of
+   bobbing in lockstep. */
+.lecons-sujets-float-icon {
+    animation-name: lecons-sujets-icon-float;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+@keyframes lecons-sujets-icon-float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(8deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lecons-sujets-float-icon {
+        animation: none;
+    }
+}
+
 /* Per-letter reveal (see LetterRevealText.jsx) — each character fades/slides
    in with its own animation-delay set inline, so this single rule staggers
    the whole phrase. */
