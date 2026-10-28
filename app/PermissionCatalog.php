@@ -101,6 +101,17 @@ class PermissionCatalog
     public const ACCOUNTS = ['users.delete'];
 
     /**
+     * The Maintenance screen's "Maintenance des données" panel: exporting a
+     * full SQL dump, wiping every bit of site data, and pulling + building +
+     * migrating the latest code. Far more dangerous than the rest of
+     * Maintenance (`settings.manage`), so it is its own permission set and
+     * stays Super Admin only by default.
+     *
+     * @var array<int, string>
+     */
+    public const SYSTEMDATA = ['systemdata.export', 'systemdata.wipe', 'systemdata.update'];
+
+    /**
      * Finer scolarité actions, split out of the broader permissions below.
      *
      * @var array<string, array<int, string>> existing permission => new ones a role holding it inherits
@@ -129,6 +140,7 @@ class PermissionCatalog
             ...self::SECURITY,
             ...self::ACTIVITY_LOG,
             ...self::COMMUNITY_DOCUMENTS,
+            ...self::SYSTEMDATA,
             ...array_merge(...array_values(self::INHERITED)),
         ]));
     }

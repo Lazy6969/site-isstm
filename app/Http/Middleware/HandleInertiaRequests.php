@@ -53,6 +53,10 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'status' => fn () => $request->session()->get('status'),
                 'error' => fn () => $request->session()->get('error'),
+                // The step-by-step log from "Mettre à jour le site" (see
+                // SystemDataController::update), shown in a results panel on
+                // Admin/Settings/Maintenance — null everywhere else.
+                'systemUpdateLog' => fn () => $request->session()->get('systemUpdateLog'),
             ],
             // Counts shown as bubbles next to admin sidebar entries — only computed
             // for staff who can open the page the bubble points to.

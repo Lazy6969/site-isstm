@@ -107,6 +107,7 @@ const CATEGORIES = [
             ['activity-log', "Journal d'activité", "Historique des actions de l'administration."],
             ['lecons-sujets', 'Leçons & Sujets', "Validation des fichiers que les étudiants et enseignants partagent dans le fil communautaire."],
             ['settings', 'Apparence & réglages', "Couleurs et options de l'interface."],
+            ['systemdata', 'Maintenance des données', "Export complet de la base, suppression de toutes les données du site et mise à jour du code."],
         ],
     },
     {
@@ -184,6 +185,9 @@ const PERMISSION_LABELS = {
     'materiel.loan': ['Prêter', 'Enregistrer un prêt et son retour.'],
     'materiel.maintain': ['Maintenance', 'Déclarer une panne et suivre les interventions.'],
     'dashboard.view': ['Voir le tableau de bord', 'Accéder à la page d’accueil de la console.'],
+    'systemdata.export': ['Exporter la base de données', 'Télécharger un export SQL complet de la base de données.'],
+    'systemdata.wipe': ['Supprimer toutes les données', 'Vider toutes les données du site (le fil communautaire, les préinscriptions, etc.), en conservant les comptes admin.'],
+    'systemdata.update': ['Mettre à jour le site', 'Récupérer et appliquer la dernière version du code (git pull, dépendances, build, migrations).'],
 };
 
 const ACTION_ORDER = Object.keys(ACTIONS);

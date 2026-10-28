@@ -1,10 +1,29 @@
 import { useMemo, useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
-import { Check, DoorClosed, DoorOpen, Eye, GraduationCap, Globe, Save, Wrench } from 'lucide-react';
+import { router, useForm, usePage } from '@inertiajs/react';
+import {
+    AlertTriangle,
+    Check,
+    CheckCircle2,
+    Database,
+    DoorClosed,
+    DoorOpen,
+    Download,
+    Eye,
+    GraduationCap,
+    Globe,
+    Loader2,
+    RefreshCw,
+    Save,
+    Trash2,
+    Wrench,
+    XCircle,
+} from 'lucide-react';
 import AdminLayout from '../../../Components/Layout/AdminLayout';
 import { Label } from '../../../Components/ui/label';
 import { Input } from '../../../Components/ui/input';
 import { Textarea } from '../../../Components/ui/textarea';
+import { Button } from '../../../Components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../../Components/ui/dialog';
 import { cn } from '../../../lib/utils';
 import { useTranslations } from '../../../lib/useTranslations';
 
@@ -167,7 +186,137 @@ function Counter({ value, max }) {
     );
 }
 
-export default function Maintenance({ settings, templates, inscriptionSettings, admissionsOpen }) {
+const ACTION_TONES = {
+    green: 'from-emerald-500 to-teal-500 shadow-emerald-500/25 hover:shadow-emerald-500/35',
+    red: 'from-rose-500 to-red-600 shadow-rose-500/25 hover:shadow-rose-500/35',
+    sky: 'from-sky-500 to-indigo-500 shadow-sky-500/25 hover:shadow-sky-500/35',
+};
+
+/** One big, colored call-to-action tile — used for the 3 data-maintenance actions. */
+function BigActionButton({ icon: Icon, label, description, tone, href, onClick, disabled, loading }) {
+    const className = cn(
+        'flex w-full items-center gap-4 rounded-2xl bg-gradient-to-br p-5 text-left text-white shadow-lg transition duration-200 hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60 disabled:hover:translate-y-0',
+        ACTION_TONES[tone],
+    );
+
+    const content = (
+        <>
+            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-white/20 ring-1 ring-white/30">
+                {loading ? <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" /> : <Icon className="h-6 w-6" aria-hidden="true" />}
+            </span>
+            <span className="min-w-0">
+                <span className="block text-base font-bold">{label}</span>
+                <span className="mt-0.5 block text-sm text-white/85">{description}</span>
+            </span>
+        </>
+    );
+
+    if (href) {
+        return (
+            <a href={href} className={className}>
+                {content}
+            </a>
+        );
+    }
+
+    return (
+        <button type="button" onClick={onClick} disabled={disabled} className={className}>
+            {content}
+        </button>
+    );
+}
+
+/** Typed-confirmation dialog for the irreversible "wipe everything" action. */
+function WipeDataDialog({ open, onClose }) {
+    const { t } = useTranslations();
+    const [confirmation, setConfirmation] = useState('');
+    const [processing, setProcessing] = useState(false);
+    const phrase = 'SUPPRIMER';
+    const ready = confirmation.trim() === phrase;
+
+    function submit() {
+        setProcessing(true);
+        router.delete('/console/settings/maintenance/data/wipe', {
+            data: { confirmation },
+            preserveScroll: true,
+            onFinish: () => {
+                setProcessing(false);
+                setConfirmation('');
+                onClose();
+            },
+        });
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={(next) => !next && !processing && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-rose-600">
+                        <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+                        {t('admin.auto.supprimer_toutes_les_donnees_du_site_1a2b', 'Supprimer toutes les données du site ?')}
+                    </DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-admin-text-secondary">
+                    Cette action supprime définitivement le fil communautaire, les préinscriptions, les messages, le matériel et toutes les autres données du site. Les comptes admin sont conservés pour que vous puissiez continuer à vous connecter. Une sauvegarde automatique est enregistrée sur le serveur avant la suppression.
+                </p>
+                <div>
+                    <Label htmlFor="wipe-confirmation">
+                        Tapez <span className="font-mono font-bold text-rose-600">{phrase}</span> pour confirmer
+                    </Label>
+                    <Input
+                        id="wipe-confirmation"
+                        value={confirmation}
+                        onChange={(e) => setConfirmation(e.target.value)}
+                        autoComplete="off"
+                        className="mt-1.5 rounded-xl"
+                    />
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="ghost" onClick={onClose} disabled={processing} className="text-admin-text">
+                        Annuler
+                    </Button>
+                    <Button
+                        type="button"
+                        disabled={!ready || processing}
+                        onClick={submit}
+                        className="bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50"
+                    >
+                        {processing ? 'Suppression…' : 'Supprimer définitivement'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+/** Step-by-step result of "Mettre à jour le site" (flash.systemUpdateLog). */
+function UpdateLogPanel({ log }) {
+    if (!log?.length) return null;
+
+    return (
+        <div className="space-y-1.5 rounded-2xl border border-admin-border bg-admin-card p-4 shadow-sm">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-admin-text-secondary">Résultat de la mise à jour</p>
+            {log.map((step, i) => (
+                <div key={i} className="rounded-xl border border-admin-border/60 bg-admin-hover/40 p-3">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-admin-text">
+                        {step.status === 'success' && <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-emerald-500" aria-hidden="true" />}
+                        {step.status === 'failed' && <XCircle className="h-4 w-4 flex-shrink-0 text-rose-500" aria-hidden="true" />}
+                        {step.status === 'skipped' && <span className="h-4 w-4 flex-shrink-0 rounded-full border border-admin-border" />}
+                        <span className="font-mono">{step.label}</span>
+                        {step.status === 'skipped' && <span className="text-xs font-normal text-admin-muted">(ignorée)</span>}
+                    </div>
+                    {step.output && (
+                        <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-slate-900 p-2.5 text-[11px] leading-relaxed text-slate-200">
+                            {step.output}
+                        </pre>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
+
+export default function Maintenance({ settings, templates, inscriptionSettings, admissionsOpen, can }) {
     const { t } = useTranslations();
     const form = useForm({
         enabled: settings.enabled,
@@ -177,6 +326,15 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
     });
     const [previewKey, setPreviewKey] = useState(0);
     const [tab, setTab] = useState('maintenance');
+    const { flash } = usePage().props;
+    const [wipeDialogOpen, setWipeDialogOpen] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const canSeeDataPanel = can?.exportData || can?.wipeData || can?.updateSite;
+
+    function updateSite() {
+        setUpdating(true);
+        router.post('/console/settings/maintenance/data/update', {}, { preserveScroll: true, onFinish: () => setUpdating(false) });
+    }
 
     const inscriptionForm = useForm({
         closed: inscriptionSettings.closed,
@@ -243,6 +401,9 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
         { key: 'maintenance', icon: Globe, title: t('admin.auto.site_public_5b01', 'Site public'), state: form.data.enabled ? 'En maintenance' : 'Accessible à tous', good: !form.data.enabled },
         { key: 'inscriptions', icon: inscriptionForm.data.closed ? DoorClosed : DoorOpen, title: t('admin.auto.preinscription_reactivation_029f', 'Préinscription & réactivation'), state: inscriptionForm.data.closed ? 'Fermées' : 'Ouvertes', good: !inscriptionForm.data.closed },
         { key: 'admissions', icon: GraduationCap, title: t('admin.auto.admissions_fff3', 'Admissions'), state: admissionsOpenState ? 'Ouvertes' : 'Fermées', good: admissionsOpenState },
+        ...(canSeeDataPanel
+            ? [{ key: 'donnees', icon: Database, title: t('admin.auto.maintenance_des_donnees_7c3d', 'Maintenance des données'), state: 'Export · suppression · mise à jour', good: true }]
+            : []),
     ];
 
     return (
@@ -394,6 +555,58 @@ export default function Maintenance({ settings, templates, inscriptionSettings, 
                     </p>
                 </div>
             )}
+
+            {tab === 'donnees' && canSeeDataPanel && (
+                <div className="space-y-5">
+                    <SectionHeader
+                        icon={Database}
+                        title={t('admin.auto.maintenance_des_donnees_7c3d', 'Maintenance des données')}
+                        description="Export complet de la base de données, suppression de toutes les données du site et mise à jour du code — à utiliser avec précaution, réservé au Super Admin."
+                    />
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        {can?.exportData && (
+                            <BigActionButton
+                                icon={Download}
+                                label="Exporter la base de données"
+                                description="Télécharge un fichier .sql complet, réutilisable pour restaurer ou dupliquer la base."
+                                tone="green"
+                                href="/console/settings/maintenance/data/export"
+                            />
+                        )}
+
+                        {can?.updateSite && (
+                            <BigActionButton
+                                icon={RefreshCw}
+                                label="Mettre à jour le site"
+                                description="Récupère la dernière version du code, réinstalle les dépendances, reconstruit le front et applique les migrations."
+                                tone="sky"
+                                onClick={updateSite}
+                                disabled={updating}
+                                loading={updating}
+                            />
+                        )}
+
+                        {can?.wipeData && (
+                            <BigActionButton
+                                icon={Trash2}
+                                label="Supprimer toutes les données du site"
+                                description="Vide le fil communautaire, les préinscriptions, les messages, etc. Les comptes admin sont conservés."
+                                tone="red"
+                                onClick={() => setWipeDialogOpen(true)}
+                            />
+                        )}
+                    </div>
+
+                    <UpdateLogPanel log={flash?.systemUpdateLog} />
+
+                    <p className="rounded-2xl border border-dashed border-admin-border bg-admin-card px-4 py-3 text-xs text-admin-text-secondary">
+                        L'export et la suppression s'appuient sur mysqldump côté serveur. La mise à jour exécute <code className="font-mono">git pull</code>, <code className="font-mono">composer install</code>, <code className="font-mono">npm run build</code> puis les migrations — elle s'arrête à la première étape en échec.
+                    </p>
+                </div>
+            )}
+
+            <WipeDataDialog open={wipeDialogOpen} onClose={() => setWipeDialogOpen(false)} />
         </AdminLayout>
     );
 }

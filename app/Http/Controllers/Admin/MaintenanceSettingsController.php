@@ -15,7 +15,7 @@ use Inertia\Response;
 
 class MaintenanceSettingsController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('Admin/Settings/Maintenance', [
             'settings' => [
@@ -41,6 +41,14 @@ class MaintenanceSettingsController extends Controller
             // (see Components/Home/AdmissionsStatus.jsx), only this boolean
             // lives here and in the banner's own on-page toggle.
             'admissionsOpen' => Setting::get('admissions.open', 'true') === 'true',
+            // "Maintenance des données" panel — Super Admin only by default
+            // (see PermissionCatalog::SYSTEMDATA), so each button is gated on
+            // its own permission rather than the page's own `settings.manage`.
+            'can' => [
+                'exportData' => $request->user()->can('systemdata.export'),
+                'wipeData' => $request->user()->can('systemdata.wipe'),
+                'updateSite' => $request->user()->can('systemdata.update'),
+            ],
         ]);
     }
 
