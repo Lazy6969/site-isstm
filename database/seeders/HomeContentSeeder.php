@@ -508,9 +508,9 @@ class HomeContentSeeder extends Seeder
             // Bannière "Suivi de dossier" (entre Filières et Actualités)
             'accueil_suivi_titre' => ['Suivi de votre dossier', 'Track your application', 'Fanaraha-maso ny antontan-taratasinao'],
             'accueil_suivi_soustitre' => [
-                'Entrez votre numéro de dossier pour savoir où en est votre demande de préinscription.',
-                'Enter your file number to see where your pre-registration application stands.',
-                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny fizotry ny fangatahanao fisoratana anarana mialoha.",
+                'Entrez votre numéro de dossier pour savoir où en est votre demande de candidature.',
+                'Enter your file number to see where your application stands.',
+                "Ampidiro ny laharan'ny antontan-taratasinao mba hahafantarana ny fizotry ny fangatahanao.",
             ],
             'accueil_suivi_image_path' => ['images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg', 'images/suivi-dossier-bg.jpg'],
 

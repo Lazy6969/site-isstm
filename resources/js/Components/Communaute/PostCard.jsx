@@ -35,6 +35,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { useTranslations } from '../../lib/useTranslations';
 import { useConfirm } from '../../lib/useConfirm';
+import { useAutoplayVideos } from '../../lib/useAutoplayVideos';
 
 const REACTIONS = [
     { value: 'like', emoji: '👍', labelKey: 'communaute.jaime', label: "J'aime" },
@@ -50,6 +51,49 @@ function formatDate(dateString) {
 }
 
 const MAX_VISIBLE_MEDIA = 4;
+
+/**
+ * A feed video. When "Lecture automatique des vidéos" is on (see
+ * /parametres, useAutoplayVideos.js — same preference Reels.jsx uses), it
+ * plays on loop, muted, while mostly visible in the viewport and pauses
+ * otherwise; off, it stays paused, unmuted and plays once, exactly like a
+ * plain <video> left to the visitor to start by hand.
+ */
+function PostVideo({ path, className }) {
+    const [autoplay] = useAutoplayVideos();
+    const videoRef = useRef(null);
+
+    useEffect(() => {
+        const el = videoRef.current;
+        if (!el || !autoplay) return undefined;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    el.play().catch(() => {});
+                } else {
+                    el.pause();
+                }
+            },
+            { threshold: 0.5 },
+        );
+
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [autoplay]);
+
+    return (
+        <video
+            ref={videoRef}
+            src={path}
+            controls
+            loop={autoplay}
+            muted={autoplay}
+            playsInline
+            className={className}
+        />
+    );
+}
 
 function MediaGrid({ media, compact = false }) {
     const { t } = useTranslations();
@@ -124,9 +168,8 @@ function MediaGrid({ media, compact = false }) {
                             ))}
                             {m.type === 'video' && (
                                 <div className="relative">
-                                    <video
-                                        src={`/storage/${m.path}`}
-                                        controls
+                                    <PostVideo
+                                        path={`/storage/${m.path}`}
                                         className={`w-full ${media.length > 1 ? 'h-full object-cover' : compact ? 'max-h-60' : 'max-h-[420px]'}`}
                                     />
                                     <a
