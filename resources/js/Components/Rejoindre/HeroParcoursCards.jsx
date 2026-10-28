@@ -16,7 +16,7 @@ const CARDS = [
     {
         key: 'rejoindre_parcours_1',
         href: '/preinscription',
-        defaultLabel: 'Préinscription',
+        defaultLabel: 'Dossier candidat',
         descriptionKey: 'rejoindre.parcours_nouveau_candidat',
         defaultDescription: 'Nouveau candidat',
         defaultIcon: 'IdCard',

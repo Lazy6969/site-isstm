@@ -908,7 +908,7 @@ class HomeContentSeeder extends Seeder
             // text only here; icon/blur/position/size live in the `style`
             // column (see HeroParcoursCards.jsx), set by dragging/resizing
             // the card itself or via EditParcoursCardDialog, not seeded.
-            'rejoindre_parcours_1' => ['Préinscription', 'Pre-registration', 'Fisoratana anarana mialoha'],
+            'rejoindre_parcours_1' => ['Dossier candidat', 'Candidate file', "Antontan-taratasin'ny mpilatsaka"],
             // Was "Réinscription" — now the merged "Ancien étudiant" card
             // (see HeroParcoursCards.jsx); kept the same key so any style an
             // admin already set (position/size/blur) for this slot carries over.
